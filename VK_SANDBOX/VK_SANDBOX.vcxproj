@@ -150,6 +150,13 @@
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Engine\assets\shaders\compile.bat" />
+    <None Include="Engine\assets\shaders\frag.spv" />
+    <None Include="Engine\assets\shaders\shader.frag" />
+    <None Include="Engine\assets\shaders\shader.vert" />
+    <None Include="Engine\assets\shaders\vert.spv" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
