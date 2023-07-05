@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
