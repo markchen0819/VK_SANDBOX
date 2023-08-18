@@ -10,15 +10,13 @@
 
 IHCEngine::Core::Engine::Engine()
 {
-
+	// explicitly call Init & Shutdown
 }
 
 void IHCEngine::Core::Engine::Init()
 {
-	appWindow = std::make_shared<Window::AppWindow>("MARKENGINE", 800, 600);
-	renderSystem = std::make_shared<Graphics::RenderSystem>();
-
-
+	appWindow = std::make_unique<Window::AppWindow>("MARKAPP", 800, 600);
+	renderSystem = std::make_unique<Graphics::RenderSystem>();
 	renderSystem->Init(appWindow);
 	//application->Init();
 }
@@ -36,5 +34,4 @@ void IHCEngine::Core::Engine::Shutdown()
 {
 	//application->Shutdown();
 	renderSystem->Shutdown();
-	appWindow->Shutdown();
 }

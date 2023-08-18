@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\IHCPipeline.cpp" />
     <ClCompile Include="Engine\src\Window\AppWindow.cpp" />
     <ClCompile Include="Engine\src\Core\Engine.cpp" />
     <ClCompile Include="Engine\src\pch.cpp">
@@ -152,6 +153,8 @@
     <ClCompile Include="Application\src\TestApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\IHCPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\VKHelpers.h" />
     <ClInclude Include="Engine\src\Window\AppWindow.h" />
     <ClInclude Include="Engine\src\Core\Engine.h" />
     <ClInclude Include="Application\src\IApplication.h" />

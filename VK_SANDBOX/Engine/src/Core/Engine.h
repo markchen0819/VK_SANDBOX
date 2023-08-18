@@ -12,17 +12,18 @@ namespace IHCEngine::Core
 		void Update();
 		void Shutdown();
 
-		void SetApplication(std::shared_ptr<IApplication> application)
+		void SetApplication(std::unique_ptr<IApplication>& application)
 		{
-			this->application = application;
+			this->application = application.get();
 		}
 
 	private:
-		std::shared_ptr<IApplication> application;
+		
+		IApplication* application;
 
-		// All non-singleton engine subsystems
-		std::shared_ptr<IHCEngine::Window::AppWindow> appWindow;
-		std::shared_ptr<IHCEngine::Graphics::RenderSystem> renderSystem;
+		// Engine subsystems
+		std::unique_ptr<IHCEngine::Window::AppWindow> appWindow;
+		std::unique_ptr<IHCEngine::Graphics::RenderSystem> renderSystem;
 
 	};
 }
