@@ -18,7 +18,7 @@ namespace IHCEngine::Graphics
 
 		// no duplication
 		IHCSwapChain(const IHCSwapChain&) = delete;
-		void operator=(const IHCSwapChain&) = delete;
+		IHCSwapChain operator=(const IHCSwapChain&) = delete;
 
 		VkFramebuffer GetFrameBuffer(int index) { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() { return renderPass; }

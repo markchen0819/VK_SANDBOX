@@ -11,7 +11,7 @@ namespace IHCEngine::Graphics
         ~IHCDevice();
         // Not copyable 
         IHCDevice(const IHCDevice&) = delete;
-        IHCDevice& operator=(const IHCDevice&) = delete;
+        IHCDevice &operator=(const IHCDevice&) = delete;
 
 
         VkSurfaceKHR GetSurface() { return surface; }

@@ -34,8 +34,8 @@ namespace IHCEngine::Graphics
 		);
 		~IHCPipeline();
 		// no duplication
-		IHCPipeline(const IHCPipeline&) = delete; 
-		void operator=(const IHCPipeline&) = delete;
+		IHCPipeline(const IHCPipeline&) = delete;
+		IHCPipeline& operator=(const IHCPipeline&) = delete;
 
 		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height, IHCDevice& device);
 		void Bind(VkCommandBuffer commandBuffer);

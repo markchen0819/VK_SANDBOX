@@ -1,14 +1,13 @@
 #pragma once
 #include "../pch.h"
 #include <stb_image.h>
-#include <tiny_obj_loader.h>
 
 #include "../Window/AppWindow.h"
 #include "VKHelpers.h"
 #include "IHCDevice.h"
 #include "IHCPipeline.h"
 #include "IHCSwapChain.h"
-
+#include "IHCModel.h"
 
 const std::string MODEL_PATH = "Engine/assets/models/viking_room/viking_room.obj";
 const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
@@ -39,6 +38,8 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCSwapChain> ihcSwapChain;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
+        std::unique_ptr<IHCEngine::Graphics::IHCModel> ihcModel;
+
 
         void createPipelineLayout();
         void createPipeline();
@@ -73,7 +74,7 @@ namespace IHCEngine::Graphics
         //VkPipelineLayout pipelineLayout;
         // graphcis pipeline
         VkDescriptorSetLayout descriptorSetLayout;
-        VkPipeline graphicsPipeline;
+        //VkPipeline graphicsPipeline;
         //// Drawing
         //std::vector<VkFramebuffer> swapChainFramebuffers;
         //VkCommandPool commandPool;
@@ -81,10 +82,10 @@ namespace IHCEngine::Graphics
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
         // Shader data
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+        //VkBuffer vertexBuffer;
+        //VkDeviceMemory vertexBufferMemory;
+        //VkBuffer indexBuffer;
+        //VkDeviceMemory indexBufferMemory;
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
         std::vector<void*> uniformBuffersMapped;
@@ -572,75 +573,75 @@ namespace IHCEngine::Graphics
         //    // Render pass ends 
         //}
         // model
-        void loadModel()
-        {
-            tinyobj::attrib_t attrib; // positions, normals and texture coordinates
-            std::vector<tinyobj::shape_t> shapes; //separate objects and their faces
-            std::vector<tinyobj::material_t> materials;
-            std::string warn, err;
+        //void loadModel()
+        //{
+        //    tinyobj::attrib_t attrib; // positions, normals and texture coordinates
+        //    std::vector<tinyobj::shape_t> shapes; //separate objects and their faces
+        //    std::vector<tinyobj::material_t> materials;
+        //    std::string warn, err;
 
-            if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
-                throw std::runtime_error(warn + err);
-            }
+        //    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+        //        throw std::runtime_error(warn + err);
+        //    }
 
-            // combine all of the faces in the file into a single model,
-            // triangulation feature has already made sure that there are three vertices per face
-            std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+        //    // combine all of the faces in the file into a single model,
+        //    // triangulation feature has already made sure that there are three vertices per face
+        //    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-            for (const auto& shape : shapes)
-            {
-                for (const auto& index : shape.mesh.indices)
-                {
-                    Vertex vertex{};
+        //    for (const auto& shape : shapes)
+        //    {
+        //        for (const auto& index : shape.mesh.indices)
+        //        {
+        //            Vertex vertex{};
 
-                    vertex.pos =
-                    {
-                        attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2]
-                    };
+        //            vertex.pos =
+        //            {
+        //                attrib.vertices[3 * index.vertex_index + 0],
+        //                attrib.vertices[3 * index.vertex_index + 1],
+        //                attrib.vertices[3 * index.vertex_index + 2]
+        //            };
 
-                    vertex.texCoord =
-                    {
-                        attrib.texcoords[2 * index.texcoord_index + 0],
-                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                    };
+        //            vertex.texCoord =
+        //            {
+        //                attrib.texcoords[2 * index.texcoord_index + 0],
+        //                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+        //            };
 
-                    vertex.color = { 1.0f, 1.0f, 1.0f };
+        //            vertex.color = { 1.0f, 1.0f, 1.0f };
 
-                    if (uniqueVertices.count(vertex) == 0) {
-                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                        vertices.push_back(vertex);
-                    }
+        //            if (uniqueVertices.count(vertex) == 0) {
+        //                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+        //                vertices.push_back(vertex);
+        //            }
 
-                    indices.push_back(uniqueVertices[vertex]);
-                }
-            }
-        }
+        //            indices.push_back(uniqueVertices[vertex]);
+        //        }
+        //    }
+        //}
 
         // shader buffers
-        void createVertexBuffer()
-        {
-            VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        //void createVertexBuffer()
+        //{
+        //    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-            // temporary buffer accessed by CPU and GPU
-            VkBuffer stagingBuffer;
-            VkDeviceMemory stagingBufferMemory;
-            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        //    // temporary buffer accessed by CPU and GPU
+        //    VkBuffer stagingBuffer;
+        //    VkDeviceMemory stagingBufferMemory;
+        //    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-            // map temporary buffer memory to CPU address space, Copy vertex data to staging buffer
-            void* data;
-            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-            memcpy(data, vertices.data(), (size_t)bufferSize);
-            vkUnmapMemory(device, stagingBufferMemory);
+        //    // map temporary buffer memory to CPU address space, Copy vertex data to staging buffer
+        //    void* data;
+        //    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        //    memcpy(data, vertices.data(), (size_t)bufferSize);
+        //    vkUnmapMemory(device, stagingBufferMemory);
 
-            // actual vertex buffer, staging buffer to the vertex buffer by the GPU
-            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-            copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        //    // actual vertex buffer, staging buffer to the vertex buffer by the GPU
+        //    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+        //    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-            vkDestroyBuffer(device, stagingBuffer, nullptr);
-            vkFreeMemory(device, stagingBufferMemory, nullptr);
-        }
+        //    vkDestroyBuffer(device, stagingBuffer, nullptr);
+        //    vkFreeMemory(device, stagingBufferMemory, nullptr);
+        //}
         void createIndexBuffer()
         {
             VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
