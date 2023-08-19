@@ -1,6 +1,7 @@
 #pragma once
 #include "../pch.h"
 #include "VKHelpers.h"
+#include "IHCDevice.h"
 
 namespace IHCEngine::Graphics
 {
@@ -26,7 +27,7 @@ namespace IHCEngine::Graphics
 	{
 	public:
 		IHCPipeline(
-			const VkDevice& device,
+			IHCDevice& device,
 			const std::string& vertFilepath,
 			const std::string& fragFilepath,
 			const PipelineConfigInfo& configInfo
@@ -36,11 +37,12 @@ namespace IHCEngine::Graphics
 		IHCPipeline(const IHCPipeline&) = delete; 
 		void operator=(const IHCPipeline&) = delete;
 
-		static  PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
-	
+		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height, IHCDevice& device);
+		void Bind(VkCommandBuffer commandBuffer);
+
 	private:
 
-		const VkDevice& device; // retrieve from RenderSystem
+		IHCDevice& device; 
 		VkPipeline graphicsPipeline;
 		VkShaderModule vertShaderModule;
 		VkShaderModule fragShaderModule;

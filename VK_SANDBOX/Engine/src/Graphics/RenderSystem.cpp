@@ -22,27 +22,35 @@
 //    }
 //}
 
-void IHCEngine::Graphics::RenderSystem::Init(std::unique_ptr<Window::AppWindow>& w) : appWindow(*w)
+void IHCEngine::Graphics::RenderSystem::Init(std::unique_ptr<Window::AppWindow>& w) 
 {
+    appWindow = *w;
     initVulkan();
 }
+
 
 void IHCEngine::Graphics::RenderSystem::Update()
 {
     glfwPollEvents();
-    drawFrame();
+    DrawFrame();
+    //drawFrame();
 }
 
 void IHCEngine::Graphics::RenderSystem::Shutdown()
 {
-    vkDeviceWaitIdle(device); // sync then allowed to destroy
-    cleanup();
+    vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
+    //cleanup();
 }
 
 void IHCEngine::Graphics::RenderSystem::initVulkan()
 {
 
-    ihcdevice = std::make_unique<IHCEngine::Graphics::IHCDevice>(appWindow);
+    ihcDevice = std::make_unique<IHCEngine::Graphics::IHCDevice>(appWindow);
+    ihcSwapChain = std::make_unique<IHCEngine::Graphics::IHCSwapChain>(ihcDevice, appWindow);
+    createPipelineLayout(); // (CPU - shader stages, uniform buffers, samplers, and push constants)
+    createPipeline(); // ihcPipeline 
+    createCommandBuffers(); // record all the commands we want to execute
+
 
     //createInstance(); // connection to the Vulkan library
     //setupDebugMessenger(); // debug messenger for Vulkan.
@@ -53,13 +61,13 @@ void IHCEngine::Graphics::RenderSystem::initVulkan()
     //createLogicalDevice(); // Creates a logical device. communicate with the physical device.
 
 
-    createSwapChain(); // Creates a swap chain. Collection of images rendered into and display on surface.
-    createImageViews(); // Creates image views for the swap chain images. An image view describes how to access the image and which part of the image to access.
-    createRenderPass(); // Creates a render pass. A render pass describes the sequence of steps that will occur when rendering graphics, including how many color and depth buffers there will be, how many samples to use for each, and how to handle data throughout the rendering process.
+    //createSwapChain(); // Creates a swap chain. Collection of images rendered into and display on surface.
+    //createImageViews(); // Creates image views for the swap chain images. An image view describes how to access the image and which part of the image to access.
+   // createRenderPass(); // Creates a render pass. A render pass describes the sequence of steps that will occur when rendering graphics, including how many color and depth buffers there will be, how many samples to use for each, and how to handle data throughout the rendering process.
     createDescriptorSetLayout(); // Creates a layout for descriptor sets. The descriptor set layout describes the types of resources that will be accessed by the pipeline stages, and in what format and order.
     createGraphicsPipeline(); // Creates a graphics pipeline. This object encapsulates all the state related to rendering, including all the shader stages, fixed-function pipeline configurations, and the render pass description.
-    createColorResources(); // Creates color image resources. These resources are used to store the color buffer image for each frame.
-    createDepthResources(); // Creates depth image resources. These resources are used to store the depth buffer image for each frame.
+    //createColorResources(); // Creates color image resources. These resources are used to store the color buffer image for each frame.
+    //createDepthResources(); // Creates depth image resources. These resources are used to store the depth buffer image for each frame.
     createFramebuffers(); // Creates a framebuffer for each image in the swap chain. The framebuffer will contain all the color, depth and stencil buffer images that shaders write to when we render a frame.
     //createCommandPool(); // Creates a command pool. This is where we allocate command buffers, which are used to record rendering commands that we'll send to the GPU.
     createTextureImage(); // Creates a texture image. This is used to store the pixel data of our texture.
@@ -71,16 +79,22 @@ void IHCEngine::Graphics::RenderSystem::initVulkan()
     createUniformBuffers(); // Creates uniform buffers. These are used to store data that remains constant across all vertices in a draw call, such as transformation matrices.
     createDescriptorPool(); // Creates a descriptor pool. This is where we allocate descriptor sets, which are used to pass resources like buffers and images to the shaders.
     createDescriptorSets(); // Creates descriptor sets. Each set contains descriptors that reference the buffers and images the shaders will access.
-    createCommandBuffers(); // Creates command buffers. We record all the commands we want to execute, including rendering commands, into these buffers, and then submit them to the GPU.
+    //createCommandBuffers(); // Creates command buffers. We record all the commands we want to execute, including rendering commands, into these buffers, and then submit them to the GPU.
     createSyncObjects(); // Creates synchronization objects. These are used to coordinate the order of operations between multiple command buffers, to ensure that things happen in the right order.
 }
 void IHCEngine::Graphics::RenderSystem::cleanup()
 {
+    // NEW CODE HERE /////////////////////////////
+    vkDestroyPipelineLayout(ihcDevice->GetDevice(), pipelineLayout, nullptr);
+
+
+
+
     //clean VK
     //cleanupSwapChain();
 
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    //vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    //vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     //vkDestroyRenderPass(device, renderPass, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -126,6 +140,168 @@ void IHCEngine::Graphics::RenderSystem::cleanup()
     //vkDestroyInstance(instance, nullptr);
 
 }
+
+
+
+
+// NEW CODE HERE///////////////////////////////////////////////
+#pragma region Create PipelineLayout (for shaders interface) & Pipeline
+void IHCEngine::Graphics::RenderSystem::createPipelineLayout()
+{
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    //pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    //pipelineLayoutInfo.pushConstantRangeCount = 0;
+
+    if (vkCreatePipelineLayout(ihcDevice->GetDevice(), 
+        &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+}
+void IHCEngine::Graphics::RenderSystem::createPipeline()
+{
+    auto pipelineConfig = IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo
+    (ihcSwapChain->GetWidth(), appWindow.GetHeight(), *ihcDevice);
+    // appWindow.GetWidth() appWindow.GetHeight() might not match
+
+    pipelineConfig.renderPass = ihcSwapChain->GetRenderPass();
+    pipelineConfig.pipelineLayout = pipelineLayout;
+
+    ihcPipeline = std::make_unique<IHCEngine::Graphics::IHCPipeline>
+        (ihcDevice,
+            "Engine/assets/shaders/vert.spv",
+            "Engine/assets/shaders/frag.spv",
+            pipelineConfig
+        );
+}
+#pragma endregion
+
+#pragma region Create Command buffers (submit to swapchain execute on GPU) & record 
+void IHCEngine::Graphics::RenderSystem::createCommandBuffers()
+{
+    commandBuffers.resize(ihcSwapChain->GetImageCount());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;// can submit but cannot be called by other cmdbuffers
+    allocInfo.commandPool = ihcDevice->GetCommandPool();
+    allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+    if (vkAllocateCommandBuffers(ihcDevice->GetDevice(), &allocInfo,
+        commandBuffers.data()) != VK_SUCCESS) 
+    {
+        throw std::runtime_error("failed to allocate command buffers!");
+    }
+
+    for (int i = 0; i < commandBuffers.size(); ++i)
+    {
+        recordCommandBuffer(commandBuffers[i], i);
+    }
+
+}
+void IHCEngine::Graphics::RenderSystem::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+{
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    // Start recording
+    if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = ihcSwapChain->GetRenderPass();
+    renderPassInfo.framebuffer = ihcSwapChain->GetFrameBuffer(imageIndex);
+    renderPassInfo.renderArea.offset = { 0, 0 };
+    renderPassInfo.renderArea.extent = ihcSwapChain->GetSwapChainExtent(); 
+
+    // clear screen values
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+    //clearValues[0].depthStencil = X //depth attachment is 1 not 0
+    clearValues[1].depthStencil = { 1.0f, 0 };
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
+
+    ///////////////////////////////
+    ////// Render pass start //////
+    ///////////////////////////////
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    // Step 1: Bind pipeline
+    ihcPipeline->Bind(commandBuffer);
+
+    // Optional: dynamic viewport and scissor state
+    // for this pipeline to be dynamic.
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)ihcSwapChain->GetWidth();
+    viewport.height = (float)ihcSwapChain->GetHeight();
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+    VkRect2D scissor{};
+    scissor.offset = { 0, 0 };
+    scissor.extent = ihcSwapChain->GetSwapChainExtent();
+    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+    // Step 2: setup vertices
+    VkBuffer vertexBuffers[] = { vertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+    
+    // Step 3: Draw
+    //vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+    vkCmdEndRenderPass(commandBuffer);
+    /////////////////////////////
+    ////// Render pass end //////
+    /////////////////////////////
+    // End recording
+    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
+    {
+        throw std::runtime_error("failed to record command buffer!");
+    }
+}
+#pragma endregion
+
+#pragma region DrawFrame
+void IHCEngine::Graphics::RenderSystem::DrawFrame()
+{
+    uint32_t imageIndex;
+    VkResult result = ihcSwapChain->AcquireNextImage(&imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        recreateSwapChain();
+        return;
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    result = ihcSwapChain->SubmitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+        
+    bool framebufferResized = appWindow.IsWindowResized();
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    {
+        framebufferResized = false;
+        recreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
+}
+#pragma endregion
 
 
 #pragma region VK instance creation with debugging, extensions

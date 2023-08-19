@@ -1,6 +1,6 @@
 #include "IHCPipeline.h"
 
-IHCEngine::Graphics::IHCPipeline::IHCPipeline(const VkDevice& device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
+IHCEngine::Graphics::IHCPipeline::IHCPipeline(IHCDevice& device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
     : device(device)
 {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
@@ -8,8 +8,9 @@ IHCEngine::Graphics::IHCPipeline::IHCPipeline(const VkDevice& device, const std:
 IHCEngine::Graphics::IHCPipeline::~IHCPipeline()
 {
     // Delete shaders as they are linked
-    vkDestroyShaderModule(device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(device.GetDevice(), fragShaderModule, nullptr);
+    vkDestroyShaderModule(device.GetDevice(), vertShaderModule, nullptr);
+    vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
 }
 
 void IHCEngine::Graphics::IHCPipeline::createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
@@ -86,12 +87,12 @@ void IHCEngine::Graphics::IHCPipeline::createGraphicsPipeline(const std::string&
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 }
 
-IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height)
+IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height, IHCDevice& device)
 {
     PipelineConfigInfo configInfo{};
 
@@ -127,7 +128,7 @@ IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::defaul
     configInfo.multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     configInfo.multisampling.sampleShadingEnable = VK_TRUE; // enable sample shading in the pipeline //= VK_FALSE;
     configInfo.multisampling.minSampleShading = .2f; // min fraction for sample shading; closer to one is smoother
-    configInfo.multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;// msaaSamples; //= VK_SAMPLE_COUNT_1_BIT;
+    configInfo.multisampling.rasterizationSamples = device.GetMsaaSamples();//= VK_SAMPLE_COUNT_1_BIT;
 
     // Color blending
     configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -154,6 +155,12 @@ IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::defaul
     return configInfo;
 }
 
+void IHCEngine::Graphics::IHCPipeline::Bind(VkCommandBuffer commandBuffer)
+{
+    // graphics only now (compute/ raytracing not included)
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+}
+
 VkShaderModule IHCEngine::Graphics::IHCPipeline::createShaderModule(const std::vector<char>& code)
 {
     VkShaderModuleCreateInfo createInfo{};
@@ -162,7 +169,7 @@ VkShaderModule IHCEngine::Graphics::IHCPipeline::createShaderModule(const std::v
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+    if (vkCreateShaderModule(device.GetDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
         throw std::runtime_error("failed to create shader module!");
     }
 

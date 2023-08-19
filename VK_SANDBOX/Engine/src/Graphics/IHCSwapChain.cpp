@@ -53,11 +53,12 @@ void IHCEngine::Graphics::IHCSwapChain::cleanupSwapChain()
     }
 
     // colors
-
-    //vkDestroyImageView(device, colorImageView, nullptr);
-    //vkDestroyImage(device, colorImage, nullptr);
-    //vkFreeMemory(device, colorImageMemory, nullptr);
-
+    for (int i = 0; i < depthImages.size(); i++)
+    {
+        vkDestroyImageView(device.GetDevice(), colorImageViews[i], nullptr);
+        vkDestroyImage(device.GetDevice(), colorImages[i], nullptr);
+        vkFreeMemory(device.GetDevice(), colorImageMemorys[i], nullptr);
+    }
 
     // swapchain buffers
     for (auto framebuffer : swapChainFramebuffers)
@@ -65,6 +66,7 @@ void IHCEngine::Graphics::IHCSwapChain::cleanupSwapChain()
         vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
     }
 }
+
 
 void IHCEngine::Graphics::IHCSwapChain::init()
 {
@@ -78,7 +80,6 @@ void IHCEngine::Graphics::IHCSwapChain::init()
     //The framebuffer will contain all the color, depth and stencil buffer images that shaders write to when we render a frame.
     createSyncObjects(); // Coordinate order of operations between multiple command buffers, to ensure that things happen in the right order.
 }
-
 
 
 #pragma region Create swapchain (Setup a multi-buffering system)
@@ -203,16 +204,46 @@ VkExtent2D IHCEngine::Graphics::IHCSwapChain::chooseSwapExtent(const VkSurfaceCa
 }
 #pragma endregion
 
-#pragma region Create ImageViews (Accessing the image)
-#pragma endregion
-void IHCEngine::Graphics::IHCSwapChain::createImageViews()
+#pragma region Create ImageViews (Accessing the image) & color, depth images
+// create memory for image (swapchain not using)
+void IHCEngine::Graphics::IHCSwapChain::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 {
-    swapChainImageViews.resize(swapChainImages.size());
-    for (uint32_t i = 0; i < swapChainImages.size(); i++)
-    {
-        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    VkImageCreateInfo imageInfo{};
+    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth = 1;
+    imageInfo.mipLevels = mipLevels;
+    imageInfo.arrayLayers = 1;
+    imageInfo.format = format;
+    imageInfo.tiling = tiling;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage = usage;
+    imageInfo.samples = numSamples;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    // imageInfo.flags = 0;
+
+    if (vkCreateImage(device.GetDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create image!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device.GetDevice(), image, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = device.FindMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(device.GetDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate image memory!");
+    }
+    if (vkBindImageMemory(device.GetDevice(), image, imageMemory, 0) != VK_SUCCESS) {
+        throw std::runtime_error("failed to bind image memory!");
     }
 }
+// create single imageview (separated for swapchain & color & depth & texture)
 VkImageView IHCEngine::Graphics::IHCSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
 {
     VkImageViewCreateInfo viewInfo{};
@@ -228,32 +259,398 @@ VkImageView IHCEngine::Graphics::IHCSwapChain::createImageView(VkImage image, Vk
     viewInfo.subresourceRange.layerCount = 1;
 
     VkImageView imageView;
-    if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+    if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture image view!");
     }
 
     return imageView;
 }
-
-void IHCEngine::Graphics::IHCSwapChain::recreateSwapChain()
+// swapchain images
+void IHCEngine::Graphics::IHCSwapChain::createImageViews()
 {
-    // window minimize
-    int width = 0, height = 0;
-
-    GLFWwindow* window = appWindow->GetWindowHandle();
-
-    glfwGetFramebufferSize(window, &width, &height);
-    while (width == 0 || height == 0) {
-        glfwGetFramebufferSize(window, &width, &height);
-        glfwWaitEvents();
+    swapChainImageViews.resize(swapChainImages.size());
+    for (uint32_t i = 0; i < swapChainImages.size(); i++)
+    {
+        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
     }
-    // window screen size change
-    vkDeviceWaitIdle(device);
-    cleanupSwapChain();
-    createSwapChain();
-    createImageViews();
-    createColorResources();
-    createDepthResources();
-    createFramebuffers();
 }
+// msaa (color)
+void IHCEngine::Graphics::IHCSwapChain::createColorResources()
+{
+    VkFormat colorFormat = swapChainImageFormat;
+    VkExtent2D swapChainExtent = GetSwapChainExtent();
+
+    colorImages.resize(GetImageCount());
+    colorImageMemorys.resize(GetImageCount());
+    colorImageViews.resize(GetImageCount());
+
+    for (int i = 0; i < colorImages.size(); i++)
+    {
+        createImage(
+            swapChainExtent.width,
+            swapChainExtent.height,
+            1,
+            device.GetMsaaSamples(),
+            colorFormat,
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+            colorImages[i],
+            colorImageMemorys[i]);
+
+        depthImageViews[i] = createImageView(
+            colorImages[i],
+            colorFormat,
+            VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    }
+}
+// depth images
+void IHCEngine::Graphics::IHCSwapChain::createDepthResources()
+{
+    VkFormat depthFormat = findDepthFormat();
+    swapChainDepthFormat = depthFormat;
+    VkExtent2D swapChainExtent = GetSwapChainExtent();
+
+    depthImages.resize(GetImageCount());
+    depthImageMemorys.resize(GetImageCount());
+    depthImageViews.resize(GetImageCount());
+
+    for (int i = 0; i < depthImages.size(); i++)
+    {
+        createImage(
+            swapChainExtent.width, 
+            swapChainExtent.height, 
+            1, 
+            device.GetMsaaSamples(),
+            depthFormat, 
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            depthImages[i],
+            depthImageMemorys[i]);
+
+        depthImageViews[i] = createImageView(
+            depthImages[i],
+            depthFormat, 
+            VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    }
+}
+VkFormat IHCEngine::Graphics::IHCSwapChain::findDepthFormat()
+{
+    return device.FindSupportedFormat(
+        { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+    );
+}
+#pragma endregion
+
+#pragma region Create RenderPass (sequence of steps rendering graphics)
+// Steps breakdown:
+// 1. Attachments (format & properties for Color, Depth, Resolve(multisampled images into single-sample images, anti-aliasing))
+// 2. Attachment References (define how the attachment will be used)
+// 3. Subpass
+// 4. Dependencies (correct order of operations)
+// 5. Creating the Render Pass
+// RenderPass (rules ensuring that stages are completed), Pipeline (stages in order)
+void IHCEngine::Graphics::IHCSwapChain::createRenderPass()
+{
+    //   Describe the properties of the color attachment.
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format = swapChainImageFormat; // Format to match the swap chain images
+    colorAttachment.samples = device.GetMsaaSamples(); //VK_SAMPLE_COUNT_1_BIT; // No multisampling
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Clear the values to a constant at the start
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // Rendered content will be stored in memory and can be read later
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE; // We don't care about stencil
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // We don't care about stencil
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // We don't care about initial layout
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    //colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Images to be presented in the swap chain
+
+    VkAttachmentDescription depthAttachment{};
+    depthAttachment.format = findDepthFormat();
+    depthAttachment.samples = device.GetMsaaSamples(); //= VK_SAMPLE_COUNT_1_BIT;
+    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    // Resolve for MSAA
+    VkAttachmentDescription colorAttachmentResolve{};
+    colorAttachmentResolve.format = swapChainImageFormat;
+    colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    // Describe how the color attachment will be used in the subpass.
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0; // We have one attachment referenced by index 0
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Images will be used as color attachment
+
+    //
+    VkAttachmentReference depthAttachmentRef{};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference colorAttachmentResolveRef{};
+    colorAttachmentResolveRef.attachment = 2;
+    colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+
+    // Description of a subpass. A render pass can consist of multiple subpasses.
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; // This is a graphics subpass
+    subpass.colorAttachmentCount = 1; // We have one color attachment
+    subpass.pColorAttachments = &colorAttachmentRef; // Pointer to the color attachment reference
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    subpass.pResolveAttachments = &colorAttachmentResolveRef;
+
+    // Declare a structure to hold information about subpass dependencies
+    VkSubpassDependency dependency{};
+    // The source subpass, which is the producer of the dependency. 
+    // VK_SUBPASS_EXTERNAL is a special value that refers to operations happening before or after the render pass.
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    // The destination subpass, which is the consumer of the dependency. 
+    // In this case, it's the first (and possibly only) subpass in the render pass.
+    dependency.dstSubpass = 0;
+    // The pipeline stage at which the source (producer) subpass generates the dependency. 
+    // In this case, it's the stage where color data is written to an attachment (color buffer).
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+        | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    // A bitmask that specifies what types of memory operations at the source must complete before the dependency is satisfied.
+    // Here it's set to 0, indicating no specific memory operations that need to complete.
+    dependency.srcAccessMask = 0;
+    // The pipeline stage at which the destination (consumer) subpass waits for the dependency. 
+    // Here, it's also the stage where color data is written to an attachment.
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+        | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    // A bitmask that specifies what types of memory operations at the destination will wait for the dependency. 
+    // Here, it's set to allow write operations to color attachments.
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
+        | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+    // Create the render pass with the given properties and subpass.
+    std::array<VkAttachmentDescription, 3> attachments = { colorAttachment, depthAttachment, colorAttachmentResolve };
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO; // Structure type is for a render pass creation
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.subpassCount = 1; // We have one subpass
+    renderPassInfo.pSubpasses = &subpass; // Pointer to the subpass
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
+
+    if (vkCreateRenderPass(device.GetDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create render pass!");
+    }
+}
+#pragma endregion
+
+#pragma region Create Framebuffers (collection of memory attachments organized and managed for reference)
+void IHCEngine::Graphics::IHCSwapChain::createFramebuffers()
+{
+    swapChainFramebuffers.resize(GetImageCount());
+
+    for (size_t i = 0; i < GetImageCount(); i++)
+    {
+        std::array<VkImageView, 3> attachments = {
+         colorImageViews[i],
+         depthImageViews[i],
+         swapChainImageViews[i]
+        };
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(device.GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create framebuffer!");
+        }
+    }
+}
+#pragma endregion
+
+#pragma region Create SyncObjects (for Submission of Command Buffers to a Queue) 
+void IHCEngine::Graphics::IHCSwapChain::createSyncObjects()
+{
+    // Resizing the synchronization containers to the maximum number of concurrent frames our application will support.
+    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+    // Resizing the tracking list of which frame is currently using which swap chain image.
+    imagesInFlight.resize(GetImageCount(), VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    // Fences will start in the signaled state, meaning that the CPU can wait for a fence 
+   // even if the GPU hasn't signaled it yet, preventing potential deadlock scenarios.
+
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        if (vkCreateSemaphore(device.GetDevice(), &semaphoreInfo,
+            nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS // Creating a semaphore for when an image is available to be rendered to.
+            || vkCreateSemaphore(device.GetDevice(), &semaphoreInfo,
+                nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS // Creating a semaphore for when rendering to an image is finished 
+            || vkCreateFence(device.GetDevice(), &fenceInfo,
+                nullptr, &inFlightFences[i]) != VK_SUCCESS) // Creating a fence for GPU to signal and CPU to wait.
+        {
+            throw std::runtime_error("failed to create synchronization objects for a frame!");
+        }
+    }
+}
+#pragma endregion
+
+#pragma region DrawFrame, submitting CommandBuffers (using syncObjects)
+VkResult IHCEngine::Graphics::IHCSwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex)
+{
+    // Check if an Image is Still in Flight, Wait for the Image to be Free, Mark the Image as in Use by the Current Frame:
+    if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
+    {
+        vkWaitForFences(device.GetDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
+
+    //VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    //if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    //{
+    //    recreateSwapChain();
+    //    return;
+    //}
+    //else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    //{
+    //    throw std::runtime_error("failed to acquire swap chain image!");
+    //}
+    //updateUniformBuffer(currentFrame);
+
+    // Only reset the fence if we are submitting work
+    vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
+
+    //vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+    //recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = buffers; // &commandBuffers[currentFrame];
+
+    VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo,
+        inFlightFences[currentFrame]) != VK_SUCCESS) 
+    {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = { swapChain };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = imageIndex;
+    presentInfo.pResults = nullptr; // Optional
+
+    auto result = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+
+    //bool framebufferResized = appWindow->IsWindowResized();
+    //if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    //{
+    //    framebufferResized = false;
+    //    recreateSwapChain();
+    //}
+    //else if (result != VK_SUCCESS)
+    //{
+    //    throw std::runtime_error("failed to present swap chain image!");
+    //}
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return result;
+}
+VkResult IHCEngine::Graphics::IHCSwapChain::AcquireNextImage(uint32_t* imageIndex)
+{
+    // CPU wait
+    vkWaitForFences(
+        device.GetDevice(),
+        1,
+        &inFlightFences[currentFrame],
+        VK_TRUE,
+        std::numeric_limits<uint64_t>::max());
+
+    VkResult result = vkAcquireNextImageKHR(
+        device.GetDevice(),
+        swapChain,
+        std::numeric_limits<uint64_t>::max(),
+        imageAvailableSemaphores[currentFrame],  // must be a not signaled semaphore
+        VK_NULL_HANDLE,
+        imageIndex);
+    return result;
+}
+#pragma endregion
+
+//void updateUniformBuffer(uint32_t currentImage)
+//{
+//    static auto startTime = std::chrono::high_resolution_clock::now();
+//    auto currentTime = std::chrono::high_resolution_clock::now();
+//    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+//
+//    UniformBufferObject ubo{};
+//    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//    ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+//    ubo.proj[1][1] *= -1;
+//
+//    memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+//
+//}
+
+//void IHCEngine::Graphics::IHCSwapChain::recreateSwapChain()
+//{
+//    // window minimize
+//    int width = 0, height = 0;
+//
+//    GLFWwindow* window = appWindow->GetWindowHandle();
+//
+//    glfwGetFramebufferSize(window, &width, &height);
+//    while (width == 0 || height == 0) {
+//        glfwGetFramebufferSize(window, &width, &height);
+//        glfwWaitEvents();
+//    }
+//    // window screen size change
+//    vkDeviceWaitIdle(device);
+//    cleanupSwapChain();
+//    createSwapChain();
+//    createImageViews();
+//    createColorResources();
+//    createDepthResources();
+//    createFramebuffers();
+//}
 

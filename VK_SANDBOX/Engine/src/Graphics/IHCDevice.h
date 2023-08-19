@@ -21,17 +21,18 @@ namespace IHCEngine::Graphics
         QueueFamilyIndices FindPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
         SwapChainSupportDetails GetSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
         VkCommandPool GetCommandPool() { return commandPool; }
+        VkSampleCountFlagBits GetMsaaSamples() { return msaaSamples; }
 
         // Image, Attachment Helper Functions
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         VkFormat FindSupportedFormat(
             const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
         // create a Vulkan image and allocate memory for it
-        void CreateImageWithInfo(
-            const VkImageCreateInfo& imageInfo,
-            VkMemoryPropertyFlags properties,
-            VkImage& image,
-            VkDeviceMemory& imageMemory);
+        //void CreateImageWithInfo(
+        //    const VkImageCreateInfo& imageInfo,
+        //    VkMemoryPropertyFlags properties,
+        //    VkImage& image,
+        //    VkDeviceMemory& imageMemory);
 
         // Buffer Helper Functions
         void CreateBuffer(
