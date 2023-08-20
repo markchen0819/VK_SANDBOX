@@ -48,24 +48,6 @@ void IHCEngine::Graphics::IHCPipeline::createGraphicsPipeline(const std::string&
     vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-    // Viewport
-    VkPipelineViewportStateCreateInfo viewportState{};
-    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &configInfo.viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &configInfo.scissor;
-
-    // Dynamic state
-    std::vector<VkDynamicState> dynamicStates = {
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR
-    };
-    VkPipelineDynamicStateCreateInfo dynamicState{};
-    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-    dynamicState.pDynamicStates = dynamicStates.data();
-
     // Create Pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -73,14 +55,14 @@ void IHCEngine::Graphics::IHCPipeline::createGraphicsPipeline(const std::string&
     pipelineInfo.pStages = shaderStages;
     // fixed
     pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pViewportState = &configInfo.viewportInfo;
     pipelineInfo.pInputAssemblyState = &configInfo.inputAssembly;
     pipelineInfo.pRasterizationState = &configInfo.rasterizer;
     pipelineInfo.pMultisampleState = &configInfo.multisampling;
     pipelineInfo.pDepthStencilState = &configInfo.depthStencil;
     pipelineInfo.pColorBlendState = &configInfo.colorBlending;
     // dynamic
-    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
     // core
     pipelineInfo.layout = configInfo.pipelineLayout;
     pipelineInfo.renderPass = configInfo.renderPass;
@@ -93,26 +75,31 @@ void IHCEngine::Graphics::IHCPipeline::createGraphicsPipeline(const std::string&
     }
 }
 
-IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(uint32_t width, uint32_t height, IHCDevice& device)
+void IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo, IHCDevice& device)
 {
-    PipelineConfigInfo configInfo{};
+    //PipelineConfigInfo configInfo{};
 
     // Input assembly
     configInfo.inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     configInfo.inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    // Viewport & scissor
-    VkViewport viewport{};
-    configInfo.viewport.x = 0.0f;
-    configInfo.viewport.y = 0.0f;
-    configInfo.viewport.width = width;//(float)swapChainExtent.width;
-    configInfo.viewport.height = height;// (float)swapChainExtent.height;
-    configInfo.viewport.minDepth = 0.0f;
-    configInfo.viewport.maxDepth = 1.0f;
-
-    configInfo.scissor.offset = { 0, 0 };
-    configInfo.scissor.extent = { width, height };// swapChainExtent;
+    // Viewport & scissor 
+    //VkViewport viewport{};
+    //configInfo.viewport.x = 0.0f;
+    //configInfo.viewport.y = 0.0f;
+    //configInfo.viewport.width = width;//(float)swapChainExtent.width;
+    //configInfo.viewport.height = height;// (float)swapChainExtent.height;
+    // appWindow.GetWidth() appWindow.GetHeight() might not match
+    //configInfo.viewport.minDepth = 0.0f;
+    //configInfo.viewport.maxDepth = 1.0f;
+    //configInfo.scissor.offset = { 0, 0 };
+    //configInfo.scissor.extent = { width, height };// swapChainExtent;
+    configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    configInfo.viewportInfo.viewportCount = 1;
+    configInfo.viewportInfo.pViewports = nullptr; // &configInfo.viewport
+    configInfo.viewportInfo.scissorCount = 1;
+    configInfo.viewportInfo.pScissors = nullptr; // &configInfo.scissor;
 
     // Rasterization
     configInfo.rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -153,7 +140,12 @@ IHCEngine::Graphics::PipelineConfigInfo IHCEngine::Graphics::IHCPipeline::Defaul
     configInfo.depthStencil.depthBoundsTestEnable = VK_FALSE;
     configInfo.depthStencil.stencilTestEnable = VK_FALSE;
 
-    return configInfo;
+    // dynamic state
+    configInfo.dynamicStateEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+    configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
+    configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
+    configInfo.dynamicStateInfo.flags = 0;
 }
 
 void IHCEngine::Graphics::IHCPipeline::Bind(VkCommandBuffer commandBuffer)

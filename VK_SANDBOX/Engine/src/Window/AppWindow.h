@@ -21,6 +21,8 @@ namespace IHCEngine::Window
 		void SetWindowResized(bool b) { windowResized = b; }
 		std::string GetName() { return  windowName; }
 
+		static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+
 	private:
 
 		GLFWwindow* window;

@@ -7,8 +7,11 @@ namespace IHCEngine::Graphics
 {
 	struct PipelineConfigInfo
 	{
-		VkViewport viewport{};
-		VkRect2D scissor{};
+		PipelineConfigInfo() = default;
+		PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+		PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+
+		// fixed
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly;
 		VkPipelineRasterizationStateCreateInfo rasterizer;
 		VkPipelineMultisampleStateCreateInfo multisampling;
@@ -16,8 +19,18 @@ namespace IHCEngine::Graphics
         VkPipelineColorBlendStateCreateInfo colorBlending;
 		VkPipelineDepthStencilStateCreateInfo depthStencil;
 
+		// dynamic
+		//VkViewport viewport{}; not needed as we use dynamic
+		//VkRect2D scissor{};
+		VkPipelineViewportStateCreateInfo viewportInfo;
+		std::vector<VkDynamicState> dynamicStateEnables;
+		VkPipelineDynamicStateCreateInfo dynamicStateInfo;
 
-		// havent done here and call defaultPipelineConfigInfo
+		// shader
+		//std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
+		//std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+		// core
 		VkPipelineLayout pipelineLayout = nullptr;
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
@@ -35,9 +48,9 @@ namespace IHCEngine::Graphics
 		~IHCPipeline();
 		// no duplication
 		IHCPipeline(const IHCPipeline&) = delete;
-		IHCPipeline& operator=(const IHCPipeline&) = delete;
+		IHCPipeline &operator=(const IHCPipeline&) = delete;
 
-		static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height, IHCDevice& device);
+		static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo, IHCDevice& device);
 		void Bind(VkCommandBuffer commandBuffer);
 
 	private:

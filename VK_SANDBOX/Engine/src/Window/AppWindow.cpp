@@ -1,6 +1,6 @@
 #include "AppWindow.h"
 
-static void WindowResizeCallback(GLFWwindow* window, int width, int height)
+void IHCEngine::Window::AppWindow::WindowResizeCallback(GLFWwindow* window, int width, int height)
 {
     auto w = reinterpret_cast<IHCEngine::Window::AppWindow*>(glfwGetWindowUserPointer(window));
     w->SetWindowResized(true);

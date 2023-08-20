@@ -7,18 +7,15 @@ namespace IHCEngine::Graphics
 {
 	class IHCSwapChain
 	{
-
 	public:
-		const int MAX_FRAMES_IN_FLIGHT = 2;
-
+		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		IHCSwapChain(IHCDevice& device, IHCEngine::Window::AppWindow& window);
 		IHCSwapChain(IHCDevice& device, IHCEngine::Window::AppWindow& window, std::shared_ptr<IHCSwapChain> previous);
 		~IHCSwapChain();
-
 		// no duplication
 		IHCSwapChain(const IHCSwapChain&) = delete;
-		IHCSwapChain operator=(const IHCSwapChain&) = delete;
+		IHCSwapChain &operator=(const IHCSwapChain&) = delete;
 
 		VkFramebuffer GetFrameBuffer(int index) { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() { return renderPass; }
@@ -34,7 +31,7 @@ namespace IHCEngine::Graphics
 		VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 		VkResult AcquireNextImage(uint32_t* imageIndex);
 
-
+		// Recreation checking
 		bool CompareSwapFormats(const IHCSwapChain& swapChain) const 
 		{
 			return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
@@ -42,7 +39,6 @@ namespace IHCEngine::Graphics
 		}
 
 	private:
-		
 		//// functions
 		void init();
 		void cleanupSwapChain();
@@ -53,10 +49,6 @@ namespace IHCEngine::Graphics
 		void createDepthResources();
 		void createFramebuffers();
 		void createSyncObjects();
-
-		// window size change requires to recreate swap chain
-		//void recreateSwapChain();
-
 
 		//// Helper functions
 	    // swapchain
@@ -73,9 +65,6 @@ namespace IHCEngine::Graphics
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 		// depth
 		VkFormat findDepthFormat();
-		//
-
-
 
 		//// variables
 		IHCEngine::Window::AppWindow& window;
@@ -109,7 +98,5 @@ namespace IHCEngine::Graphics
 		std::vector<VkFence> inFlightFences;
 		std::vector<VkFence> imagesInFlight;
 		size_t currentFrame = 0;
-
 	};
-
 }

@@ -22,7 +22,7 @@ namespace IHCEngine::Graphics
 
         // Not copyable
         IHCModel(const IHCModel&) = delete;
-        IHCModel& operator=(const IHCModel&) = delete;
+        IHCModel &operator=(const IHCModel&) = delete;
 
         static std::unique_ptr<IHCModel> createModelFromFile
         (IHCDevice& device, const std::string& filepath);

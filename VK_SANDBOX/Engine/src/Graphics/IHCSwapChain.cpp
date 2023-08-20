@@ -10,17 +10,18 @@ IHCEngine::Graphics::IHCSwapChain::IHCSwapChain(IHCDevice& device, IHCEngine::Wi
 IHCEngine::Graphics::IHCSwapChain::IHCSwapChain(IHCDevice& device, IHCEngine::Window::AppWindow& window, std::shared_ptr<IHCSwapChain> previous)
     : device{ device }, window{ window }, oldSwapChain{ previous }
 {
-    init();
-    oldSwapChain = nullptr;
+    init(); 
+    oldSwapChain = nullptr; // potentially reused in init()
 }
 
 IHCEngine::Graphics::IHCSwapChain::~IHCSwapChain()
 {
-    cleanupSwapChain();
+    cleanupSwapChain(); // recreation necessary cleanup
 
+    // other cleanups (as we destroy entire swapchain)
+    
     // renderPass
     vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
-
     // cleanup synchronization objects
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -67,7 +68,6 @@ void IHCEngine::Graphics::IHCSwapChain::cleanupSwapChain()
     }
 }
 
-
 void IHCEngine::Graphics::IHCSwapChain::init()
 {
     createSwapChain(); // Creates a swap chain. Collection of images rendered into and display on surface.
@@ -80,7 +80,6 @@ void IHCEngine::Graphics::IHCSwapChain::init()
     //The framebuffer will contain all the color, depth and stencil buffer images that shaders write to when we render a frame.
     createSyncObjects(); // Coordinate order of operations between multiple command buffers, to ensure that things happen in the right order.
 }
-
 
 #pragma region Create swapchain (Setup a multi-buffering system)
 void IHCEngine::Graphics::IHCSwapChain::createSwapChain()
@@ -542,10 +541,6 @@ VkResult IHCEngine::Graphics::IHCSwapChain::SubmitCommandBuffers(const VkCommand
     // Only reset the fence if we are submitting work
     vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
 
-    //vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-    //recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-
-
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -631,26 +626,3 @@ VkResult IHCEngine::Graphics::IHCSwapChain::AcquireNextImage(uint32_t* imageInde
 //    memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 //
 //}
-
-//void IHCEngine::Graphics::IHCSwapChain::recreateSwapChain()
-//{
-//    // window minimize
-//    int width = 0, height = 0;
-//
-//    GLFWwindow* window = appWindow->GetWindowHandle();
-//
-//    glfwGetFramebufferSize(window, &width, &height);
-//    while (width == 0 || height == 0) {
-//        glfwGetFramebufferSize(window, &width, &height);
-//        glfwWaitEvents();
-//    }
-//    // window screen size change
-//    vkDeviceWaitIdle(device);
-//    cleanupSwapChain();
-//    createSwapChain();
-//    createImageViews();
-//    createColorResources();
-//    createDepthResources();
-//    createFramebuffers();
-//}
-

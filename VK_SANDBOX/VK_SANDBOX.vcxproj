@@ -153,8 +153,12 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystem.cpp" />
     <ClCompile Include="Application\src\TestApplication.cpp" />
+    <ClCompile Include="Engine\src\Graphics\IHCModel.cpp" />
+    <ClCompile Include="Engine\src\Core\GameObject.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Core\Component.h" />
     <ClInclude Include="Engine\src\Graphics\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\IHCPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\IHCSwapChain.h" />
@@ -166,6 +170,9 @@
     <ClInclude Include="EntryPoint.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystem.h" />
     <ClInclude Include="Application\src\TestApplication.h" />
+    <ClInclude Include="Engine\src\Graphics\IHCModel.h" />
+    <ClInclude Include="Engine\src\Core\GameObject.h" />
+    <ClInclude Include="Engine\src\Graphics\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
@@ -173,6 +180,9 @@
     <None Include="Engine\assets\shaders\shader.frag" />
     <None Include="Engine\assets\shaders\shader.vert" />
     <None Include="Engine\assets\shaders\vert.spv" />
+    <ClInclude Include="Engine\src\Core\GameObject.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

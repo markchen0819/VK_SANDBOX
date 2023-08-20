@@ -1,5 +1,10 @@
 #version 450
 
+layout(push_constant) uniform Push {
+  mat4 modelMatrix;
+  mat4 normalMatrix;
+} push;
+
 layout(binding = 0) uniform UniformBufferObject
 {
     mat4 model;

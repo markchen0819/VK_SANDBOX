@@ -8,6 +8,8 @@
 #include "IHCPipeline.h"
 #include "IHCSwapChain.h"
 #include "IHCModel.h"
+#include "../Core/GameObject.h"
+#include "Renderer.h"
 
 const std::string MODEL_PATH = "Engine/assets/models/viking_room/viking_room.obj";
 const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
@@ -24,7 +26,7 @@ namespace IHCEngine::Graphics
 
         // no duplication
         RenderSystem(const RenderSystem&) = delete;
-        void operator=(const RenderSystem&) = delete;
+        RenderSystem &operator=(const RenderSystem&) = delete;
 
     private:
 
@@ -34,19 +36,18 @@ namespace IHCEngine::Graphics
 
         Window::AppWindow& appWindow;
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
+        std::unique_ptr<IHCEngine::Graphics::Renderer> renderer;
+
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> ihcPipeline;
-        std::unique_ptr<IHCEngine::Graphics::IHCSwapChain> ihcSwapChain;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
         std::unique_ptr<IHCEngine::Graphics::IHCModel> ihcModel;
-
+        std::vector<IHCEngine::Core::GameObject> gameObjects;
 
         void createPipelineLayout();
         void createPipeline();
-        void createCommandBuffers();
-        void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-        void DrawFrame();
-
+        void loadGameObjects();
+        void renderGameObjects();
 
         //VkInstance instance;
         //VkDebugUtilsMessengerEXT debugMessenger;

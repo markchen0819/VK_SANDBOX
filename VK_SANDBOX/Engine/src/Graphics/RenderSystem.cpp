@@ -32,8 +32,36 @@ void IHCEngine::Graphics::RenderSystem::Init(std::unique_ptr<Window::AppWindow>&
 void IHCEngine::Graphics::RenderSystem::Update()
 {
     glfwPollEvents();
-    DrawFrame();
-    //drawFrame();
+
+    if (auto commandBuffer = renderer->BeginFrame()) 
+    {
+        int frameIndex = renderer->GetFrameIndex();
+        //FrameInfo frameInfo{
+        //    frameIndex,
+        //    frameTime,
+        //    commandBuffer,
+        //    camera,
+        //    globalDescriptorSets[frameIndex],
+        //    gameObjects };
+
+        //// update
+        //GlobalUbo ubo{};
+        //ubo.projection = camera.getProjection();
+        //ubo.view = camera.getView();
+        //ubo.inverseView = camera.getInverseView();
+        //pointLightSystem.update(frameInfo, ubo);
+        //uboBuffers[frameIndex]->writeToBuffer(&ubo);
+        //uboBuffers[frameIndex]->flush();
+
+        // render
+        renderer->BeginSwapChainRenderPass(commandBuffer);
+
+        // order here matters
+        //simpleRenderSystem.renderGameObjects(frameInfo);
+        //pointLightSystem.render(frameInfo);
+        renderGameObjects();
+        renderer->EndSwapChainRenderPass(commandBuffer);
+        renderer->EndFrame();
 }
 
 void IHCEngine::Graphics::RenderSystem::Shutdown()
@@ -46,17 +74,21 @@ void IHCEngine::Graphics::RenderSystem::initVulkan()
 {
 
     ihcDevice = std::make_unique<IHCEngine::Graphics::IHCDevice>(appWindow);
-    ihcSwapChain = std::make_unique<IHCEngine::Graphics::IHCSwapChain>(ihcDevice, appWindow);
+    renderer = std::make_unique<IHCEngine::Graphics::Renderer>(appWindow, ihcDevice);
     //ihcModel = std::make_unique<IHCEngine::Graphics::IHCModel>(ihcDevice, );
     createPipelineLayout(); // (CPU - shader stages, uniform buffers, samplers, and push constants)
-    createPipeline(); // ihcPipeline 
-    createCommandBuffers(); // record all the commands we want to execute
+    //recreateSwapChain(); // both swapchain & pipeline created here now (support window size change)
+    // ihcSwapChain = std::make_unique<IHCEngine::Graphics::IHCSwapChain>(ihcDevice, appWindow);
+    createPipeline();
+    //createCommandBuffers(); // record all the commands we want to execute
+
+
+
+
 
 
     //createInstance(); // connection to the Vulkan library
     //setupDebugMessenger(); // debug messenger for Vulkan.
-
-
     //createSurface(); // surface render onto (e.g., a window in an operating system).
     //pickPhysicalDevice(); // Selects a physical device (GPU) to use. depend on what types of features we need, like certain types of textures or shaders.
     //createLogicalDevice(); // Creates a logical device. communicate with the physical device.
@@ -143,18 +175,27 @@ void IHCEngine::Graphics::RenderSystem::cleanup()
 }
 
 
-
-
 // NEW CODE HERE///////////////////////////////////////////////
 #pragma region Create PipelineLayout (for shaders interface) & Pipeline
 void IHCEngine::Graphics::RenderSystem::createPipelineLayout()
 {
+    // small data for shader
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    pushConstantRange.offset = 0; // not using separate ranges
+    pushConstantRange.size = sizeof(SimplePushConstantData);
+
+    // bufferobjects for shader
+     
+    
+    // pipeline
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     //pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-    //pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
     if (vkCreatePipelineLayout(ihcDevice->GetDevice(), 
         &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -164,11 +205,11 @@ void IHCEngine::Graphics::RenderSystem::createPipelineLayout()
 }
 void IHCEngine::Graphics::RenderSystem::createPipeline()
 {
-    auto pipelineConfig = IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo
-    (ihcSwapChain->GetWidth(), appWindow.GetHeight(), *ihcDevice);
-    // appWindow.GetWidth() appWindow.GetHeight() might not match
+    // create pipeline layout & swapchain first before calling
 
-    pipelineConfig.renderPass = ihcSwapChain->GetRenderPass();
+    PipelineConfigInfo pipelineConfig{};
+    IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(pipelineConfig, *ihcDevice);
+    pipelineConfig.renderPass = renderer->GetSwapChainRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout;
 
     ihcPipeline = std::make_unique<IHCEngine::Graphics::IHCPipeline>
@@ -180,29 +221,8 @@ void IHCEngine::Graphics::RenderSystem::createPipeline()
 }
 #pragma endregion
 
-#pragma region Create Command buffers (submit to swapchain execute on GPU) & record 
-void IHCEngine::Graphics::RenderSystem::createCommandBuffers()
-{
-    commandBuffers.resize(ihcSwapChain->GetImageCount());
+#pragma region Command buffers (submit to swapchain execute on GPU) 
 
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;// can submit but cannot be called by other cmdbuffers
-    allocInfo.commandPool = ihcDevice->GetCommandPool();
-    allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-    if (vkAllocateCommandBuffers(ihcDevice->GetDevice(), &allocInfo,
-        commandBuffers.data()) != VK_SUCCESS) 
-    {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
-
-    for (int i = 0; i < commandBuffers.size(); ++i)
-    {
-        recordCommandBuffer(commandBuffers[i], i);
-    }
-
-}
 void IHCEngine::Graphics::RenderSystem::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
     VkCommandBufferBeginInfo beginInfo{};
@@ -250,8 +270,18 @@ void IHCEngine::Graphics::RenderSystem::recordCommandBuffer(VkCommandBuffer comm
     scissor.extent = ihcSwapChain->GetSwapChainExtent();
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    // Step 2: setup vertices, indices, normal, uv
+    // Step 2: Bind model (setup vertices, indices, normal, uv)
     ihcModel->Bind(commandBuffer);
+
+    // Step 3: PushConstant
+    //vkCmdPushConstants(
+    //    frameInfo.commandBuffer,
+    //    pipelineLayout,
+    //    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+    //    0,
+    //    sizeof(SimplePushConstantData),
+    //    &push);
+
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
     
     // Step 3: Draw
@@ -267,40 +297,19 @@ void IHCEngine::Graphics::RenderSystem::recordCommandBuffer(VkCommandBuffer comm
         throw std::runtime_error("failed to record command buffer!");
     }
 }
+
 #pragma endregion
 
-#pragma region DrawFrame
-void IHCEngine::Graphics::RenderSystem::DrawFrame()
+
+
+
+void IHCEngine::Graphics::RenderSystem::loadGameObjects()
 {
-    uint32_t imageIndex;
-    VkResult result = ihcSwapChain->AcquireNextImage(&imageIndex);
+    auto testGobj = IHCEngine::Core::GameObject::CreateGameObject();
+    //testGobj.AddComponent<X>();
+    gameObjects.push_back(testGobj);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-        recreateSwapChain();
-        return;
-    }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-    {
-        throw std::runtime_error("failed to acquire swap chain image!");
-    }
-
-    result = ihcSwapChain->SubmitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-        
-    bool framebufferResized = appWindow.IsWindowResized();
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
-    {
-        framebufferResized = false;
-        recreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to present swap chain image!");
-    }
 }
-#pragma endregion
-
-
 
 
 // NEW CODE HERE///////////////////////////////////////////////
