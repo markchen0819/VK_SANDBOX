@@ -1,4 +1,5 @@
 #pragma once
+#include "../pch.h"
 
 namespace IHCEngine::Core
 {
@@ -18,7 +19,7 @@ namespace IHCEngine::Core
 			: owner(owner), isActive(true), type(type) {};
 		virtual ~Component() = default;
 
-		virtual void Init() { }
+		virtual void Init() {}
 		virtual void Update() {}
 		virtual void Destroy() {}
 

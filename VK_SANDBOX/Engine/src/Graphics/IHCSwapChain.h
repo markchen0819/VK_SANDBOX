@@ -34,8 +34,8 @@ namespace IHCEngine::Graphics
 		// Recreation checking
 		bool CompareSwapFormats(const IHCSwapChain& swapChain) const 
 		{
-			return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
-				swapChain.swapChainImageFormat == swapChainImageFormat;
+			return swapChain.swapChainDepthFormat == swapChainDepthFormat 
+				&& swapChain.swapChainImageFormat == swapChainImageFormat;
 		}
 
 	private:

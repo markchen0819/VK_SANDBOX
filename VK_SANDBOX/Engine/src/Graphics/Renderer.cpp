@@ -13,7 +13,6 @@ IHCEngine::Graphics::Renderer::~Renderer()
 	freeCommandBuffers();
 }
 
-
 #pragma region Recreate SwapChain (window size change, also affects pipeline)
 void IHCEngine::Graphics::Renderer::recreateSwapChain()
 {
@@ -46,14 +45,8 @@ void IHCEngine::Graphics::Renderer::recreateSwapChain()
             throw std::runtime_error("Swap chain image(or depth) format has changed!");
         }
     }
-
-    //// if render pass compatible, do nothing (https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqazNiaE5iaFBUNXhvTTNrZTAzYXhyaGRZMEhQUXxBQ3Jtc0tsQ1RMUmNhckdDR0puWkFsd0xYNER2MlVWQVBVVHJIakVOTXRGa09HU0dVcjM4RmNQOG4xa3dpOFZ5eng3UDJBOVcycWJVdDRJTXh4VTgtbGVVY2wzV0ZTVk9NbDlWTG15ZFJHMGp5dmlzMXo4S0tJUQ&q=https%3A%2F%2Fwww.khronos.org%2Fregistry%2Fvulkan%2Fspecs%2F1.1-extensions%2Fhtml%2Fchap8.html%23renderpass-compatibility&v=0IIqvi3Z0ng)
-    //// but for now our pipeline & render pass is 1 on 1
-    //// so recreate pipeline too ( as depends on it)
-    //createPipeline();
 }
 #pragma endregion
-
 
 #pragma region Create Command buffers (used for submission to swapchain execute on GPU) 
 void IHCEngine::Graphics::Renderer::createCommandBuffers()
@@ -71,21 +64,13 @@ void IHCEngine::Graphics::Renderer::createCommandBuffers()
     {
         throw std::runtime_error("failed to allocate command buffers!");
     }
-
-    //for (int i = 0; i < commandBuffers.size(); ++i)
-    //{
-    //    recordCommandBuffer(commandBuffers[i], i);
-    //}
-
 }
-
 void IHCEngine::Graphics::Renderer::freeCommandBuffers()
 {
     vkFreeCommandBuffers(ihcDevice.GetDevice(), ihcDevice.GetCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 }
 #pragma endregion
-
 
 #pragma region Draw Frame, Record command buffers (check Steps for execution order)
 VkCommandBuffer IHCEngine::Graphics::Renderer::BeginFrame() 
@@ -152,7 +137,7 @@ void IHCEngine::Graphics::Renderer::BeginSwapChainRenderPass(VkCommandBuffer com
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    // The following are placed at the update loop
+    // The following are placed at the rendersystem
     // Step 3: Bind model, PushConstants, UniformBufferObjects
     // Step 4: Draw
 }

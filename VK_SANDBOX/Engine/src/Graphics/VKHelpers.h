@@ -1,5 +1,6 @@
 #pragma once
 
+
 // Debugging 
 const std::vector<const char*> validationLayers =
 {
@@ -80,6 +81,15 @@ struct Vertex
             && uv == other.uv;
     }
 };
+namespace IHCEngine::Graphics
+{
+    // from: https://stackoverflow.com/a/57595105
+    template <typename T, typename... Rest>
+    void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+        seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
+        (hashCombine(seed, rest), ...);
+    };
+}
 namespace std 
 {
     template<> struct hash<Vertex> {
@@ -90,15 +100,7 @@ namespace std
         }
     };
 }
-namespace IHCEngine::Graphics
-{
-    // from: https://stackoverflow.com/a/57595105
-    template <typename T, typename... Rest>
-    void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
-        seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
-        (hashCombine(seed, rest), ...);
-    };
-}
+
 // small amounts of uniform data to shaders without using uniform buffers.
 // frequently changing data(+) , size limit(-), require multiple drawcalls(-)
 struct SimplePushConstantData
@@ -114,3 +116,12 @@ struct UniformBufferObject
     alignas(16) glm::mat4 proj;
 };
 
+struct FrameInfo 
+{
+    int frameIndex;
+    float frameTime;
+    VkCommandBuffer commandBuffer;
+   // LveCamera& camera;
+    VkDescriptorSet globalDescriptorSet;
+    //LveGameObject::Map& gameObjects;
+};
