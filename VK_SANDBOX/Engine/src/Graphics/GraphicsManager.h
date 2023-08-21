@@ -5,6 +5,9 @@
 // Window
 #include "../Window/AppWindow.h"
 
+// Time
+#include "../Core/Time/Time.h"
+
 // Vulkan
 #include "VKHelpers.h"
 #include "IHCDevice.h"

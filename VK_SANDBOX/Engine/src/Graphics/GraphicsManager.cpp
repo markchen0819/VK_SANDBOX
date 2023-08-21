@@ -1,5 +1,6 @@
 #include "GraphicsManager.h"
 
+
 void IHCEngine::Graphics::GraphicsManager::Init(std::unique_ptr<Window::AppWindow>& w)
 {
     appWindow = *w;
@@ -31,6 +32,7 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
     glfwPollEvents();
+    //IHCEngine::Core::Time::Update(); // windowsize change etc might need recheck
 
     // Render
     if (auto commandBuffer = renderer->BeginFrame())

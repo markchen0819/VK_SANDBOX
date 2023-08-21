@@ -26,5 +26,3 @@
 #include <glm/gtx/euler_angles.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
-
-#include <chrono>

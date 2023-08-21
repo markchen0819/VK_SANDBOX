@@ -1,6 +1,8 @@
 #include "../../Application/src/IApplication.h"
+#include "Time/Time.h"
 #include "../Window/AppWindow.h"
 #include "../Graphics/RenderSystem.h"
+
 
 namespace IHCEngine::Core
 {

@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
     <ClCompile Include="Engine\src\Graphics\IHCDevice.cpp" />
     <ClCompile Include="Engine\src\Graphics\IHCPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\IHCSwapChain.cpp" />
@@ -158,8 +159,11 @@
     <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
     <ClCompile Include="Engine\src\Graphics\GraphicsManager.cpp" />
     <ClCompile Include="Engine\src\Transform\Transform.cpp" />
+    <ClCompile Include="Engine\src\Core\Time\Time.cpp" />
+    <ClCompile Include="Engine\src\Input\Input.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Engine\src\Core\Component.h" />
     <ClInclude Include="Engine\src\Graphics\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\IHCPipeline.h" />
@@ -177,6 +181,8 @@
     <ClInclude Include="Engine\src\Graphics\Renderer.h" />
     <ClInclude Include="Engine\src\Graphics\GraphicsManager.h" />
     <ClInclude Include="Engine\src\Transform\Transform.h" />
+    <ClInclude Include="Engine\src\Core\Time\Time.h" />
+    <ClInclude Include="Engine\src\Input\Input.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
