@@ -1,3 +1,4 @@
+#include "../pch.h"
 #include "IHCDevice.h"
 
 #pragma region VK instance debugging callbacks

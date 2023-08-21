@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "../Transform/Transform.h"
 
 namespace IHCEngine::Core
 {
@@ -16,12 +17,11 @@ namespace IHCEngine::Core
 
         // std::unordered_map<unsigned int, GameObject>;
 
-        //
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
 
         unsigned int GetUID() { return uid; }
-
+        IHCEngine::Transform::Transform transform;
 
 		template<class T>
 		void AddComponent();
@@ -37,6 +37,8 @@ namespace IHCEngine::Core
         GameObject(unsigned int id) : uid{ id } {};
         std::vector<std::unique_ptr<Component>> components;
         unsigned int uid;
+
+
     };
 }
 #include "GameObject.inl"

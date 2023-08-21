@@ -162,6 +162,6 @@ void IHCEngine::Graphics::RenderSystem::loadGameObjects()
     auto testGobj = IHCEngine::Core::GameObject::CreateGameObject();
     //testGobj.AddComponent<X>();
     gameObjects.push_back(testGobj);
-
+    testGobj.transform.GetLocalModelMatrix();
 }
 

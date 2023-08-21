@@ -19,8 +19,7 @@ namespace IHCEngine::Core
 				return static_cast<T*>(component.get());
 			}
 		}
-		TraceMessage("Null Component: ");
-		TraceMessage(typeid(T).name());
+		std::cout << "Null Component: " << typeid(T).name() << std::endl;
 		return nullptr;
 	}
 

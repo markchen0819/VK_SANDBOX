@@ -157,6 +157,7 @@
     <ClCompile Include="Engine\src\Core\GameObject.cpp" />
     <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
     <ClCompile Include="Engine\src\Graphics\GraphicsManager.cpp" />
+    <ClCompile Include="Engine\src\Transform\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Component.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Engine\src\Core\GameObject.h" />
     <ClInclude Include="Engine\src\Graphics\Renderer.h" />
     <ClInclude Include="Engine\src\Graphics\GraphicsManager.h" />
+    <ClInclude Include="Engine\src\Transform\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

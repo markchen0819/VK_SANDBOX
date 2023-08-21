@@ -2,16 +2,22 @@
 #include "../pch.h"
 #include <stb_image.h>
 
+// Window
 #include "../Window/AppWindow.h"
+
+// Vulkan
 #include "VKHelpers.h"
 #include "IHCDevice.h"
 #include "Renderer.h"
-
 #include "RenderSystem.h"
 
+// Camera
+#include "Camera.h"
+
+
+// GameObject
 #include "IHCModel.h"
 #include "../Core/GameObject.h"
-
 
 
 namespace IHCEngine::Graphics
@@ -36,6 +42,7 @@ namespace IHCEngine::Graphics
         Window::AppWindow& appWindow;
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
         std::unique_ptr<IHCEngine::Graphics::Renderer> renderer;
+        Camera camera;
 
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem;
 
