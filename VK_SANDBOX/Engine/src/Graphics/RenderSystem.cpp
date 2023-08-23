@@ -88,6 +88,11 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects()
         push.modelMatrix = obj.transform.mat4();
         push.normalMatrix = obj.transform.normalMatrix();
 
+
+        // potential for lighting
+        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
+
         // Step 3-1: Bind PushConstants
         vkCmdPushConstants(
             frameInfo.commandBuffer,
@@ -105,12 +110,6 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects()
     }
 }
 #pragma endregion
-
-
-
-
-
-
 
 
 

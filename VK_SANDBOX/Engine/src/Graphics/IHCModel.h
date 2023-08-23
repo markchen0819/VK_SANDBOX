@@ -1,8 +1,9 @@
 #pragma once
 #include "../pch.h"
-#include <tiny_obj_loader.h>
 #include "VKHelpers.h"
 #include "IHCDevice.h"
+
+#include <tiny_obj_loader.h>
 
 namespace IHCEngine::Graphics
 {
@@ -10,7 +11,7 @@ namespace IHCEngine::Graphics
 	{
     public:
 
-        struct Builder 
+        struct Builder
         {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
@@ -20,7 +21,7 @@ namespace IHCEngine::Graphics
         IHCModel(IHCDevice& device, const IHCModel::Builder& builder);
         ~IHCModel();
 
-        // Not copyable
+        // no duplication
         IHCModel(const IHCModel&) = delete;
         IHCModel &operator=(const IHCModel&) = delete;
 

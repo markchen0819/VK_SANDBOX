@@ -161,6 +161,8 @@
     <ClCompile Include="Engine\src\Transform\Transform.cpp" />
     <ClCompile Include="Engine\src\Core\Time\Time.cpp" />
     <ClCompile Include="Engine\src\Input\Input.cpp" />
+    <ClCompile Include="Engine\src\Graphics\IHCBuffer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\IHCTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
@@ -183,6 +185,8 @@
     <ClInclude Include="Engine\src\Transform\Transform.h" />
     <ClInclude Include="Engine\src\Core\Time\Time.h" />
     <ClInclude Include="Engine\src\Input\Input.h" />
+    <ClInclude Include="Engine\src\Graphics\IHCBuffer.h" />
+    <ClInclude Include="Engine\src\Graphics\IHCTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

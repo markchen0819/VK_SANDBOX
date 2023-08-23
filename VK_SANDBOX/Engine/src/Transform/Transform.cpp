@@ -32,6 +32,7 @@ glm::mat4 IHCEngine::Transform::Transform::GetWorldMatrix()
 }
 
 
+
 glm::mat4 IHCEngine::Transform::Transform::createRotationMatrix(glm::vec3 rot)
 {
 	return glm::eulerAngleYXZ(glm::radians(rot.y), glm::radians(rot.x), glm::radians(rot.z));	// https://glm.g-truc.net/0.9.3/api/a00164.html

@@ -1,7 +1,7 @@
 #pragma once
 
 
-// Debugging 
+#pragma region Debugging 
 const std::vector<const char*> validationLayers =
 {
     "VK_LAYER_KHRONOS_validation"
@@ -11,9 +11,10 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
+#pragma endregion
 
 
-// SwapChain
+#pragma region SwapChainSupport
 const std::vector<const char*> deviceExtensions = 
 {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -24,8 +25,10 @@ struct SwapChainSupportDetails
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
 };
+#pragma endregion
 
 
+#pragma region QueueFamilies
 // QueueFamilies, find queue id of the logical device
 // extend other purpose queues here
 struct QueueFamilyIndices
@@ -38,8 +41,10 @@ struct QueueFamilyIndices
         return graphicsFamily.has_value() && presentFamily.has_value();
     }
 };
+#pragma endregion
 
 
+#pragma region Shader
 // Shader
 // Single binding (all at binding 0) with 3 attributes (different location) for now
 // typically we want minimize memory allocations 
@@ -92,7 +97,7 @@ namespace IHCEngine::Graphics
 }
 namespace std 
 {
-    template<> struct hash<Vertex> {
+    template<> struct hash<Vertex> { 
         size_t operator()(Vertex const& vertex) const {
             size_t seed = 0;
             IHCEngine::Graphics::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
@@ -100,21 +105,50 @@ namespace std
         }
     };
 }
-
 // small amounts of uniform data to shaders without using uniform buffers.
 // frequently changing data(+) , size limit(-), require multiple drawcalls(-)
+// common use: Transformation Matrices, Material properties, Light properties, Animation data
 struct SimplePushConstantData
 {
     alignas(16) glm::mat4 modelMatrix{1.f};
     alignas(16) glm::mat4 normalMatrix{1.f};
 };
-
+// larger amount of data that doesn't change often
+// common use: Camera Matrices, Global Lighting, Per-Object Data, Array of bone transformations
 struct UniformBufferObject
 {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
 };
+
+#pragma endregion
+
+namespace IHCEngine::Graphics
+{
+    // create single imageview (separated for swapchain & color & depth & texture)
+    inline VkImageView createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.aspectMask = aspectFlags;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = mipLevels;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        VkImageView imageView;
+        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture image view!");
+        }
+
+        return imageView;
+    }
+}
 
 struct FrameInfo 
 {

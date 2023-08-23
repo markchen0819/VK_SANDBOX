@@ -9,7 +9,7 @@ namespace IHCEngine::Graphics
     public:
         IHCDevice(IHCEngine::Window::AppWindow& window);
         ~IHCDevice();
-        // Not copyable 
+        // no duplication
         IHCDevice(const IHCDevice&) = delete;
         IHCDevice &operator=(const IHCDevice&) = delete;
 

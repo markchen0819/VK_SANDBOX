@@ -91,6 +91,7 @@ namespace IHCEngine::Transform
 			return parent;
 		}
 
+
 	private:
 
 		Transform* parent = nullptr;
@@ -104,6 +105,8 @@ namespace IHCEngine::Transform
 		glm::vec3 worldPosition;
 		glm::quat worldRotation;
 		glm::vec3 worldScale;
+
+		glm::mat3 normalMatrix;
 
 		bool isWorldDirty = true;
 		void setWorldDirty() 

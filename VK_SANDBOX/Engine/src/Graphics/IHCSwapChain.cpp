@@ -203,6 +203,7 @@ VkExtent2D IHCEngine::Graphics::IHCSwapChain::chooseSwapExtent(const VkSurfaceCa
 }
 #pragma endregion
 
+// THESE ARE MOVED TO VKHELPER.H
 #pragma region Create ImageViews (Accessing the image) & color, depth images
 // create memory for image (swapchain not using)
 void IHCEngine::Graphics::IHCSwapChain::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
@@ -242,35 +243,35 @@ void IHCEngine::Graphics::IHCSwapChain::createImage(uint32_t width, uint32_t hei
         throw std::runtime_error("failed to bind image memory!");
     }
 }
-// create single imageview (separated for swapchain & color & depth & texture)
-VkImageView IHCEngine::Graphics::IHCSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
-{
-    VkImageViewCreateInfo viewInfo{};
-    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
-    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = format;
-    //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    viewInfo.subresourceRange.aspectMask = aspectFlags;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = mipLevels;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    VkImageView imageView;
-    if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create texture image view!");
-    }
-
-    return imageView;
-}
+//// create single imageview (separated for swapchain & color & depth & texture)
+//VkImageView IHCEngine::Graphics::IHCSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+//{
+//    VkImageViewCreateInfo viewInfo{};
+//    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+//    viewInfo.image = image;
+//    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+//    viewInfo.format = format;
+//    //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+//    viewInfo.subresourceRange.aspectMask = aspectFlags;
+//    viewInfo.subresourceRange.baseMipLevel = 0;
+//    viewInfo.subresourceRange.levelCount = mipLevels;
+//    viewInfo.subresourceRange.baseArrayLayer = 0;
+//    viewInfo.subresourceRange.layerCount = 1;
+//
+//    VkImageView imageView;
+//    if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+//        throw std::runtime_error("failed to create texture image view!");
+//    }
+//
+//    return imageView;
+//}
 // swapchain images
 void IHCEngine::Graphics::IHCSwapChain::createImageViews()
 {
     swapChainImageViews.resize(swapChainImages.size());
     for (uint32_t i = 0; i < swapChainImages.size(); i++)
     {
-        swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+        swapChainImageViews[i] = IHCEngine::Graphics::createImageView(device.GetDevice(), swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
     }
 }
 // msaa (color)
@@ -297,7 +298,8 @@ void IHCEngine::Graphics::IHCSwapChain::createColorResources()
             colorImages[i],
             colorImageMemorys[i]);
 
-        depthImageViews[i] = createImageView(
+        colorImageViews[i] = IHCEngine::Graphics::createImageView(
+            device.GetDevice(),
             colorImages[i],
             colorFormat,
             VK_IMAGE_ASPECT_COLOR_BIT, 1);
@@ -328,7 +330,8 @@ void IHCEngine::Graphics::IHCSwapChain::createDepthResources()
             depthImages[i],
             depthImageMemorys[i]);
 
-        depthImageViews[i] = createImageView(
+        depthImageViews[i] = IHCEngine::Graphics::createImageView(
+            device.GetDevice(),
             depthImages[i],
             depthFormat, 
             VK_IMAGE_ASPECT_DEPTH_BIT, 1);
