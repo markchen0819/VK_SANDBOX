@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Camera.h"
 
 #pragma region Debugging 
 const std::vector<const char*> validationLayers =
@@ -111,51 +111,38 @@ namespace std
 struct SimplePushConstantData
 {
     alignas(16) glm::mat4 modelMatrix{1.f};
-    alignas(16) glm::mat4 normalMatrix{1.f};
+    //alignas(16) glm::mat4 normalMatrix{1.f};
 };
 // larger amount of data that doesn't change often
 // common use: Camera Matrices, Global Lighting, Per-Object Data, Array of bone transformations
 struct UniformBufferObject
 {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
+   // alignas(16) glm::mat4 modelMatrix;
+   //alignas(16) glm::mat4 viewMatrix;
+   // alignas(16) glm::mat4 projMatrix;
+};
+
+struct GlobalUniformBufferObject
+{
+    alignas(16) glm::mat4 viewMatrix;
+    alignas(16) glm::mat4 projectionMatrix;
+    alignas(16) glm::mat4 inverseViewMatrix{1.f};
 };
 
 #pragma endregion
 
+
+#pragma region FrameInfo (Data passing for VKwraps)
 namespace IHCEngine::Graphics
 {
-    // create single imageview (separated for swapchain & color & depth & texture)
-    inline VkImageView createImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+    struct FrameInfo
     {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = format;
-        //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        viewInfo.subresourceRange.aspectMask = aspectFlags;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = mipLevels;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
-
-        VkImageView imageView;
-        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create texture image view!");
-        }
-
-        return imageView;
-    }
+        int frameIndex;
+        float frameTime;
+        VkCommandBuffer commandBuffer;
+        Camera& camera;
+        VkDescriptorSet globalDescriptorSet;
+        //LveGameObject::Map& gameObjects;
+    };
 }
-
-struct FrameInfo 
-{
-    int frameIndex;
-    float frameTime;
-    VkCommandBuffer commandBuffer;
-   // LveCamera& camera;
-    VkDescriptorSet globalDescriptorSet;
-    //LveGameObject::Map& gameObjects;
-};
+#pragma endregion 

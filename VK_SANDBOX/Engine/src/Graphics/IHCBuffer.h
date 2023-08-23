@@ -11,8 +11,8 @@ namespace IHCEngine::Graphics
     public:
         IHCBuffer(
             IHCDevice& device,
-            VkDeviceSize instanceSize,
-            uint32_t instanceCount,
+            VkDeviceSize instanceSize, // size of data structure (ex: vertex)
+            uint32_t instanceCount, // number of data structures (vertices)
             VkBufferUsageFlags usageFlags,
             VkMemoryPropertyFlags memoryPropertyFlags,
             VkDeviceSize minOffsetAlignment = 1);
@@ -22,36 +22,53 @@ namespace IHCEngine::Graphics
         IHCBuffer(const IHCBuffer&) = delete;
         IHCBuffer& operator=(const IHCBuffer&) = delete;
 
+        // example:  
+        // letter (data)
+        // mailbox (the buffer) 
+        // the mail carrier (the GPU), mostly come and pickup (but might miss)
+        // 
+        // Mapping & Writing: Putting a letter in your mailbox
+        // flush (notify), ensure noticed for pickup
+
+        // Map/ Unmap a memory range of this buffer 
+        VkResult Map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        void Unmap();
+
+        // Copying the Data to the mapped buffer (memcpy)
+        void WriteToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        void WriteToIndex(void* data, int index); // portion of the buffer
 
 
+        // DescriptorInfo: Interface between shaders and buffers
+        VkDescriptorBufferInfo GetDescriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        VkDescriptorBufferInfo GetDescriptorInfoForIndex(int index); // portion
 
-        VkResult map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-        void unmap();
+        // Non-coherent memory 
+        // requires explicit actions to ensure visibility of writes across the host and the device
+        // if using  VK_MEMORY_PROPERTY_HOST_CACHED_BIT flag
+        // the data writes to the memory might be cached.
+        // To ensure that these writes are visible to the device (GPU)
+        // you might need to flush the memory 
+        VkResult FlushIndex(int index);
+        VkResult Flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        VkResult Invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        VkResult InvalidateIndex(int index);
 
-        void writeToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-        VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-        VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-        VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-
-        void writeToIndex(void* data, int index);
-        VkResult flushIndex(int index);
-        VkDescriptorBufferInfo descriptorInfoForIndex(int index);
-        VkResult invalidateIndex(int index);
-
-        VkBuffer getBuffer() const { return buffer; }
-        void* getMappedMemory() const { return mapped; }
-        uint32_t getInstanceCount() const { return instanceCount; }
-        VkDeviceSize getInstanceSize() const { return instanceSize; }
-        VkDeviceSize getAlignmentSize() const { return instanceSize; }
-        VkBufferUsageFlags getUsageFlags() const { return usageFlags; }
-        VkMemoryPropertyFlags getMemoryPropertyFlags() const { return memoryPropertyFlags; }
-        VkDeviceSize getBufferSize() const { return bufferSize; }
+        VkBuffer GetBuffer() const { return buffer; }
+        void* GetMappedMemory() const { return mappedMemory; }
+        uint32_t GetInstanceCount() const { return instanceCount; }
+        VkDeviceSize GetInstanceSize() const { return instanceSize; }
+        VkDeviceSize GetAlignmentSize() const { return instanceSize; }
+        VkBufferUsageFlags GetUsageFlags() const { return usageFlags; }
+        VkMemoryPropertyFlags GetMemoryPropertyFlags() const { return memoryPropertyFlags; }
+        VkDeviceSize GetBufferSize() const { return bufferSize; }
 
     private:
-        static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
 
-        IHCDevice& lveDevice;
-        void* mapped = nullptr;
+        VkDeviceSize GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
+
+        IHCDevice& ihcDevice;
+        void* mappedMemory = nullptr; // obtain a pointer to buffer memory.
         VkBuffer buffer = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
 

@@ -25,14 +25,10 @@ namespace IHCEngine::Graphics
 
         // Image, Attachment Helper Functions
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        VkFormat FindSupportedFormat(
-            const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-        // create a Vulkan image and allocate memory for it
-        //void CreateImageWithInfo(
-        //    const VkImageCreateInfo& imageInfo,
-        //    VkMemoryPropertyFlags properties,
-        //    VkImage& image,
-        //    VkDeviceMemory& imageMemory);
+        VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        void CreateImageWithInfo(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+
 
         // Buffer Helper Functions
         void CreateBuffer(

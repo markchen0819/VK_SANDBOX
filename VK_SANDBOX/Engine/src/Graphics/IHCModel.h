@@ -2,7 +2,7 @@
 #include "../pch.h"
 #include "VKHelpers.h"
 #include "IHCDevice.h"
-
+#include "IHCBuffer.h"
 #include <tiny_obj_loader.h>
 
 namespace IHCEngine::Graphics
@@ -36,14 +36,13 @@ namespace IHCEngine::Graphics
         void createVertexBuffers(const std::vector<Vertex>& vertices);
         void createIndexBuffers(const std::vector<uint32_t>& indices);
 
-
         IHCDevice& ihcDevice;
 
-        std::unique_ptr<LveBuffer> vertexBuffer;
+        std::unique_ptr<IHCBuffer> vertexBuffer;
         uint32_t vertexCount;
 
         bool hasIndexBuffer = false;
-        std::unique_ptr<LveBuffer> indexBuffer;
+        std::unique_ptr<IHCBuffer> indexBuffer;
         uint32_t indexCount;
     };
 }

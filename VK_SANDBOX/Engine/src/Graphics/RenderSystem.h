@@ -27,7 +27,7 @@ namespace IHCEngine::Graphics
         RenderSystem(const RenderSystem&) = delete;
         RenderSystem &operator=(const RenderSystem&) = delete;
 
-        void RenderGameObjects();
+        void RenderGameObjects(FrameInfo& frameInfo);
 
     private:
 

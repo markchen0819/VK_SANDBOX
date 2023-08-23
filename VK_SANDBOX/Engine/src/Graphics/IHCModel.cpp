@@ -104,11 +104,12 @@ void IHCEngine::Graphics::IHCModel::createVertexBuffers(const std::vector<Vertex
 {
     vertexCount = static_cast<uint32_t>(vertices.size());
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
-    uint32_t vertexSize = sizeof(vertices[0]);
 
     // temporary buffer accessed by CPU and GPU
-    LveBuffer stagingBuffer{
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+    uint32_t vertexSize = sizeof(vertices[0]);
+    IHCBuffer stagingBuffer
+    {
         ihcDevice,
         vertexSize,
         vertexCount,
@@ -117,20 +118,23 @@ void IHCEngine::Graphics::IHCModel::createVertexBuffers(const std::vector<Vertex
     };
     // without HOST_VISIBLE, HOST_COHERENT we'll need vkflush
 
-    // map temporary buffer memory to CPU address space, Copy vertex data to staging buffer
-    stagingBuffer.map();
-    stagingBuffer.writeToBuffer((void*)vertices.data());
+    // map temporary buffer memory to CPU address space
+    // (able to write/read on CPU )
+    // Copy vertex data to staging bufferF
+    stagingBuffer.Map();
+    stagingBuffer.WriteToBuffer((void*)vertices.data());
+    stagingBuffer.Unmap(); //also handled automatically in destructor
 
     // actual vertex buffer, staging buffer to the vertex buffer by the GPU
-    vertexBuffer = std::make_unique<LveBuffer>(
-        lveDevice,
+    vertexBuffer = std::make_unique<IHCBuffer>(
+        ihcDevice,
         vertexSize,
         vertexCount,
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
         | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    ihcDevice.CopyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    ihcDevice.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 }
 void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_t>& indices)
 {
@@ -141,12 +145,12 @@ void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_
     {
         return; // No more work
     }
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
-    uint32_t indexSize = sizeof(indices[0]);
 
     // temporary buffer accessed by CPU and GPU
-    LveBuffer stagingBuffer{
-        lveDevice,
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+    uint32_t indexSize = sizeof(indices[0]);
+    IHCBuffer stagingBuffer{
+        ihcDevice,
         indexSize,
         indexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -154,20 +158,21 @@ void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_
     };
     // without HOST_VISIBLE, HOST_COHERENT we'll need vkflush
 
-   // map temporary buffer memory to CPU address space, Copy index data to staging buffer
-    stagingBuffer.map();
-    stagingBuffer.writeToBuffer((void*)indices.data());
+    // map temporary buffer memory to CPU address space, Copy index data to staging buffer
+    stagingBuffer.Map();
+    stagingBuffer.WriteToBuffer((void*)indices.data());
+    stagingBuffer.Unmap(); //also handled automatically in destructor
 
-    // actual index buffer, staging buffer to the index  buffer by the GPU
-    indexBuffer = std::make_unique<LveBuffer>(
-        lveDevice,
+    // actual index buffer, staging buffer to the index buffer by the GPU
+    indexBuffer = std::make_unique<IHCBuffer>(
+        ihcDevice,
         indexSize,
         indexCount,
         VK_BUFFER_USAGE_INDEX_BUFFER_BIT
         | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    lveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+    ihcDevice.CopyBuffer(stagingBuffer.GetBuffer(), indexBuffer->GetBuffer(), bufferSize);
 }
 #pragma endregion
 
@@ -176,12 +181,12 @@ void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_
 #pragma region Draw
 void IHCEngine::Graphics::IHCModel::Bind(VkCommandBuffer commandBuffer)
 {
-    VkBuffer buffers[] = { vertexBuffer->getBuffer() };
+    VkBuffer buffers[] = { vertexBuffer->GetBuffer() };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
     if (hasIndexBuffer) 
     {
-        vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
 void IHCEngine::Graphics::IHCModel::Draw(VkCommandBuffer commandBuffer)

@@ -61,9 +61,7 @@ namespace IHCEngine::Graphics
 		// createImage allocates the memory for color & depth & texture
 		// swapchain doesn't need that as we have vkCreateSwapchainKHR
 		// it needs to be directly compatible with the display hardware
-		void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
-			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
-			VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		//void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
         //VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 		
 		

@@ -44,16 +44,16 @@ namespace IHCEngine::Graphics
 
         Window::AppWindow& appWindow;
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
-        std::unique_ptr<IHCEngine::Graphics::Renderer> renderer;
+        std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; 
         Camera camera;
+        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers;
 
+        // customizable
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem;
+ 
 
-        // std::unique_ptr<IHCEngine::Graphics::IHCModel> ihcModel;
+
         std::vector<IHCEngine::Core::GameObject> gameObjects;
-
-
-
 
 
         // graphcis pipeline

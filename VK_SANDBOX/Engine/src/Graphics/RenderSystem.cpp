@@ -62,7 +62,7 @@ void IHCEngine::Graphics::RenderSystem::createPipeline(VkRenderPass renderPass)
 #pragma endregion
 
 #pragma region Render (apply pipeline, transform (PushConstants/ UniformBufferObjects), model, then draw)
-void IHCEngine::Graphics::RenderSystem::RenderGameObjects()
+void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
 
     // Step 3: Bind model, PushConstants, UniformBufferObjects
@@ -84,9 +84,9 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects()
         // Step 3-1: Bind Transform
         auto& obj = kv.second;
         if (obj.model == nullptr) continue;
+
         SimplePushConstantData push{};
-        push.modelMatrix = obj.transform.mat4();
-        push.normalMatrix = obj.transform.normalMatrix();
+        //push.normalMatrix = obj.transform.normalMatrix();
 
 
         // potential for lighting
@@ -101,6 +101,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects()
             0,
             sizeof(SimplePushConstantData),
             &push);
+
 
         // Step 3-1: Bind Model
         obj.model->bind(frameInfo.commandBuffer);

@@ -405,7 +405,7 @@ void IHCEngine::Graphics::IHCDevice::createCommandPool()
 #pragma endregion
 
 
-#pragma region Image, Attachment, BufferHelper functions
+#pragma region Image, Attachment Helper functions
 uint32_t IHCEngine::Graphics::IHCDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
@@ -436,6 +436,7 @@ VkFormat IHCEngine::Graphics::IHCDevice::FindSupportedFormat(const std::vector<V
     }
     throw std::runtime_error("failed to find supported format!");
 }
+// create a Vulkan image and allocate memory for it
 void IHCEngine::Graphics::IHCDevice::CreateImageWithInfo(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 {
     //VkImageCreateInfo sampleInfo{};
@@ -473,6 +474,32 @@ void IHCEngine::Graphics::IHCDevice::CreateImageWithInfo(const VkImageCreateInfo
         throw std::runtime_error("failed to bind image memory!");
     }
 }
+// create a single imageview (separated for swapchain & color & depth & texture)
+VkImageView IHCEngine::Graphics::IHCDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+{
+    VkImageViewCreateInfo viewInfo{};
+    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image = image;
+    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = format;
+    //viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.aspectMask = aspectFlags;
+    viewInfo.subresourceRange.baseMipLevel = 0;
+    viewInfo.subresourceRange.levelCount = mipLevels;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount = 1;
+
+    VkImageView imageView;
+    if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create texture image view!");
+    }
+
+    return imageView;
+}
+
+#pragma endregion
+
+#pragma region Buffer Helper functions
 void IHCEngine::Graphics::IHCDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
     // create buffer
@@ -537,6 +564,7 @@ void IHCEngine::Graphics::IHCDevice::EndSingleTimeCommands(VkCommandBuffer comma
     // Freeing
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
+// vkCmdCopyBuffer, like Staging Buffer to GPU
 void IHCEngine::Graphics::IHCDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
     // use temp command buffer to do Memory transfer operations 
