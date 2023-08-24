@@ -366,13 +366,23 @@ VkFormat IHCEngine::Graphics::IHCSwapChain::findDepthFormat()
 #pragma endregion
 
 #pragma region Create RenderPass (sequence of steps rendering graphics)
+// 
+// RenderPass (rules ensuring that stages are completed in the right order)
 // Steps breakdown:
 // 1. Attachments (format & properties for Color, Depth, Resolve(multisampled images into single-sample images, anti-aliasing))
 // 2. Attachment References (define how the attachment will be used)
 // 3. Subpass
 // 4. Dependencies (correct order of operations)
 // 5. Creating the Render Pass
-// RenderPass (rules ensuring that stages are completed), Pipeline (stages in order)
+// 
+// Pipeline (detailed instructions for each stage) (shader stages, fixed-function, dynamic states)
+// Steps breakdown:
+// 1. What shaders to use 
+// 2. How to blend multiple images  (pColorBlendState)
+// 3. What kind of geometric primitives (triangles, lines) (pInputAssemblyState)
+// 4. Depth testing, rasterization rules, and more. (pDepthStencilState, pRasterizationState)
+//
+//
 void IHCEngine::Graphics::IHCSwapChain::createRenderPass()
 {
     //   Describe the properties of the color attachment.

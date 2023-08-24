@@ -60,7 +60,8 @@ namespace IHCEngine::Graphics
 		VkShaderModule vertShaderModule;
 		VkShaderModule fragShaderModule;
 
-
+		// Pipeline (detailed instructions for each stage)
+		// (shader stages, fixed-function, dynamic states)
 		void createGraphicsPipeline(
 			const std::string& vertFilepath,
 			const std::string& fragFilepath,

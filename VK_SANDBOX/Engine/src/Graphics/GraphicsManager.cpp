@@ -10,9 +10,17 @@ void IHCEngine::Graphics::GraphicsManager::Init(std::unique_ptr<Window::AppWindo
 
 void IHCEngine::Graphics::GraphicsManager::initVulkan()
 {
+    // Create VK instance 
     ihcDevice = std::make_unique<IHCEngine::Graphics::IHCDevice>(appWindow);
+
+    // Create Swapchain to render to screen
     renderer = std::make_unique<IHCEngine::Graphics::Renderer>(appWindow, ihcDevice);
 
+    // Create UniformBuffers for updating shaders
+    // These are used to store data that remains constant 
+    // across all vertices in a draw call
+    // such as transformation matrices, light positions, 
+    // or other data that's consistent across a single draw call or frame
     uboBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < uboBuffers.size(); i++)
     {
@@ -21,27 +29,64 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
             sizeof(GlobalUniformBufferObject),
             1,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-        uboBuffers[i]->Map();
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT 
+            //| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+            // we can uncomment this as we're not using minOffsetAlignment for now
+        );
+        uboBuffers[i]->Map(); // persistent mapping
     }
 
+    // To referring resources (UniformBuffers we just created) in the shaders
+    // , we need to Create Descriptors 
+    globalDescriptorPool =
+        IHCDescriptorPool::Builder(*ihcDevice)
+        .SetMaxSets(IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // one ubo for each frame
+        .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, IHCSwapChain::MAX_FRAMES_IN_FLIGHT)  // ubo
+        .AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // sampler
+        .Build();
+    auto globalDescriptorSetLayout =
+        IHCDescriptorSetLayout::Builder(*ihcDevice)
+        .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)  // ubo //VK_SHADER_STAGE_VERTEX_BIT
+        .AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) // sampler
+        .Build();
+    std::vector<VkDescriptorSet> globalDescriptorSets(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < globalDescriptorSets.size(); i++)
+    {
+        auto bufferInfo = uboBuffers[i]->GetDescriptorInfo();
+        auto imageInfo = 
+        IHCDescriptorWriter(*globalDescriptorSetLayout, *globalDescriptorPool)
+            .WriteBuffer(0, &bufferInfo) // ubo
+            .WriteImage(1, &imageInfo)// sampler
+            .Build(globalDescriptorSets[i]);
+    }
 
+    // Create RenderSystems (Customizable),
+    // each system can have one to many pipelines
+    ////// Create basicRenderSystem //////
+    // this system currently has
+    // one pipeline for basic shading
     basicRenderSystem = std::make_unique<IHCEngine::Graphics::RenderSystem>
-        (ihcDevice, renderer->GetSwapChainRenderPass());
-    //     globalSetLayout->getDescriptorSetLayout() };
+        (
+            ihcDevice, 
+            renderer->GetSwapChainRenderPass(),
+            globalDescriptorSetLayout->GetDescriptorSetLayout()
+        );
+    //Pipeline standardPipeline; //Standard Mode : Regular Phong shading with textures.
+    //Pipeline nightVisionPipeline;  //Night Vision : Everything is rendered in green shades.
+    //Pipeline postProcessBloomPipeline;   
+    //wireframe Mode : For debugging, where all the objects are drawn
+    ////// Create ParticleSystem //////
+    ////// Create RasterSystem //////
+    ////// Create RayTracingSystem //////
+    ////// Create SimulationSystem //////
 
-
-
-
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // old
-    //createDescriptorSetLayout(); // Creates a layout for descriptor sets. The descriptor set layout describes the types of resources that will be accessed by the pipeline stages, and in what format and order.
+
     //createTextureImage(); // Creates a texture image. This is used to store the pixel data of our texture.
     //createTextureImageView(); // Creates a view into our texture image. This describes how to access the texture image and which part of the image to access.
     //createTextureSampler(); // Creates a texture sampler. This is used to read color data from the texture image in the shaders.
 
-    //createUniformBuffers(); // Creates uniform buffers. These are used to store data that remains constant across all vertices in a draw call, such as transformation matrices.
-    //createDescriptorPool(); // Creates a descriptor pool. This is where we allocate descriptor sets, which are used to pass resources like buffers and images to the shaders.
-    //createDescriptorSets(); // Creates descriptor sets. Each set contains descriptors that reference the buffers and images the shaders will access.
 }
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
@@ -53,30 +98,30 @@ void IHCEngine::Graphics::GraphicsManager::Update()
     {
         int frameIndex = renderer->GetFrameIndex();
 
-        FrameInfo frameInfo{
+        FrameInfo frameInfo
+        {
             frameIndex,
             IHCEngine::Core::Time::GetDeltaTime(),
             commandBuffer,
             camera,
             globalDescriptorSets[frameIndex],
-            gameObjects };
+            gameObjects 
+        };
 
         GlobalUniformBufferObject ubo{};
         ubo.projectionMatrix = camera.GetProjection();
         ubo.viewMatrix = camera.GetView();
         ubo.inverseViewMatrix = camera.GetInverseView();
-
         uboBuffers[frameIndex]->WriteToBuffer(&ubo);
-        uboBuffers[frameIndex]->Flush(); // Manual flush
+        uboBuffers[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
         renderer->BeginSwapChainRenderPass(commandBuffer);
-        //// Order here matters ////
+        //// System Render order here matters ////
 
         basicRenderSystem->RenderGameObjects(frameInfo);
-        //simpleRenderSystem.renderGameObjects(frameInfo);
         //pointLightSystem.render(frameInfo);
         
-        ////////////////////////////
+        //////////////////////////////////////////
         renderer->EndSwapChainRenderPass(commandBuffer);
         renderer->EndFrame();
     }
@@ -84,28 +129,15 @@ void IHCEngine::Graphics::GraphicsManager::Update()
 void IHCEngine::Graphics::GraphicsManager::Shutdown()
 {
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
-    //cleanup();
 }
 
 void IHCEngine::Graphics::GraphicsManager::cleanup()
 {
-
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
-    }
-
     vkDestroySampler(device, textureSampler, nullptr);
     vkDestroyImageView(device, textureImageView, nullptr);
     vkDestroyImage(device, textureImage, nullptr);
     vkFreeMemory(device, textureImageMemory, nullptr);
-
-    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
 }
-
 
 
 //void updateUniformBuffer(uint32_t currentImage)

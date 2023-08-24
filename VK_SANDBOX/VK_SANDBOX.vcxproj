@@ -163,6 +163,7 @@
     <ClCompile Include="Engine\src\Input\Input.cpp" />
     <ClCompile Include="Engine\src\Graphics\IHCBuffer.cpp" />
     <ClCompile Include="Engine\src\Graphics\IHCTexture.cpp" />
+    <ClCompile Include="Engine\src\Graphics\IHCDescriptors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Engine\src\Input\Input.h" />
     <ClInclude Include="Engine\src\Graphics\IHCBuffer.h" />
     <ClInclude Include="Engine\src\Graphics\IHCTexture.h" />
+    <ClInclude Include="Engine\src\Graphics\IHCDescriptors.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

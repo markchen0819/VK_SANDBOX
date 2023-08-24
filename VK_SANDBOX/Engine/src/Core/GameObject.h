@@ -38,7 +38,8 @@ namespace IHCEngine::Core
         std::vector<std::unique_ptr<Component>> components;
         unsigned int uid;
 
-
+        // Optional pointer components
+        std::shared_ptr<IHCEngine::Graphics::IHCModel> model{};
     };
 }
 #include "GameObject.inl"

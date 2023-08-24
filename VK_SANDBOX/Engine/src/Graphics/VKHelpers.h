@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "../Core/GameObject.h"
 
 #pragma region Debugging 
 const std::vector<const char*> validationLayers =
@@ -142,7 +143,7 @@ namespace IHCEngine::Graphics
         VkCommandBuffer commandBuffer;
         Camera& camera;
         VkDescriptorSet globalDescriptorSet;
-        //LveGameObject::Map& gameObjects;
+        std::unordered_map<unsigned int, IHCEngine::Core::GameObject> gameObjects;
     };
 }
 #pragma endregion 

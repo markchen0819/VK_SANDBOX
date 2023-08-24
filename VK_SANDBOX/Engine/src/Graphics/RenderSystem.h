@@ -20,7 +20,7 @@ namespace IHCEngine::Graphics
     public:
 
 
-        RenderSystem(IHCDevice& device, VkRenderPass renderPass);
+        RenderSystem(IHCDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~RenderSystem();
 
         // no duplication
@@ -31,7 +31,7 @@ namespace IHCEngine::Graphics
 
     private:
 
-        void createPipelineLayout(); // (CPU - shader stages, uniform buffers, samplers, and push constants)
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout); // (CPU - shader stages, uniform buffers, samplers, and push constants)
         void destroyPipelineLayout();
         void createPipeline(VkRenderPass renderPass); // lifecycle not tied to renderPass, just used for creation
 
@@ -49,83 +49,60 @@ namespace IHCEngine::Graphics
         //VkPipelineLayout pipelineLayout;
         // graphcis pipeline
         VkDescriptorSetLayout descriptorSetLayout;
-
-        // Shader data
-        //VkBuffer vertexBuffer;
-        //VkDeviceMemory vertexBufferMemory;
-        //VkBuffer indexBuffer;
-        //VkDeviceMemory indexBufferMemory;
-        std::vector<VkBuffer> uniformBuffers;
-        std::vector<VkDeviceMemory> uniformBuffersMemory;
-        std::vector<void*> uniformBuffersMapped;
         VkDescriptorPool descriptorPool;
         std::vector<VkDescriptorSet> descriptorSets;
 
 
 
-        // graphics pipeline (shaders)
-        void createDescriptorSetLayout() // uniforms
-        {
-            // ubo
-            VkDescriptorSetLayoutBinding uboLayoutBinding{};
-            uboLayoutBinding.binding = 0;  // The binding point that this binding will be used in the shader
-            uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            uboLayoutBinding.descriptorCount = 1;
-            uboLayoutBinding.pImmutableSamplers = nullptr;
-            uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        //// graphics pipeline (shaders)
+        //void createDescriptorSetLayout() // uniforms
+        //{
+        //    // ubo
+        //    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+        //    uboLayoutBinding.binding = 0;  // The binding point that this binding will be used in the shader
+        //    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //    uboLayoutBinding.descriptorCount = 1;
+        //    uboLayoutBinding.pImmutableSamplers = nullptr;
+        //    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-            // sampler
-            VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-            samplerLayoutBinding.binding = 1;
-            samplerLayoutBinding.descriptorCount = 1;
-            samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            samplerLayoutBinding.pImmutableSamplers = nullptr;
-            samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        //    // sampler
+        //    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+        //    samplerLayoutBinding.binding = 1;
+        //    samplerLayoutBinding.descriptorCount = 1;
+        //    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        //    samplerLayoutBinding.pImmutableSamplers = nullptr;
+        //    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-            // binding
-            std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-            VkDescriptorSetLayoutCreateInfo layoutInfo{};
-            layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-            layoutInfo.pBindings = bindings.data();
+        //    // binding
+        //    std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+        //    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        //    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        //    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+        //    layoutInfo.pBindings = bindings.data();
 
-            if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create descriptor set layout!");
-            }
-        }
+        //    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+        //        throw std::runtime_error("failed to create descriptor set layout!");
+        //    }
+        //}
 
-        void createUniformBuffers()
-        {
-            VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+        //void createDescriptorPool()
+        //{
+        //    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+        //    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+        //    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        //    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-            uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-            uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-            uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+        //    VkDescriptorPoolCreateInfo poolInfo{};
+        //    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        //    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+        //    poolInfo.pPoolSizes = poolSizes.data();
+        //    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-            for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-                createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-
-                vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
-            }
-        }
-        void createDescriptorPool()
-        {
-            std::array<VkDescriptorPoolSize, 2> poolSizes{};
-            poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-            poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-            VkDescriptorPoolCreateInfo poolInfo{};
-            poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-            poolInfo.pPoolSizes = poolSizes.data();
-            poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-            if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create descriptor pool!");
-            }
-        }
+        //    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        //        throw std::runtime_error("failed to create descriptor pool!");
+        //    }
+        //}
         void createDescriptorSets()
         {
             // create one descriptor set for each frame in flight

@@ -11,8 +11,10 @@
 // Vulkan
 #include "VKHelpers.h"
 #include "IHCDevice.h"
-#include "Renderer.h"
-#include "RenderSystem.h"
+#include "IHCDescriptors.h"
+#include "RenderSystem.h" // contains IHCPipeline
+#include "Renderer.h" // contains IHCSwapchain
+
 
 // Camera
 #include "Camera.h"
@@ -28,7 +30,6 @@ namespace IHCEngine::Graphics
     class GraphicsManager
     {
     public:
-
         void Init(std::unique_ptr< Window::AppWindow>& w);
         void Update();
         void Shutdown();
@@ -43,33 +44,28 @@ namespace IHCEngine::Graphics
         void loadGameObjects();
 
         Window::AppWindow& appWindow;
-        std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
-        std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; 
         Camera camera;
-        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers;
-
+        //// order of declarations matter for vulkan cleanup ////
+        std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
+        std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; // Swapchain
+        // For shaders
+        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers; // matrices
+        std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{};
         // customizable
-        std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem;
+        std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; // 
  
 
 
         std::vector<IHCEngine::Core::GameObject> gameObjects;
 
 
+
+
+
         // graphcis pipeline
         VkDescriptorSetLayout descriptorSetLayout;
 
-        // model
-        std::vector<Vertex> vertices;
-        std::vector<uint32_t> indices;
-        // Shader data
-        //VkBuffer vertexBuffer;
-        //VkDeviceMemory vertexBufferMemory;
-        //VkBuffer indexBuffer;
-        //VkDeviceMemory indexBufferMemory;
-        std::vector<VkBuffer> uniformBuffers;
-        std::vector<VkDeviceMemory> uniformBuffersMemory;
-        std::vector<void*> uniformBuffersMapped;
+
         VkDescriptorPool descriptorPool;
         std::vector<VkDescriptorSet> descriptorSets;
 

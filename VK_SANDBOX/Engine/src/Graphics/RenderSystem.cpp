@@ -1,9 +1,9 @@
 #include "RenderSystem.h"
 
-IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass)
+IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
     : ihcDevice{ device }
 {
-    createPipelineLayout();//globalSetLayout
+    createPipelineLayout(globalSetLayout);//
     createPipeline(renderPass);
 }
 IHCEngine::Graphics::RenderSystem::~RenderSystem()
@@ -13,7 +13,7 @@ IHCEngine::Graphics::RenderSystem::~RenderSystem()
 }
 
 #pragma region PipelineLayout (for shaders interface) & Pipeline
-void IHCEngine::Graphics::RenderSystem::createPipelineLayout()
+void IHCEngine::Graphics::RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 {
     // small data for shader
     VkPushConstantRange pushConstantRange{};
@@ -21,15 +21,16 @@ void IHCEngine::Graphics::RenderSystem::createPipelineLayout()
     pushConstantRange.offset = 0; // not using separate ranges
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
-    // bufferobjects for shader
-     
+    // bufferobjects for shader (set )
+    // can add set1, set2...
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
     
     // pipeline
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     //pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -65,11 +66,15 @@ void IHCEngine::Graphics::RenderSystem::createPipeline(VkRenderPass renderPass)
 void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
 
-    // Step 3: Bind model, PushConstants, UniformBufferObjects
+    // Step 3: Bind 
+    
     // Step 3-1: Bind Pipeline
     ihcPipeline->Bind(frameInfo.commandBuffer);
 
-    vkCmdBindDescriptorSets(
+    // Step 3-2: Bind global descriptor set (at set 0)  (ubo, sampler)
+    // (Commonly Proj & View matrix)
+    vkCmdBindDescriptorSets
+    (
         frameInfo.commandBuffer,
         VK_PIPELINE_BIND_POINT_GRAPHICS,
         pipelineLayout,
@@ -77,36 +82,41 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         1,
         &frameInfo.globalDescriptorSet,
         0,
-        nullptr);
+        nullptr
+    );
 
     for (auto& kv : frameInfo.gameObjects)
     {
-        // Step 3-1: Bind Transform
         auto& obj = kv.second;
         if (obj.model == nullptr) continue;
 
+        // Step 3-3: Update PushConstants (ex: Transform)
         SimplePushConstantData push{};
         //push.normalMatrix = obj.transform.normalMatrix();
-
-
         // potential for lighting
         /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
         glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
-
-        // Step 3-1: Bind PushConstants
-        vkCmdPushConstants(
+        vkCmdPushConstants
+        (
             frameInfo.commandBuffer,
             pipelineLayout,
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
             0,
             sizeof(SimplePushConstantData),
-            &push);
+            &push
+        );
 
+
+        // Step 3-4: Bind object material set (at set 1)
+        // (Commonly normal, texture ...)
+        // 
+        // Step 3-5: Bind object descriptor set (at set 2)
+        // (Commonly Model matrix)
 
         // Step 3-1: Bind Model
         obj.model->bind(frameInfo.commandBuffer);
 
-        // Step 4: Draw
+        // Step 4: Draw Object
         obj.model->draw(frameInfo.commandBuffer);
     }
 }
