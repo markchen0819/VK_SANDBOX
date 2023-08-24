@@ -1,7 +1,7 @@
 #include "../../Application/src/IApplication.h"
 #include "Time/Time.h"
 #include "../Window/AppWindow.h"
-#include "../Graphics/RenderSystem.h"
+#include "../Graphics/GraphicsManager.h"
 
 
 namespace IHCEngine::Core
@@ -25,7 +25,7 @@ namespace IHCEngine::Core
 
 		// Engine subsystems
 		std::unique_ptr<IHCEngine::Window::AppWindow> appWindow;
-		std::unique_ptr<IHCEngine::Graphics::RenderSystem> renderSystem;
+		std::unique_ptr<IHCEngine::Graphics::GraphicsManager> graphicsManager;
 
 	};
 }

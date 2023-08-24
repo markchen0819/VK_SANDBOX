@@ -1,7 +1,6 @@
 #pragma once
 #include "../pch.h"
 #include <stb_image.h>
-
 #include "VKHelpers.h"
 #include "IHCDevice.h"
 #include "IHCPipeline.h"
@@ -9,16 +8,11 @@
 #include "../Core/GameObject.h"
 
 
-const std::string MODEL_PATH = "Engine/assets/models/viking_room/viking_room.obj";
-const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
-
-
 namespace IHCEngine::Graphics
 {
     class RenderSystem
     {
     public:
-
 
         RenderSystem(IHCDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~RenderSystem();
@@ -44,13 +38,6 @@ namespace IHCEngine::Graphics
         //std::unique_ptr<IHCEngine::Graphics::IHCModel> ihcModel;
         //std::vector<IHCEngine::Core::GameObject> gameObjects;
 
-
-        //// Fixed funtions
-        //VkPipelineLayout pipelineLayout;
-        // graphcis pipeline
-        VkDescriptorSetLayout descriptorSetLayout;
-        VkDescriptorPool descriptorPool;
-        std::vector<VkDescriptorSet> descriptorSets;
 
 
 
@@ -103,79 +90,55 @@ namespace IHCEngine::Graphics
         //        throw std::runtime_error("failed to create descriptor pool!");
         //    }
         //}
-        void createDescriptorSets()
-        {
-            // create one descriptor set for each frame in flight
-            std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+        //void createDescriptorSets()
+        //{
+        //    // create one descriptor set for each frame in flight
+        //    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 
-            VkDescriptorSetAllocateInfo allocInfo{};
-            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            allocInfo.descriptorPool = descriptorPool;
-            allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-            allocInfo.pSetLayouts = layouts.data();
+        //    VkDescriptorSetAllocateInfo allocInfo{};
+        //    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        //    allocInfo.descriptorPool = descriptorPool;
+        //    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+        //    allocInfo.pSetLayouts = layouts.data();
 
-            descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-            if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-                throw std::runtime_error("failed to allocate descriptor sets!");
-            }
+        //    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+        //    if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+        //        throw std::runtime_error("failed to allocate descriptor sets!");
+        //    }
 
-            // configure each descriptor set.
-            for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-            {
-                VkDescriptorBufferInfo bufferInfo{}; // which buffer the descriptor will refer to
-                bufferInfo.buffer = uniformBuffers[i];
-                bufferInfo.offset = 0;
-                bufferInfo.range = sizeof(UniformBufferObject);
+        //    // configure each descriptor set.
+        //    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        //    {
+        //        VkDescriptorBufferInfo bufferInfo{}; // which buffer the descriptor will refer to
+        //        bufferInfo.buffer = uniformBuffers[i];
+        //        bufferInfo.offset = 0;
+        //        bufferInfo.range = sizeof(UniformBufferObject);
 
-                VkDescriptorImageInfo imageInfo{};
-                imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                imageInfo.imageView = textureImageView;
-                imageInfo.sampler = textureSampler;
+        //        VkDescriptorImageInfo imageInfo{};
+        //        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        //        imageInfo.imageView = textureImageView;
+        //        imageInfo.sampler = textureSampler;
 
-                std::array<VkWriteDescriptorSet, 2> descriptorWrites{}; // specifies how to update a descriptor set
-                descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrites[0].dstSet = descriptorSets[i];
-                descriptorWrites[0].dstBinding = 0;
-                descriptorWrites[0].dstArrayElement = 0;
-                descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                descriptorWrites[0].descriptorCount = 1;
-                descriptorWrites[0].pBufferInfo = &bufferInfo;
+        //        std::array<VkWriteDescriptorSet, 2> descriptorWrites{}; // specifies how to update a descriptor set
+        //        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        //        descriptorWrites[0].dstSet = descriptorSets[i];
+        //        descriptorWrites[0].dstBinding = 0;
+        //        descriptorWrites[0].dstArrayElement = 0;
+        //        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        //        descriptorWrites[0].descriptorCount = 1;
+        //        descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-                descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                descriptorWrites[1].dstSet = descriptorSets[i];
-                descriptorWrites[1].dstBinding = 1;
-                descriptorWrites[1].dstArrayElement = 0;
-                descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                descriptorWrites[1].descriptorCount = 1;
-                descriptorWrites[1].pImageInfo = &imageInfo;
+        //        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        //        descriptorWrites[1].dstSet = descriptorSets[i];
+        //        descriptorWrites[1].dstBinding = 1;
+        //        descriptorWrites[1].dstArrayElement = 0;
+        //        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        //        descriptorWrites[1].descriptorCount = 1;
+        //        descriptorWrites[1].pImageInfo = &imageInfo;
 
-                vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-            }
-        }
-
-  
-        bool hasStencilComponent(VkFormat format)
-        {
-            return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-        }
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
-        {
-            for (VkFormat format : candidates)
-            {
-                VkFormatProperties props;
-                vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
-
-                if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
-                    return format;
-                }
-                else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
-                    return format;
-                }
-            }
-            throw std::runtime_error("failed to find supported format!");
-        }
-
-
+        //        vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        //    }
+        //}
     
     };
 

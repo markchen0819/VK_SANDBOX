@@ -23,6 +23,9 @@ namespace IHCEngine::Graphics
         VkCommandPool GetCommandPool() { return commandPool; }
         VkSampleCountFlagBits GetMsaaSamples() { return msaaSamples; }
 
+        VkDevice GetPhysicalDevice() { return device; }
+        VkPhysicalDeviceProperties GetPhysicalDeviceProperties() { return properties; }
+        
         // Image, Attachment Helper Functions
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);

@@ -25,6 +25,11 @@
 #include "../Core/GameObject.h"
 
 
+
+
+const std::string MODEL_PATH = "Engine/assets/models/viking_room/viking_room.obj";
+const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
+
 namespace IHCEngine::Graphics
 {
     class GraphicsManager
@@ -55,27 +60,30 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; // 
  
 
-
         std::vector<IHCEngine::Core::GameObject> gameObjects;
 
 
-
-
-
-        // graphcis pipeline
-        VkDescriptorSetLayout descriptorSetLayout;
-
-
-        VkDescriptorPool descriptorPool;
-        std::vector<VkDescriptorSet> descriptorSets;
-
-
-        // Texture
-        uint32_t mipLevels;
-        VkImage textureImage;
-        VkDeviceMemory textureImageMemory;
-        VkImageView textureImageView;
-        VkSampler textureSampler;
-
+        // Logic breakdown for GraphicsManager
+        // 
+        // Init()
+        // 1. Initialize the Vulkan Context
+        // 2. Window and Presentation Setup (Swapchain)
+        // 3. Resource Setup (UniformBuffers, textures, Descriptors)
+        // 4. Rendering Setup (RenderSystems (or Pipelines)
+        //
+        // Update()
+        // 1. Handle System Events:
+        // 2. Pre-rendering Updates (Update Uniform Buffers)
+        // 3. Render
+        //    BeginSwapChainRenderPass
+        //    RenderGameObjects
+        //        Bind Global Pipeline and Descriptors
+        //        For each GameObject
+        //            Update push constants (per-object)
+        //            Bind material
+        //            Bind model(mesh)
+        //            Draw the object
+        //    EndSwapChainRenderPass
+        //
     };
 }

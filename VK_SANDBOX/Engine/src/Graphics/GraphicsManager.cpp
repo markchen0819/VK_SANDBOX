@@ -36,6 +36,10 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
         uboBuffers[i]->Map(); // persistent mapping
     }
 
+    // Create textures 
+
+
+
     // To referring resources (UniformBuffers we just created) in the shaders
     // , we need to Create Descriptors 
     globalDescriptorPool =

@@ -21,8 +21,8 @@ void IHCEngine::Core::Engine::Init()
 	Time::Init();
 	Time::SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 
-	renderSystem = std::make_unique<Graphics::RenderSystem>();
-	renderSystem->Init(appWindow);
+	graphicsManager = std::make_unique<Graphics::GraphicsManager>();
+	graphicsManager->Init(appWindow);
 	//application->Init();
 }
 
@@ -44,12 +44,12 @@ void IHCEngine::Core::Engine::Update()
 
 		}
 
-		renderSystem->Update();
+		graphicsManager->Update();
 	}
 }
 
 void IHCEngine::Core::Engine::Shutdown()
 {
 	//application->Shutdown();
-	renderSystem->Shutdown();
+	graphicsManager->Shutdown();
 }
