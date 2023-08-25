@@ -29,7 +29,11 @@ namespace IHCEngine::Graphics
     class GraphicsManager
     {
     public:
-        void Init(std::unique_ptr< Window::AppWindow>& w);
+
+        GraphicsManager(std::unique_ptr< Window::AppWindow>& w);
+        ~GraphicsManager() {};
+
+        void Init();
         void Update();
         void Shutdown();
 
@@ -40,7 +44,6 @@ namespace IHCEngine::Graphics
     private:
 
         void initVulkan();
-        void loadGameObjects();
 
         Window::AppWindow& appWindow;
         Camera camera;
@@ -79,29 +82,9 @@ namespace IHCEngine::Graphics
         //
 
         // Temporary
-
         std::unique_ptr<IHCEngine::Core::GameObject> testGobj = nullptr;
-        std::unordered_map<unsigned int, IHCEngine::Core::GameObject> gameObjects;
-        void loadGameObjects()
-        {
-            std::shared_ptr<IHCModel> testModel =
-                IHCModel::CreateModelFromFile
-                (
-                    *ihcDevice, 
-                    "Engine/assets/models/viking_room/viking_room.obj"
-                );
-            std::shared_ptr<IHCTexture> testTexture =
-                std::make_shared < IHCTexture>
-                (
-                    *ihcDevice,
-                    "Engine/assets/models/viking_room/viking_room.png"
-                );
-            testGobj = std::make_unique<IHCEngine::Core::GameObject>(IHCEngine::Core::GameObject::CreateGameObject());
-            testGobj->model = testModel;
-            testGobj->texture= testTexture;
-            gameObjects.emplace(testGobj->GetUID(), std::move(testGobj));
-            
-            //testGobj.transform.GetLocalModelMatrix();
-        }
+        std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+        void loadGameObjects();
+
     };
 }

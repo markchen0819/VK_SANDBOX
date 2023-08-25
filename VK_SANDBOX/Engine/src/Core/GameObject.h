@@ -4,18 +4,29 @@
 #include "../Graphics/IHCTexture.h"
 #include "Component.h"
 
+namespace IHCEngine::Graphics 
+{
+    class IHCModel;  // Forward declaration, BUT WHY?
+    class IHCTexture;  // Forward declaration, BUT WHY?
+}
 namespace IHCEngine::Core
 {
+
+
     class GameObject
     {
     public:
 
-        // Static Helper Functions
-        static GameObject CreateGameObject()
-        {
-            static unsigned int currentId = 0;
-            return GameObject{ currentId++ };
-        }
+        GameObject();
+        ~GameObject() {};
+
+        //// Static Helper Functions
+        //static std::unique_ptr<IHCEngine::Core::GameObject> CreateGameObject()
+        //{
+        //    static unsigned int currentId = 0;
+        //    return std::make_unique<IHCEngine::Core::GameObject>(currentId++);
+        //    //return GameObject{ currentId++ };
+        //}
 
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
@@ -40,8 +51,7 @@ namespace IHCEngine::Core
         std::shared_ptr<IHCEngine::Graphics::IHCTexture> texture{};
 
     private:
-
-        GameObject(unsigned int id) : uid{ id } {};
+        static unsigned int currentId;
         std::vector<std::unique_ptr<Component>> components;
         unsigned int uid;
 

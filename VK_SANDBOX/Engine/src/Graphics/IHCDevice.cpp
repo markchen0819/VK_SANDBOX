@@ -385,6 +385,15 @@ void IHCEngine::Graphics::IHCDevice::createLogicalDevice()
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
+// swapchain helpers
+QueueFamilyIndices IHCEngine::Graphics::IHCDevice::FindPhysicalQueueFamilies()
+{
+    return findQueueFamilies(physicalDevice);
+}
+SwapChainSupportDetails IHCEngine::Graphics::IHCDevice::GetSwapChainSupport()
+{
+    return querySwapChainSupport(physicalDevice);
+};
 #pragma endregion
 
 
@@ -498,6 +507,7 @@ VkImageView IHCEngine::Graphics::IHCDevice::CreateImageView(VkImage image, VkFor
 }
 
 #pragma endregion
+
 
 #pragma region Buffer Helper functions
 void IHCEngine::Graphics::IHCDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)

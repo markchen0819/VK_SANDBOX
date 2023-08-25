@@ -88,7 +88,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     for (auto& g : frameInfo.gameObjects)
     {
         auto& gobj = g.second;
-        if (gobj.model == nullptr) continue;
+        if (gobj->model == nullptr) continue;
 
         // Step 3-3: Update PushConstants (ex: Transform)
         SimplePushConstantData push{};
@@ -113,10 +113,10 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         // (Commonly Model matrix)
 
         // Step 3-6: Bind Model
-        gobj.model->Bind(frameInfo.commandBuffer);
+        gobj->model->Bind(frameInfo.commandBuffer);
 
         // Step 4: Draw Object
-        gobj.model->Draw(frameInfo.commandBuffer);
+        gobj->model->Draw(frameInfo.commandBuffer);
     }
 }
 #pragma endregion

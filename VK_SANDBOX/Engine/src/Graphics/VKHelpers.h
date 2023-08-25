@@ -134,6 +134,12 @@ struct GlobalUniformBufferObject
 
 
 #pragma region FrameInfo (Data passing for VKwraps)
+
+namespace IHCEngine::Core
+{
+    class GameObject;  // Forward declaration, BUT WHY?
+}
+
 namespace IHCEngine::Graphics
 {
     struct FrameInfo
@@ -143,7 +149,7 @@ namespace IHCEngine::Graphics
         VkCommandBuffer commandBuffer;
         Camera& camera;
         VkDescriptorSet globalDescriptorSet;
-        std::unordered_map<unsigned int, IHCEngine::Core::GameObject> gameObjects;
+        std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
     };
 }
 #pragma endregion 

@@ -5,10 +5,11 @@
 #include "IHCBuffer.h"
 #include <tiny_obj_loader.h>
 
+struct Vertex;  // Forward declaration, BUT WHY?
+
 namespace IHCEngine::Graphics
 {
-    struct Vertex;  // Forward declaration, BUT WHY?
-
+    class IHCBuffer; // Forward declaration, BUT WHY?
 	class IHCModel
 	{
     public:

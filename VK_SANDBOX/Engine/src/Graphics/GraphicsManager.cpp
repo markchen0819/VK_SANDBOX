@@ -1,20 +1,21 @@
 #include "GraphicsManager.h"
 
-
-void IHCEngine::Graphics::GraphicsManager::Init(std::unique_ptr<Window::AppWindow>& w)
+IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
+    : appWindow(*w)
 {
-    appWindow = *w;
-
-    initVulkan();
 }
 
+void IHCEngine::Graphics::GraphicsManager::Init()
+{
+    initVulkan();
+}
 void IHCEngine::Graphics::GraphicsManager::initVulkan()
 {
     // Create VK instance 
     ihcDevice = std::make_unique<IHCEngine::Graphics::IHCDevice>(appWindow);
 
     // Create Swapchain to render to screen
-    renderer = std::make_unique<IHCEngine::Graphics::Renderer>(appWindow, ihcDevice);
+    renderer = std::make_unique<IHCEngine::Graphics::Renderer>(appWindow, *ihcDevice);
 
     // Create UniformBuffers for updating shaders
     // These are used to store data that remains constant 
@@ -25,7 +26,7 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     for (int i = 0; i < uboBuffers.size(); i++)
     {
         uboBuffers[i] = std::make_unique<IHCBuffer>(
-            ihcDevice,
+            *ihcDevice,
             sizeof(GlobalUniformBufferObject),
             1,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -77,7 +78,7 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     // one pipeline for basic shading
     basicRenderSystem = std::make_unique<IHCEngine::Graphics::RenderSystem>
         (
-            ihcDevice, 
+            *ihcDevice, 
             renderer->GetSwapChainRenderPass(),
             globalDescriptorSetLayout->GetDescriptorSetLayout()
         );
@@ -101,7 +102,7 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
     glfwPollEvents();
-    //IHCEngine::Core::Time::Update(); // windowsize change etc might need recheck
+    //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change etc might need recheck
 
     // Render
     if (auto commandBuffer = renderer->BeginFrame())
@@ -111,7 +112,7 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         FrameInfo frameInfo
         {
             frameIndex,
-            IHCEngine::Core::Time::GetDeltaTime(),
+            IHCEngine::Core::Time::GetInstance().GetDeltaTime(),
             commandBuffer,
             camera,
             globalDescriptorSets[frameIndex],
@@ -157,3 +158,26 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
 //    memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 //
 //}
+
+void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
+{
+    std::shared_ptr<IHCModel> testModel =
+        IHCModel::CreateModelFromFile
+        (
+            *ihcDevice,
+            "Engine/assets/models/viking_room/viking_room.obj"
+        );
+    std::shared_ptr<IHCTexture> testTexture =
+        std::make_shared < IHCTexture>
+        (
+            *ihcDevice,
+            "Engine/assets/models/viking_room/viking_room.png"
+        );
+    testGobj = std::make_unique<IHCEngine::Core::GameObject>();
+    testGobj->model = testModel;
+    testGobj->texture = testTexture;
+
+    gameObjects.emplace(testGobj->GetUID(), testGobj.get());
+
+    //testGobj.transform.GetLocalModelMatrix();
+}

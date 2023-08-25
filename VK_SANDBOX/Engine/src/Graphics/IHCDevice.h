@@ -2,6 +2,10 @@
 #include "../pch.h"
 #include "VKHelpers.h"
 #include "../Window/AppWindow.h"
+
+struct QueueFamilyIndices; // Forward declaration, BUT WHY?
+struct SwapChainSupportDetails; // Forward declaration, BUT WHY?
+
 namespace IHCEngine::Graphics
 {
 	class IHCDevice
@@ -17,9 +21,9 @@ namespace IHCEngine::Graphics
         VkSurfaceKHR GetSurface() { return surface; }
         VkDevice GetDevice() { return device; }
         VkQueue GetGraphicsQueue() { return graphicsQueue; }
-        VkQueue GetPresentQueue() { return presentQueue; }
-        QueueFamilyIndices FindPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
-        SwapChainSupportDetails GetSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
+        VkQueue GetPresentQueue() { return presentQueue; };
+        QueueFamilyIndices FindPhysicalQueueFamilies(); 
+        SwapChainSupportDetails GetSwapChainSupport();
         VkCommandPool GetCommandPool() { return commandPool; }
         VkSampleCountFlagBits GetMsaaSamples() { return msaaSamples; }
 

@@ -18,11 +18,11 @@ void IHCEngine::Core::Engine::Init()
 {
 	appWindow = std::make_unique<Window::AppWindow>("MARKAPP", 800, 600);
 
-	Time::Init();
-	Time::SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
+	IHCEngine::Core::Time::Init();
+	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 
-	graphicsManager = std::make_unique<Graphics::GraphicsManager>();
-	graphicsManager->Init(appWindow);
+	graphicsManager = std::make_unique<Graphics::GraphicsManager>(appWindow);
+	graphicsManager->Init();
 	//application->Init();
 }
 
@@ -30,15 +30,15 @@ void IHCEngine::Core::Engine::Update()
 {
 	while (!appWindow->ShouldClose())
 	{
-		Time::Update();
+		Time::GetInstance().Update();
 
 		//application->Update();
 
 		// Time::Reset(); // if scene change
 
-		while (Time::ShouldExecuteFixedUpdate())
+		while (Time::GetInstance().ShouldExecuteFixedUpdate())
 		{
-			Time::UpdateFixedTime();
+			Time::GetInstance().UpdateFixedTime();
 			//component->FixedUpdate();
 			//physics->Update();
 
