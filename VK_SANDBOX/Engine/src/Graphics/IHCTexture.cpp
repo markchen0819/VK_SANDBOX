@@ -9,6 +9,14 @@ IHCEngine::Graphics::IHCTexture::IHCTexture(IHCDevice& device, const std::string
     createTextureSampler();
 }
 
+IHCEngine::Graphics::IHCTexture::~IHCTexture()
+{
+    vkDestroySampler(ihcDevice.GetDevice(), textureSampler, nullptr);
+    vkDestroyImageView(ihcDevice.GetDevice(), textureImageView, nullptr);
+    vkDestroyImage(ihcDevice.GetDevice(), textureImage, nullptr);
+    vkFreeMemory(ihcDevice.GetDevice(), textureImageMemory, nullptr);
+}
+
 void IHCEngine::Graphics::IHCTexture::createTextureImage(const std::string filepath)
 {
     // Load from stbi
@@ -128,15 +136,22 @@ void IHCEngine::Graphics::IHCTexture::transitionImageLayout(VkImage image, VkFor
 }
 void IHCEngine::Graphics::IHCTexture::generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
 {
+    // staging buffer can only be used to fill mip level 0
+    // To fill these levels we need to generate the data 
+    // from the single level that we have using vkCmdBlitImage
+
+    // transitionImageLayout only performs layout transitions on the entire image,
+    // so we'll need to write a few more pipeline barrier commands
+
     // Check if image format supports linear blitting
     VkFormatProperties formatProperties;
-    vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat, &formatProperties);
+    vkGetPhysicalDeviceFormatProperties(ihcDevice.GetPhysicalDevice(), imageFormat, &formatProperties);
 
     if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
         throw std::runtime_error("texture image format does not support linear blitting!");
     }
 
-    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+    VkCommandBuffer commandBuffer = ihcDevice.BeginSingleTimeCommands();
 
     // Create barrier
     VkImageMemoryBarrier barrier{};
@@ -216,7 +231,7 @@ void IHCEngine::Graphics::IHCTexture::generateMipmaps(VkImage image, VkFormat im
         0, nullptr,
         1, &barrier);
 
-    endSingleTimeCommands(commandBuffer);
+    ihcDevice.EndSingleTimeCommands(commandBuffer);
 }
 void IHCEngine::Graphics::IHCTexture::createTextureImageView()
 {

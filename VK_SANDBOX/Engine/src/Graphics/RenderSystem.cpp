@@ -85,10 +85,10 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         nullptr
     );
 
-    for (auto& kv : frameInfo.gameObjects)
+    for (auto& g : frameInfo.gameObjects)
     {
-        auto& obj = kv.second;
-        if (obj.model == nullptr) continue;
+        auto& gobj = g.second;
+        if (gobj.model == nullptr) continue;
 
         // Step 3-3: Update PushConstants (ex: Transform)
         SimplePushConstantData push{};
@@ -106,72 +106,17 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
             &push
         );
 
-
         // Step 3-4: Bind object material set (at set 1)
         // (Commonly normal, texture ...)
         // 
         // Step 3-5: Bind object descriptor set (at set 2)
         // (Commonly Model matrix)
 
-        // Step 3-1: Bind Model
-        obj.model->bind(frameInfo.commandBuffer);
+        // Step 3-6: Bind Model
+        gobj.model->Bind(frameInfo.commandBuffer);
 
         // Step 4: Draw Object
-        obj.model->draw(frameInfo.commandBuffer);
+        gobj.model->Draw(frameInfo.commandBuffer);
     }
 }
 #pragma endregion
-
-
-
-
-void IHCEngine::Graphics::RenderSystem::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
-{
-
-
-    ///////////////////////////////
-    ////// Render pass start //////
-    ///////////////////////////////
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    // Step 1: Bind pipeline
-    ihcPipeline->Bind(commandBuffer);
-
-
-    // Step 2: Bind model (setup vertices, indices, normal, uv)
-    ihcModel->Bind(commandBuffer);
-
-    // Step 3: PushConstant
-    //vkCmdPushConstants(
-    //    frameInfo.commandBuffer,
-    //    pipelineLayout,
-    //    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-    //    0,
-    //    sizeof(SimplePushConstantData),
-    //    &push);
-
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-    
-    // Step 3: Draw
-    ihcModel->Draw(commandBuffer);
-
-    vkCmdEndRenderPass(commandBuffer);
-    /////////////////////////////
-    ////// Render pass end //////
-    /////////////////////////////
-    // End recording
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
-    {
-        throw std::runtime_error("failed to record command buffer!");
-    }
-}
-
-
-
-void IHCEngine::Graphics::RenderSystem::loadGameObjects()
-{
-    auto testGobj = IHCEngine::Core::GameObject::CreateGameObject();
-    //testGobj.AddComponent<X>();
-    gameObjects.push_back(testGobj);
-    testGobj.transform.GetLocalModelMatrix();
-}
-

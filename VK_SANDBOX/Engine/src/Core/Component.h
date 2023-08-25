@@ -3,6 +3,8 @@
 
 namespace IHCEngine::Core
 {
+	class GameObject;  // Forward declaration
+
 	enum class ComponentType 
 	{
 		Base,      

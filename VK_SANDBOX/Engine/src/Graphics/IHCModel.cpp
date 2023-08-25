@@ -77,7 +77,7 @@ void IHCEngine::Graphics::IHCModel::Builder::LoadModel(const std::string& filepa
 }
 #pragma endregion
 
-std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::IHCModel::createModelFromFile(IHCDevice& device, const std::string& filepath)
+std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::IHCModel::CreateModelFromFile(IHCDevice& device, const std::string& filepath)
 {
     Builder builder{};
     builder.LoadModel(filepath);

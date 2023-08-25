@@ -15,19 +15,13 @@
 #include "RenderSystem.h" // contains IHCPipeline
 #include "Renderer.h" // contains IHCSwapchain
 
-
 // Camera
 #include "Camera.h"
-
 
 // GameObject
 #include "IHCModel.h"
 #include "../Core/GameObject.h"
 
-
-
-
-const std::string MODEL_PATH = "Engine/assets/models/viking_room/viking_room.obj";
 const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
 
 namespace IHCEngine::Graphics
@@ -56,13 +50,11 @@ namespace IHCEngine::Graphics
         // For shaders
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers; // matrices
         std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{};
+        std::vector<VkDescriptorSet> globalDescriptorSets;
+
         // customizable
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; // 
  
-
-        std::vector<IHCEngine::Core::GameObject> gameObjects;
-
-
         // Logic breakdown for GraphicsManager
         // 
         // Init()
@@ -85,5 +77,31 @@ namespace IHCEngine::Graphics
         //            Draw the object
         //    EndSwapChainRenderPass
         //
+
+        // Temporary
+
+        std::unique_ptr<IHCEngine::Core::GameObject> testGobj = nullptr;
+        std::unordered_map<unsigned int, IHCEngine::Core::GameObject> gameObjects;
+        void loadGameObjects()
+        {
+            std::shared_ptr<IHCModel> testModel =
+                IHCModel::CreateModelFromFile
+                (
+                    *ihcDevice, 
+                    "Engine/assets/models/viking_room/viking_room.obj"
+                );
+            std::shared_ptr<IHCTexture> testTexture =
+                std::make_shared < IHCTexture>
+                (
+                    *ihcDevice,
+                    "Engine/assets/models/viking_room/viking_room.png"
+                );
+            testGobj = std::make_unique<IHCEngine::Core::GameObject>(IHCEngine::Core::GameObject::CreateGameObject());
+            testGobj->model = testModel;
+            testGobj->texture= testTexture;
+            gameObjects.emplace(testGobj->GetUID(), std::move(testGobj));
+            
+            //testGobj.transform.GetLocalModelMatrix();
+        }
     };
 }

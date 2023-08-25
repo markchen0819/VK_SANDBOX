@@ -6,6 +6,7 @@
 
 namespace IHCEngine::Graphics
 {
+    class IHCDevice;  // Forward declaration, BUT WHY?
 	class IHCBuffer
 	{
     public:

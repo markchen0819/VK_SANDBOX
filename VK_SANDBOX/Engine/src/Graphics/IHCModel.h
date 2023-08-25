@@ -7,6 +7,8 @@
 
 namespace IHCEngine::Graphics
 {
+    struct Vertex;  // Forward declaration, BUT WHY?
+
 	class IHCModel
 	{
     public:
@@ -25,7 +27,7 @@ namespace IHCEngine::Graphics
         IHCModel(const IHCModel&) = delete;
         IHCModel &operator=(const IHCModel&) = delete;
 
-        static std::unique_ptr<IHCModel> createModelFromFile
+        static std::unique_ptr<IHCModel> CreateModelFromFile
         (IHCDevice& device, const std::string& filepath);
 
         void Bind(VkCommandBuffer commandBuffer);

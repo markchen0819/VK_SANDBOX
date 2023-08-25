@@ -23,7 +23,7 @@ namespace IHCEngine::Graphics
         VkCommandPool GetCommandPool() { return commandPool; }
         VkSampleCountFlagBits GetMsaaSamples() { return msaaSamples; }
 
-        VkDevice GetPhysicalDevice() { return device; }
+        VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
         VkPhysicalDeviceProperties GetPhysicalDeviceProperties() { return properties; }
         
         // Image, Attachment Helper Functions

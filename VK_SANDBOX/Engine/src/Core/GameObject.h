@@ -1,6 +1,8 @@
 #pragma once
-#include "Component.h"
 #include "../Transform/Transform.h"
+#include "../Graphics/IHCModel.h"
+#include "../Graphics/IHCTexture.h"
+#include "Component.h"
 
 namespace IHCEngine::Core
 {
@@ -15,14 +17,15 @@ namespace IHCEngine::Core
             return GameObject{ currentId++ };
         }
 
-        // std::unordered_map<unsigned int, GameObject>;
-
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
+
 
         unsigned int GetUID() { return uid; }
         IHCEngine::Transform::Transform transform;
 
+
+        // Component
 		template<class T>
 		void AddComponent();
 		template<class T>
@@ -32,14 +35,17 @@ namespace IHCEngine::Core
 		template<class T>
         bool HasComponent();
 
+        // Temporary Components
+        std::shared_ptr<IHCEngine::Graphics::IHCModel> model{};
+        std::shared_ptr<IHCEngine::Graphics::IHCTexture> texture{};
+
     private:
 
         GameObject(unsigned int id) : uid{ id } {};
         std::vector<std::unique_ptr<Component>> components;
         unsigned int uid;
 
-        // Optional pointer components
-        std::shared_ptr<IHCEngine::Graphics::IHCModel> model{};
+
     };
 }
 #include "GameObject.inl"

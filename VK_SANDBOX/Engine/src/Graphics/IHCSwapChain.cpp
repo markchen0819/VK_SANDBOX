@@ -394,7 +394,8 @@ void IHCEngine::Graphics::IHCSwapChain::createRenderPass()
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE; // We don't care about stencil
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // We don't care about stencil
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // We don't care about initial layout
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; 
+    // resolve multi-sampled image to a regular image
     //colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Images to be presented in the swap chain
 
     VkAttachmentDescription depthAttachment{};
@@ -423,7 +424,6 @@ void IHCEngine::Graphics::IHCSwapChain::createRenderPass()
     colorAttachmentRef.attachment = 0; // We have one attachment referenced by index 0
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Images will be used as color attachment
 
-    //
     VkAttachmentReference depthAttachmentRef{};
     depthAttachmentRef.attachment = 1;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

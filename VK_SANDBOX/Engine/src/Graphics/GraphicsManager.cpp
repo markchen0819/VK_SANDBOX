@@ -4,7 +4,7 @@
 void IHCEngine::Graphics::GraphicsManager::Init(std::unique_ptr<Window::AppWindow>& w)
 {
     appWindow = *w;
-    loadGameObjects();
+
     initVulkan();
 }
 
@@ -36,9 +36,8 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
         uboBuffers[i]->Map(); // persistent mapping
     }
 
-    // Create textures 
-
-
+    ////////// Create textures () (NEED REDESIGN HERE) ////////////////////
+    loadGameObjects();
 
     // To referring resources (UniformBuffers we just created) in the shaders
     // , we need to Create Descriptors 
@@ -53,11 +52,18 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
         .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)  // ubo //VK_SHADER_STAGE_VERTEX_BIT
         .AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) // sampler
         .Build();
-    std::vector<VkDescriptorSet> globalDescriptorSets(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+    globalDescriptorSets.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++)
     {
         auto bufferInfo = uboBuffers[i]->GetDescriptorInfo();
-        auto imageInfo = 
+
+        ////////// (NEED REDESIGN HERE) ////////////////////
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = testGobj->texture->GetTextureImageView();
+        imageInfo.sampler = testGobj->texture->GetTextureSampler();
+
+
         IHCDescriptorWriter(*globalDescriptorSetLayout, *globalDescriptorPool)
             .WriteBuffer(0, &bufferInfo) // ubo
             .WriteImage(1, &imageInfo)// sampler
@@ -133,14 +139,6 @@ void IHCEngine::Graphics::GraphicsManager::Update()
 void IHCEngine::Graphics::GraphicsManager::Shutdown()
 {
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
-}
-
-void IHCEngine::Graphics::GraphicsManager::cleanup()
-{
-    vkDestroySampler(device, textureSampler, nullptr);
-    vkDestroyImageView(device, textureImageView, nullptr);
-    vkDestroyImage(device, textureImage, nullptr);
-    vkFreeMemory(device, textureImageMemory, nullptr);
 }
 
 
