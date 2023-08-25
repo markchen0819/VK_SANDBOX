@@ -34,13 +34,6 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> ihcPipeline;
 
 
-
-        //std::unique_ptr<IHCEngine::Graphics::IHCModel> ihcModel;
-        //std::vector<IHCEngine::Core::GameObject> gameObjects;
-
-
-
-
         //// graphics pipeline (shaders)
         //void createDescriptorSetLayout() // uniforms
         //{

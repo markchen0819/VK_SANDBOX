@@ -197,32 +197,52 @@ void IHCEngine::Graphics::IHCDevice::createSurface()
 // pick physical, one that supports rendering & presenting onto the screen (queues) & supports swapchain
 void IHCEngine::Graphics::IHCDevice::pickPhysicalDevice()
 {
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-        if (deviceCount == 0)
-        {
-            throw std::runtime_error("failed to find GPUs with Vulkan support!");
-        }
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    if (deviceCount == 0)
+    {
+        throw std::runtime_error("failed to find GPUs with Vulkan support!");
+    }
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-        for (const auto& device : devices)
+    // Get the device with the highest score
+    std::multimap<int, VkPhysicalDevice> candidates;
+    for (const auto& device : devices)
+    {
+        if (isDeviceSuitable(device))
         {
-            if (isDeviceSuitable(device))
-            {
-                physicalDevice = device;
-                msaaSamples = getMaxUsableSampleCount();
-                break;
-            }
+            int score = evaluateDeviceScore(device);
+            candidates.insert(std::make_pair(score, device));
         }
+    }
 
-        if (physicalDevice == VK_NULL_HANDLE)
-        {
-            throw std::runtime_error("failed to find a suitable GPU!");
-        }
-
+    if (candidates.rbegin()->first > 0)
+    {
+        physicalDevice = candidates.rbegin()->second;
         vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-        std::cout << "physical device: " << properties.deviceName << std::endl;
+        msaaSamples = getMaxUsableSampleCount();
+    }
+    else
+    {
+        throw std::runtime_error("failed to find a suitable GPU!");
+    }
+
+    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    std::cout << "physical device: " << properties.deviceName << std::endl;
+}
+int IHCEngine::Graphics::IHCDevice::evaluateDeviceScore(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    int score = 0;
+    // Favor dedicated GPUs over integrated ones
+    if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    {
+        score += 1000;
+    }
+    // Maybe check other properties and features, and increment the score accordingly
+    return score;
 }
 bool IHCEngine::Graphics::IHCDevice::isDeviceSuitable(VkPhysicalDevice device)
 {

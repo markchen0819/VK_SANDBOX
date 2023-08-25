@@ -91,13 +91,6 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     ////// Create RayTracingSystem //////
     ////// Create SimulationSystem //////
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // old
-
-    //createTextureImage(); // Creates a texture image. This is used to store the pixel data of our texture.
-    //createTextureImageView(); // Creates a view into our texture image. This describes how to access the texture image and which part of the image to access.
-    //createTextureSampler(); // Creates a texture sampler. This is used to read color data from the texture image in the shaders.
-
 }
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
@@ -120,6 +113,7 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         };
 
         GlobalUniformBufferObject ubo{};
+
         ubo.projectionMatrix = camera.GetProjection();
         ubo.viewMatrix = camera.GetView();
         ubo.inverseViewMatrix = camera.GetInverseView();

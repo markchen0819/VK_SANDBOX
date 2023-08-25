@@ -52,13 +52,13 @@ void IHCEngine::Graphics::IHCTexture::createTextureImage(const std::string filep
     imageInfo.extent.width = static_cast<uint32_t>(texWidth);
     imageInfo.extent.height = static_cast<uint32_t>(texHeight);
     imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = mipLevels;
+    imageInfo.mipLevels = mipLevels; 
     imageInfo.arrayLayers = 1;
     imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-    imageInfo.samples = ihcDevice.GetMsaaSamples();
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT; // an image with one sample per pixel
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.flags = 0;
     ihcDevice.CreateImageWithInfo(

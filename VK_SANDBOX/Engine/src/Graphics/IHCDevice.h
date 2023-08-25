@@ -65,6 +65,8 @@ namespace IHCEngine::Graphics
 
 
         //// Helper functions
+        // physical device
+        int evaluateDeviceScore(VkPhysicalDevice device);
         // debug & validation
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
         std::vector<const char*> getRequiredExtensions();
