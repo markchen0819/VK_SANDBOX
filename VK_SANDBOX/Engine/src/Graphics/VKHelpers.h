@@ -112,16 +112,10 @@ namespace std
 struct SimplePushConstantData
 {
     alignas(16) glm::mat4 modelMatrix{1.f};
-    //alignas(16) glm::mat4 normalMatrix{1.f};
+    alignas(16) glm::mat4 normalMatrix{1.f};
 };
 // larger amount of data that doesn't change often
 // common use: Camera Matrices, Global Lighting, Per-Object Data, Array of bone transformations
-struct UniformBufferObject
-{
-   // alignas(16) glm::mat4 modelMatrix;
-   //alignas(16) glm::mat4 viewMatrix;
-   // alignas(16) glm::mat4 projMatrix;
-};
 
 struct GlobalUniformBufferObject
 {

@@ -58,8 +58,8 @@ void IHCEngine::Graphics::IHCModel::Builder::LoadModel(const std::string& filepa
                     attrib.texcoords[2 * index.texcoord_index + 1],
                 };
 
+                // using the vk tutorial model
                 //vertex.uv = {
-                //{
                 //    attrib.texcoords[2 * index.texcoord_index + 0],
                 //    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
                 //};

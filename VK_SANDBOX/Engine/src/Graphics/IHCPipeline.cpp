@@ -171,6 +171,9 @@ VkShaderModule IHCEngine::Graphics::IHCPipeline::createShaderModule(const std::v
 std::vector<char> IHCEngine::Graphics::IHCPipeline::readFile(const std::string& filename) {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
+    // YOU MIGHT FORGOT TO COMPILE SHADERS (SPV) IF YOU CRASH HERE
+    // check if compile.bat contains your shaders
+    // then run Engine/assets/shader/compile.bat
 	if (!file.is_open()) {
 		throw std::runtime_error("failed to open file!");
 	}

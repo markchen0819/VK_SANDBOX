@@ -1,4 +1,5 @@
 #include "RenderSystem.h"
+#include "../Core/Time/Time.h"
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
     : ihcDevice{ device }
@@ -68,11 +69,12 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 
     // Step 3: Bind 
     
-    // Step 3-1: Bind Pipeline
-    ihcPipeline->Bind(frameInfo.commandBuffer);
+    // Bind Pipeline (if we are only using one pipeline in the rendersystem)
+    // ihcPipeline->Bind(frameInfo.commandBuffer);
 
-    // Step 3-2: Bind global descriptor set (at set 0)  (ubo, sampler)
-    // (Commonly Proj & View matrix)
+    // Bind Global Descriptor Set (at set 0)  
+    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
+    // Our case:  ubo, sampler
     vkCmdBindDescriptorSets
     (
         frameInfo.commandBuffer,
@@ -85,14 +87,38 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         nullptr
     );
 
+    // Update Global Push Constants
+    // Common case:  Global time value, Viewport Information
+    // Our case: None
+
+
+    // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
         auto& gobj = g.second;
         if (gobj->model == nullptr) continue;
 
-        // Step 3-3: Update PushConstants (ex: Transform)
+        // Bind its respective Pipeline
+        // Each object may have its own pipeline, especially if it uses a different shader 
+        // or rendering technique. For instance, some objects might be rendered with a 
+        // reflection shader while others use a basic diffuse shader.
+        ihcPipeline->Bind(frameInfo.commandBuffer);
+
+        // Bind Local Descriptor Set
+        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
+        // Our case: None
+
+
+        // Update Local Push Constants (ex: Transform)
+        // Common case: Model Matrix, Material Properties, Animation Data:
+        // Our case: Model Matrix
         SimplePushConstantData push{};
-        //push.normalMatrix = obj.transform.normalMatrix();
+
+        //gobj->transform.SetLocalRotation()
+        //push.modelMatrix = gobj->transform.GetLocalModelMatrix();
+        push.modelMatrix=
+            glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        push.normalMatrix = glm::mat4(1);
         // potential for lighting
         /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
         glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
@@ -106,13 +132,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
             &push
         );
 
-        // Step 3-4: Bind object material set (at set 1)
-        // (Commonly normal, texture ...)
-        // 
-        // Step 3-5: Bind object descriptor set (at set 2)
-        // (Commonly Model matrix)
-
-        // Step 3-6: Bind Model
+        // Bind Mesh(Model)
         gobj->model->Bind(frameInfo.commandBuffer);
 
         // Step 4: Draw Object

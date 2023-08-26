@@ -19,6 +19,7 @@ void IHCEngine::Core::Engine::Init()
 	appWindow = std::make_unique<Window::AppWindow>("MARKAPP", 800, 600);
 
 	IHCEngine::Core::Time::Init();
+	Time::GetInstance().LockFrameRate(120);
 	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 
 	graphicsManager = std::make_unique<Graphics::GraphicsManager>(appWindow);

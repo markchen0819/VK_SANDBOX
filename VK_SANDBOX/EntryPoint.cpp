@@ -16,7 +16,8 @@ int main()
 #ifdef _DEBUG
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-
+    // Test CrtDEBUG getting leak messages
+    //int* test = new int(); // {223} normal block at 0x000001673819B570, 4 bytes long.
 
     IHCEngine::Core::Engine engine;
    // std::shared_ptr<TestApplication> test;

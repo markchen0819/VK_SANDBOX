@@ -113,10 +113,18 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         };
 
         GlobalUniformBufferObject ubo{};
-
-        ubo.projectionMatrix = camera.GetProjection();
-        ubo.viewMatrix = camera.GetView();
+        //ubo.modelMatrix = glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.viewMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.projectionMatrix = glm::perspective(
+            glm::radians(45.0f),
+            renderer->GetAspectRatio(), //swapChainExtent.width / (float)swapChainExtent.height,
+            0.1f, 
+            10.0f);
+        ubo.projectionMatrix[1][1] *= -1;
+        //ubo.projectionMatrix = camera.GetProjection();
+        //ubo.viewMatrix = camera.GetView();
         ubo.inverseViewMatrix = camera.GetInverseView();
+
         uboBuffers[frameIndex]->WriteToBuffer(&ubo);
         uboBuffers[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
@@ -173,5 +181,4 @@ void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
 
     gameObjects.emplace(testGobj->GetUID(), testGobj.get());
 
-    //testGobj.transform.GetLocalModelMatrix();
 }
