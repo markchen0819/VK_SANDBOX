@@ -1,6 +1,6 @@
 #pragma once
-#include "Camera.h"
-#include "../Core/GameObject.h"
+#include "../Camera.h"
+#include "../../Core/Scene/GameObject.h"
 
 #pragma region Debugging 
 const std::vector<const char*> validationLayers =

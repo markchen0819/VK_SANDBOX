@@ -1,5 +1,4 @@
 #pragma once
-#include "../pch.h"
 #include <stb_image.h>
 
 // Window
@@ -9,20 +8,18 @@
 #include "../Core/Time/Time.h"
 
 // Vulkan
-#include "VKHelpers.h"
-#include "IHCDevice.h"
-#include "IHCDescriptors.h"
-#include "RenderSystem.h" // contains IHCPipeline
+#include "VKWraps/VKHelpers.h"
+#include "VKWraps/IHCDevice.h"
+#include "VKWraps/IHCDescriptors.h"
+#include "RenderSystems/RenderSystem.h" // contains IHCPipeline
 #include "Renderer.h" // contains IHCSwapchain
 
 // Camera
 #include "Camera.h"
 
 // GameObject
-#include "IHCModel.h"
-#include "../Core/GameObject.h"
-
-const std::string TEXTURE_PATH = "Engine/assets/models/viking_room/viking_room.png";
+#include "VKWraps/IHCModel.h"
+#include "../Core/Scene/GameObject.h"
 
 namespace IHCEngine::Graphics
 {

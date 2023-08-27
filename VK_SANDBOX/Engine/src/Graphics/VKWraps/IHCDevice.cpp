@@ -1,4 +1,4 @@
-#include "../pch.h"
+#include "../../pch.h"
 #include "IHCDevice.h"
 
 #pragma region VK instance debugging callbacks
@@ -259,6 +259,11 @@ bool IHCEngine::Graphics::IHCDevice::isDeviceSuitable(VkPhysicalDevice device)
     VkPhysicalDeviceFeatures supportedFeatures;
     vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
+    if (supportedFeatures.fillModeNonSolid != VK_TRUE)
+    {
+        throw std::runtime_error("Wireframe rendering is not supported on this GPU!");
+    }
+
     return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 QueueFamilyIndices IHCEngine::Graphics::IHCDevice::findQueueFamilies(VkPhysicalDevice device)
@@ -376,6 +381,7 @@ void IHCEngine::Graphics::IHCDevice::createLogicalDevice()
     deviceFeatures.samplerAnisotropy = VK_TRUE; //  optional device feature
     // Create the logical device
     deviceFeatures.sampleRateShading = VK_TRUE; // enable sample shading feature for the device
+    deviceFeatures.fillModeNonSolid = VK_TRUE;  // Enable wireframe mode
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());

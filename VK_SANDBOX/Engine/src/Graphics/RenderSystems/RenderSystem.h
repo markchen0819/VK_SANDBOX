@@ -1,12 +1,12 @@
 #pragma once
-#include "../pch.h"
 #include <stb_image.h>
-#include "VKHelpers.h"
-#include "IHCDevice.h"
-#include "IHCPipeline.h"
-#include "IHCModel.h"
-#include "../Core/GameObject.h"
+#include "../VKWraps/VKHelpers.h"
+#include "../VKWraps/IHCDevice.h"
+#include "../VKWraps/IHCPipeline.h"
+#include "../VKWraps/IHCModel.h"
 
+#include "../../Core/Time/Time.h"
+#include "../../Core/Scene/GameObject.h"
 
 namespace IHCEngine::Graphics
 {

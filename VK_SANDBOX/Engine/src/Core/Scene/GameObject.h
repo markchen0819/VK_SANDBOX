@@ -1,7 +1,7 @@
 #pragma once
-#include "../Transform/Transform.h"
-#include "../Graphics/IHCModel.h"
-#include "../Graphics/IHCTexture.h"
+#include "../../Transform/Transform.h"
+#include "../../Graphics/VKWraps/IHCModel.h"
+#include "../../Graphics/VKWraps/IHCTexture.h"
 #include "Component.h"
 
 namespace IHCEngine::Graphics 
@@ -54,7 +54,6 @@ namespace IHCEngine::Core
         static unsigned int currentId;
         std::vector<std::unique_ptr<Component>> components;
         unsigned int uid;
-
 
     };
 }

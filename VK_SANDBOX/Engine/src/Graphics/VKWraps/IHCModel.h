@@ -1,5 +1,4 @@
 #pragma once
-#include "../pch.h"
 #include "VKHelpers.h"
 #include "IHCDevice.h"
 #include "IHCBuffer.h"

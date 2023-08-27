@@ -1,3 +1,4 @@
+#include "../pch.h"
 #include "GraphicsManager.h"
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)

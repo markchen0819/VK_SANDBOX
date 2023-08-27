@@ -1,5 +1,5 @@
+#include "../../pch.h"
 #include "RenderSystem.h"
-#include "../Core/Time/Time.h"
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
     : ihcDevice{ device }

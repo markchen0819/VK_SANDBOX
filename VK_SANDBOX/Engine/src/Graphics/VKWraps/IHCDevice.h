@@ -1,7 +1,6 @@
 #pragma once
-#include "../pch.h"
 #include "VKHelpers.h"
-#include "../Window/AppWindow.h"
+#include "../../Window/AppWindow.h"
 
 struct QueueFamilyIndices; // Forward declaration, BUT WHY?
 struct SwapChainSupportDetails; // Forward declaration, BUT WHY?

@@ -1,4 +1,4 @@
-#include "../pch.h"
+#include "../../pch.h"
 #include "IHCModel.h"
 
 #pragma region tiny_obj_loader loadModel function

@@ -1,7 +1,6 @@
 #pragma once
-#include "../pch.h"
-#include "IHCSwapChain.h"
-#include "IHCModel.h"
+#include "VKWraps/IHCSwapChain.h"
+#include "VKWraps/IHCModel.h"
 
 namespace IHCEngine::Graphics
 {
