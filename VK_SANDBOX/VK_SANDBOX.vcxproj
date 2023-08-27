@@ -116,6 +116,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -141,14 +145,56 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\src\Main.cpp" />
+    <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDevice.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCSwapChain.cpp" />
+    <ClCompile Include="Engine\src\Window\AppWindow.cpp" />
+    <ClCompile Include="Engine\src\Core\Engine.cpp" />
     <ClCompile Include="Engine\src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\RenderSystem.cpp" />
+    <ClCompile Include="Application\src\TestApplication.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCModel.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\GameObject.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\GraphicsManager.cpp" />
+    <ClCompile Include="Engine\src\Transform\Transform.cpp" />
+    <ClCompile Include="Engine\src\Core\Time\Time.cpp" />
+    <ClCompile Include="Engine\src\Input\Input.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCBuffer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCTexture.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptors.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />
+    <ClInclude Include="Engine\src\Graphics\Camera.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Component.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\VKHelpers.h" />
+    <ClInclude Include="Engine\src\Window\AppWindow.h" />
+    <ClInclude Include="Engine\src\Core\Engine.h" />
+    <ClInclude Include="Application\src\IApplication.h" />
     <ClInclude Include="Engine\src\pch.h" />
+    <ClInclude Include="EntryPoint.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\RenderSystem.h" />
+    <ClInclude Include="Application\src\TestApplication.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCModel.h" />
+    <ClInclude Include="Engine\src\Core\Scene\GameObject.h" />
+    <ClInclude Include="Engine\src\Graphics\Renderer.h" />
+    <ClInclude Include="Engine\src\Graphics\GraphicsManager.h" />
+    <ClInclude Include="Engine\src\Transform\Transform.h" />
+    <ClInclude Include="Engine\src\Core\Time\Time.h" />
+    <ClInclude Include="Engine\src\Input\Input.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCBuffer.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCTexture.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptors.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
@@ -156,6 +202,9 @@
     <None Include="Engine\assets\shaders\shader.frag" />
     <None Include="Engine\assets\shaders\shader.vert" />
     <None Include="Engine\assets\shaders\vert.spv" />
+    <ClInclude Include="Engine\src\Core\Scene\GameObject.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
