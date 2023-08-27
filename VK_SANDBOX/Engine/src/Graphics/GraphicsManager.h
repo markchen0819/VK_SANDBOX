@@ -44,7 +44,7 @@ namespace IHCEngine::Graphics
     private:
 
         void initVulkan();
-
+        void setupBasicRenderSystem();
         Window::AppWindow& appWindow;
         Camera camera;
         //// order of declarations matter for vulkan cleanup ////
@@ -54,8 +54,9 @@ namespace IHCEngine::Graphics
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers; // matrices
         std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{};
         std::vector<VkDescriptorSet> globalDescriptorSets;
-
-        // customizable
+        std::unique_ptr<IHCDescriptorPool> localDescriptorPool{};
+        std::vector<VkDescriptorSet> localDescriptorSets;
+        // rendersystem
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; // 
  
         // Logic breakdown for GraphicsManager
@@ -82,8 +83,13 @@ namespace IHCEngine::Graphics
         //
 
         // Temporary
-        std::unique_ptr<IHCEngine::Core::GameObject> testGobj = nullptr;
+        //std::unique_ptr<IHCEngine::Core::GameObject> testGobj = nullptr;
+        std::unique_ptr<IHCEngine::Core::GameObject> testGobj1 = nullptr;
+        std::unique_ptr<IHCEngine::Core::GameObject> testGobj2 = nullptr;
         std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+        std::unordered_map<unsigned int, std::shared_ptr<IHCTexture>> textures;
+        
+        std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet;
         void loadGameObjects();
 
     };

@@ -124,7 +124,6 @@ void IHCEngine::Graphics::IHCDescriptorPool::ResetPool()
 
 
 #pragma region IHCDescriptorWriter
-#pragma endregion
 IHCEngine::Graphics::IHCDescriptorWriter::IHCDescriptorWriter(IHCDescriptorSetLayout& setLayout, IHCDescriptorPool& pool)
 	: setLayout{ setLayout }, pool{ pool } 
 {
@@ -149,7 +148,6 @@ IHCEngine::Graphics::IHCDescriptorWriter& IHCEngine::Graphics::IHCDescriptorWrit
 
 	return *this;
 }
-
 IHCEngine::Graphics::IHCDescriptorWriter& IHCEngine::Graphics::IHCDescriptorWriter::WriteImage(uint32_t binding, VkDescriptorImageInfo* imageInfo)
 {
 	assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -169,18 +167,17 @@ IHCEngine::Graphics::IHCDescriptorWriter& IHCEngine::Graphics::IHCDescriptorWrit
 
 	return *this;
 }
-
 bool IHCEngine::Graphics::IHCDescriptorWriter::Build(VkDescriptorSet& set)
 {
 	bool success = pool.AllocateDescriptorSet(setLayout.GetDescriptorSetLayout(), set);
 	if (!success) 
 	{
+		std::cout << "pool.AllocateDescriptorSet not successful" << std::endl;
 		return false;
 	}
 	Overwrite(set);
 	return true;
 }
-
 void IHCEngine::Graphics::IHCDescriptorWriter::Overwrite(VkDescriptorSet& set)
 {
 	for (auto& write : writes) 
@@ -189,3 +186,4 @@ void IHCEngine::Graphics::IHCDescriptorWriter::Overwrite(VkDescriptorSet& set)
 	}
 	vkUpdateDescriptorSets(pool.ihcDevice.GetDevice(), writes.size(), writes.data(), 0, nullptr);
 }
+#pragma endregion
