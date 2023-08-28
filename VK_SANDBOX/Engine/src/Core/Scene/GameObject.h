@@ -18,7 +18,7 @@ namespace IHCEngine::Core
     public:
 
         GameObject();
-        ~GameObject() {};
+        ~GameObject() { model = nullptr;  texture = nullptr;};
 
         //// Static Helper Functions
         //static std::unique_ptr<IHCEngine::Core::GameObject> CreateGameObject()
@@ -48,7 +48,7 @@ namespace IHCEngine::Core
 
         // Temporary Components
         std::shared_ptr<IHCEngine::Graphics::IHCModel> model{};
-        std::shared_ptr<IHCEngine::Graphics::IHCTexture> texture{};
+        IHCEngine::Graphics::IHCTexture* texture = nullptr;
 
     private:
         static unsigned int currentId;

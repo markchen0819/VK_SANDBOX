@@ -29,14 +29,21 @@ namespace IHCEngine::Graphics
 
         GraphicsManager(std::unique_ptr< Window::AppWindow>& w);
         ~GraphicsManager() {};
+        // no duplication
+        GraphicsManager(const  GraphicsManager&) = delete;
+        GraphicsManager& operator=(const  GraphicsManager&) = delete;
 
         void Init();
         void Update();
         void Shutdown();
 
-        // no duplication
-        GraphicsManager(const  GraphicsManager&) = delete;
-        GraphicsManager& operator=(const  GraphicsManager&) = delete;
+
+        // Helper Functions
+        std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string path);
+        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string path);
+        // Call this after AssetManager loads all textures into memory (every SCene Init())
+        void CreateLocalDescriptorSets(const std::unordered_map<std::string, std::unique_ptr<IHCTexture>>& textures);
+
 
     private:
 
@@ -49,20 +56,29 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; // Swapchain
         // For shaders
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers; // matrices
+        std::unique_ptr <IHCDescriptorSetLayout> globalDescriptorSetLayout;
         std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{};
         std::vector<VkDescriptorSet> globalDescriptorSets;
+        int TEXTURE_COUNT_LIMIT = 200;
+        std::unique_ptr <IHCDescriptorSetLayout> localDescriptorSetLayout;
         std::unique_ptr<IHCDescriptorPool> localDescriptorPool{};
         std::vector<VkDescriptorSet> localDescriptorSets;
-        // rendersystem
-        std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; // 
- 
+        // rendersystems
+        std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; 
+        // std::unique_ptr<IHCEngine::Graphics::RenderSystem> particleSystem;
+        // std::unique_ptr<IHCEngine::Graphics::RenderSystem> rayTracingSystem;
+        // std::unique_ptr<IHCEngine::Graphics::RenderSystem> simulationSystem;
+
+
         // Logic breakdown for GraphicsManager
         // 
         // Init()
         // 1. Initialize the Vulkan Context
         // 2. Window and Presentation Setup (Swapchain)
-        // 3. Resource Setup (UniformBuffers, textures, Descriptors)
-        // 4. Rendering Setup (RenderSystems (or Pipelines)
+        // 
+        // setupBasicRenderSystem()
+        // 1. Rendering Setup (RenderSystems (Pipelines,DescriptorSetLayouts )
+        // 2. Resource Setup (UniformBuffers, DescriptorPool, DescriptorSets(ubo, textures))
         //
         // Update()
         // 1. Handle System Events:
@@ -70,10 +86,10 @@ namespace IHCEngine::Graphics
         // 3. Render
         //    BeginSwapChainRenderPass
         //    RenderGameObjects
-        //        Bind Global Pipeline and Descriptors
+        //        Bind Global Pipeline and GlobalDescriptors(ubo)
         //        For each GameObject
+        //            Bind Local Pipeline and LocalDescriptors(texture)
         //            Update push constants (per-object)
-        //            Bind material
         //            Bind model(mesh)
         //            Draw the object
         //    EndSwapChainRenderPass
@@ -84,8 +100,11 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Core::GameObject> testGobj1 = nullptr;
         std::unique_ptr<IHCEngine::Core::GameObject> testGobj2 = nullptr;
         std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
-        std::unordered_map<unsigned int, std::shared_ptr<IHCTexture>> textures;
-        
+
+        //std::unordered_map<unsigned int, std::shared_ptr<IHCTexture>> textures;
+
+
+
         std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet;
         void loadGameObjects();
 

@@ -1,15 +1,17 @@
 #pragma once
-
 #include "IApplication.h"
 
-class TestApplication : IHCEngine::Core::IApplication
+namespace TestApplication
 {
-public:
-	TestApplication();
-	void Init() override;
-	void Update() override;
-	void Shutdown() override;
+	class TestApplication : public IHCEngine::Core::IApplication
+	{
+	public:
+		TestApplication(const std::string& appName);
+		void Init() override;
+		void Update() override;
+		void Shutdown() override;
 
-private:
-
-};
+	private:
+		int sceneNum;
+	};
+}

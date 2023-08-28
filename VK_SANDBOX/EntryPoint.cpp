@@ -19,9 +19,12 @@ int main()
     // Test CrtDEBUG getting leak messages
     //int* test = new int(); // {223} normal block at 0x000001673819B570, 4 bytes long.
 
+
+    std::shared_ptr<TestApplication::TestApplication> testApplication
+        = std::make_shared<TestApplication::TestApplication>("Mark's Test App");
+
     IHCEngine::Core::Engine engine;
-   // std::shared_ptr<TestApplication> test;
-   // engine.SetApplication(test);
+    engine.SetApplication(testApplication);
     engine.Init();
     engine.Update();
     engine.Shutdown();

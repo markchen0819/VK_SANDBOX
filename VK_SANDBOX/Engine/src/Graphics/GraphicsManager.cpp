@@ -1,5 +1,6 @@
 #include "../pch.h"
 #include "GraphicsManager.h"
+#include "../Core/Locator/Locators.h"
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)
@@ -25,16 +26,13 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
 }
 void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 {
-
-    loadGameObjects();
-
     ////// Create a basic shading pipeline //////
     //// Set up shader interface (DescriptorSetLayout (ubo, sampler), PipelineLayout)
-    auto globalDescriptorSetLayout =
+    globalDescriptorSetLayout =
         IHCDescriptorSetLayout::Builder(*ihcDevice)
         .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)  // Assuming this is for vertex shaders
         .Build();
-    auto localDescriptorSetLayout =
+    localDescriptorSetLayout =
         IHCDescriptorSetLayout::Builder(*ihcDevice)
         .AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)  // Assuming this is for fragment shaders
         .Build();
@@ -49,7 +47,7 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
             renderer->GetSwapChainRenderPass(),
             layouts //globalDescriptorSetLayout->GetDescriptorSetLayout()
         );
-    //// Allocate memory (ubo, sampler)
+    //// Allocate memory (ubo)
     // Allocate UniformBuffers for updating shaders (camera matrices, global light info)
     // other data that's consistent across a single draw call or frame
     uboBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -67,20 +65,12 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
             );
         uboBuffers[i]->Map(); // persistent mapping
     }
-    // Allocate textures (TO DO: local textures can be allocated other places to support runtime)
-    int N = textures.size();
     globalDescriptorPool =
         IHCDescriptorPool::Builder(*ihcDevice)
         .SetMaxSets(IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
         .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
         .Build();
-    localDescriptorPool =
-        IHCDescriptorPool::Builder(*ihcDevice)
-        .SetMaxSets(N * IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
-        .AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, N * IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // sampler
-        .Build();
     globalDescriptorSets.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-    localDescriptorSets.resize(N * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
     // Allocate global descriptor sets
     for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -89,40 +79,20 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
             .WriteBuffer(0, &bufferInfo)  // UBO
             .Build(globalDescriptorSets[i]);
     }
-    // Allocate local descriptor sets
-    int descriptorIndex = 0;
-    for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        for (const auto& pair : textures)
-        {
-            std::cout << "Key: " << pair.first << " Value: " << pair.second << '\n';
-
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = pair.second->GetTextureImageView();
-            imageInfo.sampler = pair.second->GetTextureSampler();
-
-
-            IHCDescriptorWriter(*localDescriptorSetLayout, *localDescriptorPool)
-                .WriteImage(0, &imageInfo)// Sampler
-                .Build(localDescriptorSets[descriptorIndex]);
-
-            // Associate each game object using this texture to its descriptor set
-            for (auto& g : gameObjects)
-            {
-                if (g.second->texture == pair.second)
-                {
-                    gameObjectToDescriptorSet[g.second] = localDescriptorSets[descriptorIndex];
-                }
-            }
-            descriptorIndex++;
-        }
-    }
-
+    // Analogy
+    // uboBuffers: (ingredients)
+    // DescriptorSetLayout: (recipe, how to assemble the ingredients)
+    // DescriptorPool: Preparation table with limited space (memory). Dishes (DescriptorSets) occupy this space
+    // DescriptorSets: Dishes on the preparation table
+    // 
+    //// Allocate memory (sampler)
+    // Allocate a pool with size of TEXTURE_COUNT_LIMIT, sets are created after textures are loaded in
+    localDescriptorPool =
+        IHCDescriptorPool::Builder(*ihcDevice)
+        .SetMaxSets(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
+        .AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // sampler
+        .Build();
 }
-
-
-
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
     glfwPollEvents();
@@ -175,7 +145,52 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
 }
 
+void IHCEngine::Graphics::GraphicsManager::CreateLocalDescriptorSets(const std::unordered_map<std::string, std::unique_ptr<IHCTexture>>& textures)
+{
+    loadGameObjects(); // temporary put here
 
+
+
+    localDescriptorSets.resize(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    int descriptorIndex = 0;
+    for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        for (const auto& pair : textures)
+        {
+            std::cout << "Key: " << pair.first << " Value: " << pair.second << '\n';
+
+            VkDescriptorImageInfo imageInfo{};
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = pair.second->GetTextureImageView();
+            imageInfo.sampler = pair.second->GetTextureSampler();
+
+
+            IHCDescriptorWriter(*localDescriptorSetLayout, *localDescriptorPool)
+                .WriteImage(0, &imageInfo)// Sampler
+                .Build(localDescriptorSets[descriptorIndex]);
+
+            // Associate each game object using this texture to its descriptor set
+            for (auto& g : gameObjects)
+            {
+                if ( g.second->texture == pair.second.get())
+                {
+                    gameObjectToDescriptorSet[g.second] = localDescriptorSets[descriptorIndex];
+                }
+            }
+            descriptorIndex++;
+        }
+    }
+}
+std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string path)
+{
+    return std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, path );
+}
+
+std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string path)
+{
+    return IHCModel::CreateModelFromFile(*ihcDevice, path);
+}
 
 void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
 {
@@ -185,30 +200,31 @@ void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
             *ihcDevice,
             "Engine/assets/models/viking_room/viking_room.obj"
         );
-    std::shared_ptr<IHCTexture> testTexture1 =
-        std::make_shared < IHCTexture>
-        (
-            *ihcDevice,
-            "Engine/assets/models/viking_room/viking_room.png"
-        );
-    std::shared_ptr<IHCTexture> testTexture2 =
-        std::make_shared < IHCTexture>
-        (
-            *ihcDevice,
-            "Engine/assets/models/viking_room/viking_room_2.png"
-        );
+    //std::shared_ptr<IHCTexture> testTexture1 =
+    //    std::make_shared < IHCTexture>
+    //    (
+    //        *ihcDevice,
+    //        "Engine/assets/models/viking_room/viking_room.png"
+    //    );
+    //std::shared_ptr<IHCTexture> testTexture2 =
+    //    std::make_shared < IHCTexture>
+    //    (
+    //        *ihcDevice,
+    //        "Engine/assets/models/viking_room/viking_room_2.png"
+    //    );
 
 
-    textures.emplace(1, testTexture1);
-    textures.emplace(2, testTexture2);
+    //textures.emplace(1, testTexture1);
+    //textures.emplace(2, testTexture2);
+    auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 
     testGobj1 = std::make_unique<IHCEngine::Core::GameObject>();
     testGobj1->model = testModel;
-    testGobj1->texture = testTexture1;
+    testGobj1->texture = assetManager->GetTextureRepository().GetAsset("roomNormal"); //testTexture1;
 
     testGobj2 = std::make_unique<IHCEngine::Core::GameObject>();
     testGobj2->model = testModel;
-    testGobj2->texture = testTexture2;
+    testGobj2->texture = assetManager->GetTextureRepository().GetAsset("roomPink");
 
     gameObjects.emplace(testGobj1->GetUID(), testGobj1.get());
     gameObjects.emplace(testGobj2->GetUID(), testGobj2.get());

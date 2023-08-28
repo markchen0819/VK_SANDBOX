@@ -169,9 +169,13 @@
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCBuffer.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCTexture.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptors.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Scene.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />
+    <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
+    <ClInclude Include="Engine\src\Core\Locator\Locators.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Engine\src\Core\Scene\Component.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
@@ -195,6 +199,8 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCBuffer.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCTexture.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptors.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Scene.h" />
+    <ClInclude Include="Engine\src\Core\Scene\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

@@ -1,6 +1,7 @@
 #include "../../Application/src/IApplication.h"
 #include "Time/Time.h"
 #include "../Window/AppWindow.h"
+#include "Asset/AssetManager.h"
 #include "../Graphics/GraphicsManager.h"
 
 
@@ -14,17 +15,18 @@ namespace IHCEngine::Core
 		void Update();
 		void Shutdown();
 
-		void SetApplication(std::unique_ptr<IApplication>& application)
+		void SetApplication(std::shared_ptr<IApplication> application)
 		{
-			this->application = application.get();
+			this->application = application;
 		}
 
 	private:
 		
-		IApplication* application;
+		std::shared_ptr<IApplication> application;
 
 		// Engine subsystems
 		std::unique_ptr<IHCEngine::Window::AppWindow> appWindow;
+		std::unique_ptr<IHCEngine::Core::AssetManager> assetManager;
 		std::unique_ptr<IHCEngine::Graphics::GraphicsManager> graphicsManager;
 
 	};
