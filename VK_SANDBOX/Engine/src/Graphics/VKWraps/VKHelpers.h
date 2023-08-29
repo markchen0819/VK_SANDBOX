@@ -143,6 +143,7 @@ namespace IHCEngine::Graphics
         VkCommandBuffer commandBuffer;
         Camera& camera;
         VkDescriptorSet globalDescriptorSet;
+        std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
         std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
     };
 }

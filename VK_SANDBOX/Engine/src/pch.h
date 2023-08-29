@@ -13,6 +13,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <stack>
 
 // GLFW & VULKAN
 #define GLFW_INCLUDE_VULKAN

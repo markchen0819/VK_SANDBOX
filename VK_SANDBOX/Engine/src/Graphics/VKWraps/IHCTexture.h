@@ -10,13 +10,14 @@ namespace IHCEngine::Graphics
 	class IHCTexture
 	{
     public:
-        IHCTexture(IHCDevice& device, const std::string& filepath);
+        IHCTexture(IHCDevice& device, std::string name, const std::string& filepath);
         ~IHCTexture();
 
         // no duplication
         IHCTexture(const IHCTexture&) = delete;
         IHCTexture& operator=(const IHCTexture&) = delete;
 
+        std::string GetName() { return name; }
         VkImageView GetTextureImageView() { return textureImageView; }
         VkSampler GetTextureSampler() { return textureSampler; }
 
@@ -31,7 +32,7 @@ namespace IHCEngine::Graphics
         void createTextureSampler();
 
         IHCDevice& ihcDevice;
-
+        std::string name="none";
         uint32_t mipLevels;
         VkImage textureImage; // pixel data
         VkDeviceMemory textureImageMemory;

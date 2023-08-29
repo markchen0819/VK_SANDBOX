@@ -81,7 +81,7 @@ void IHCEngine::Graphics::RenderSystem::createWireFramePipeline(VkRenderPass ren
 #pragma endregion
 
 #pragma region Render (apply pipeline, transform (PushConstants/ UniformBufferObjects), model, then draw)
-void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet)
+void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
 
     // Step 3: Bind 
@@ -114,12 +114,12 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, 
     {
         auto& gobj = g.second;
         if (gobj->model == nullptr) continue;
+        if (gobj->texture == nullptr) continue;
 
         // Bind its respective Pipeline
         // Each object may have its own pipeline, especially if it uses a different shader 
         // or rendering technique. For instance, some objects might be rendered with a 
         // reflection shader while others use a basic diffuse shader.
-
         if (wireframeEnabled)
         {
             wireframePipeline->Bind(frameInfo.commandBuffer);
@@ -128,14 +128,12 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, 
         {
             ihcPipeline->Bind(frameInfo.commandBuffer);
         }
-
-
         // Bind Local Descriptor Set
         // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
         // Our case: None
  
-
-        auto descriptorSet = gameObjectToDescriptorSet[gobj];
+        std::string textureID = gobj->texture->GetName();
+        auto descriptorSet =  frameInfo.textureToDescriptorSetsMap[textureID][frameInfo.frameIndex];
         vkCmdBindDescriptorSets
         (
             frameInfo.commandBuffer,

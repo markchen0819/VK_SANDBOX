@@ -92,6 +92,12 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
         .SetMaxSets(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
         .AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // sampler
         .Build();
+    localDescriptorSets.resize(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+    // Pre-populate the availableDescriptorSets stack:
+    for (auto& descSet : localDescriptorSets) 
+    {
+        availableDescriptorSets.push(descSet);
+    }
 }
 void IHCEngine::Graphics::GraphicsManager::Update()
 {
@@ -110,6 +116,7 @@ void IHCEngine::Graphics::GraphicsManager::Update()
             commandBuffer,
             camera,
             globalDescriptorSets[frameIndex],
+            textureToDescriptorSetsMap,
             gameObjects 
         };
 
@@ -132,7 +139,7 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         renderer->BeginSwapChainRenderPass(commandBuffer);
         //// System Render order here matters ////
 
-        basicRenderSystem->RenderGameObjects(frameInfo, gameObjectToDescriptorSet);
+        basicRenderSystem->RenderGameObjects(frameInfo);
         //pointLightSystem.render(frameInfo);
         
         //////////////////////////////////////////
@@ -145,54 +152,90 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
 }
 
-void IHCEngine::Graphics::GraphicsManager::CreateLocalDescriptorSets(const std::unordered_map<std::string, std::unique_ptr<IHCTexture>>& textures)
+#pragma region Helpers for assetManagement (texture, model)
+std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string assetName, std::string path)
 {
-    loadGameObjects(); // temporary put here
+    auto texture = std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, assetName, path);
 
-
-
-    localDescriptorSets.resize(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-
-    int descriptorIndex = 0;
+    // check if already allocate  descriptorsets for the texture;
+    if (textureToDescriptorSetsMap.find(assetName) != textureToDescriptorSetsMap.end())
+    {
+        assert("Loading Duplicated Texture into memory, abort");
+        return nullptr;
+    }
+    // allocate MAX_FRAMES_IN_FLIGHT descriptorsets for  1 textrue
+    std::vector<VkDescriptorSet> descriptorSetsForTexture;
     for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
     {
-        for (const auto& pair : textures)
+        if (availableDescriptorSets.empty())
         {
-            std::cout << "Key: " << pair.first << " Value: " << pair.second << '\n';
-
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = pair.second->GetTextureImageView();
-            imageInfo.sampler = pair.second->GetTextureSampler();
-
-
-            IHCDescriptorWriter(*localDescriptorSetLayout, *localDescriptorPool)
-                .WriteImage(0, &imageInfo)// Sampler
-                .Build(localDescriptorSets[descriptorIndex]);
-
-            // Associate each game object using this texture to its descriptor set
-            for (auto& g : gameObjects)
-            {
-                if ( g.second->texture == pair.second.get())
-                {
-                    gameObjectToDescriptorSet[g.second] = localDescriptorSets[descriptorIndex];
-                }
-            }
-            descriptorIndex++;
+            assert("No available descriptor sets for allocation. Check if exceed poolsize");
         }
-    }
-}
-std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string path)
-{
-    return std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, path );
-}
 
-std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string path)
+        VkDescriptorSet descriptor = availableDescriptorSets.top();
+        availableDescriptorSets.pop();
+
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = texture->GetTextureImageView();
+        imageInfo.sampler = texture->GetTextureSampler();
+
+        IHCDescriptorWriter(*localDescriptorSetLayout, *localDescriptorPool)
+            .WriteImage(0, &imageInfo)// Sampler
+            .Build(descriptor);
+
+        descriptorSetsForTexture.push_back(descriptor);
+    }
+    // Add the collection of descriptor sets to the map.
+    textureToDescriptorSetsMap[assetName] = descriptorSetsForTexture;
+
+    //for (auto& g : gameObjects)
+    //{
+    //    if (g.second->texture == pair.second.get())
+    //    {
+    //        gameObjectToDescriptorSet[g.second] = localDescriptorSets[descriptorIndex];
+    //    }
+    //}
+
+    return texture;
+
+
+}
+void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
 {
+    // All submitted commands that refer to sampler must have completed execution
+    vkDeviceWaitIdle(ihcDevice->GetDevice());
+    // Check if the textureID exists in the map.
+    auto it = textureToDescriptorSetsMap.find(assetName);
+    if (it == textureToDescriptorSetsMap.end())
+    {
+        std::cerr << "Texture not found in descriptor map." << std::endl;
+        return;
+    }
+
+    // Push all its descriptor sets as available.
+    for (VkDescriptorSet descSet : it->second)
+    {
+        availableDescriptorSets.push(descSet);
+    }
+    // Remove the textureID from the map.
+    textureToDescriptorSetsMap.erase(it);
+}
+std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
+{
+    // Don't need to keep track for models, they self-deallocate
+    // Textures need keeping track due to descriptors
     return IHCModel::CreateModelFromFile(*ihcDevice, path);
 }
+void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
+{
+    // Don't need to keep track for models
+    // just created for same format
+}
+#pragma endregion
 
-void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
+
+void IHCEngine::Graphics::GraphicsManager::LoadGameObjects()
 {
     std::shared_ptr<IHCModel> testModel =
         IHCModel::CreateModelFromFile
@@ -200,22 +243,7 @@ void IHCEngine::Graphics::GraphicsManager::loadGameObjects()
             *ihcDevice,
             "Engine/assets/models/viking_room/viking_room.obj"
         );
-    //std::shared_ptr<IHCTexture> testTexture1 =
-    //    std::make_shared < IHCTexture>
-    //    (
-    //        *ihcDevice,
-    //        "Engine/assets/models/viking_room/viking_room.png"
-    //    );
-    //std::shared_ptr<IHCTexture> testTexture2 =
-    //    std::make_shared < IHCTexture>
-    //    (
-    //        *ihcDevice,
-    //        "Engine/assets/models/viking_room/viking_room_2.png"
-    //    );
 
-
-    //textures.emplace(1, testTexture1);
-    //textures.emplace(2, testTexture2);
     auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 
     testGobj1 = std::make_unique<IHCEngine::Core::GameObject>();

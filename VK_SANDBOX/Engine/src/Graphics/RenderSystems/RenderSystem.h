@@ -21,7 +21,7 @@ namespace IHCEngine::Graphics
         RenderSystem(const RenderSystem&) = delete;
         RenderSystem &operator=(const RenderSystem&) = delete;
 
-        void RenderGameObjects(FrameInfo& frameInfo, std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet);
+        void RenderGameObjects(FrameInfo& frameInfo);
 
     private:
 

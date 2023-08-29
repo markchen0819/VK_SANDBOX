@@ -1,8 +1,8 @@
 #include "../../pch.h"
 #include "IHCTexture.h"
 
-IHCEngine::Graphics::IHCTexture::IHCTexture(IHCDevice& device, const std::string& filepath)
- : ihcDevice(device)
+IHCEngine::Graphics::IHCTexture::IHCTexture(IHCDevice& device, std::string name, const std::string& filepath)
+ : ihcDevice(device), name(name)
 {
     createTextureImage(filepath);
     createTextureImageView();

@@ -38,12 +38,12 @@ namespace IHCEngine::Graphics
         void Shutdown();
 
 
-        // Helper Functions
-        std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string path);
-        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string path);
-        // Call this after AssetManager loads all textures into memory (every SCene Init())
-        void CreateLocalDescriptorSets(const std::unordered_map<std::string, std::unique_ptr<IHCTexture>>& textures);
-
+        // Helper Functions for AssetManagement
+        std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string assetName, std::string path);
+        void DestroyTexture(std::string assetName);
+        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, std::string path);
+        void DestroyModel(std::string assetName);
+        void LoadGameObjects();
 
     private:
 
@@ -63,6 +63,8 @@ namespace IHCEngine::Graphics
         std::unique_ptr <IHCDescriptorSetLayout> localDescriptorSetLayout;
         std::unique_ptr<IHCDescriptorPool> localDescriptorPool{};
         std::vector<VkDescriptorSet> localDescriptorSets;
+        std::unordered_map<std::string, std::vector<VkDescriptorSet>> textureToDescriptorSetsMap;  // use map for texture allocate/ deallocate between scenes
+        std::stack<VkDescriptorSet> availableDescriptorSets; // Stack of available descriptor sets.
         // rendersystems
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; 
         // std::unique_ptr<IHCEngine::Graphics::RenderSystem> particleSystem;
@@ -100,13 +102,5 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Core::GameObject> testGobj1 = nullptr;
         std::unique_ptr<IHCEngine::Core::GameObject> testGobj2 = nullptr;
         std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
-
-        //std::unordered_map<unsigned int, std::shared_ptr<IHCTexture>> textures;
-
-
-
-        std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet;
-        void loadGameObjects();
-
     };
 }

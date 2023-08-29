@@ -66,10 +66,10 @@ void IHCEngine::Core::Engine::Update()
 void IHCEngine::Core::Engine::Shutdown()
 {
 	// order matters
-	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);
-	IHCEngine::Core::AssetManagerLocator::Provide(nullptr);
 	application->Shutdown();
 	graphicsManager->Shutdown();
 	assetManager = nullptr;
 	graphicsManager = nullptr;
+	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);
+	IHCEngine::Core::AssetManagerLocator::Provide(nullptr);
 }
