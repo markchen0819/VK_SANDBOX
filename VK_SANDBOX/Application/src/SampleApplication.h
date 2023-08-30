@@ -1,12 +1,12 @@
 #pragma once
 #include "IApplication.h"
 
-namespace TestApplication
+namespace SampleApplication
 {
-	class TestApplication : public IHCEngine::Core::IApplication
+	class SampleApplication : public IHCEngine::Core::IApplication
 	{
 	public:
-		TestApplication(const std::string& appName);
+		SampleApplication(const std::string& appName);
 		void Init() override;
 		void Update() override;
 		void Shutdown() override;

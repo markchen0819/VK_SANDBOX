@@ -1,2 +1,119 @@
 #include "../../pch.h"
 #include "Scene.h"
+
+IHCEngine::Core::Scene::Scene(std::string sceneName)
+	: sceneName{ sceneName }
+{ }
+
+void IHCEngine::Core::Scene::Update()
+{
+	const auto& updatedRootGameObjects = GetRootGameObjects();
+
+	for (GameObject* parent : updatedRootGameObjects)
+	{
+		if (parent->IsActive())
+		{
+			// TO:DO propagation
+
+			//glm::mat4 localModelMatrix = parent->transform.GetLocalModelMatrix();
+
+			//for (int childIndex = 0; childIndex < parent->GetTransform()->GetNumberOfChildren(); childIndex++)
+			//{
+			//	WeakPointer<Component::Transform> childTransform = parent->GetTransform()->GetChildAtIndex(childIndex);
+			//	childTransform->PropagateParentLocalTransform(parentLocalModelMatrix);
+			//}
+		}
+	}
+}
+
+void IHCEngine::Core::Scene::Shutdown()
+{
+	// Destroy all game objects in the scene
+	const auto& updatedRootGameObjects = GetRootGameObjects();
+	for (GameObject* parent : updatedRootGameObjects)
+	{
+		parent->DestroyGameObject(); //destroy childs also with scene graph
+	}
+	rootGameObjects.clear();
+}
+
+std::map<unsigned int, IHCEngine::Core::GameObject*> IHCEngine::Core::Scene::GetGameObjectsMap()
+{
+	std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+	for (const auto& [key, value] : gameObjectsMap)
+	{
+		gameObjects[key] = value.get();
+	}
+	return gameObjects;
+}
+
+IHCEngine::Core::GameObject& IHCEngine::Core::Scene::AddGameObject(const std::string& name)
+{
+    auto gobj = std::make_unique<GameObject>(gobjIDCounter, name);
+    auto iter = gameObjectsMap.insert({ gobjIDCounter, std::move(gobj) }); // iter first->element, second->bool if insertion took place
+    ++gobjIDCounter;
+    return *(iter.first->second);
+}
+
+void IHCEngine::Core::Scene::RemoveGameObject(GameObject& gameObject)
+{
+    unsigned int id = gameObject.GetUID();
+
+    if (gameObjectsMap.find(id) == gameObjectsMap.end())
+    {
+        assert("Trying to remove game object with id {0} that is not in the scene", id);
+    }
+    gameObjectsMap.erase(id);
+
+}
+
+IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByName(const std::string& name)
+{
+	for (auto& pair : gameObjectsMap)
+	{
+		if (pair.second->GetName() == name)
+		{
+			return pair.second.get();
+		}
+	}
+	std::cout << "GameObject with name: " << name << " not found" << std::endl;
+	return nullptr;
+}
+
+IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByUID(unsigned int id)
+{
+	for (auto& pair : gameObjectsMap)
+	{
+		if (pair.second->GetUID() == id)
+		{
+			return pair.second.get();
+		}
+	}
+	std::cout << "GameObject with UID: " << id << " not found" << std::endl;
+	return nullptr;
+}
+
+std::vector<IHCEngine::Core::GameObject*>& IHCEngine::Core::Scene::GetRootGameObjects()
+{
+	rootGameObjects.clear();
+	for (auto& pair : gameObjectsMap)
+	{
+		if (pair.second->transform.GetParent() == nullptr)
+		{
+			rootGameObjects.push_back(pair.second.get());
+		}
+	}
+	return rootGameObjects;
+}
+
+void IHCEngine::Core::Scene::DeferDestroyGameObjects()
+{
+	const auto& updatedRootGameObjects = GetRootGameObjects();
+	for (GameObject* parent : updatedRootGameObjects)
+	{
+		if (parent->shouldDestroy)
+		{
+			parent->DestroyGameObject(); //destroy childs also with scene graph
+		}
+	}
+}

@@ -99,10 +99,10 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
         availableDescriptorSets.push(descSet);
     }
 }
-void IHCEngine::Graphics::GraphicsManager::Update()
+void IHCEngine::Graphics::GraphicsManager::Update(std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects)
 {
     glfwPollEvents();
-    //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change etc might need recheck
+    //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change need recheck
 
     // Render
     if (auto commandBuffer = renderer->BeginFrame())
@@ -188,18 +188,7 @@ std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsMa
     }
     // Add the collection of descriptor sets to the map.
     textureToDescriptorSetsMap[assetName] = descriptorSetsForTexture;
-
-    //for (auto& g : gameObjects)
-    //{
-    //    if (g.second->texture == pair.second.get())
-    //    {
-    //        gameObjectToDescriptorSet[g.second] = localDescriptorSets[descriptorIndex];
-    //    }
-    //}
-
     return texture;
-
-
 }
 void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
 {
@@ -234,27 +223,3 @@ void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
 }
 #pragma endregion
 
-
-void IHCEngine::Graphics::GraphicsManager::LoadGameObjects()
-{
-    std::shared_ptr<IHCModel> testModel =
-        IHCModel::CreateModelFromFile
-        (
-            *ihcDevice,
-            "Engine/assets/models/viking_room/viking_room.obj"
-        );
-
-    auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-
-    testGobj1 = std::make_unique<IHCEngine::Core::GameObject>();
-    testGobj1->model = testModel;
-    testGobj1->texture = assetManager->GetTextureRepository().GetAsset("roomNormal"); //testTexture1;
-
-    testGobj2 = std::make_unique<IHCEngine::Core::GameObject>();
-    testGobj2->model = testModel;
-    testGobj2->texture = assetManager->GetTextureRepository().GetAsset("roomPink");
-
-    gameObjects.emplace(testGobj1->GetUID(), testGobj1.get());
-    gameObjects.emplace(testGobj2->GetUID(), testGobj2.get());
-
-}

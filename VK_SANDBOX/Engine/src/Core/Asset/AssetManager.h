@@ -17,9 +17,10 @@ namespace IHCEngine::Core
 		AssetManager& operator=(const  AssetManager&) = delete;
 
 		AssetRepository<IHCEngine::Graphics::IHCTexture>& GetTextureRepository() { return textureRepository; };
+		AssetRepository<IHCEngine::Graphics::IHCModel>& GetModelRepository() { return  modelRepository; };
 
 	private:
 		AssetRepository<IHCEngine::Graphics::IHCTexture> textureRepository;
-
+		AssetRepository<IHCEngine::Graphics::IHCModel> modelRepository;
 	};
 }

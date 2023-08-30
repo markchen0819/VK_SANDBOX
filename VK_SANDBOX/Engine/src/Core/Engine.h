@@ -2,7 +2,9 @@
 #include "Time/Time.h"
 #include "../Window/AppWindow.h"
 #include "Asset/AssetManager.h"
+#include "Scene/SceneManager.h"
 #include "../Graphics/GraphicsManager.h"
+
 
 
 namespace IHCEngine::Core
@@ -27,7 +29,7 @@ namespace IHCEngine::Core
 		// Engine subsystems
 		std::unique_ptr<IHCEngine::Window::AppWindow> appWindow;
 		std::unique_ptr<IHCEngine::Core::AssetManager> assetManager;
+		std::unique_ptr<IHCEngine::Core::SceneManager> sceneManager;
 		std::unique_ptr<IHCEngine::Graphics::GraphicsManager> graphicsManager;
-
 	};
 }

@@ -112,7 +112,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
-        auto& gobj = g.second;
+        IHCEngine::Core::GameObject* gobj = g.second;
         if (gobj->model == nullptr) continue;
         if (gobj->texture == nullptr) continue;
 

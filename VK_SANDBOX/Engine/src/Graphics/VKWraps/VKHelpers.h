@@ -1,4 +1,7 @@
 #pragma once
+#include <vector>
+#include <map>
+#include <vulkan/vulkan.h>
 #include "../Camera.h"
 #include "../../Core/Scene/GameObject.h"
 
@@ -131,7 +134,7 @@ struct GlobalUniformBufferObject
 
 namespace IHCEngine::Core
 {
-    class GameObject;  // Forward declaration, BUT WHY?
+    class GameObject;  // Forward declaration
 }
 
 namespace IHCEngine::Graphics
@@ -144,7 +147,7 @@ namespace IHCEngine::Graphics
         Camera& camera;
         VkDescriptorSet globalDescriptorSet;
         std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
-        std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+        std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
     };
 }
 #pragma endregion 

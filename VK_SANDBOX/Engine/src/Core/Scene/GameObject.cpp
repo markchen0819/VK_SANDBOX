@@ -1,10 +1,22 @@
 #include "../../pch.h"
 #include "GameObject.h"
 
-unsigned int IHCEngine::Core::GameObject::currentId = 0;
+IHCEngine::Core::GameObject::GameObject(unsigned int id, std::string name)
+    :uid{ id }, name{ name }
+{}
 
-IHCEngine::Core::GameObject::GameObject()
+void IHCEngine::Core::GameObject::Destroy()
 {
-    currentId++;
-    uid = currentId;
-};
+    shouldDestroy = true;
+    isActive = false;
+}
+
+void IHCEngine::Core::GameObject::DestroyGameObject()
+{
+
+    // destroy child
+    // destroy components
+
+    texture = nullptr;
+    model = nullptr;
+}

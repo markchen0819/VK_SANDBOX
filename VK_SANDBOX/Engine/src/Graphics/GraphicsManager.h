@@ -34,7 +34,7 @@ namespace IHCEngine::Graphics
         GraphicsManager& operator=(const  GraphicsManager&) = delete;
 
         void Init();
-        void Update();
+        void Update(std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects);   
         void Shutdown();
 
 
@@ -43,7 +43,6 @@ namespace IHCEngine::Graphics
         void DestroyTexture(std::string assetName);
         std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, std::string path);
         void DestroyModel(std::string assetName);
-        void LoadGameObjects();
 
     private:
 
@@ -96,11 +95,5 @@ namespace IHCEngine::Graphics
         //            Draw the object
         //    EndSwapChainRenderPass
         //
-
-        // Temporary
-        //std::unique_ptr<IHCEngine::Core::GameObject> testGobj = nullptr;
-        std::unique_ptr<IHCEngine::Core::GameObject> testGobj1 = nullptr;
-        std::unique_ptr<IHCEngine::Core::GameObject> testGobj2 = nullptr;
-        std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
     };
 }

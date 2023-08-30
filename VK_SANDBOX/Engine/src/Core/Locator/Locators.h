@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Graphics/GraphicsManager.h"
-
 namespace IHCEngine::Core
 {
 	class GraphicsManagerLocator
@@ -22,9 +21,8 @@ namespace IHCEngine::Core
 	};
 }
 
+
 #include "../Asset/AssetManager.h"
-
-
 namespace IHCEngine::Core
 {
 	class AssetManagerLocator
@@ -42,5 +40,27 @@ namespace IHCEngine::Core
 
 	private:
 		inline static AssetManager* systemInstance{ nullptr };
+	};
+}
+
+
+#include "../Scene/SceneManager.h"
+namespace IHCEngine::Core
+{
+	class SceneManagerLocator
+	{
+	public:
+		static SceneManager* GetSceneManager()
+		{
+			return systemInstance;
+		}
+
+		static void Provide(SceneManager* system)
+		{
+			systemInstance = system;
+		}
+
+	private:
+		inline static SceneManager* systemInstance{ nullptr };
 	};
 }

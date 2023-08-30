@@ -3,38 +3,41 @@
 #include "../../Graphics/VKWraps/IHCModel.h"
 #include "../../Graphics/VKWraps/IHCTexture.h"
 #include "Component.h"
+#include "Scene.h"
 
+// Forward declaration
 namespace IHCEngine::Graphics 
 {
-    class IHCModel;  // Forward declaration, BUT WHY?
-    class IHCTexture;  // Forward declaration, BUT WHY?
+    class IHCModel; 
+    class IHCTexture; 
 }
 namespace IHCEngine::Core
 {
+    class Scene;
+}
 
 
+namespace IHCEngine::Core
+{
     class GameObject
     {
     public:
 
-        GameObject();
-        ~GameObject() { model = nullptr;  texture = nullptr;};
-
-        //// Static Helper Functions
-        //static std::unique_ptr<IHCEngine::Core::GameObject> CreateGameObject()
-        //{
-        //    static unsigned int currentId = 0;
-        //    return std::make_unique<IHCEngine::Core::GameObject>(currentId++);
-        //    //return GameObject{ currentId++ };
-        //}
-
+        GameObject(unsigned int id, std::string name = "defaultGobj");
+        ~GameObject() = default;
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
 
-
         unsigned int GetUID() { return uid; }
-        IHCEngine::Transform::Transform transform;
+        std::string GetName() { return name; }
+        bool IsActive() { return isActive; }
+        void SetActive(bool active) { isActive = active; }
+        void Destroy();// mark as destroy
 
+        IHCEngine::Transform::Transform transform;
+        // Temporary Components
+        IHCEngine::Graphics::IHCModel* model = nullptr;
+        IHCEngine::Graphics::IHCTexture* texture = nullptr;
 
         // Component
 		template<class T>
@@ -46,15 +49,18 @@ namespace IHCEngine::Core
 		template<class T>
         bool HasComponent();
 
-        // Temporary Components
-        std::shared_ptr<IHCEngine::Graphics::IHCModel> model{};
-        IHCEngine::Graphics::IHCTexture* texture = nullptr;
-
     private:
-        static unsigned int currentId;
-        std::vector<std::unique_ptr<Component>> components;
-        unsigned int uid;
+        
+        void DestroyGameObject(); // the actual destroy when defer destory
 
+        unsigned int uid;
+        std::string name;
+        bool isActive = true;
+        bool shouldDestroy = false;
+        std::vector<std::unique_ptr<Component>> components;
+
+        friend class Scene;
+        Scene* scene;
     };
 }
 #include "GameObject.inl"
