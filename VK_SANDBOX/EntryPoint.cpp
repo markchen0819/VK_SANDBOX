@@ -7,7 +7,7 @@
 
 #include "Engine/src/Core/Engine.h"
 #include "EntryPoint.h"
-#include "Application/src/SampleApplication.h"
+#include "Application/src/SampleApplication/SampleApplication.h"
 
 
 int main()

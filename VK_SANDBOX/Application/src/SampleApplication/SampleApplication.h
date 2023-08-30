@@ -1,5 +1,5 @@
 #pragma once
-#include "IApplication.h"
+#include "../IApplication.h"
 
 namespace SampleApplication
 {
