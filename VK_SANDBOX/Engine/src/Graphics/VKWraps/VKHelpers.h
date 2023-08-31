@@ -146,7 +146,7 @@ namespace IHCEngine::Graphics
         VkCommandBuffer commandBuffer;
         VkDescriptorSet globalDescriptorSet;
         std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
-        std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+        std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }
 #pragma endregion 

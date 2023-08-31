@@ -23,7 +23,7 @@ namespace IHCEngine::Core
     {
     public:
 
-        GameObject(unsigned int id, std::string name = "defaultGobj");
+        GameObject(unsigned int id, std::string name, Scene* scene);
         ~GameObject() = default;
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
@@ -33,6 +33,8 @@ namespace IHCEngine::Core
         bool IsActive() { return isActive; }
         void SetActive(bool active) { isActive = active; }
         void Destroy();// mark as destroy
+
+        Scene* GetScene() { return scene; }
 
         IHCEngine::Transform::Transform transform;
         // Temporary Components
@@ -54,7 +56,7 @@ namespace IHCEngine::Core
         void DestroyGameObject(); // the actual destroy when defer destory
 
         unsigned int uid;
-        std::string name;
+        std::string name = "defaultGobj";
         bool isActive = true;
         bool shouldDestroy = false;
         std::vector<std::unique_ptr<Component>> components;

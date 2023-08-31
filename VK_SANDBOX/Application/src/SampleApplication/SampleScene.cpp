@@ -50,6 +50,15 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Core::GameObject& testGobj2 = AddGameObject("testGobj2");
 	testGobj2.model = assetManager->GetModelRepository().GetAsset("room_MODEL");
 	testGobj2.texture = assetManager->GetTextureRepository().GetAsset("pinkroom_TEX");
+
+	//mainCamera.SetAspectRatio(800, 600); // TO:DO get from window
+	//glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
+	//glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	//glm::vec3 upVector = glm::vec3(0.0f, 0.0f, 1.0f);
+	//mainCamera.transform.SetWorldPosition(eyePosition);
+	//glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
+	//glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
+	//mainCamera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
 }
 
 void SampleApplication::SampleScene::Reset()

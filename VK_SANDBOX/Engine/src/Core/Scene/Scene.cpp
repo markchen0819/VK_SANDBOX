@@ -49,7 +49,7 @@ std::map<unsigned int, IHCEngine::Core::GameObject*> IHCEngine::Core::Scene::Get
 
 IHCEngine::Core::GameObject& IHCEngine::Core::Scene::AddGameObject(const std::string& name)
 {
-    auto gobj = std::make_unique<GameObject>(gobjIDCounter, name);
+    auto gobj = std::make_unique<GameObject>(gobjIDCounter, name, this);
     auto iter = gameObjectsMap.insert({ gobjIDCounter, std::move(gobj) }); // iter first->element, second->bool if insertion took place
     ++gobjIDCounter;
     return *(iter.first->second);

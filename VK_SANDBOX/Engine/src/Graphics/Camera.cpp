@@ -139,7 +139,9 @@ glm::mat4 IHCEngine::Graphics::Camera::GetInverseViewMatrix()
     return inverseViewMatrix;
 }
 
-void IHCEngine::Graphics::Camera::Update()
+void IHCEngine::Graphics::Camera::SetCameraType(CameraType type)
 {
-
+    this->type = type;
+    GetProjectionMatrix(); // update immediately
 }
+

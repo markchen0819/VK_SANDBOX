@@ -1,8 +1,8 @@
 #include "../../pch.h"
 #include "GameObject.h"
 
-IHCEngine::Core::GameObject::GameObject(unsigned int id, std::string name)
-    :uid{ id }, name{ name }
+IHCEngine::Core::GameObject::GameObject(unsigned int id, std::string name, Scene* scene)
+    :uid{ id }, name{ name }, scene{scene}
 {}
 
 void IHCEngine::Core::GameObject::Destroy()

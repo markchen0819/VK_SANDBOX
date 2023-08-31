@@ -6,6 +6,11 @@ IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::Ap
     : appWindow(*w)
 {}
 
+IHCEngine::Graphics::GraphicsManager::~GraphicsManager()
+{
+    vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
+}
+
 void IHCEngine::Graphics::GraphicsManager::Init()
 {
     initVulkan();
@@ -99,12 +104,14 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
         availableDescriptorSets.push(descSet);
     }
 }
-void IHCEngine::Graphics::GraphicsManager::Update(std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects)
+void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
     glfwPollEvents();
     //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change need recheck
-
+    
     // Render
+    std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects
+        = scene->GetGameObjectsMap();
     if (auto commandBuffer = renderer->BeginFrame())
     {
         int frameIndex = renderer->GetFrameIndex();
@@ -116,7 +123,7 @@ void IHCEngine::Graphics::GraphicsManager::Update(std::map<unsigned int, IHCEngi
             commandBuffer,
             globalDescriptorSets[frameIndex],
             textureToDescriptorSetsMap,
-            gameObjects 
+            gameObjects
         };
 
         GlobalUniformBufferObject ubo{};
@@ -132,14 +139,17 @@ void IHCEngine::Graphics::GraphicsManager::Update(std::map<unsigned int, IHCEngi
         //    0.1f,
         //    10.0f);
 
-        Camera camera{CameraType::PERSPECTIVE,
-            glm::radians(45.0f),
-            renderer->GetAspectRatio(),
-            0.1f,
-            10.0f,
-            800,
-            600
-        };
+        //Camera camera{CameraType::PERSPECTIVE,
+        //    glm::radians(45.0f),
+        //    renderer->GetAspectRatio(),
+        //    0.1f,
+        //    10.0f,
+        //    800,
+        //    600
+        //};
+        auto camera = scene->GetCamera();
+        camera.SetAspectRatio(renderer->GetAspectRatio());
+
         glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
         glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 upVector = glm::vec3(0.0f, 0.0f, 1.0f);

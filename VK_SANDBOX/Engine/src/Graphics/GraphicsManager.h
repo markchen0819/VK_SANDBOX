@@ -28,13 +28,13 @@ namespace IHCEngine::Graphics
     public:
 
         GraphicsManager(std::unique_ptr< Window::AppWindow>& w);
-        ~GraphicsManager() {};
+        ~GraphicsManager();
         // no duplication
         GraphicsManager(const  GraphicsManager&) = delete;
         GraphicsManager& operator=(const  GraphicsManager&) = delete;
 
         void Init();
-        void Update(std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects);   
+        void Update(IHCEngine::Core::Scene* scene);  
         void Shutdown();
 
 

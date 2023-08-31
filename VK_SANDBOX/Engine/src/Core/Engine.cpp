@@ -67,7 +67,8 @@ void IHCEngine::Core::Engine::Update()
 		// Update
 		sceneManager->Update();
 
-		graphicsManager->Update(sceneManager->GetActiveScene()->GetGameObjectsMap());
+		auto scene = sceneManager->GetActiveScene();
+		graphicsManager->Update(scene);
 
 		sceneManager->DeferDestroyGameObjects();
 	}
