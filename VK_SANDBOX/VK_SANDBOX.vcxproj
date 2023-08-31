@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Input\CameraController.cpp" />
     <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDevice.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Application\src\SampleApplication\SampleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Input\CameraController.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
     <ClInclude Include="Engine\src\Core\Locator\Locators.h" />

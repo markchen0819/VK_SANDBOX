@@ -49,7 +49,7 @@ namespace IHCEngine::Graphics
         void initVulkan();
         void setupBasicRenderSystem();
         Window::AppWindow& appWindow;
-        Camera camera;
+
         //// order of declarations matter for vulkan cleanup ////
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
         std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; // Swapchain

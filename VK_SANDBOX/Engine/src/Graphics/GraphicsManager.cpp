@@ -114,24 +114,44 @@ void IHCEngine::Graphics::GraphicsManager::Update(std::map<unsigned int, IHCEngi
             frameIndex,
             IHCEngine::Core::Time::GetInstance().GetDeltaTime(),
             commandBuffer,
-            camera,
             globalDescriptorSets[frameIndex],
             textureToDescriptorSetsMap,
             gameObjects 
         };
 
         GlobalUniformBufferObject ubo{};
-        //ubo.modelMatrix = glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.viewMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.projectionMatrix = glm::perspective(
+
+        // Vulkan uses a right-handed coordinate system by default.
+        // Y points down
+        // Z points out of screen
+
+        //ubo.viewMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        //ubo.projectionMatrix = glm::perspective(
+        //    glm::radians(45.0f),
+        //    renderer->GetAspectRatio(), //swapChainExtent.width / (float)swapChainExtent.height,
+        //    0.1f,
+        //    10.0f);
+
+        Camera camera{CameraType::PERSPECTIVE,
             glm::radians(45.0f),
-            renderer->GetAspectRatio(), //swapChainExtent.width / (float)swapChainExtent.height,
-            0.1f, 
-            10.0f);
-        ubo.projectionMatrix[1][1] *= -1;
-        //ubo.projectionMatrix = camera.GetProjection();
-        //ubo.viewMatrix = camera.GetView();
-        ubo.inverseViewMatrix = camera.GetInverseView();
+            renderer->GetAspectRatio(),
+            0.1f,
+            10.0f,
+            800,
+            600
+        };
+        glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
+        glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 upVector = glm::vec3(0.0f, 0.0f, 1.0f);
+        camera.transform.SetWorldPosition(eyePosition);
+        glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
+        glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
+        camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
+
+        ubo.viewMatrix = camera.GetViewMatrix();
+        ubo.projectionMatrix = camera.GetProjectionMatrix();
+        ubo.inverseViewMatrix = camera.GetInverseViewMatrix();
+        ubo.projectionMatrix[1][1] *= -1; // Flip the Y-axis for vulkan <-> opengl
 
         uboBuffers[frameIndex]->WriteToBuffer(&ubo);
         uboBuffers[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 

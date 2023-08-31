@@ -144,7 +144,6 @@ namespace IHCEngine::Graphics
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        Camera& camera;
         VkDescriptorSet globalDescriptorSet;
         std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
         std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
