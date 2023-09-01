@@ -41,6 +41,7 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
         IHCDescriptorSetLayout::Builder(*ihcDevice)
         .AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)  // Assuming this is for fragment shaders
         .Build();
+
     // In GLSL, our case
     // globalDescriptorSetLayout set 0, Binding0
     // localDescriptorSetLayout set 1, Binding0
@@ -52,6 +53,7 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
             renderer->GetSwapChainRenderPass(),
             layouts //globalDescriptorSetLayout->GetDescriptorSetLayout()
         );
+
     //// Allocate memory (ubo)
     // Allocate UniformBuffers for updating shaders (camera matrices, global light info)
     // other data that's consistent across a single draw call or frame
