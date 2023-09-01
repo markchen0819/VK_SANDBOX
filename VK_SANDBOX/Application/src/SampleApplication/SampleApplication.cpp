@@ -1,4 +1,5 @@
 #include "SampleApplication.h"
+
 #include "../../Engine/src/Core/Locator/Locators.h"
 #include "SampleScene.h"
 

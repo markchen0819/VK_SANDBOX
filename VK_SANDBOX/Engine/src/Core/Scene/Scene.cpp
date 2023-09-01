@@ -1,5 +1,6 @@
 #include "../../pch.h"
 #include "Scene.h"
+#include "GameObject.h"
 
 IHCEngine::Core::Scene::Scene(std::string sceneName)
 	: sceneName{ sceneName }

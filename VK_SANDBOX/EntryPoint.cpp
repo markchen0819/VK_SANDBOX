@@ -4,11 +4,9 @@
 #include <crtdbg.h>
 #endif
 
-
-#include "Engine/src/Core/Engine.h"
 #include "EntryPoint.h"
+#include "Engine/src/Core/Engine.h"
 #include "Application/src/SampleApplication/SampleApplication.h"
-
 
 int main()
 {

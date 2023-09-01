@@ -1,6 +1,5 @@
 #pragma once
 #include <chrono>
-#include <mutex>
 
 namespace IHCEngine::Core
 {

@@ -1,5 +1,11 @@
 #include "../pch.h"
 #include "Engine.h"
+
+#include "Time/Time.h"
+#include "../Window/AppWindow.h"
+#include "Asset/AssetManager.h"
+#include "Scene/SceneManager.h"
+#include "../Graphics/GraphicsManager.h"
 #include "Locator/Locators.h"
 
 //STB
@@ -9,11 +15,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-
-IHCEngine::Core::Engine::Engine()
-{
-	// explicitly call Init & Shutdown
-}
+// explicitly call Init & Shutdown
+// = default is needed in cpp due to forward declaration for smart ptrs
+IHCEngine::Core::Engine::Engine() = default;
+IHCEngine::Core::Engine::~Engine() = default;
 
 void IHCEngine::Core::Engine::Init()
 {

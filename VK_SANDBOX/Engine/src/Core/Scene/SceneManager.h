@@ -1,5 +1,10 @@
 #pragma once
-#include "Scene.h"
+#include <map>
+// Forward declaration
+namespace IHCEngine::Core
+{
+	class Scene;
+}
 
 namespace IHCEngine::Core
 {
@@ -8,6 +13,7 @@ namespace IHCEngine::Core
 	public:
 
 		SceneManager() : activeScene(nullptr), nextSceneToLoad(-1) {};
+		~SceneManager();
 
 		template <typename T> // template for custom scenes
 		void AddScene()

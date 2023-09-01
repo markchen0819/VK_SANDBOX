@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <map>
-#include "GameObject.h"
 #include "../../Graphics/Camera.h"
+
+// Forward declaration
+class GameObject;
 
 namespace IHCEngine::Core
 {

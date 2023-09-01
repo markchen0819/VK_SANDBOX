@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetRepository.h"
 #include "../../Graphics/VKWraps/IHCTexture.h"
+#include "../../Graphics/VKWraps/IHCModel.h"
 
 namespace IHCEngine::Core
 {
@@ -8,10 +9,8 @@ namespace IHCEngine::Core
 	{
 	public:
 		AssetManager() = default;
-		~AssetManager() 
-		{
-			textureRepository.ClearAssets();
-		};
+		~AssetManager();
+
 		// no duplication
 		AssetManager(const  AssetManager&) = delete;
 		AssetManager& operator=(const  AssetManager&) = delete;

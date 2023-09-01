@@ -1,5 +1,8 @@
 #include "../../pch.h"
 #include "SceneManager.h"
+#include "Scene.h"
+
+IHCEngine::Core::SceneManager::~SceneManager() = default;
 
 void IHCEngine::Core::SceneManager::Update()
 {
@@ -15,7 +18,6 @@ void IHCEngine::Core::SceneManager::Shutdown()
 	}
 	activeScene = nullptr;
 }
-
 
 IHCEngine::Core::Scene* IHCEngine::Core::SceneManager::GetSceneAt(int pos)
 {
@@ -77,7 +79,6 @@ void IHCEngine::Core::SceneManager::LoadNextScene()
 	// Component Init
 	nextSceneToLoad = -1;
 }
-
 void IHCEngine::Core::SceneManager::DeferDestroyGameObjects()
 {
 	activeScene->DeferDestroyGameObjects();

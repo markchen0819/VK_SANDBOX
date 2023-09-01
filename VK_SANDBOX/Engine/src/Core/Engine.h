@@ -1,11 +1,22 @@
 #include "../../Application/src/IApplication.h"
-#include "Time/Time.h"
-#include "../Window/AppWindow.h"
-#include "Asset/AssetManager.h"
-#include "Scene/SceneManager.h"
-#include "../Graphics/GraphicsManager.h"
 
-
+// Forward declaration
+namespace IHCEngine
+{
+	namespace Window
+	{
+		class AppWindow;
+	}
+	namespace Core
+	{
+		class AssetManager;
+		class SceneManager;
+	}
+	namespace Graphics
+	{
+		class GraphicsManager;
+	}
+}
 
 namespace IHCEngine::Core
 {
@@ -13,6 +24,7 @@ namespace IHCEngine::Core
 	{
 	public:
 		Engine();
+		~Engine();
 		void Init();
 		void Update();
 		void Shutdown();
