@@ -1,5 +1,7 @@
 #include "../../pch.h"
 #include "IHCDevice.h"
+#include "../../Window/AppWindow.h"
+#include "VKHelpers.h"
 
 #pragma region VK instance debugging callbacks
 VKAPI_ATTR VkBool32 VKAPI_CALL IHCEngine::Graphics::IHCDevice::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)

@@ -1,13 +1,10 @@
 #pragma once
-#include "VKHelpers.h"
-#include "IHCDevice.h"
-#include "IHCBuffer.h"
-#include <tiny_obj_loader.h>
 
 // Forward declaration
 struct Vertex;  
 namespace IHCEngine::Graphics
 {
+    class IHCDevice;
     class IHCBuffer;
 }
 

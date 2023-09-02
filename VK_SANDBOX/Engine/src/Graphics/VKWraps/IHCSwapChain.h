@@ -1,6 +1,14 @@
 #pragma once
-#include "VKHelpers.h"
-#include "IHCDevice.h"
+
+// Forward declaration
+namespace IHCEngine::Window
+{
+	class AppWindow;
+}
+namespace IHCEngine::Graphics
+{
+	class IHCDevice;
+}
 
 namespace IHCEngine::Graphics
 {

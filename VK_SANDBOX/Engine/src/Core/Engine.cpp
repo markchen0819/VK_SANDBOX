@@ -22,7 +22,11 @@ IHCEngine::Core::Engine::~Engine() = default;
 
 void IHCEngine::Core::Engine::Init()
 {
-	assert(application != nullptr, "Engine application can't be null");
+	if (application == nullptr)
+	{
+		std::cerr << "Engine application can't be null" << std::endl;
+		assert(false);
+	}
 
 	// Window
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 800, 600);

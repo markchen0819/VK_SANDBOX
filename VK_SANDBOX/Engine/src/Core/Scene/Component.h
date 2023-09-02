@@ -1,10 +1,12 @@
 #pragma once
-#include "../../pch.h"
+// Forward declaration
+namespace IHCEngine::Core
+{
+	class GameObject;  
+}
 
 namespace IHCEngine::Core
 {
-	class GameObject;  // Forward declaration
-
 	enum class ComponentType 
 	{
 		Base,      

@@ -1,10 +1,12 @@
 #pragma once
-#include "VKHelpers.h"
-#include "IHCDevice.h"
+// Forward declaration
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+}
 
 namespace IHCEngine::Graphics
 {
-    class IHCDevice;  // Forward declaration, BUT WHY?
 	class IHCBuffer
 	{
     public:

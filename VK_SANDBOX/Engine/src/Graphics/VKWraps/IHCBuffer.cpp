@@ -1,6 +1,6 @@
 #include "../../pch.h"
 #include "IHCBuffer.h"
-
+#include "IHCDevice.h"
 
 // ensure proper memory alignment for an instance (data structure) on the GPU
 // given specific hardware alignment requirements.

@@ -1,9 +1,10 @@
 #pragma once
-#include "VKHelpers.h"
-#include "IHCDevice.h"
-#include "IHCBuffer.h"
-#include <stb_image.h>
 
+// Forward declaration
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+}
 
 namespace IHCEngine::Graphics
 {

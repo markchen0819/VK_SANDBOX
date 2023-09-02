@@ -1,12 +1,11 @@
 #pragma once
-#include <stb_image.h>
-#include "../VKWraps/VKHelpers.h"
-#include "../VKWraps/IHCDevice.h"
-#include "../VKWraps/IHCPipeline.h"
-#include "../VKWraps/IHCModel.h"
-
-#include "../../Core/Time/Time.h"
-#include "../../Core/Scene/GameObject.h"
+// Forward declaration
+namespace IHCEngine::Graphics
+{
+    struct FrameInfo;
+    class IHCDevice;
+    class IHCPipeline;
+}
 
 namespace IHCEngine::Graphics
 {

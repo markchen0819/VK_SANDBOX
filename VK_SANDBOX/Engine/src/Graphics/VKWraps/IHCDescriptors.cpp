@@ -1,6 +1,6 @@
 #include "../../pch.h"
 #include "IHCDescriptors.h"
-
+#include "IHCDevice.h"
 
 #pragma region IHCDescriptorSetLayout
 IHCEngine::Graphics::IHCDescriptorSetLayout::Builder& IHCEngine::Graphics::IHCDescriptorSetLayout::Builder::AddBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags, uint32_t count)

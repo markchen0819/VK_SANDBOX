@@ -1,9 +1,12 @@
 #pragma once
-#include "VKHelpers.h"
-#include "../../Window/AppWindow.h"
 
-struct QueueFamilyIndices; // Forward declaration, BUT WHY?
-struct SwapChainSupportDetails; // Forward declaration, BUT WHY?
+// Forward declaration
+namespace IHCEngine::Window
+{
+    class AppWindow;
+}
+struct QueueFamilyIndices; 
+struct SwapChainSupportDetails;
 
 namespace IHCEngine::Graphics
 {

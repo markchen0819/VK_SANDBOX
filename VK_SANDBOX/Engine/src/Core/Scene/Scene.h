@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
 #include <map>
+// include the ones that will also be used in inherited scene
+#include "GameObject.h"
 #include "../../Graphics/Camera.h"
-
-// Forward declaration
-class GameObject;
 
 namespace IHCEngine::Core
 {

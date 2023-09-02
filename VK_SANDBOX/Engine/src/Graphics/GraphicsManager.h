@@ -1,25 +1,28 @@
 #pragma once
-#include <stb_image.h>
-
-// Window
-#include "../Window/AppWindow.h"
-
-// Time
-#include "../Core/Time/Time.h"
-
-// Vulkan
 #include "VKWraps/VKHelpers.h"
-#include "VKWraps/IHCDevice.h"
-#include "VKWraps/IHCDescriptors.h"
-#include "RenderSystems/RenderSystem.h" // contains IHCPipeline
-#include "Renderer.h" // contains IHCSwapchain
 
-// Camera
-#include "Camera.h"
-
-// GameObject
-#include "VKWraps/IHCModel.h"
-#include "../Core/Scene/GameObject.h"
+// Forward declaration
+namespace IHCEngine::Window
+{
+    class AppWindow;
+}
+namespace IHCEngine::Core
+{
+    class Time;
+    class Scene;
+}
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+    class IHCBuffer;
+    class Renderer;  // contains IHCSwapchain
+    class IHCDescriptorPool;
+    class IHCDescriptorSetLayout;
+    class IHCDescriptorWriter;
+    class IHCTexture;
+    class IHCModel;
+    class RenderSystem; // contains IHCPipeline
+}
 
 namespace IHCEngine::Graphics
 {

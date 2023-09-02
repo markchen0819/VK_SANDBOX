@@ -1,6 +1,10 @@
 #include "../../pch.h"
 #include "IHCTexture.h"
 
+#include <stb_image.h>
+#include "IHCDevice.h"
+#include "IHCBuffer.h"
+
 IHCEngine::Graphics::IHCTexture::IHCTexture(IHCDevice& device, std::string name, const std::string& filepath)
  : ihcDevice(device), name(name)
 {

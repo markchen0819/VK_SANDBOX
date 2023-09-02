@@ -1,5 +1,7 @@
 #include "../pch.h"
 #include "Renderer.h"
+#include "../Window/AppWindow.h"
+#include "VKWraps/IHCDevice.h"
 
 IHCEngine::Graphics::Renderer::Renderer(Window::AppWindow& window, IHCDevice& device)
 	: appWindow{ window }, ihcDevice{ device }

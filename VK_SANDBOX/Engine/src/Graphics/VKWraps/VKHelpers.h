@@ -1,9 +1,13 @@
 #pragma once
 #include <vector>
 #include <map>
-#include <vulkan/vulkan.h>
-#include "../Camera.h"
-#include "../../Core/Scene/GameObject.h"
+// Forward declaration
+namespace IHCEngine::Core
+{
+    class Camera;
+    class GameObject;  
+}
+
 
 #pragma region Debugging 
 const std::vector<const char*> validationLayers =
@@ -131,12 +135,6 @@ struct GlobalUniformBufferObject
 
 
 #pragma region FrameInfo (Data passing for VKwraps)
-
-namespace IHCEngine::Core
-{
-    class GameObject;  // Forward declaration
-}
-
 namespace IHCEngine::Graphics
 {
     struct FrameInfo

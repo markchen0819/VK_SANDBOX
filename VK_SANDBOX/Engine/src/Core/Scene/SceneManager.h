@@ -1,10 +1,6 @@
 #pragma once
 #include <map>
-// Forward declaration
-namespace IHCEngine::Core
-{
-	class Scene;
-}
+#include "Scene.h"
 
 namespace IHCEngine::Core
 {
@@ -18,7 +14,11 @@ namespace IHCEngine::Core
 		template <typename T> // template for custom scenes
 		void AddScene()
 		{
-			assert((std::is_base_of_v<Scene, T>), "Can't add type {0} to Scene Manager", typeid(T).name());
+			if (!std::is_base_of_v<Scene, T>) 
+			{
+				std::cerr << "Can't add type " << typeid(T).name() << " to Scene Manager" << std::endl;
+				assert(false);
+			}
 			scenesMap[scenesMap.size()] = std::make_unique<T>();
 		}
 

@@ -1,5 +1,7 @@
 #include "../../pch.h"
 #include "IHCPipeline.h"
+#include "VKHelpers.h"
+#include "IHCDevice.h"
 
 IHCEngine::Graphics::IHCPipeline::IHCPipeline(IHCDevice& device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
     : device(device)

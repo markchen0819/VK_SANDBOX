@@ -1,9 +1,6 @@
 #pragma once
 #include "../../Transform/Transform.h"
-#include "../../Graphics/VKWraps/IHCModel.h"
-#include "../../Graphics/VKWraps/IHCTexture.h"
 #include "Component.h"
-#include "Scene.h"
 
 // Forward declaration
 namespace IHCEngine::Graphics 
@@ -15,7 +12,6 @@ namespace IHCEngine::Core
 {
     class Scene;
 }
-
 
 namespace IHCEngine::Core
 {

@@ -1,6 +1,23 @@
 #include "../pch.h"
 #include "GraphicsManager.h"
-#include "../Core/Locator/Locators.h"
+
+// Window
+#include "../Window/AppWindow.h"
+// Time
+#include "../Core/Time/Time.h"
+// Camera
+#include "Camera.h"
+// Vulkan
+#include "VKWraps/VKHelpers.h"
+#include "VKWraps/IHCDevice.h"
+#include "VKWraps/IHCBuffer.h"
+#include "Renderer.h"
+#include "VKWraps/IHCDescriptors.h"
+#include "VKWraps/IHCTexture.h"
+#include "VKWraps/IHCModel.h"
+#include "RenderSystems/RenderSystem.h" 
+// Scene
+#include "../Core/Scene/Scene.h"
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)

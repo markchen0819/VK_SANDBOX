@@ -1,6 +1,11 @@
 #pragma once
 #include "VKWraps/IHCSwapChain.h"
-#include "VKWraps/IHCModel.h"
+
+// Forward declaration
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+}
 
 namespace IHCEngine::Graphics
 {
