@@ -19,8 +19,8 @@ namespace IHCEngine::Component
 	{
 	public:
 
-		Component(IHCEngine::Core::GameObject* owner)
-			: gameObject(owner), isActive(true)
+		Component()
+			: gameObject(nullptr), type(ComponentType::Base), isActive(true)
 		{ };
 
 		Component(ComponentType type)
@@ -45,6 +45,8 @@ namespace IHCEngine::Component
 
 		friend class GameObject;
 		IHCEngine::Core::GameObject* gameObject;
+
+		virtual void Remove() = 0;
 	};
 
 }

@@ -36,7 +36,7 @@ namespace IHCEngine::Component
 		bool hasStarted = false;
 
 		friend class CustomBehaviorManager;
-		//void Remove() override;
+		void Remove() override; // remove from system (ECS)
 	};
 }
 

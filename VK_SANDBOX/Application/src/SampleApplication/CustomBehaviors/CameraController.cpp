@@ -1,21 +1,55 @@
-#include "../pch.h"
-#include "CameraController.h"
-#include "../Graphics/Camera.h"
 #include <glm/gtx/string_cast.hpp> 
-IHCEngine::Input::CameraController::CameraController(IHCEngine::Graphics::Camera& camera)
-    : camera(camera)
+#include "CameraController.h"
+
+#include "../../Engine/src/Graphics/Camera.h"
+#include "../../Engine/src/Core/Scene/Scene.h"
+#include "../../Engine/src/Core/Scene/GameObject.h"
+#include "../../../../Engine/src/Core/Locator/AppWindowLocator.h"
+
+SampleApplication::CameraController::CameraController()
 {
-    glm::vec3 eyePosition = glm::vec3(0.0f, 0.0f, 10.0f);
-    glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    //glm::vec3 upVector = camera.transform.GetUp();//glm::vec3(0.0f, 0.0f, 1.0f);
-    camera.transform.SetWorldPosition(eyePosition);
-   // glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
-    //glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
-   // camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
+
 
 }
 
-void IHCEngine::Input::CameraController::HandleInput(GLFWwindow* window)
+void SampleApplication::CameraController::Awake()
+{
+
+    window = IHCEngine::Core::AppWindowLocator::GetAppWindow()->GetWindowHandle();
+    camera = &(this->gameObject->GetScene()->GetCamera());
+
+    glm::vec3 eyePosition = glm::vec3(0.0f, 0.0f, 10.0f);
+    glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    //glm::vec3 upVector = camera.transform.GetUp();//glm::vec3(0.0f, 0.0f, 1.0f);
+    camera->transform.SetWorldPosition(eyePosition);
+    // glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
+     //glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
+    // camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
+
+}
+
+void SampleApplication::CameraController::Start()
+{
+}
+
+void SampleApplication::CameraController::Update()
+{
+    HandleInput();
+}
+
+void SampleApplication::CameraController::FixedUpdate()
+{
+}
+
+void SampleApplication::CameraController::OnEnable()
+{
+}
+
+void SampleApplication::CameraController::OnDisable()
+{
+}
+
+void SampleApplication::CameraController::HandleInput()
 {
     // Define world axes
     glm::vec3 worldX = glm::vec3(1.0f, 0.0f, 0.0f); // right direction in world
@@ -24,8 +58,8 @@ void IHCEngine::Input::CameraController::HandleInput(GLFWwindow* window)
 
     // Handle movement:
     
-    auto cameraUp = camera.transform.GetUp();
-    auto cameraRight = camera.transform.GetRight();
+    auto cameraUp = camera->transform.GetUp();
+    auto cameraRight = camera->transform.GetRight();
     auto cameraForward = glm::cross(cameraUp,cameraRight);
         //camera.transform.GetForward() * glm::vec3(0, 0, -1);
     //std::cout << "Z" << std::endl;
@@ -37,35 +71,35 @@ void IHCEngine::Input::CameraController::HandleInput(GLFWwindow* window)
     // Movement
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        auto p = camera.transform.GetWorldPosition();
+        auto p = camera->transform.GetWorldPosition();
         p += cameraForward * movementSpeed;
-        camera.transform.SetWorldPosition(p);
+        camera->transform.SetWorldPosition(p);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        auto p = camera.transform.GetWorldPosition();
+        auto p = camera->transform.GetWorldPosition();
         p -= cameraForward * movementSpeed;
-        camera.transform.SetWorldPosition(p);
+        camera->transform.SetWorldPosition(p);
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        auto p = camera.transform.GetWorldPosition();
+        auto p = camera->transform.GetWorldPosition();
         p -= cameraRight * movementSpeed;
-        camera.transform.SetWorldPosition(p);
+        camera->transform.SetWorldPosition(p);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        auto p = camera.transform.GetWorldPosition();
+        auto p = camera->transform.GetWorldPosition();
         p += cameraRight * movementSpeed;
-        camera.transform.SetWorldPosition(p);
+        camera->transform.SetWorldPosition(p);
     }
 
 
     // Get the current world rotation as a quaternion.
-    glm::quat currentRotation = camera.transform.GetWorldRotation();
+    glm::quat currentRotation = camera->transform.GetWorldRotation();
 
     // Handle rotations:
     float rotationAmount = glm::radians(rotationSpeed * -1);  // Convert degrees to radians.
@@ -95,7 +129,6 @@ void IHCEngine::Input::CameraController::HandleInput(GLFWwindow* window)
     glm::quat combinedRotation = currentRotation * yawQuat * pitchQuat;
 
     // Set the combined rotation.
-    camera.transform.SetWorldRotation(combinedRotation);
-
+    camera->transform.SetWorldRotation(combinedRotation);
 
 }

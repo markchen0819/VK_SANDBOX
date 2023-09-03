@@ -411,4 +411,9 @@ void IHCEngine::Component::Transform::PropagateParentLocalTransform(glm::mat4 pa
 	}
 	setWorldDirty();
 }
+
 #pragma endregion
+
+void IHCEngine::Component::Transform::Remove()
+{
+}

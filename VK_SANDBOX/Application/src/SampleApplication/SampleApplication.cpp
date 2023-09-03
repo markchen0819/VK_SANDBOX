@@ -1,7 +1,7 @@
 #include "SampleApplication.h"
 
-#include "../../Engine/src/Core/Locator/Locators.h"
-#include "SampleScene.h"
+#include "../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "Scene/SampleScene.h"
 
 SampleApplication::SampleApplication::SampleApplication(const std::string& appName)
 	:sceneNum{ 0 }, IHCEngine::Core::IApplication(appName)

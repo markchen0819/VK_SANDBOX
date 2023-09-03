@@ -76,7 +76,7 @@ void IHCEngine::Core::SceneManager::LoadNextScene()
 	activeScene->Load(); // Load resources
 	activeScene->Init(); // Create GameObjects
 	activeScene->Update();
-	// Component Init
+
 	nextSceneToLoad = -1;
 }
 void IHCEngine::Core::SceneManager::DeferDestroyGameObjects()

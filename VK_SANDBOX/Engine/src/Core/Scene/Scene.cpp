@@ -3,7 +3,7 @@
 #include "GameObject.h"
 
 // Temporary
-#include "../Locator/Locators.h"
+#include "../Locator/AppWindowLocator.h"
 #include "../../Engine/src/Window/AppWindow.h"
 
 IHCEngine::Core::Scene::Scene(std::string sceneName)
@@ -26,10 +26,6 @@ void IHCEngine::Core::Scene::Update()
 			}
 		}
 	}
-
-	// Temporary
-	auto w = IHCEngine::Core::AppWindowLocator::GetAppWindow();
-	mainCamera.cameraController.HandleInput(w->GetWindowHandle());
 }
 
 void IHCEngine::Core::Scene::Shutdown()

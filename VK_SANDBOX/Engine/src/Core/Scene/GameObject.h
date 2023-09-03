@@ -1,5 +1,7 @@
 #pragma once
+#include <vector>
 #include "Components/Transform.h"
+#include "Components/CustomBehavior/CustomBehavior.h"
 
 // Forward declaration
 namespace IHCEngine::Graphics 
@@ -23,7 +25,6 @@ namespace IHCEngine::Core
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
 
-        void Update();
         unsigned int GetUID() { return uid; }
         std::string GetName() { return name; }
         bool IsActive() { return isActive; }
@@ -56,6 +57,7 @@ namespace IHCEngine::Core
         bool shouldDestroy = false;
 
         std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
+        std::vector<IHCEngine::Component::CustomBehavior*> customBehaviors;
 
         friend class Scene;
         Scene* scene;

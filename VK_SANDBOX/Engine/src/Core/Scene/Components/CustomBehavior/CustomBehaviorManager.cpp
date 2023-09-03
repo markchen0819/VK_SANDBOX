@@ -17,6 +17,7 @@ void IHCEngine::Component::CustomBehaviorManager::Init()
 		behavior->hasAwaked = true;
 		behavior->OnEnable();
 		behavior->state = BehaviorState::Start;
+		++it;
 	}
 }
 
@@ -60,12 +61,15 @@ void IHCEngine::Component::CustomBehaviorManager::Update()
 				if (behavior->hasStarted)
 				{
 					behavior->state = BehaviorState::Update;
+					++it;
 					continue;
 				}
 				behavior->state = BehaviorState::Start;
+				++it;
 				continue;
 			}
 			behavior->state = BehaviorState::Awake;
+			++it;
 			continue;
 		}
 		else if (state == BehaviorState::OnDisable)
@@ -76,6 +80,7 @@ void IHCEngine::Component::CustomBehaviorManager::Update()
 				behavior->state = BehaviorState::OnEnable;
 			}
 		}
+		++it;
 	}
 }
 
@@ -89,6 +94,7 @@ void IHCEngine::Component::CustomBehaviorManager::FixedUpdate()
 		{
 			behavior->FixedUpdate();
 		}
+		++it;
 	}
 }
 

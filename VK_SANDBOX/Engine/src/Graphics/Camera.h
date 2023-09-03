@@ -1,6 +1,5 @@
 #pragma once
 #include "../Core/Scene/Components/Transform.h"
-#include "../Input/CameraController.h"
 
 namespace IHCEngine::Graphics
 {
@@ -32,9 +31,6 @@ namespace IHCEngine::Graphics
 		void SetCameraType(CameraType type);
 
 		IHCEngine::Component::Transform transform;
-
-		//Temporary
-		IHCEngine::Input::CameraController cameraController{ *this };
 
 	private:
 

@@ -1,5 +1,8 @@
 #include "SampleScene.h"
-#include "../../Engine/src/Core/Locator/Locators.h"
+#include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
+#include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
+#include "../CustomBehaviors/CameraController.h"
+
 
 SampleApplication::SampleScene::SampleScene()
 	: Scene("SampleScene")
@@ -108,6 +111,9 @@ void SampleApplication::SampleScene::UnLoad()
 void SampleApplication::SampleScene::Init()
 {
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+
+	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
+	camera.AddComponent<SampleApplication::CameraController>();
 
 	IHCEngine::Core::GameObject& testGobj1 = AddGameObject("testGobj1");
 	testGobj1.model = assetManager->GetModelRepository().GetAsset("room_MODEL");

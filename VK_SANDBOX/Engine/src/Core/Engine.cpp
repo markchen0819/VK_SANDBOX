@@ -6,7 +6,13 @@
 #include "Asset/AssetManager.h"
 #include "Scene/SceneManager.h"
 #include "../Graphics/GraphicsManager.h"
-#include "Locator/Locators.h"
+
+//Locators
+#include "Locator/AppWindowLocator.h"
+#include "Locator/AssetManagerLocator.h"
+#include "Locator/GraphicsManagerLocator.h"
+#include "Locator/SceneManagerLocator.h"
+#include "Locator/CustomBehaviorManagerLocator.h"
 
 //STB
 #define STB_IMAGE_IMPLEMENTATION
@@ -41,12 +47,15 @@ void IHCEngine::Core::Engine::Init()
 	// Graphics
 	graphicsManager = std::make_unique<Graphics::GraphicsManager>(appWindow);
 	graphicsManager->Init();
+	// Custom Behaviors
+	customBehaviorManager = std::make_unique<Component::CustomBehaviorManager>();
 
 	// Locators for global access
 	IHCEngine::Core::AppWindowLocator::Provide(appWindow.get());
 	IHCEngine::Core::AssetManagerLocator::Provide(assetManager.get());
 	IHCEngine::Core::SceneManagerLocator::Provide(sceneManager.get());
 	IHCEngine::Core::GraphicsManagerLocator::Provide(graphicsManager.get());
+	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(customBehaviorManager.get());
 
 	// Application
 	application->Init();
@@ -59,27 +68,25 @@ void IHCEngine::Core::Engine::Update()
 		Time::GetInstance().Update();
 		application->Update();
 
-
 		if (sceneManager->ShouldLoadNextScene())
 		{
+			customBehaviorManager->Reset();
 			sceneManager->LoadNextScene();
+			customBehaviorManager->Init();
 			Time::GetInstance().Reset();
 		}
-		// FixUpdate
+		// FixedUpdate
 		while (Time::GetInstance().ShouldExecuteFixedUpdate())
 		{
 			Time::GetInstance().UpdateFixedTime();
-			//component->FixedUpdate();
+			customBehaviorManager->FixedUpdate();
 			//physics->Update();
 			sceneManager->Update();
-
 		}
 		// Update
+		customBehaviorManager->Update();
 		sceneManager->Update();
-
-		auto scene = sceneManager->GetActiveScene();
-		graphicsManager->Update(scene);
-
+		graphicsManager->Update(sceneManager->GetActiveScene());
 		sceneManager->DeferDestroyGameObjects();
 	}
 }
@@ -90,11 +97,16 @@ void IHCEngine::Core::Engine::Shutdown()
 	application->Shutdown();
 	sceneManager->Shutdown();
 	graphicsManager->Shutdown();
-	assetManager = nullptr;
-	graphicsManager = nullptr;
 
+	customBehaviorManager = nullptr;
+	graphicsManager = nullptr;
+	assetManager = nullptr;
+	sceneManager = nullptr;
+
+
+	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(nullptr);
 	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);
 	IHCEngine::Core::SceneManagerLocator::Provide(nullptr);
 	IHCEngine::Core::AssetManagerLocator::Provide(nullptr);
-	IHCEngine::Core::AppWindowLocator::Provide(nullptr);
+	IHCEngine::Core::AppWindowLocator::Provide(nullptr);	
 }

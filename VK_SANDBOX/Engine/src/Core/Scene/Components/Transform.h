@@ -21,7 +21,6 @@ namespace IHCEngine::Component
 	public:
 
 		Transform();
-		~Transform() = default;
 
 		void Translate(glm::vec3 translation, Space space);
 		void Rotate(glm::vec3 eulers, Space space);
@@ -90,6 +89,8 @@ namespace IHCEngine::Component
 		bool isWorldDirty = false;
 		void setWorldDirty() 
 		{ isWorldDirty = true; }
+
+		void Remove() override;
 	};
 }
 
