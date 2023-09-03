@@ -5,39 +5,45 @@ namespace IHCEngine::Core
 	class GameObject;  
 }
 
-namespace IHCEngine::Core
+namespace IHCEngine::Component
 {
 	enum class ComponentType 
 	{
 		Base,      
 		Transform,  
-		Renderer,   
 		// add more component types as needed
 	};
 
 	class Component
 	{
 	public:
-		Component(GameObject& owner,
-			ComponentType type = ComponentType::Base)
-			: owner(owner), isActive(true), type(type) {};
+
+		Component(IHCEngine::Core::GameObject* owner)
+			: gameObject(owner), isActive(true)
+		{ };
+
+		Component(ComponentType type)
+			: gameObject(nullptr), type(type), isActive(true)
+		{ }
+
 		virtual ~Component() = default;
 
 		virtual void Init() {}
 		virtual void Update() {}
 		virtual void Destroy() {}
 
-		GameObject& GetOwner() const { return owner; }
+		IHCEngine::Core::GameObject& GetOwner() const { return *gameObject; }
+		void SetOwner(IHCEngine::Core::GameObject* gobj) { gameObject = gobj; }
 		ComponentType GetType() const { return type; }
 		bool IsActive() const { return isActive; }
 		void SetActive(bool activeStatus) { isActive = activeStatus; }
 	
-	private:
+	protected:
 		ComponentType type;
 		bool isActive;
 
 		friend class GameObject;
-		GameObject& owner;
+		IHCEngine::Core::GameObject* gameObject;
 	};
 
 }

@@ -8,21 +8,18 @@ IHCEngine::Core::Scene::Scene(std::string sceneName)
 
 void IHCEngine::Core::Scene::Update()
 {
-	const auto& updatedRootGameObjects = GetRootGameObjects();
+	const auto& rootGameObjects = GetRootGameObjects();
 
-	for (GameObject* parent : updatedRootGameObjects)
+	for (GameObject* parent : rootGameObjects)
 	{
 		if (parent->IsActive())
 		{
-			// TO:DO propagation
-
-			//glm::mat4 localModelMatrix = parent->transform.GetLocalModelMatrix();
-
-			//for (int childIndex = 0; childIndex < parent->GetTransform()->GetNumberOfChildren(); childIndex++)
-			//{
-			//	WeakPointer<Component::Transform> childTransform = parent->GetTransform()->GetChildAtIndex(childIndex);
-			//	childTransform->PropagateParentLocalTransform(parentLocalModelMatrix);
-			//}
+			glm::mat4 parentLocalModelMatrix = parent->transform.GetLocalModelMatrix();
+			for (int i = 0; i < parent->transform.GetChildCount(); ++i)
+			{
+				IHCEngine::Component::Transform* childTransform = parent->transform.GetChildAt(i);
+				childTransform->PropagateParentLocalTransform(parentLocalModelMatrix);
+			}
 		}
 	}
 }
@@ -53,6 +50,7 @@ IHCEngine::Core::GameObject& IHCEngine::Core::Scene::AddGameObject(const std::st
     auto gobj = std::make_unique<GameObject>(gobjIDCounter, name, this);
     auto iter = gameObjectsMap.insert({ gobjIDCounter, std::move(gobj) }); // iter first->element, second->bool if insertion took place
     ++gobjIDCounter;
+	HierachyChanged();
     return *(iter.first->second);
 }
 
@@ -65,7 +63,7 @@ void IHCEngine::Core::Scene::RemoveGameObject(GameObject& gameObject)
         assert("Trying to remove game object with id {0} that is not in the scene", id);
     }
     gameObjectsMap.erase(id);
-
+	HierachyChanged();
 }
 
 IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByName(const std::string& name)
@@ -96,13 +94,17 @@ IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByUID(unsigned
 
 std::vector<IHCEngine::Core::GameObject*>& IHCEngine::Core::Scene::GetRootGameObjects()
 {
-	rootGameObjects.clear();
-	for (auto& pair : gameObjectsMap)
+	if (hasHierachyChanged)
 	{
-		if (pair.second->transform.GetParent() == nullptr)
+		rootGameObjects.clear();
+		for (auto& pair : gameObjectsMap)
 		{
-			rootGameObjects.push_back(pair.second.get());
+			if (pair.second->transform.GetParent() == nullptr)
+			{
+				rootGameObjects.push_back(pair.second.get());
+			}
 		}
+		hasHierachyChanged == false;
 	}
 	return rootGameObjects;
 }

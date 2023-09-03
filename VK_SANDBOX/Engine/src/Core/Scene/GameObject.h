@@ -1,6 +1,5 @@
 #pragma once
-#include "../../Transform/Transform.h"
-#include "Component.h"
+#include "Components/Transform.h"
 
 // Forward declaration
 namespace IHCEngine::Graphics 
@@ -32,8 +31,7 @@ namespace IHCEngine::Core
 
         Scene* GetScene() { return scene; }
 
-        IHCEngine::Transform::Transform transform;
-        // Temporary Components
+        IHCEngine::Component::Transform transform;
         IHCEngine::Graphics::IHCModel* model = nullptr;
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
 
@@ -55,7 +53,7 @@ namespace IHCEngine::Core
         std::string name = "defaultGobj";
         bool isActive = true;
         bool shouldDestroy = false;
-        std::vector<std::unique_ptr<Component>> components;
+        std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
 
         friend class Scene;
         Scene* scene;

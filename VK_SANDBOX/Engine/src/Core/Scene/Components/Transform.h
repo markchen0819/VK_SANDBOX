@@ -1,4 +1,6 @@
 #pragma once
+#include <glm/ext/quaternion_float.hpp>
+#include "Component.h"
 
 // Forward declaration
 namespace IHCEngine::Core
@@ -6,7 +8,7 @@ namespace IHCEngine::Core
 	class GameObject;
 }
 
-namespace IHCEngine::Transform
+namespace IHCEngine::Component
 {
 	enum class Space
 	{
@@ -14,11 +16,12 @@ namespace IHCEngine::Transform
 		World
 	};
 
-	class Transform
+	class Transform : public Component
 	{
 	public:
 
 		Transform();
+		~Transform() = default;
 
 		void Translate(glm::vec3 translation, Space space);
 		void Rotate(glm::vec3 eulers, Space space);
@@ -48,19 +51,21 @@ namespace IHCEngine::Transform
 		glm::vec3 GetUp();
 
 
-		Transform* GetParent();
 		void SetParent(Transform* parentTransform);
+		Transform* GetParent();
 		Transform* RemoveParent();// applies extra calculation
 		void SetChild(Transform* childTransform);
+		Transform* GetChildAt(int index);
 		bool IsChildOf(Transform* parent);
+		int GetChildCount();
 
+		// scenegraph
+		void PropagateParentLocalTransform(glm::mat4 parentLocalTransform);
 
 	private:
 
-		IHCEngine::Core::GameObject* gameObject;
 		Transform* parent = nullptr;
 		std::vector<Transform*> children;
-
 
 		glm::mat4 localModelMatrix;
 		glm::vec3 localPosition;
@@ -85,9 +90,6 @@ namespace IHCEngine::Transform
 		bool isWorldDirty = false;
 		void setWorldDirty() 
 		{ isWorldDirty = true; }
-
-		// scenegraph
-		void PropagateParentLocalTransform(glm::mat4 parentLocalTransform);
 	};
 }
 

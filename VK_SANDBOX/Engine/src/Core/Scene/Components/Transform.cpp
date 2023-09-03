@@ -1,8 +1,11 @@
-#include "../pch.h"
+#include "../../../pch.h"
 #include "Transform.h"
+#include "../GameObject.h"
+#include "../Scene.h"
 
-IHCEngine::Transform::Transform::Transform()
-	:localModelMatrix(1.0f),
+IHCEngine::Component::Transform::Transform()
+	: Component(ComponentType::Transform),
+	 localModelMatrix(1.0f),
 	 localPosition(0.0),
 	 localRotation(1.0, 0.0, 0.0, 0.0),
 	 localScale(1.0f),
@@ -13,11 +16,11 @@ IHCEngine::Transform::Transform::Transform()
 	 parentLocalMatrix(1.0f),
 	 inverseOfOriginalParentLocalModelMatrix(1.0f)
 { 
-
+	
 }
 
 #pragma region Translate/ Rotate/ Scale
-void IHCEngine::Transform::Transform::Translate(glm::vec3 translation, Space space)
+void IHCEngine::Component::Transform::Translate(glm::vec3 translation, Space space)
 {
 	if (parent == nullptr || space == Space::Local)
 	{
@@ -30,7 +33,7 @@ void IHCEngine::Transform::Transform::Translate(glm::vec3 translation, Space spa
 		setWorldDirty();
 	}
 }
-void IHCEngine::Transform::Transform::Rotate(glm::vec3 eulers, Space space)
+void IHCEngine::Component::Transform::Rotate(glm::vec3 eulers, Space space)
 {
 	if (parent == nullptr || space == Space::Local)
 	{
@@ -46,7 +49,7 @@ void IHCEngine::Transform::Transform::Rotate(glm::vec3 eulers, Space space)
 		setWorldDirty();
 	}
 }
-void IHCEngine::Transform::Transform::Scale(glm::vec3 scale, Space space)
+void IHCEngine::Component::Transform::Scale(glm::vec3 scale, Space space)
 {
 	if (parent == nullptr || space == Space::Local)
 	{
@@ -62,11 +65,11 @@ void IHCEngine::Transform::Transform::Scale(glm::vec3 scale, Space space)
 #pragma endregion
 
 #pragma region Local
-glm::vec3 IHCEngine::Transform::Transform::GetLocalPosition()
+glm::vec3 IHCEngine::Component::Transform::GetLocalPosition()
 {
 	return localPosition;
 }
-void IHCEngine::Transform::Transform::SetLocalPosition(glm::vec3 position)
+void IHCEngine::Component::Transform::SetLocalPosition(glm::vec3 position)
 {
 	localPosition = position;
 	setLocalDirty();
@@ -94,20 +97,20 @@ glm::vec3 ToEulerAngles(glm::quat& q)
 
 	return angles;
 }
-glm::vec3 IHCEngine::Transform::Transform::GetLocalEulerAngles()
+glm::vec3 IHCEngine::Component::Transform::GetLocalEulerAngles()
 {
 	return ToEulerAngles(localRotation);
 }
-void IHCEngine::Transform::Transform::SetLocalEulerAngles(glm::vec3 eulers)
+void IHCEngine::Component::Transform::SetLocalEulerAngles(glm::vec3 eulers)
 {
 	localRotation = glm::quat(eulers);
 	setLocalDirty();
 }
-glm::vec3 IHCEngine::Transform::Transform::GetLocalScale()
+glm::vec3 IHCEngine::Component::Transform::GetLocalScale()
 {
 	return localScale;
 }
-void IHCEngine::Transform::Transform::SetLocalScale(glm::vec3 scale)
+void IHCEngine::Component::Transform::SetLocalScale(glm::vec3 scale)
 {
 	localScale = scale;
 	setLocalDirty();
@@ -116,7 +119,7 @@ void IHCEngine::Transform::Transform::SetLocalScale(glm::vec3 scale)
 
 
 #pragma region World
-glm::vec3 IHCEngine::Transform::Transform::GetWorldPosition()
+glm::vec3 IHCEngine::Component::Transform::GetWorldPosition()
 {   
 	// | x1 y1 z1 tx |
 	// | x2 y2 z2 ty |
@@ -125,7 +128,7 @@ glm::vec3 IHCEngine::Transform::Transform::GetWorldPosition()
 
 	return GetWorldMatrix()[3];
 }
-void IHCEngine::Transform::Transform::SetWorldPosition(glm::vec3 position)
+void IHCEngine::Component::Transform::SetWorldPosition(glm::vec3 position)
 {
 	if (parent != nullptr)
 	{
@@ -182,7 +185,7 @@ glm::quat SetNonOrthogonalRotationMatrix(const glm::mat3& matrix)
 	// Return constructed quaternion
 	return glm::quat(w, x, y, z);
 }
-glm::quat IHCEngine::Transform::Transform::GetWorldRotation()
+glm::quat IHCEngine::Component::Transform::GetWorldRotation()
 {
 	// | x1 y1 z1 tx |       | x1 y1 z1 |
     // | x2 y2 z2 ty |  ->   | x2 y2 z2 |  -> SetNonOrthogonalRotationMatrix -> Quarternion
@@ -194,7 +197,7 @@ glm::quat IHCEngine::Transform::Transform::GetWorldRotation()
 	// Convert the rotational matrix to a quaternion using our specialized function
 	return SetNonOrthogonalRotationMatrix(rotationMatrix);
 }
-void IHCEngine::Transform::Transform::SetWorldRotation(glm::quat rotation)
+void IHCEngine::Component::Transform::SetWorldRotation(glm::quat rotation)
 {
 	if (parent == nullptr)
 	{
@@ -212,7 +215,7 @@ void IHCEngine::Transform::Transform::SetWorldRotation(glm::quat rotation)
 
 
 #pragma region World and LocalModelMatrix
-glm::mat4 IHCEngine::Transform::Transform::GetLocalModelMatrix(bool overrideDirtyFlag)
+glm::mat4 IHCEngine::Component::Transform::GetLocalModelMatrix(bool overrideDirtyFlag)
 {
 	if (isLocalDirty || overrideDirtyFlag)
 	{
@@ -227,7 +230,7 @@ glm::mat4 IHCEngine::Transform::Transform::GetLocalModelMatrix(bool overrideDirt
 	}
 	return localModelMatrix;
 }
-glm::mat4 IHCEngine::Transform::Transform::GetWorldMatrix()
+glm::mat4 IHCEngine::Component::Transform::GetWorldMatrix()
 {
 	if (isWorldDirty || isLocalDirty)
 	{
@@ -298,15 +301,15 @@ glm::mat4 IHCEngine::Transform::Transform::GetWorldMatrix()
 // Column 0: The right vector (X-axis)
 // Column 1: The up vector(Y - axis)
 // Column 2 : The forward vector(Z - axis)
-glm::vec3 IHCEngine::Transform::Transform::GetForward()
+glm::vec3 IHCEngine::Component::Transform::GetForward()
 {
 	return glm::mat3(GetWorldRotation())[2];
 }
-glm::vec3 IHCEngine::Transform::Transform::GetRight()
+glm::vec3 IHCEngine::Component::Transform::GetRight()
 {
 	return glm::mat3(GetWorldRotation())[0];
 }
-glm::vec3 IHCEngine::Transform::Transform::GetUp()
+glm::vec3 IHCEngine::Component::Transform::GetUp()
 {
 	return glm::mat3(GetWorldRotation())[1];
 }
@@ -314,11 +317,11 @@ glm::vec3 IHCEngine::Transform::Transform::GetUp()
 
 
 #pragma region SceneGraph Hierachy
-IHCEngine::Transform::Transform* IHCEngine::Transform::Transform::GetParent()
+IHCEngine::Component::Transform* IHCEngine::Component::Transform::GetParent()
 {
 	return parent;
 }
-void IHCEngine::Transform::Transform::SetParent(Transform* parentTransform)
+void IHCEngine::Component::Transform::SetParent(Transform* parentTransform)
 {
 	if (parentTransform != nullptr && parentTransform != parent)
 	{
@@ -334,10 +337,10 @@ void IHCEngine::Transform::Transform::SetParent(Transform* parentTransform)
 			childTransform->PropagateParentLocalTransform(parent->GetLocalModelMatrix());
 		}
 		// Notify the scene that something changed, so it might need to update/rebuild certain data structures or caches.
-		//gameObject->GetScene()->SetDirtyFlag();
+		gameObject->GetScene()->HierachyChanged();
 	}
 }
-IHCEngine::Transform::Transform* IHCEngine::Transform::Transform::RemoveParent()
+IHCEngine::Component::Transform* IHCEngine::Component::Transform::RemoveParent()
 {
 	Transform* parentBeingRemoved = nullptr;
 	if (parent != nullptr)
@@ -371,19 +374,31 @@ IHCEngine::Transform::Transform* IHCEngine::Transform::Transform::RemoveParent()
 		parentLocalMatrix = glm::mat4(1.0f); // Identity matrix
 		inverseOfOriginalParentLocalModelMatrix = glm::mat4(1.0f); 
 		// Notify the scene that something changed, so it might need to update/rebuild certain data structures or caches.
-		//gameObject->GetScene()->SetDirtyFlag();
+		gameObject->GetScene()->HierachyChanged();
 	}
 	return parentBeingRemoved;
 }
-void IHCEngine::Transform::Transform::SetChild(Transform* childTransform)
+void IHCEngine::Component::Transform::SetChild(Transform* childTransform)
 {
 	children.push_back(childTransform);
 }
-bool IHCEngine::Transform::Transform::IsChildOf(Transform* parent)
+IHCEngine::Component::Transform* IHCEngine::Component::Transform::GetChildAt(int index)
+{
+	if (index > children.size())
+	{
+		assert("Transform does not have child at index");
+	}
+	return children[index];
+}
+bool IHCEngine::Component::Transform::IsChildOf(Transform* parent)
 {
 	return this->parent == parent;
 }
-void IHCEngine::Transform::Transform::PropagateParentLocalTransform(glm::mat4 parentLocalTransform)
+int IHCEngine::Component::Transform::GetChildCount()
+{
+	return children.size();
+}
+void IHCEngine::Component::Transform::PropagateParentLocalTransform(glm::mat4 parentLocalTransform)
 {
 	this->parentLocalMatrix = parentLocalTransform;
 	for (const auto& childTransform : this->children)

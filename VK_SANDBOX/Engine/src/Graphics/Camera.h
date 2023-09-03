@@ -1,5 +1,5 @@
 #pragma once
-#include "../Transform/Transform.h"
+#include "../Core/Scene/Components/Transform.h"
 
 namespace IHCEngine::Graphics
 {
@@ -30,8 +30,7 @@ namespace IHCEngine::Graphics
 		void SetAspectRatio(float ratio) { aspectRatio = ratio; };
 		void SetCameraType(CameraType type);
 
-		// use position and rotation
-		IHCEngine::Transform::Transform transform;
+		IHCEngine::Component::Transform transform;
 
 	private:
 

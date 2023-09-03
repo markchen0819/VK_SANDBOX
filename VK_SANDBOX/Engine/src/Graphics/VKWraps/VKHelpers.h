@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <optional>
+#include <vulkan/vulkan_core.h>
+
 // Forward declaration
 namespace IHCEngine::Core
 {

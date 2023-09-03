@@ -3,7 +3,10 @@
 
 IHCEngine::Core::GameObject::GameObject(unsigned int id, std::string name, Scene* scene)
     :uid{ id }, name{ name }, scene{scene}
-{}
+{
+    transform.SetOwner(this);
+    // transform component is added in default for all gameobjects
+}
 
 void IHCEngine::Core::GameObject::Destroy()
 {

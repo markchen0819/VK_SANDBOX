@@ -31,7 +31,9 @@ namespace IHCEngine::Core
 		void RemoveGameObject(GameObject& gameObject);
 		GameObject* GetGameObjectByName(const std::string& name);
 		GameObject* GetGameObjectByUID(unsigned int id);
-		std::vector<GameObject*>& GetRootGameObjects(); //support scenegraph
+		// Scene graph
+		std::vector<GameObject*>& GetRootGameObjects(); 
+		void HierachyChanged() { hasHierachyChanged = true; };
 
 		// Camera helper function
 		IHCEngine::Graphics::Camera& GetCamera() { return mainCamera; };
@@ -58,8 +60,11 @@ namespace IHCEngine::Core
 		std::map<unsigned int, std::unique_ptr<GameObject>> gameObjectsMap;
 		inline static unsigned int gobjIDCounter = 0;
 		std::vector<GameObject*> rootGameObjects;
+		bool hasHierachyChanged = false;
+
 		friend class SceneManager;
 		void DeferDestroyGameObjects();
+
 	};
 }
 

@@ -5,7 +5,12 @@ namespace IHCEngine::Core
 	void GameObject::AddComponent()
 	{
 		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
-		components.push_back(std::make_unique<T>(*this));
+		if (HasComponent())
+		{
+			// typeid(T).name()
+			static_assert("GameObject already has one component");
+		}
+		components.push_back(std::make_unique<T>(this));
 	}
 
 	template<class T>
