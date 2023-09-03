@@ -10,7 +10,8 @@ namespace IHCEngine::Component
 	enum class ComponentType 
 	{
 		Base,      
-		Transform,  
+		Transform,
+		CustomBehavior,
 		// add more component types as needed
 	};
 

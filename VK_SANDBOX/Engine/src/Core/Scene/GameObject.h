@@ -23,6 +23,7 @@ namespace IHCEngine::Core
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
 
+        void Update();
         unsigned int GetUID() { return uid; }
         std::string GetName() { return name; }
         bool IsActive() { return isActive; }
@@ -53,6 +54,7 @@ namespace IHCEngine::Core
         std::string name = "defaultGobj";
         bool isActive = true;
         bool shouldDestroy = false;
+
         std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
 
         friend class Scene;

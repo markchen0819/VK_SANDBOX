@@ -43,6 +43,7 @@ void IHCEngine::Core::Engine::Init()
 	graphicsManager->Init();
 
 	// Locators for global access
+	IHCEngine::Core::AppWindowLocator::Provide(appWindow.get());
 	IHCEngine::Core::AssetManagerLocator::Provide(assetManager.get());
 	IHCEngine::Core::SceneManagerLocator::Provide(sceneManager.get());
 	IHCEngine::Core::GraphicsManagerLocator::Provide(graphicsManager.get());
@@ -91,7 +92,9 @@ void IHCEngine::Core::Engine::Shutdown()
 	graphicsManager->Shutdown();
 	assetManager = nullptr;
 	graphicsManager = nullptr;
+
 	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);
 	IHCEngine::Core::SceneManagerLocator::Provide(nullptr);
 	IHCEngine::Core::AssetManagerLocator::Provide(nullptr);
+	IHCEngine::Core::AppWindowLocator::Provide(nullptr);
 }

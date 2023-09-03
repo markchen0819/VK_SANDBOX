@@ -1,6 +1,6 @@
 #pragma once
 #include "VKWraps/VKHelpers.h"
-
+#include "VKWraps/IHCModel.h"
 // Forward declaration
 namespace IHCEngine::Window
 {
@@ -45,7 +45,9 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string assetName, std::string path);
         void DestroyTexture(std::string assetName);
         std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, std::string path);
+        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, IHCEngine::Graphics::IHCModel::Builder& builder);
         void DestroyModel(std::string assetName);
+
 
     private:
 

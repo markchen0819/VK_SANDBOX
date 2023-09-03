@@ -1,5 +1,6 @@
 #pragma once
 #include "../Core/Scene/Components/Transform.h"
+#include "../Input/CameraController.h"
 
 namespace IHCEngine::Graphics
 {
@@ -20,21 +21,26 @@ namespace IHCEngine::Graphics
 		glm::mat4 GetInverseViewMatrix();
 
 		float GetNearClippingPlane() { return nearPlane; };
-		void SetNearClippingPlane(float d){ nearPlane = d; };
+		void SetNearClippingPlane(float d){ isProjectionDirty = true; nearPlane = d; };
 		float GetFarClippingPlane() { return farPlane; };
-		void SetFarClippingPlane(float d){ farPlane = d; };
+		void SetFarClippingPlane(float d){ isProjectionDirty = true; farPlane = d; };
 		float GetFOV() { return fov; }
-		void SetFOV(float fieldOfView){ fov = fieldOfView; };
+		void SetFOV(float fieldOfView){ isProjectionDirty = true; fov = fieldOfView; };
 		float GetAspectRatio() { return aspectRatio; }
-		void SetAspectRatio(float width, float height) { aspectRatio = (width / height); };
-		void SetAspectRatio(float ratio) { aspectRatio = ratio; };
+		void SetAspectRatio(float width, float height) { isProjectionDirty = true; aspectRatio = (width / height); };
+		void SetAspectRatio(float ratio) { isProjectionDirty = true; aspectRatio = ratio; };
 		void SetCameraType(CameraType type);
 
 		IHCEngine::Component::Transform transform;
 
+		//Temporary
+		IHCEngine::Input::CameraController cameraController{ *this };
+
 	private:
 
 		CameraType type; // PERSPECTIVE or ORTHOGRAPHIC
+		bool isProjectionDirty = true;
+
 		// Perspective
 		float fov; // field of view in radians
 		float aspectRatio; // aspect ratio of the viewport

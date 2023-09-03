@@ -163,11 +163,11 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         //gobj->transform.SetLocalRotation()
         //push.modelMatrix = gobj->transform.GetLocalModelMatrix();
 
-        push.modelMatrix=
-            glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        push.modelMatrix = gobj->transform.GetWorldMatrix();
+            //glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         push.normalMatrix = glm::mat4(1);
 
-        if (gobj->GetUID() == 1)
+        if (gobj->GetUID() == 0)
         {
             push.modelMatrix =
                 glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));

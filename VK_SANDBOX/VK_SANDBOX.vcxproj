@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
     <ClCompile Include="Engine\src\Input\CameraController.cpp" />
     <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp" />
@@ -175,6 +177,8 @@
     <ClCompile Include="Application\src\SampleApplication\SampleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Engine\src\Input\CameraController.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />

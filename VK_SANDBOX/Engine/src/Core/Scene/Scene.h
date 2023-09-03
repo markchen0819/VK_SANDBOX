@@ -49,7 +49,7 @@ namespace IHCEngine::Core
 			glm::radians(45.0f),
 			1280/720,//renderer->GetAspectRatio()
 			0.1f,
-			10.0f,
+			1000.0f,
 			800,
 			600
 		};;

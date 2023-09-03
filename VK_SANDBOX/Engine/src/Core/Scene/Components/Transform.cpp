@@ -194,8 +194,12 @@ glm::quat IHCEngine::Component::Transform::GetWorldRotation()
 
 	// Extract 3x3 rotation matrix
 	glm::mat3 rotationMatrix = glm::mat3(GetWorldMatrix());
-	// Convert the rotational matrix to a quaternion using our specialized function
-	return SetNonOrthogonalRotationMatrix(rotationMatrix);
+
+	return glm::quat(rotationMatrix);
+
+	// Buggy
+	//// Convert the rotational matrix to a quaternion using our specialized function
+	//return SetNonOrthogonalRotationMatrix(rotationMatrix);
 }
 void IHCEngine::Component::Transform::SetWorldRotation(glm::quat rotation)
 {

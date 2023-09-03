@@ -14,7 +14,7 @@
 #include "Renderer.h"
 #include "VKWraps/IHCDescriptors.h"
 #include "VKWraps/IHCTexture.h"
-#include "VKWraps/IHCModel.h"
+//#include "VKWraps/IHCModel.h"
 #include "RenderSystems/RenderSystem.h" 
 // Scene
 #include "../Core/Scene/Scene.h"
@@ -172,10 +172,10 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
         glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 upVector = glm::vec3(0.0f, 0.0f, 1.0f);
-        camera.transform.SetWorldPosition(eyePosition);
+        //camera.transform.SetWorldPosition(eyePosition);
         glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
         glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
-        camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
+        //camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
 
         ubo.viewMatrix = camera.GetViewMatrix();
         ubo.projectionMatrix = camera.GetProjectionMatrix();
@@ -264,6 +264,12 @@ std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsMana
     // Don't need to keep track for models, they self-deallocate
     // Textures need keeping track due to descriptors
     return IHCModel::CreateModelFromFile(*ihcDevice, path);
+}
+std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, IHCEngine::Graphics::IHCModel::Builder& builder)
+{
+    // Don't need to keep track for models, they self-deallocate
+    // Textures need keeping track due to descriptors
+    return std::make_unique<IHCEngine::Graphics::IHCModel>(*ihcDevice, builder);
 }
 void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
 {

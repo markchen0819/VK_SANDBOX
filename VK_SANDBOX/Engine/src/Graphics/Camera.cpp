@@ -15,6 +15,8 @@ IHCEngine::Graphics::Camera::Camera(CameraType type, float fov, float aspect, fl
 
 glm::mat4 IHCEngine::Graphics::Camera::GetProjectionMatrix()
 {
+    if (!isProjectionDirty) return projectionMatrix; // cache to save performance
+
     if (type == CameraType::PERSPECTIVE) 
     {
         projectionMatrix = glm::perspective(fov, aspectRatio, nearPlane, farPlane);
