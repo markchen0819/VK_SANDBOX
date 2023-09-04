@@ -38,17 +38,20 @@ void SampleApplication::SampleScene::Load()
 	auto gridTexture = graphicsManager->CreateTexture("GridTexture", "Engine/assets/textures/viking_room/Grid.png");
 	IHCEngine::Graphics::IHCModel::Builder gridBuilder;
 	int gridSize = 100;
+	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
 	for (int i = 0; i <= gridSize; ++i)
 	{
 		for (int j = 0; j <= gridSize; ++j)
 		{
 			Vertex vertex;
-			vertex.position = glm::vec3(i, 0, j);
+			vertex.position = glm::vec3(i - halfSize, 0, j - halfSize);  // Shift by halfSize
 			vertex.color = glm::vec3(1.0f);  // white color, modify as needed
 			vertex.normal = glm::vec3(0, 1, 0);  // up, as it's a flat grid
+
 			// Adjust the texture coordinates so that every square on the grid 
 			// has a texture that starts from (0,0) to (1,1).
 			vertex.uv = glm::vec2(i % 2, j % 2);
+
 			gridBuilder.vertices.push_back(vertex);
 		}
 	}
@@ -152,7 +155,7 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Core::GameObject& gridGobj = AddGameObject("gridGobj");
 	gridGobj.model = assetManager->GetModelRepository().GetAsset("GridModel");
 	gridGobj.texture = assetManager->GetTextureRepository().GetAsset("GridTexture");
-	gridGobj.transform.SetLocalPosition(glm::vec3(-5, -1, -5));
+	gridGobj.transform.SetLocalPosition(glm::vec3(-5, -0.1, -5));
 
 }
 

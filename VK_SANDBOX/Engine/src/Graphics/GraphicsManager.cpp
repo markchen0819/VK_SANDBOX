@@ -153,31 +153,8 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         // Y points down
         // Z points out of screen
 
-        //ubo.viewMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        //ubo.projectionMatrix = glm::perspective(
-        //    glm::radians(45.0f),
-        //    renderer->GetAspectRatio(), //swapChainExtent.width / (float)swapChainExtent.height,
-        //    0.1f,
-        //    10.0f);
-
-        //Camera camera{CameraType::PERSPECTIVE,
-        //    glm::radians(45.0f),
-        //    renderer->GetAspectRatio(),
-        //    0.1f,
-        //    10.0f,
-        //    800,
-        //    600
-        //};
         auto camera = scene->GetCamera();
         camera.SetAspectRatio(renderer->GetAspectRatio());
-
-        glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
-        glm::vec3 targetPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        glm::vec3 upVector = glm::vec3(0.0f, 0.0f, 1.0f);
-        //camera.transform.SetWorldPosition(eyePosition);
-        glm::vec3 direction = glm::normalize(targetPosition - eyePosition);
-        glm::quat rotation = glm::quatLookAt(direction, upVector);  // Generate the quaternion rotation from the look direction and the up vector
-        //camera.transform.SetWorldRotation(rotation);  // Set the camera's rotation
 
         ubo.viewMatrix = camera.GetViewMatrix();
         ubo.projectionMatrix = camera.GetProjectionMatrix();

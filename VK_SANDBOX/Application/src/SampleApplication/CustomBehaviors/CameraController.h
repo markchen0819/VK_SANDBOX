@@ -21,10 +21,14 @@ namespace SampleApplication
     private:
 
         GLFWwindow* window = nullptr;
-        IHCEngine::Graphics::Camera* camera=nullptr;
-        float movementSpeed = 0.02;
-        float rotationSpeed = 0.1;
+        IHCEngine::Graphics::Camera* camera = nullptr;
 
+        float movementSpeed = 1;
+        float rotationSpeed = 1; // degree
+
+        bool isRotating = false;
+        double mouseX, mouseY;
+        double lastX = 0.0, lastY = 0.0;
         void HandleInput();
 	};
 }
