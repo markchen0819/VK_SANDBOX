@@ -638,3 +638,16 @@ void IHCEngine::Graphics::IHCDevice::CopyBufferToImage(VkBuffer buffer, VkImage 
     EndSingleTimeCommands(commandBuffer);
 }
 #pragma endregion
+
+#pragma region Imgui
+uint32_t IHCEngine::Graphics::IHCDevice::GetGraphicsQueueIndex()
+{
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    if (indices.graphicsFamily == UINT32_MAX) 
+    {
+        assert("GraphicsQueueIndex not found");
+    }
+    uint32_t actualValue = indices.graphicsFamily.value_or(UINT32_MAX);
+    return actualValue;
+}
+#pragma endregion

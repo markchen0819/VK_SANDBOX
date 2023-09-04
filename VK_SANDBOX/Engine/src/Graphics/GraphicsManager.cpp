@@ -18,6 +18,8 @@
 #include "RenderSystems/RenderSystem.h" 
 // Scene
 #include "../Core/Scene/Scene.h"
+// Imgui
+#include <imgui_impl_vulkan.h>
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)
@@ -192,6 +194,11 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         //pointLightSystem.render(frameInfo);
         
         //////////////////////////////////////////
+        if (usingIMGUI)
+        {
+            ImGui::Render();  // Rendering UI
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+        }
         renderer->EndSwapChainRenderPass(commandBuffer);
         renderer->EndFrame();
     }
@@ -276,5 +283,41 @@ void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
     // Don't need to keep track for models
     // just created for same format
 }
+
+
+
 #pragma endregion
 
+#pragma region Imgui
+VkRenderPass IHCEngine::Graphics::GraphicsManager::GetRenderPass()
+{
+    return renderer->GetSwapChainRenderPass();
+}
+IHCEngine::Graphics::IHCDevice* IHCEngine::Graphics::GraphicsManager::GetIHCDevice()
+{
+    return ihcDevice.get();
+};
+ImGui_ImplVulkan_InitInfo IHCEngine::Graphics::GraphicsManager::GetImGui_ImplVulkan_InitInfo()
+{
+    ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.Instance = ihcDevice->GetInstance();
+    init_info.PhysicalDevice = ihcDevice->GetPhysicalDevice();;
+    init_info.Device = ihcDevice->GetDevice();
+    init_info.QueueFamily = ihcDevice->GetGraphicsQueueIndex();
+    init_info.Queue = ihcDevice->GetGraphicsQueue();
+    init_info.PipelineCache = VK_NULL_HANDLE;
+    //init_info.DescriptorPool = ; // use imguiPool
+    init_info.MinImageCount = 2;
+    init_info.ImageCount = renderer->GetSwapChainImageCount();
+    init_info.MSAASamples = ihcDevice->GetMsaaSamples();
+    return init_info;
+}
+VkCommandBuffer IHCEngine::Graphics::GraphicsManager::BeginSingleTimeImGuiCommandBuffer()
+{
+    return ihcDevice->BeginSingleTimeCommands();
+}
+void IHCEngine::Graphics::GraphicsManager::EndSingleTimeImGuiCommandBuffer(VkCommandBuffer cmdBuffer)
+{
+    ihcDevice->EndSingleTimeCommands(cmdBuffer);
+}
+#pragma endregion

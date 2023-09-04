@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -129,7 +129,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -175,6 +175,14 @@
     <ClCompile Include="Engine\src\Core\Scene\Scene.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\SceneManager.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\SampleScene.cpp" />
+    <ClCompile Include="Engine\src\Imgui\ImGuiManager.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
@@ -214,6 +222,15 @@
     <ClInclude Include="Engine\src\Core\Scene\Scene.h" />
     <ClInclude Include="Engine\src\Core\Scene\SceneManager.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\SampleScene.h" />
+    <ClInclude Include="Engine\src\Imgui\ImGuiManager.h" />
+    <ClInclude Include="Libraries\imgui\imconfig.h" />
+    <ClInclude Include="Libraries\imgui\imgui.h" />
+    <ClInclude Include="Libraries\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="Libraries\imgui\imgui_impl_vulkan.h" />
+    <ClInclude Include="Libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="Libraries\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Libraries\imgui\imstb_textedit.h" />
+    <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
@@ -224,6 +241,9 @@
     <ClInclude Include="Engine\src\Core\Scene\GameObject.inl">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Libraries\imgui\LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

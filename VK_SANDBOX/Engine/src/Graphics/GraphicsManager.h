@@ -1,6 +1,8 @@
 #pragma once
+#include <stack>
 #include "VKWraps/VKHelpers.h"
 #include "VKWraps/IHCModel.h"
+
 // Forward declaration
 namespace IHCEngine::Window
 {
@@ -23,6 +25,7 @@ namespace IHCEngine::Graphics
     class IHCModel;
     class RenderSystem; // contains IHCPipeline
 }
+struct ImGui_ImplVulkan_InitInfo;
 
 namespace IHCEngine::Graphics
 {
@@ -48,6 +51,14 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, IHCEngine::Graphics::IHCModel::Builder& builder);
         void DestroyModel(std::string assetName);
 
+
+        // Helper for ImGui
+        bool usingIMGUI = true;
+        VkRenderPass GetRenderPass();
+        IHCEngine::Graphics::IHCDevice* GetIHCDevice();
+        ImGui_ImplVulkan_InitInfo GetImGui_ImplVulkan_InitInfo();
+        VkCommandBuffer BeginSingleTimeImGuiCommandBuffer();
+        void EndSingleTimeImGuiCommandBuffer(VkCommandBuffer cmdBuffer);
 
     private:
 

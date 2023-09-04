@@ -20,6 +20,10 @@ namespace IHCEngine
 	{
 		class CustomBehaviorManager;
 	}
+	namespace IMGUI
+	{
+		class ImGuiManager;
+	}
 }
 
 namespace IHCEngine::Core
@@ -47,6 +51,8 @@ namespace IHCEngine::Core
 		std::unique_ptr<IHCEngine::Core::AssetManager> assetManager;
 		std::unique_ptr<IHCEngine::Core::SceneManager> sceneManager;
 		std::unique_ptr<IHCEngine::Graphics::GraphicsManager> graphicsManager;
+		std::unique_ptr<IHCEngine::IMGUI::ImGuiManager> imguiManager;
 		std::unique_ptr<IHCEngine::Component::CustomBehaviorManager> customBehaviorManager;
+
 	};
 }

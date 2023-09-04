@@ -6,6 +6,7 @@
 #include "Asset/AssetManager.h"
 #include "Scene/SceneManager.h"
 #include "../Graphics/GraphicsManager.h"
+#include "../Imgui/ImGuiManager.h"
 
 //Locators
 #include "Locator/AppWindowLocator.h"
@@ -21,6 +22,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+
 // explicitly call Init & Shutdown
 // = default is needed in cpp due to forward declaration for smart ptrs
 IHCEngine::Core::Engine::Engine() = default;
@@ -35,7 +37,7 @@ void IHCEngine::Core::Engine::Init()
 	}
 
 	// Window
-	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 800, 600);
+	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
 	// Time
 	IHCEngine::Core::Time::Init();
 	Time::GetInstance().LockFrameRate(120);
@@ -49,6 +51,8 @@ void IHCEngine::Core::Engine::Init()
 	graphicsManager->Init();
 	// Custom Behaviors
 	customBehaviorManager = std::make_unique<Component::CustomBehaviorManager>();
+	// IMGUI
+	imguiManager = std::make_unique<IMGUI::ImGuiManager>();
 
 	// Locators for global access
 	IHCEngine::Core::AppWindowLocator::Provide(appWindow.get());
@@ -57,6 +61,8 @@ void IHCEngine::Core::Engine::Init()
 	IHCEngine::Core::GraphicsManagerLocator::Provide(graphicsManager.get());
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(customBehaviorManager.get());
 
+
+	imguiManager->Init(); // window & graphics locator required
 	// Application
 	application->Init();
 }
@@ -65,6 +71,9 @@ void IHCEngine::Core::Engine::Update()
 {
 	while (!appWindow->ShouldClose())
 	{
+		glfwPollEvents();
+		imguiManager->NewFrame();
+
 		Time::GetInstance().Update();
 		application->Update();
 
@@ -88,6 +97,8 @@ void IHCEngine::Core::Engine::Update()
 		sceneManager->Update();
 		graphicsManager->Update(sceneManager->GetActiveScene());
 		sceneManager->DeferDestroyGameObjects();
+
+
 	}
 }
 
@@ -95,14 +106,15 @@ void IHCEngine::Core::Engine::Shutdown()
 {
 	// order matters
 	application->Shutdown();
+	imguiManager->ShutDown();
 	sceneManager->Shutdown();
 	graphicsManager->Shutdown();
 
 	customBehaviorManager = nullptr;
+	imguiManager = nullptr;
 	graphicsManager = nullptr;
 	assetManager = nullptr;
 	sceneManager = nullptr;
-
 
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(nullptr);
 	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);
