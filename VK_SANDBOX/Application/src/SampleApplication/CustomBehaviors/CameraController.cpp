@@ -48,6 +48,7 @@ void SampleApplication::CameraController::HandleInput()
 {
     // Handle movement:
     float dt = IHCEngine::Core::Time::GetInstance().GetDeltaTime();
+
     auto cameraUp = camera->transform.GetUp();
     auto cameraRight = camera->transform.GetRight();
     auto cameraForward = glm::cross(cameraUp,cameraRight);

@@ -12,8 +12,9 @@ IHCEngine::Core::Scene::Scene(std::string sceneName)
 
 void IHCEngine::Core::Scene::Update()
 {
-	const auto& rootGameObjects = GetRootGameObjects();
+	mainCamera.transform.GetLocalModelMatrix(true);
 
+	const auto& rootGameObjects = GetRootGameObjects();
 	for (GameObject* parent : rootGameObjects)
 	{
 		if (parent->IsActive())
