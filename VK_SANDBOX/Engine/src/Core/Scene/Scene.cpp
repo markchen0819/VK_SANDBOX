@@ -12,18 +12,20 @@ IHCEngine::Core::Scene::Scene(std::string sceneName)
 
 void IHCEngine::Core::Scene::Update()
 {
-	mainCamera.transform.GetLocalModelMatrix(true);
+	mainCamera.transform.GetModelMatrix();
+	//mainCamera.transform.GetLocalModelMatrix(true);
 
 	const auto& rootGameObjects = GetRootGameObjects();
 	for (GameObject* parent : rootGameObjects)
 	{
 		if (parent->IsActive())
 		{
-			glm::mat4 parentLocalModelMatrix = parent->transform.GetLocalModelMatrix();
+			//glm::mat4 parentLocalModelMatrix = parent->transform.GetLocalModelMatrix();
 			for (int i = 0; i < parent->transform.GetChildCount(); ++i)
 			{
 				IHCEngine::Component::Transform* childTransform = parent->transform.GetChildAt(i);
-				childTransform->PropagateParentLocalTransform(parentLocalModelMatrix);
+				//childTransform->PropagateParentLocalTransform(parentLocalModelMatrix);
+				childTransform->Propagate();
 			}
 		}
 	}

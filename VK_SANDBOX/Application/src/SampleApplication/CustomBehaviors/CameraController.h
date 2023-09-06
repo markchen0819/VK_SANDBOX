@@ -18,17 +18,22 @@ namespace SampleApplication
         void OnEnable() override;
         void OnDisable() override; 
 
+
     private:
 
         GLFWwindow* window = nullptr;
         IHCEngine::Graphics::Camera* camera = nullptr;
 
         float movementSpeed = 1;
-        float rotationSpeed = 1; // degree
+        float rotationSpeed = 10; // degree
 
         bool isRotating = false;
         double mouseX, mouseY;
         double lastX = 0.0, lastY = 0.0;
         void HandleInput();
+
+
+        glm::quat currentRotation;
+        float yaw = 0; float pitch = 0;
 	};
 }

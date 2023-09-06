@@ -130,17 +130,17 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Core::GameObject& testGobj2 = AddGameObject("testGobj2");
 	testGobj2.model = assetManager->GetModelRepository().GetAsset("room_MODEL");
 	testGobj2.texture = assetManager->GetTextureRepository().GetAsset("R");
-	testGobj2.transform.SetLocalPosition(glm::vec3(1, 0, 0));
+	testGobj2.transform.SetPosition(glm::vec3(1, 0, 0));
 
 	IHCEngine::Core::GameObject& testGobj3 = AddGameObject("testGobj3");
 	testGobj3.model = assetManager->GetModelRepository().GetAsset("room_MODEL");
 	testGobj3.texture = assetManager->GetTextureRepository().GetAsset("G");
-	testGobj3.transform.SetLocalPosition(glm::vec3(0, 1, 0));
+	testGobj3.transform.SetPosition(glm::vec3(0, 1, 0));
 
 	IHCEngine::Core::GameObject& testGobj4 = AddGameObject("testGobj4");
 	testGobj4.model = assetManager->GetModelRepository().GetAsset("room_MODEL");
 	testGobj4.texture = assetManager->GetTextureRepository().GetAsset("B");
-	testGobj4.transform.SetLocalPosition(glm::vec3(0, 0, 1));
+	testGobj4.transform.SetPosition(glm::vec3(0, 0, 1));
 
 	//mainCamera.SetAspectRatio(800, 600); // TO:DO get from window
 	//glm::vec3 eyePosition = glm::vec3(5.0f, 5.0f, 5.0f);
@@ -155,7 +155,7 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Core::GameObject& gridGobj = AddGameObject("gridGobj");
 	gridGobj.model = assetManager->GetModelRepository().GetAsset("GridModel");
 	gridGobj.texture = assetManager->GetTextureRepository().GetAsset("GridTexture");
-	gridGobj.transform.SetLocalPosition(glm::vec3(-5, -0.1, -5));
+	gridGobj.transform.SetPosition(glm::vec3(0, -0.1, 0));
 
 }
 

@@ -9,6 +9,10 @@
 #include "../Core/Locator/GraphicsManagerLocator.h"
 #include "../Graphics/VKWraps/IHCDevice.h"
 
+// For logging
+
+#include "../Core/Locator/SceneManagerLocator.h"
+
 void IHCEngine::IMGUI::ImGuiManager::Init()
 {
     // create descriptor pool for IMGUI (oversize)
@@ -93,11 +97,22 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
 
     static bool showWindow = true;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
-    bool test = false;
+
     if (ImGui::Begin("Vulkan Information", &showWindow))
     {
-        ImGui::Checkbox("Test", &test);
         ImGui::Text("Hello, world!");
+
+        auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
+        if (sceneManager->GetActiveScene() != nullptr)
+        {
+            auto cam = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
+            glm::vec3 cameraPos = cam.transform.GetPosition();
+            glm::vec3 cameraRot = cam.transform.GetRotation();
+            ImGui::InputFloat3("cameraPos", &cameraPos[0]);
+            ImGui::InputFloat3("cameraRot", &cameraRot[0]);
+        }
+
+
         // ... add more Vulkan-related info as needed.
     }
     ImGui::End();

@@ -30,7 +30,28 @@ namespace IHCEngine::Graphics
 		void SetAspectRatio(float ratio) { isProjectionDirty = true; aspectRatio = ratio; };
 		void SetCameraType(CameraType type);
 
+
 		IHCEngine::Component::Transform transform;
+
+		// Fix transform z, camera -z
+		glm::vec3 GetFoward() 
+		{
+			glm::vec forward =  glm::normalize(glm::cross(transform.GetUp(), transform.GetRight()));
+			forward.x = -forward.x;
+			forward.y = -forward.y;
+			return forward;
+		
+		};
+		glm::vec3 GetUp() 
+		{ 
+			return transform.GetUp(); 
+		};
+		glm::vec3 GetRight()
+		{
+			glm::vec3 right = transform.GetRight();
+			right.z = -right.z;
+			return right;
+		};
 
 	private:
 
