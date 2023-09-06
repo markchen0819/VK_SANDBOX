@@ -344,8 +344,8 @@ SwapChainSupportDetails IHCEngine::Graphics::IHCDevice::querySwapChainSupport(Vk
 }
 VkSampleCountFlagBits IHCEngine::Graphics::IHCDevice::getMaxUsableSampleCount() // msaa support
 {
-    VkPhysicalDeviceProperties physicalDeviceProperties;
-    vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+    VkPhysicalDeviceProperties physicalDeviceProperties = properties;
+    //vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 
     VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }

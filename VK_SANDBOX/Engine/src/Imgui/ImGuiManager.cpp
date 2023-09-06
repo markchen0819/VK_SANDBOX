@@ -85,13 +85,13 @@ void IHCEngine::IMGUI::ImGuiManager::NewFrame()
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    //bool show_demo_window = true;
+    //ImGui::ShowDemoWindow(&show_demo_window);
     updateContent();
 }
 
 void IHCEngine::IMGUI::ImGuiManager::updateContent()
 {
-    //bool show_demo_window = true;
- //ImGui::ShowDemoWindow(&show_demo_window);
 
     IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
 
