@@ -40,7 +40,7 @@ void IHCEngine::Core::Engine::Init()
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
 	// Time
 	IHCEngine::Core::Time::Init();
-	Time::GetInstance().LockFrameRate(120);
+	Time::GetInstance().LockFrameRate(60);
 	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 	// Asset
 	assetManager = std::make_unique<AssetManager>();

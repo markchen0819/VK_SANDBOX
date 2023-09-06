@@ -10,7 +10,7 @@
 #include "../Graphics/VKWraps/IHCDevice.h"
 
 // For logging
-
+#include "../Core/Time/Time.h"
 #include "../Core/Locator/SceneManagerLocator.h"
 
 void IHCEngine::IMGUI::ImGuiManager::Init()
@@ -55,22 +55,22 @@ void IHCEngine::IMGUI::ImGuiManager::createImguiDescriptorPool()
     // the size of the pool is very oversize, but it's copied from imgui demo itself.
     VkDescriptorPoolSize pool_sizes[] =
     {
-        { VK_DESCRIPTOR_TYPE_SAMPLER, 100 },
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 100 },
-        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 100 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 100 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 100 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 100 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 100 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 100 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 100 },
-        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 100 }
+        { VK_DESCRIPTOR_TYPE_SAMPLER, 50 },
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 50 },
+        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 50 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 50 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 50 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 50 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 50 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 50 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 50 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 50 },
+        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 50 }
     };
 
     pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-    pool_info.maxSets = 1000;
+    pool_info.maxSets = 200;
     pool_info.poolSizeCount = std::size(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
 
@@ -102,6 +102,7 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
     {
         ImGui::Text("Hello, world!");
 
+        ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetInstance().GetFrameRate());
         auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
         if (sceneManager->GetActiveScene() != nullptr)
         {
