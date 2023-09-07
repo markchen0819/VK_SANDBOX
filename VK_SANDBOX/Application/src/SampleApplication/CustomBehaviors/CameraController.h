@@ -25,7 +25,7 @@ namespace SampleApplication
         IHCEngine::Graphics::Camera* camera = nullptr;
 
         float movementSpeed = 10;
-        float rotationSpeed = 10; // degree
+        float rotationSpeed = 30; // degree
 
         bool isRotating = false;
         double mouseX, mouseY;
