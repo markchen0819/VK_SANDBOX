@@ -1,9 +1,12 @@
 #pragma once
-#include "VKHelpers.h"
-#include "../../Window/AppWindow.h"
 
-struct QueueFamilyIndices; // Forward declaration, BUT WHY?
-struct SwapChainSupportDetails; // Forward declaration, BUT WHY?
+// Forward declaration
+namespace IHCEngine::Window
+{
+    class AppWindow;
+}
+struct QueueFamilyIndices; 
+struct SwapChainSupportDetails;
 
 namespace IHCEngine::Graphics
 {
@@ -16,12 +19,13 @@ namespace IHCEngine::Graphics
         IHCDevice(const IHCDevice&) = delete;
         IHCDevice &operator=(const IHCDevice&) = delete;
 
-
+        VkInstance GetInstance() { return instance; } // imgui
         VkSurfaceKHR GetSurface() { return surface; }
         VkDevice GetDevice() { return device; }
         VkQueue GetGraphicsQueue() { return graphicsQueue; }
         VkQueue GetPresentQueue() { return presentQueue; };
         QueueFamilyIndices FindPhysicalQueueFamilies(); 
+        uint32_t GetGraphicsQueueIndex(); // imgui
         SwapChainSupportDetails GetSwapChainSupport();
         VkCommandPool GetCommandPool() { return commandPool; }
         VkSampleCountFlagBits GetMsaaSamples() { return msaaSamples; }
@@ -50,7 +54,6 @@ namespace IHCEngine::Graphics
         void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
         void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
-
 
     private:
 

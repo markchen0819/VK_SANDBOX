@@ -1,6 +1,11 @@
 #include "../../pch.h"
 #include "IHCModel.h"
 
+#include <tiny_obj_loader.h>
+#include "VKHelpers.h"
+#include "IHCDevice.h"
+#include "IHCBuffer.h"
+
 #pragma region tiny_obj_loader loadModel function
 void IHCEngine::Graphics::IHCModel::Builder::LoadModel(const std::string& filepath)
 {

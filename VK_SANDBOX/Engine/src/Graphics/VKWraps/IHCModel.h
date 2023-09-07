@@ -1,14 +1,15 @@
 #pragma once
-#include "VKHelpers.h"
-#include "IHCDevice.h"
-#include "IHCBuffer.h"
-#include <tiny_obj_loader.h>
 
-struct Vertex;  // Forward declaration, BUT WHY?
+// Forward declaration
+struct Vertex;  
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+    class IHCBuffer;
+}
 
 namespace IHCEngine::Graphics
 {
-    class IHCBuffer; // Forward declaration, BUT WHY?
 	class IHCModel
 	{
     public:

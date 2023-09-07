@@ -1,5 +1,8 @@
 #include "../../pch.h"
 #include "IHCSwapChain.h"
+#include "../../Window/AppWindow.h"
+#include "VKHelpers.h"
+#include "IHCDevice.h"
 
 IHCEngine::Graphics::IHCSwapChain::IHCSwapChain(IHCDevice& device, IHCEngine::Window::AppWindow& window)
     : device{ device }, window{ window }

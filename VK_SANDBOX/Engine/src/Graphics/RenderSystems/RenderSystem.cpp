@@ -1,6 +1,15 @@
 #include "../../pch.h"
 #include "RenderSystem.h"
 
+#include "../VKWraps/VKHelpers.h"
+#include "../VKWraps/IHCDevice.h"
+#include "../VKWraps/IHCPipeline.h"
+#include "../VKWraps/IHCModel.h"
+#include "../VKWraps/IHCTexture.h"
+#include "../../Core/Time/Time.h"
+#include "../../Core/Scene/GameObject.h"
+
+
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
     : ihcDevice{ device }
 {
@@ -81,7 +90,7 @@ void IHCEngine::Graphics::RenderSystem::createWireFramePipeline(VkRenderPass ren
 #pragma endregion
 
 #pragma region Render (apply pipeline, transform (PushConstants/ UniformBufferObjects), model, then draw)
-void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::unordered_map<IHCEngine::Core::GameObject*, VkDescriptorSet> gameObjectToDescriptorSet)
+void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
 
     // Step 3: Bind 
@@ -108,18 +117,18 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, 
     // Common case:  Global time value, Viewport Information
     // Our case: None
 
-
+    
     // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
-        auto& gobj = g.second;
+        IHCEngine::Core::GameObject* gobj = g.second;
         if (gobj->model == nullptr) continue;
+        if (gobj->texture == nullptr) continue;
 
         // Bind its respective Pipeline
         // Each object may have its own pipeline, especially if it uses a different shader 
         // or rendering technique. For instance, some objects might be rendered with a 
         // reflection shader while others use a basic diffuse shader.
-
         if (wireframeEnabled)
         {
             wireframePipeline->Bind(frameInfo.commandBuffer);
@@ -128,14 +137,12 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, 
         {
             ihcPipeline->Bind(frameInfo.commandBuffer);
         }
-
-
         // Bind Local Descriptor Set
         // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
         // Our case: None
  
-
-        auto descriptorSet = gameObjectToDescriptorSet[gobj];
+        std::string textureID = gobj->texture->GetName();
+        auto descriptorSet =  frameInfo.textureToDescriptorSetsMap[textureID][frameInfo.frameIndex];
         vkCmdBindDescriptorSets
         (
             frameInfo.commandBuffer,
@@ -156,11 +163,12 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo, 
         //gobj->transform.SetLocalRotation()
         //push.modelMatrix = gobj->transform.GetLocalModelMatrix();
 
-        push.modelMatrix=
-            glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        //push.modelMatrix = gobj->transform.GetWorldMatrix();
+        push.modelMatrix = gobj->transform.GetModelMatrix();
+            //glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         push.normalMatrix = glm::mat4(1);
 
-        if (gobj->GetUID() == 1)
+        if (gobj->GetUID() == 0)
         {
             push.modelMatrix =
                 glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));

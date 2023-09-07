@@ -1,11 +1,44 @@
 #pragma once
+#include "../Locator/CustomBehaviorManagerLocator.h"
+#include "GameObject.h"
+
+// Mosty using ECS approach
+// 
+// Engine Components:
+// - Transform is auto added as local variable in GameObjects
+// there for not using Add/ Remove Component
+//
+// Custom Components:
+// Managed by CustomBehaviorManager
+//
+// all components are stored in 
+// std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
+// CustomBehaviorManager uses raw ptrs to use it
+//
+
 namespace IHCEngine::Core
 {
 	template<class T>
 	void GameObject::AddComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
-		components.push_back(std::make_unique<T>(*this));
+		if (HasComponent<T>())
+		{
+			std::cerr << "Error: GameObject already has a component of type: " << typeid(T).name() << std::endl;
+			assert(false);
+		}
+		
+		std::unique_ptr<Component::Component> component = std::make_unique<T>();
+		component->SetOwner(this);
+
+		// Custom Components we give raw ptrs for access
+		Component::CustomBehavior* customBehavior = dynamic_cast<Component::CustomBehavior*>(component.get());
+		if (customBehavior != nullptr)
+		{
+			CustomBehaviorManagerLocator::GetCustomBehaviorManager()
+				->AddBehavior(customBehavior);
+			customBehaviors.push_back(customBehavior);
+		}
+		components.push_back(std::move(component));
 	}
 
 	template<class T>
@@ -26,13 +59,37 @@ namespace IHCEngine::Core
 	template <typename T>
 	void GameObject::RemoveComponent()
 	{
+		static_assert(typeid(T) != typeid(Component::Transform), "Removing Transform component from gameobject is not allowed");
 		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
-		auto it = std::remove_if(components.begin(), components.end(),
-			[](const std::unique_ptr<Component>& component)
+
+		auto it = std::find_if(components.begin(), components.end(),
+			[](const std::unique_ptr<Component>& component) 
 		{
 			return dynamic_cast<T*>(component.get()) != nullptr;
 		});
-		components.erase(it, components.end());
+
+
+		if (it != components.end()) 
+		{
+			Component::Component* component = it;
+
+			// Remove from Custom Component access
+			Component::CustomBehavior* customBehavior = dynamic_cast<Component::CustomBehavior*>(component.get());
+			if (customBehavior != nullptr)
+			{
+				CustomBehaviorManagerLocator::GetCustomBehaviorManager()
+					->RemoveBehavior(customBehavior);
+				customBehaviors.erase(customBehavior);
+			}
+
+			// Remove component from system (not including CustomBehaviorManager)
+			it->Remove();
+			components.erase(it);
+		}
+		else 
+		{
+			std::cout << "Component not found." << std::endl;
+		}
 	}
 
 	template<class T>
@@ -47,4 +104,6 @@ namespace IHCEngine::Core
 		}
 		return false;
 	}
+
 }
+

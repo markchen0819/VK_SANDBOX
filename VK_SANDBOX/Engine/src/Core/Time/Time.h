@@ -1,6 +1,5 @@
 #pragma once
 #include <chrono>
-#include <mutex>
 
 namespace IHCEngine::Core
 {
@@ -44,7 +43,8 @@ namespace IHCEngine::Core
 
 		float GetElapsedTime() { return  totalTime; }
 		int GetFrameCount() { return frameCount; }
-	
+
+		bool ShouldExecuteUpdate();
 
 		// Physics
 		void UpdateFixedTime();
@@ -59,7 +59,8 @@ namespace IHCEngine::Core
 		// lock frameRate
 		float minFrameTime{0.0};
 		float frameTimeCounter{0}; // adds up to 0 ~ timediff for one frame 
-		
+		bool shouldExecuteUpdate = true;
+
 		// calculations
 		std::chrono::time_point<std::chrono::high_resolution_clock> previousTime;
 		float timeScale{ 1.0f }; // slow-mo/ speedup

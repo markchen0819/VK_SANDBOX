@@ -37,6 +37,7 @@ void IHCEngine::Core::Time::Update()
 	unscaledDeltaTime = frameTimeCounter;
 	deltaTime = timeScale * frameTimeCounter;
 	calculatedFps = 1.0f / frameTimeCounter;
+	shouldExecuteUpdate = true;
 	frameCount++;
 
 	if (minFrameTime == 0.0f)
@@ -47,6 +48,16 @@ void IHCEngine::Core::Time::Update()
 	{
 		frameTimeCounter = frameTimeCounter - minFrameTime;
 	}
+}
+
+bool IHCEngine::Core::Time::ShouldExecuteUpdate()
+{
+	if (shouldExecuteUpdate)
+	{
+		shouldExecuteUpdate = false;
+		return true;
+	}
+	return false;
 }
 
 void IHCEngine::Core::Time::UpdateFixedTime()

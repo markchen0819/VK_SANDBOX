@@ -1,11 +1,22 @@
 #pragma once
-#include "../Camera.h"
-#include "../../Core/Scene/GameObject.h"
+#include <vector>
+#include <map>
+#include <optional>
+#include <vulkan/vulkan_core.h>
+
+// Forward declaration
+namespace IHCEngine::Core
+{
+    class Camera;
+    class GameObject;  
+}
+
 
 #pragma region Debugging 
 const std::vector<const char*> validationLayers =
 {
-    "VK_LAYER_KHRONOS_validation"
+    "VK_LAYER_KHRONOS_validation",
+    //"VK_LAYER_LUNARG_api_dump"
 };
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -128,12 +139,6 @@ struct GlobalUniformBufferObject
 
 
 #pragma region FrameInfo (Data passing for VKwraps)
-
-namespace IHCEngine::Core
-{
-    class GameObject;  // Forward declaration, BUT WHY?
-}
-
 namespace IHCEngine::Graphics
 {
     struct FrameInfo
@@ -141,9 +146,9 @@ namespace IHCEngine::Graphics
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        Camera& camera;
         VkDescriptorSet globalDescriptorSet;
-        std::unordered_map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+        std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
+        std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }
 #pragma endregion 

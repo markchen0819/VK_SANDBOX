@@ -1,5 +1,7 @@
 #include "../../pch.h"
 #include "IHCDevice.h"
+#include "../../Window/AppWindow.h"
+#include "VKHelpers.h"
 
 #pragma region VK instance debugging callbacks
 VKAPI_ATTR VkBool32 VKAPI_CALL IHCEngine::Graphics::IHCDevice::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
@@ -228,14 +230,14 @@ void IHCEngine::Graphics::IHCDevice::pickPhysicalDevice()
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 
-    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    //vkGetPhysicalDeviceProperties(physicalDevice, &properties);
     std::cout << "physical device: " << properties.deviceName << std::endl;
 }
 int IHCEngine::Graphics::IHCDevice::evaluateDeviceScore(VkPhysicalDevice device)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    int score = 0;
+    int score = 1;
     // Favor dedicated GPUs over integrated ones
     if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     {
@@ -342,8 +344,8 @@ SwapChainSupportDetails IHCEngine::Graphics::IHCDevice::querySwapChainSupport(Vk
 }
 VkSampleCountFlagBits IHCEngine::Graphics::IHCDevice::getMaxUsableSampleCount() // msaa support
 {
-    VkPhysicalDeviceProperties physicalDeviceProperties;
-    vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+    VkPhysicalDeviceProperties physicalDeviceProperties = properties;
+    //vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 
     VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
@@ -634,5 +636,18 @@ void IHCEngine::Graphics::IHCDevice::CopyBufferToImage(VkBuffer buffer, VkImage 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     EndSingleTimeCommands(commandBuffer);
+}
+#pragma endregion
+
+#pragma region Imgui
+uint32_t IHCEngine::Graphics::IHCDevice::GetGraphicsQueueIndex()
+{
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    if (indices.graphicsFamily == UINT32_MAX) 
+    {
+        assert("GraphicsQueueIndex not found");
+    }
+    uint32_t actualValue = indices.graphicsFamily.value_or(UINT32_MAX);
+    return actualValue;
 }
 #pragma endregion

@@ -1,6 +1,11 @@
 #pragma once
 #include "VKWraps/IHCSwapChain.h"
-#include "VKWraps/IHCModel.h"
+
+// Forward declaration
+namespace IHCEngine::Graphics
+{
+    class IHCDevice;
+}
 
 namespace IHCEngine::Graphics
 {
@@ -37,6 +42,9 @@ namespace IHCEngine::Graphics
         void EndFrame();
         void BeginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
+
+        //Imgui
+        uint32_t GetSwapChainImageCount() { return ihcSwapChain->GetImageCount(); }
 
     private:
         void createCommandBuffers();
