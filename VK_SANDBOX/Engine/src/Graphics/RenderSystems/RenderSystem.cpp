@@ -117,7 +117,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     // Common case:  Global time value, Viewport Information
     // Our case: None
 
-
+    
     // For each game object
     for (auto& g : frameInfo.gameObjects)
     {

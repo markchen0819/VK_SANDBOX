@@ -127,7 +127,7 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 }
 void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
-    glfwPollEvents();
+    //glfwPollEvents();
     //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change need recheck
     
     // Render

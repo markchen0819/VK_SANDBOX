@@ -74,6 +74,16 @@ void SampleApplication::CameraController::HandleInput()
         auto p = cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        auto p = cameraUp * movementSpeed * dt;
+        camera->transform.Translate(p);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+    {
+        auto p = -1.0f * cameraUp * movementSpeed * dt;
+        camera->transform.Translate(p);
+    }
 
     // Rotate
 

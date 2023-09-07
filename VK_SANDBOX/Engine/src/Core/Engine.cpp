@@ -40,7 +40,7 @@ void IHCEngine::Core::Engine::Init()
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
 	// Time
 	IHCEngine::Core::Time::Init();
-	Time::GetInstance().LockFrameRate(60);
+	Time::GetInstance().LockFrameRate(120);
 	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 	// Asset
 	assetManager = std::make_unique<AssetManager>();
@@ -72,7 +72,6 @@ void IHCEngine::Core::Engine::Update()
 	while (!appWindow->ShouldClose())
 	{
 		glfwPollEvents();
-		imguiManager->NewFrame();
 
 		Time::GetInstance().Update();
 		application->Update();
@@ -93,12 +92,14 @@ void IHCEngine::Core::Engine::Update()
 			sceneManager->Update();
 		}
 		// Update
-		customBehaviorManager->Update();
-		sceneManager->Update();
-		graphicsManager->Update(sceneManager->GetActiveScene());
+		if (Time::GetInstance().ShouldExecuteUpdate())
+		{
+			imguiManager->NewFrame();
+			customBehaviorManager->Update();
+			sceneManager->Update();
+			graphicsManager->Update(sceneManager->GetActiveScene());
+		}
 		sceneManager->DeferDestroyGameObjects();
-
-
 	}
 }
 

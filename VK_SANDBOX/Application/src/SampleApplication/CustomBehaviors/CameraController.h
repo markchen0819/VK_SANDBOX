@@ -24,7 +24,7 @@ namespace SampleApplication
         GLFWwindow* window = nullptr;
         IHCEngine::Graphics::Camera* camera = nullptr;
 
-        float movementSpeed = 1;
+        float movementSpeed = 10;
         float rotationSpeed = 10; // degree
 
         bool isRotating = false;
