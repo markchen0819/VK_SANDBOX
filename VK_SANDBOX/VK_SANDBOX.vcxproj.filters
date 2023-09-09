@@ -263,6 +263,9 @@
     <ClInclude Include="Libraries\imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\shader.vert" />
@@ -272,8 +275,12 @@
     <None Include="Engine\assets\shaders\compile.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Libraries\assimp\assimp-vc143-mt.dll" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Libraries\imgui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Libraries\assimp\assimp-vc143-mt.lib" />
   </ItemGroup>
 </Project>
