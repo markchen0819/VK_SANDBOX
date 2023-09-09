@@ -139,12 +139,13 @@
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;$(SolutionDir)VK_SANDBOX\Libraries\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)\Libraries\assimp\assimp-vc143-mt.dll" "$(OutDir)"</Command>
