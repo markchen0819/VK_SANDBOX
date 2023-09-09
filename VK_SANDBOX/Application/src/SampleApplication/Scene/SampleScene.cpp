@@ -35,7 +35,7 @@ void SampleApplication::SampleScene::Load()
 		std::move(roomModel));
 
 	// x y z axis
-	IHCEngine::Graphics::IHCModel::Builder axisBuilder;
+	IHCEngine::Graphics::IHCMesh::Builder axisBuilder;
 	axisBuilder.vertices = {
 		{{ 1.0f,  0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
 		{{ 1.0f, -0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
@@ -93,7 +93,7 @@ void SampleApplication::SampleScene::Load()
 
 	// grid
 	auto gridTexture = graphicsManager->CreateTexture("gridTexture", "Engine/assets/textures/Grid.png");
-	IHCEngine::Graphics::IHCModel::Builder gridBuilder;
+	IHCEngine::Graphics::IHCMesh::Builder gridBuilder;
 	int gridSize = 100;
 	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
 	for (int i = 0; i <= gridSize; ++i)

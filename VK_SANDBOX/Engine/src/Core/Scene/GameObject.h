@@ -6,7 +6,7 @@
 // Forward declaration
 namespace IHCEngine::Graphics 
 {
-    class IHCModel; 
+    class IHCMesh; 
     class IHCTexture; 
 }
 namespace IHCEngine::Core
@@ -34,7 +34,7 @@ namespace IHCEngine::Core
         Scene* GetScene() { return scene; }
 
         IHCEngine::Component::Transform transform;
-        IHCEngine::Graphics::IHCModel* model = nullptr;
+        IHCEngine::Graphics::IHCMesh* model = nullptr;
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
 
         // Component

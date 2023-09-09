@@ -1,5 +1,5 @@
 #include "../../pch.h"
-#include "IHCModel.h"
+#include "IHCMesh.h"
 
 #include <tiny_obj_loader.h>
 #include "VKHelpers.h"
@@ -7,7 +7,7 @@
 #include "IHCBuffer.h"
 
 #pragma region tiny_obj_loader loadModel function
-void IHCEngine::Graphics::IHCModel::Builder::LoadModel(const std::string& filepath)
+void IHCEngine::Graphics::IHCMesh::Builder::LoadMesh(const std::string& filepath)
 {
     tinyobj::attrib_t attrib; // positions, normals and texture coordinates
     std::vector<tinyobj::shape_t> shapes; //separate objects and their faces
@@ -82,22 +82,22 @@ void IHCEngine::Graphics::IHCModel::Builder::LoadModel(const std::string& filepa
 }
 #pragma endregion
 
-std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::IHCModel::CreateModelFromFile(IHCDevice& device, const std::string& filepath)
+std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::IHCMesh::CreateMeshFromFile(IHCDevice& device, const std::string& filepath)
 {
     Builder builder{};
-    builder.LoadModel(filepath);
+    builder.LoadMesh(filepath);
     std::cout << "Vertex Count" << builder.vertices.size() << std::endl;
-    return std::make_unique<IHCEngine::Graphics::IHCModel>(device, builder);
+    return std::make_unique<IHCEngine::Graphics::IHCMesh>(device, builder);
 }
 
-IHCEngine::Graphics::IHCModel::IHCModel(IHCDevice& device, const IHCModel::Builder& builder) 
+IHCEngine::Graphics::IHCMesh::IHCMesh(IHCDevice& device, const IHCMesh::Builder& builder) 
     : ihcDevice{ device }
 {
 	createVertexBuffers(builder.vertices);
 	createIndexBuffers(builder.indices);
 }
 
-IHCEngine::Graphics::IHCModel::~IHCModel()
+IHCEngine::Graphics::IHCMesh::~IHCMesh()
 {
 	// destory buffer free memory
 }
@@ -105,7 +105,7 @@ IHCEngine::Graphics::IHCModel::~IHCModel()
 
 #pragma region Vertex/Index buffer creation for drawing
 // staging buffer great for static data (model with same vertex/index data)
-void IHCEngine::Graphics::IHCModel::createVertexBuffers(const std::vector<Vertex>& vertices)
+void IHCEngine::Graphics::IHCMesh::createVertexBuffers(const std::vector<Vertex>& vertices)
 {
     vertexCount = static_cast<uint32_t>(vertices.size());
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
@@ -141,7 +141,7 @@ void IHCEngine::Graphics::IHCModel::createVertexBuffers(const std::vector<Vertex
 
     ihcDevice.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 }
-void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_t>& indices)
+void IHCEngine::Graphics::IHCMesh::createIndexBuffers(const std::vector<uint32_t>& indices)
 {
     // Check if using index buffer
     indexCount = static_cast<uint32_t>(indices.size());
@@ -184,7 +184,7 @@ void IHCEngine::Graphics::IHCModel::createIndexBuffers(const std::vector<uint32_
 
 
 #pragma region Draw
-void IHCEngine::Graphics::IHCModel::Bind(VkCommandBuffer commandBuffer)
+void IHCEngine::Graphics::IHCMesh::Bind(VkCommandBuffer commandBuffer)
 {
     VkBuffer buffers[] = { vertexBuffer->GetBuffer() };
     VkDeviceSize offsets[] = { 0 };
@@ -194,7 +194,7 @@ void IHCEngine::Graphics::IHCModel::Bind(VkCommandBuffer commandBuffer)
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
-void IHCEngine::Graphics::IHCModel::Draw(VkCommandBuffer commandBuffer)
+void IHCEngine::Graphics::IHCMesh::Draw(VkCommandBuffer commandBuffer)
 {
     if (hasIndexBuffer) 
     {

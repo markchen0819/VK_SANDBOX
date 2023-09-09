@@ -152,6 +152,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\Animation\AssimpModelLoader.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
@@ -169,7 +170,7 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\RenderSystem.cpp" />
     <ClCompile Include="Application\src\SampleApplication\SampleApplication.cpp" />
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCModel.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCMesh.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\GameObject.cpp" />
     <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
     <ClCompile Include="Engine\src\Graphics\GraphicsManager.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h" />
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\AssetManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\GraphicsManagerLocator.h" />
@@ -216,7 +218,7 @@
     <ClInclude Include="EntryPoint.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\RenderSystem.h" />
     <ClInclude Include="Application\src\SampleApplication\SampleApplication.h" />
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCModel.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCMesh.h" />
     <ClInclude Include="Engine\src\Core\Scene\GameObject.h" />
     <ClInclude Include="Engine\src\Graphics\Renderer.h" />
     <ClInclude Include="Engine\src\Graphics\GraphicsManager.h" />

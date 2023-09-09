@@ -10,7 +10,7 @@ namespace IHCEngine::Graphics
 
 namespace IHCEngine::Graphics
 {
-	class IHCModel
+	class IHCMesh
 	{
     public:
 
@@ -18,17 +18,17 @@ namespace IHCEngine::Graphics
         {
             std::vector<Vertex> vertices{};
             std::vector<uint32_t> indices{};
-            void LoadModel(const std::string& filepath);
+            void LoadMesh(const std::string& filepath);
         };
 
-        IHCModel(IHCDevice& device, const IHCModel::Builder& builder);
-        ~IHCModel();
+        IHCMesh(IHCDevice& device, const IHCMesh::Builder& builder);
+        ~IHCMesh();
 
         // no duplication
-        IHCModel(const IHCModel&) = delete;
-        IHCModel &operator=(const IHCModel&) = delete;
+        IHCMesh(const IHCMesh&) = delete;
+        IHCMesh &operator=(const IHCMesh&) = delete;
 
-        static std::unique_ptr<IHCModel> CreateModelFromFile
+        static std::unique_ptr<IHCMesh> CreateMeshFromFile
         (IHCDevice& device, const std::string& filepath);
 
         void Bind(VkCommandBuffer commandBuffer);

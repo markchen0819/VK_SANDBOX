@@ -14,7 +14,7 @@
 #include "Renderer.h"
 #include "VKWraps/IHCDescriptors.h"
 #include "VKWraps/IHCTexture.h"
-//#include "VKWraps/IHCModel.h"
+//#include "VKWraps/IHCMesh.h"
 #include "RenderSystems/RenderSystem.h" 
 // Scene
 #include "../Core/Scene/Scene.h"
@@ -243,17 +243,17 @@ void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
     // Remove the textureID from the map.
     textureToDescriptorSetsMap.erase(it);
 }
-std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
+std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
 {
     // Don't need to keep track for models, they self-deallocate
     // Textures need keeping track due to descriptors
-    return IHCModel::CreateModelFromFile(*ihcDevice, path);
+    return IHCMesh::CreateMeshFromFile(*ihcDevice, path);
 }
-std::unique_ptr<IHCEngine::Graphics::IHCModel> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, IHCEngine::Graphics::IHCModel::Builder& builder)
+std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder)
 {
     // Don't need to keep track for models, they self-deallocate
     // Textures need keeping track due to descriptors
-    return std::make_unique<IHCEngine::Graphics::IHCModel>(*ihcDevice, builder);
+    return std::make_unique<IHCEngine::Graphics::IHCMesh>(*ihcDevice, builder);
 }
 void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
 {

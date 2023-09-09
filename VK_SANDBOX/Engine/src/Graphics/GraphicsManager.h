@@ -1,7 +1,7 @@
 #pragma once
 #include <stack>
 #include "VKWraps/VKHelpers.h"
-#include "VKWraps/IHCModel.h"
+#include "VKWraps/IHCMesh.h"
 
 // Forward declaration
 namespace IHCEngine::Window
@@ -22,7 +22,7 @@ namespace IHCEngine::Graphics
     class IHCDescriptorSetLayout;
     class IHCDescriptorWriter;
     class IHCTexture;
-    class IHCModel;
+    class IHCMesh;
     class RenderSystem; // contains IHCPipeline
 }
 struct ImGui_ImplVulkan_InitInfo;
@@ -47,8 +47,8 @@ namespace IHCEngine::Graphics
         // Helper Functions for AssetManagement
         std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string assetName, std::string path);
         void DestroyTexture(std::string assetName);
-        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, std::string path);
-        std::unique_ptr<IHCEngine::Graphics::IHCModel> CreateModel(std::string assetName, IHCEngine::Graphics::IHCModel::Builder& builder);
+        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateModel(std::string assetName, std::string path);
+        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateModel(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder);
         void DestroyModel(std::string assetName);
 
 

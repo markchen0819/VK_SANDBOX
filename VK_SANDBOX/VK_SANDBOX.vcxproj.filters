@@ -42,7 +42,7 @@
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCSwapChain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCModel.cpp">
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Core\Scene\GameObject.cpp">
@@ -120,6 +120,9 @@
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\AssimpModelLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -155,7 +158,7 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCModel.h">
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\GameObject.inl">
@@ -264,6 +267,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
