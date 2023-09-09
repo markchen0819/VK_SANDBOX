@@ -26,14 +26,13 @@ namespace SampleApplication
 
         float movementSpeed = 10;
         float rotationSpeed = 30; // degree
-
         bool isRotating = false;
         double mouseX, mouseY;
         double lastX = 0.0, lastY = 0.0;
-        void HandleInput();
-
-
         glm::quat currentRotation;
         float yaw = 0; float pitch = 0;
+
+        void HandleInput();
+
 	};
 }

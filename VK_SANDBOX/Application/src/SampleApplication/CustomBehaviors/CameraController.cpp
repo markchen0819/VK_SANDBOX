@@ -7,42 +7,24 @@
 #include "../../Engine/src/Core/Locator/AppWindowLocator.h"
 #include "../../Engine/src/Core/Time/Time.h"
 
-SampleApplication::CameraController::CameraController()
-{
-
-}
+SampleApplication::CameraController::CameraController(){}
 
 void SampleApplication::CameraController::Awake()
 {
     window = IHCEngine::Core::AppWindowLocator::GetAppWindow()->GetWindowHandle();
     camera = &(this->gameObject->GetScene()->GetCamera());
-    camera->transform.SetWorldPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+    camera->transform.SetWorldPosition(glm::vec3(0.0f, 3.0f, 10.0f));
     currentRotation = camera->transform.GetRotationInQuaternion();
 }
 
-void SampleApplication::CameraController::Start()
-{
-}
-
+void SampleApplication::CameraController::Start(){}
 void SampleApplication::CameraController::Update()
 {
     HandleInput();
-    //std::cout << glm::degrees(camera->transform.GetWorldRotation().x) << ",";
-    //std::cout << glm::degrees(camera->transform.GetWorldRotation().y) << ",";
-    //std::cout << glm::degrees(camera->transform.GetWorldRotation().z) << std::endl;
 }
-
-void SampleApplication::CameraController::FixedUpdate()
-{
-}
-
-void SampleApplication::CameraController::OnEnable()
-{
-}
-
-void SampleApplication::CameraController::OnDisable()
-{
-}
+void SampleApplication::CameraController::FixedUpdate(){}
+void SampleApplication::CameraController::OnEnable(){}
+void SampleApplication::CameraController::OnDisable(){}
 
 void SampleApplication::CameraController::HandleInput()
 {
