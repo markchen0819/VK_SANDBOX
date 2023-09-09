@@ -116,6 +116,8 @@ void IHCEngine::Component::Transform::SetRotationInQuaternion(glm::quat quaterni
 {
 	rotationQuaternion = quaternion;
 	setDirty();
+	// below is display only for now
+	rotation = glm::degrees(glm::eulerAngles(quaternion));
 	//glm::vec3 eulerDegrees = glm::degrees(glm::eulerAngles(quaternion));
 	//SetRotation(eulerDegrees);
 	////setDirty(); // called already in Rotate(angles)

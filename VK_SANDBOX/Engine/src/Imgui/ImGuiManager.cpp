@@ -98,10 +98,8 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
     static bool showWindow = true;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
 
-    if (ImGui::Begin("Vulkan Information", &showWindow))
+    if (ImGui::Begin("Debug Information", &showWindow))
     {
-        ImGui::Text("Hello, world!");
-
         ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetInstance().GetFrameRate());
         auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
         if (sceneManager->GetActiveScene() != nullptr)
@@ -109,8 +107,8 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
             auto cam = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
             glm::vec3 cameraPos = cam.transform.GetPosition();
             glm::vec3 cameraRot = cam.transform.GetRotation();
-            ImGui::InputFloat3("cameraPos", &cameraPos[0]);
-            ImGui::InputFloat3("cameraRot", &cameraRot[0]);
+            ImGui::InputFloat3("cameraPosition", &cameraPos[0]);
+            ImGui::InputFloat3("cameraRotation", &cameraRot[0]);
         }
 
 
