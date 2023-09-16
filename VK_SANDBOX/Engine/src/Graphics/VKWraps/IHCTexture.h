@@ -19,6 +19,7 @@ namespace IHCEngine::Graphics
         IHCTexture& operator=(const IHCTexture&) = delete;
 
         std::string GetName() { return name; }
+        std::string GetFilePath() { return filePath; }
         VkImageView GetTextureImageView() { return textureImageView; }
         VkSampler GetTextureSampler() { return textureSampler; }
 
@@ -33,6 +34,7 @@ namespace IHCEngine::Graphics
         void createTextureSampler();
 
         IHCDevice& ihcDevice;
+        std::string filePath = "";
         std::string name="none";
         uint32_t mipLevels;
         VkImage textureImage; // pixel data

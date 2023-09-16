@@ -20,6 +20,8 @@
 #include "../Core/Scene/Scene.h"
 // Imgui
 #include <imgui_impl_vulkan.h>
+// Model
+#include "Animation/Model.h"
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)
@@ -185,7 +187,7 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
 }
 
-#pragma region Helpers for assetManagement (texture, model)
+#pragma region Helpers for assetManagement (texture, mesh)
 std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string assetName, std::string path)
 {
     auto texture = std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, assetName, path);
@@ -243,22 +245,31 @@ void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
     // Remove the textureID from the map.
     textureToDescriptorSetsMap.erase(it);
 }
-std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
+std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateMesh(std::string assetName, std::string path)
 {
     // Don't need to keep track for models, they self-deallocate
     // Textures need keeping track due to descriptors
     return IHCMesh::CreateMeshFromFile(*ihcDevice, path);
 }
-std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder)
+std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateMesh(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder)
 {
     // Don't need to keep track for models, they self-deallocate
     // Textures need keeping track due to descriptors
     return std::make_unique<IHCEngine::Graphics::IHCMesh>(*ihcDevice, builder);
 }
-void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
+void IHCEngine::Graphics::GraphicsManager::DestroyMesh(std::string assetName)
 {
     // Don't need to keep track for models
     // just created for same format
+}
+
+std::unique_ptr<IHCEngine::Graphics::Model> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
+{
+    return std::move(std::make_unique<IHCEngine::Graphics::Model>(path));
+}
+
+void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
+{
 }
 
 

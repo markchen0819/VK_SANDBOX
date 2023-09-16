@@ -15,7 +15,8 @@ namespace IHCEngine::Core
 }
 namespace IHCEngine::Graphics
 {
-    class IHCDevice;
+	class Model;
+	class IHCDevice;
     class IHCBuffer;
     class Renderer;  // contains IHCSwapchain
     class IHCDescriptorPool;
@@ -47,9 +48,13 @@ namespace IHCEngine::Graphics
         // Helper Functions for AssetManagement
         std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string assetName, std::string path);
         void DestroyTexture(std::string assetName);
-        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateModel(std::string assetName, std::string path);
-        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateModel(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder);
+        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateMesh(std::string assetName, std::string path);
+        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateMesh(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder);
+        void DestroyMesh(std::string assetName);
+        std::unique_ptr<IHCEngine::Graphics::Model> CreateModel(std::string assetName, std::string path);
         void DestroyModel(std::string assetName);
+
+
 
 
         // Helper for ImGui

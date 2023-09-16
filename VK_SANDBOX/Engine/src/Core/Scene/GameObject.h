@@ -7,7 +7,8 @@
 namespace IHCEngine::Graphics 
 {
     class IHCMesh; 
-    class IHCTexture; 
+    class IHCTexture;
+    class Model;
 }
 namespace IHCEngine::Core
 {
@@ -34,8 +35,9 @@ namespace IHCEngine::Core
         Scene* GetScene() { return scene; }
 
         IHCEngine::Component::Transform transform;
-        IHCEngine::Graphics::IHCMesh* model = nullptr;
+        IHCEngine::Graphics::IHCMesh* mesh = nullptr;
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
+        IHCEngine::Graphics::Model* model = nullptr;
 
         // Component
 		template<class T>

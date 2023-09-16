@@ -32,7 +32,6 @@ namespace IHCEngine::Graphics
         VkPipelineLayout pipelineLayout;
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> ihcPipeline; // basic shading
 
-
         ////// Create other pipelines //////
         // Each system can have one to many pipelines
         // Example: 

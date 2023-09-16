@@ -69,6 +69,8 @@ struct Vertex
     glm::vec3 color{};
     glm::vec3 normal{};
     glm::vec2 uv{};
+    glm::vec3 tangent{};
+    glm::vec3 bitangent{};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
     {
@@ -87,15 +89,19 @@ struct Vertex
         attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
         attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
         attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+        attributeDescriptions.push_back({ 4, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, tangent) });
+        attributeDescriptions.push_back({ 5, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, bitangent) });
 
-        return attributeDescriptions;
+    	return attributeDescriptions;
     }
     bool operator==(const Vertex& other) const 
     {
         return position == other.position 
             && color == other.color
             && normal == other.normal 
-            && uv == other.uv;
+            && uv == other.uv
+    	    && tangent == other.tangent
+            && bitangent == other.bitangent;
     }
 };
 namespace IHCEngine::Graphics

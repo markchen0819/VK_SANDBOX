@@ -8,6 +8,7 @@
 #include "../VKWraps/IHCTexture.h"
 #include "../../Core/Time/Time.h"
 #include "../../Core/Scene/GameObject.h"
+#include "../Animation/Model.h"
 
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
@@ -117,12 +118,69 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     // Common case:  Global time value, Viewport Information
     // Our case: None
 
-    
-    // For each game object
+
+	// For each game object
     for (auto& g : frameInfo.gameObjects)
     {
         IHCEngine::Core::GameObject* gobj = g.second;
-        if (gobj->model == nullptr) continue;
+
+        // Temporary here
+        if(gobj->model!=nullptr)
+        {
+            if (wireframeEnabled)
+            {
+                wireframePipeline->Bind(frameInfo.commandBuffer);
+            }
+            else
+            {
+                ihcPipeline->Bind(frameInfo.commandBuffer);
+            }
+
+            auto meshes = gobj->model->GetMeshes();
+            for (const auto& mesh: meshes)
+            {
+                MaterialData materialdata = gobj->model->GetMaterialForMesh(mesh.first);
+
+                VkDescriptorSet_T* descriptorSet;
+            	if(materialdata.diffuseMaps.size()==0) // no texture, only color
+                {
+                    descriptorSet = frameInfo.textureToDescriptorSetsMap["plainTexture"][frameInfo.frameIndex];
+                }
+                else
+                {
+                    std::string textureID = materialdata.diffuseMaps[0]->GetName();
+                    descriptorSet = frameInfo.textureToDescriptorSetsMap[textureID][frameInfo.frameIndex];
+                }
+                vkCmdBindDescriptorSets
+                (
+                    frameInfo.commandBuffer,
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    pipelineLayout,
+                    1,
+                    1,
+                    &descriptorSet,
+                    0,
+                    nullptr
+                );
+
+                SimplePushConstantData push{};
+                push.modelMatrix = gobj->transform.GetModelMatrix();
+                push.normalMatrix = glm::mat4(1);
+                vkCmdPushConstants
+                (
+                    frameInfo.commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    0,
+                    sizeof(SimplePushConstantData),
+                    &push
+                );
+                mesh.second->Bind(frameInfo.commandBuffer);
+                mesh.second->Draw(frameInfo.commandBuffer);
+            }
+            continue;
+        }
+
         if (gobj->texture == nullptr) continue;
 
         // Bind its respective Pipeline
@@ -159,21 +217,10 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         // Common case: Model Matrix, Material Properties, Animation Data:
         // Our case: Model Matrix
         SimplePushConstantData push{};
-
-        //gobj->transform.SetLocalRotation()
-        //push.modelMatrix = gobj->transform.GetLocalModelMatrix();
-
-        //push.modelMatrix = gobj->transform.GetWorldMatrix();
         push.modelMatrix = gobj->transform.GetModelMatrix();
-            //glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         push.normalMatrix = glm::mat4(1);
 
-        if (gobj->GetUID() == 0)
-        {
-            push.modelMatrix =
-                glm::rotate(glm::mat4(1.0f), IHCEngine::Core::Time::GetInstance().GetElapsedTime() * glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            push.normalMatrix = glm::mat4(1);
-        }
+
         // potential for lighting
         /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
         glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
@@ -188,10 +235,10 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         );
 
         // Bind Mesh(Model)
-        gobj->model->Bind(frameInfo.commandBuffer);
+        gobj->mesh->Bind(frameInfo.commandBuffer);
 
         // Step 4: Draw Object
-        gobj->model->Draw(frameInfo.commandBuffer);
+        gobj->mesh->Draw(frameInfo.commandBuffer);
     }
 }
 #pragma endregion

@@ -191,6 +191,7 @@
     <ClCompile Include="Libraries\imgui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Engine\src\Core\Locator\SceneManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\MaterialData.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CameraController.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />
@@ -241,6 +243,7 @@
     <ClInclude Include="Libraries\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\Model.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

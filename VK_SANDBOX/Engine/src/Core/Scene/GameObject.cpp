@@ -21,5 +21,6 @@ void IHCEngine::Core::GameObject::DestroyGameObject()
     // destroy components
 
     texture = nullptr;
+    mesh = nullptr;
     model = nullptr;
 }
