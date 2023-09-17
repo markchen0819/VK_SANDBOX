@@ -83,16 +83,12 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
     // process ASSIMP's root node recursively
     processNode(ai_scene->mRootNode, ai_scene);
 
-    for (const auto& pair : meshes) 
-    {
-        std::cout << pair.first << std::endl;
-    }
     std::cout <<"============"<< std::endl;
     for (const auto& pair : meshMaterialMap)
     {
-        std::cout << "Key: " << pair.first << ", ";
+        std::cout << "- Key: " << pair.first << std::endl;
         std::cout << "MaterialName: "<<pair.second.name << std::endl;
-
+        std::cout << "Textures: " <<std::endl;
         for (size_t i = 0; i < pair.second.diffuseMaps.size(); ++i)
         {
             std::cout << pair.second.diffuseMaps[i]->GetName() << std::endl;
@@ -109,6 +105,7 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
         {
             std::cout << pair.second.heightMaps[i]->GetName() << std::endl;
         }
+        std::cout << std::endl;
     }
 
 }
@@ -223,6 +220,9 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
     IHCMesh* meshPtr = meshUniquePtr.get();
     assetManager->GetMeshRepository().AddAsset(currentKeyStr,std::move(meshUniquePtr));
     ++keyID;
+
+    std::cout << meshIDStr << ": vertices: " << meshBuilder.vertices.size();
+    std::cout << ", indices: " << meshBuilder.indices.size() << std::endl;
     return { currentKeyStr , meshPtr };
 }
 

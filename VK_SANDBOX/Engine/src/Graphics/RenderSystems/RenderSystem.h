@@ -2,9 +2,10 @@
 // Forward declaration
 namespace IHCEngine::Graphics
 {
-    struct FrameInfo;
+	struct FrameInfo;
     class IHCDevice;
     class IHCPipeline;
+    struct PipelineConfigInfo;
 }
 
 namespace IHCEngine::Graphics
@@ -24,26 +25,37 @@ namespace IHCEngine::Graphics
 
     private:
 
-        void createPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts); // (CPU - shader stages, uniform buffers, samplers, and push constants)
-        void destroyPipelineLayout();
-        void createPipeline(VkRenderPass renderPass); // lifecycle not tied to renderPass, just used for creation
+        void createDefaultPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts); // (CPU - shader stages, uniform buffers, samplers, and push constants)
+        void destroyDefaultPipelineLayout();
+        void createDefaultPipeline(VkRenderPass renderPass); // lifecycle not tied to renderPass, just used for creation
+        void renderDefaultGraphicsPipeline(FrameInfo& frameInfo);
 
         IHCEngine::Graphics::IHCDevice& ihcDevice;
-        VkPipelineLayout pipelineLayout;
-        std::unique_ptr<IHCEngine::Graphics::IHCPipeline> ihcPipeline; // basic shading
+        VkRenderPass vkrenderpass;
+        VkPipelineLayout defaultGraphicsPipelineLayout;
+        std::unique_ptr<IHCEngine::Graphics::IHCPipeline> defaultGraphicsPipeline; // basic shading
 
-        ////// Create other pipelines //////
-        // Each system can have one to many pipelines
-        // Example: 
-        // standardPipeline: Regular Phong shading with textures.
-        // nightVisionPipeline: Everything is rendered in green shades.
-        // wireframePipeline : For debugging, where all the objects are drawn
+        //// Other pipelines ////
+        void createCustomPipelineLayoutsAndPipelines();
+        void destroyCustomPipelineLayouts();
+        void createCustomPipelineLayout(VkPipelineLayout* targetPipelineLayout, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+        void destroyCustomPipelineLayout(VkPipelineLayout* targetPipelineLayout);
+        std::unique_ptr<IHCPipeline> createCustomPipeline(PipelineConfigInfo& pipelineConfigInfo, std::string vertpath, std::string fragpath);
 
+       
         bool wireframeEnabled = false;
-        void createWireFramePipeline(VkRenderPass renderPass);
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> wireframePipeline; // wireframe
+        void renderWireframePipeline(FrameInfo& frameInfo);
 
 
+        std::unique_ptr<IHCEngine::Graphics::IHCPipeline> skeletalAnimationPipeline; 
+        void renderSkeletalAnimationPipeline(FrameInfo& frameInfo);
+
+        // Each system can have one to many pipelines
+		// Example: 
+		// standardPipeline: Regular Phong shading with textures.
+		// nightVisionPipeline: Everything is rendered in green shades.
+		// wireframePipeline : For debugging, where all the objects are drawn
     };
 
 }
