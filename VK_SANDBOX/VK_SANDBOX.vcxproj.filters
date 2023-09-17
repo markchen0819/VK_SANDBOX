@@ -281,6 +281,12 @@
     <ClInclude Include="Engine\src\Graphics\Animation\MaterialData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\BoneInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\shader.vert" />

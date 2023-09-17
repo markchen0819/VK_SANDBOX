@@ -63,6 +63,7 @@ struct QueueFamilyIndices
 // -> allocate one large vertex buffer, each binding have different region
 // vertex buffer [ (binding 0 )( binding1) ]
 // single binding good for most cases, but still depends on implementaion
+static constexpr int MAX_BONE_WEIGHTS = 4;
 struct Vertex
 {
     glm::vec3 position{};
@@ -71,6 +72,8 @@ struct Vertex
     glm::vec2 uv{};
     glm::vec3 tangent{};
     glm::vec3 bitangent{};
+    int boneIDs[MAX_BONE_WEIGHTS];     //bone indexes which will influence this vertex
+    float boneWeights[MAX_BONE_WEIGHTS];   //weights from each bone
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
     {
@@ -91,6 +94,8 @@ struct Vertex
         attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
         attributeDescriptions.push_back({ 4, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, tangent) });
         attributeDescriptions.push_back({ 5, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, bitangent) });
+        attributeDescriptions.push_back({ 6, 0, VK_FORMAT_R32G32B32A32_SINT, offsetof(Vertex, boneIDs) }); 
+        attributeDescriptions.push_back({ 7, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, boneWeights) }); 
 
     	return attributeDescriptions;
     }

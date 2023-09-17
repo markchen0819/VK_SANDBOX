@@ -1,7 +1,11 @@
 #pragma once
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+#include <map>
 #include "MaterialData.h"
+#include "BoneInfo.h"
+
+struct Vertex;
 
 namespace IHCEngine::Graphics
 {
@@ -32,6 +36,8 @@ namespace IHCEngine::Graphics
 		std::unordered_map<std::string, IHCMesh*> meshes;
 		std::unordered_map<std::string, MaterialData> meshMaterialMap;
 
+		std::map<std::string, BoneInfo> boneInfoMap; //
+		int boneCounter = 0;
 
 		// stores all the textures loaded so far,
 		// optimization to make sure textures aren't loaded more than once.
@@ -44,6 +50,7 @@ namespace IHCEngine::Graphics
 		std::pair<std::string, IHCMesh*> processMesh(aiMesh* mesh, const aiScene* scene);
 		std::pair<std::string, MaterialData>  processMaterials(aiMesh* mesh, const aiScene* scene);
 		std::vector<IHCEngine::Graphics::IHCTexture*> loadTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+		void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
 	};
 }
 

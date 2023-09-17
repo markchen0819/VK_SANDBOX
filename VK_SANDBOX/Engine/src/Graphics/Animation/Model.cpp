@@ -1,6 +1,8 @@
 #include "../../pch.h"
 #include "Model.h"
 #include <assimp/postprocess.h>
+
+#include "AssimpGLMHelpers.h"
 #include "../VKWraps/VKHelpers.h"
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
 #include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
@@ -118,6 +120,7 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene)
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.insert(processMesh(mesh, scene));
         meshMaterialMap.insert(processMaterials(mesh, scene));
+        extractBoneWeightForVertices(meshes[currentKeyStr]->GetVertices(), mesh, scene);
     }
     // recursively process children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -134,23 +137,15 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
     {
         Vertex vertex;
         glm::vec3 vector;
-    	// placeholder glm::vec3 vector since assimp uses its own vector class
-    	//that doesn't directly convert to glm's vec3 class
 
-        // positions
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
-        // normals
+        // position
+        vertex.position = AssimpGLMHelpers::GetGLMVec3(mesh->mVertices[i]);
+        // normal
         if (mesh->HasNormals())
         {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
+            vertex.normal = AssimpGLMHelpers::GetGLMVec3(mesh->mNormals[i]);
         }
-        // colors
+        // color
         if (mesh->HasVertexColors(i))
         {
             vector.x = mesh->mColors[0][i].r;
@@ -169,7 +164,6 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
         {
             vertex.color = glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b);
         }
-
         // texture coordinates
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
@@ -196,6 +190,12 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
         else
         {
             vertex.uv = glm::vec2(0.0f, 0.0f);
+        }
+        // Bones
+        for (int i = 0; i < MAX_BONE_WEIGHTS; i++)
+        {
+            vertex.boneIDs[i] = -1;
+            vertex.boneWeights[i] = 0.0f;
         }
         meshBuilder.vertices.push_back(vertex);
     }
@@ -274,4 +274,52 @@ std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTe
         textures.push_back(texturePtr);
     }
     return textures;
+}
+
+void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
+{
+    // Check all bones for the mesh
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+        int boneID = -1;
+        // Find bone from our map or add new bone
+        std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        {
+            BoneInfo newBoneInfo;
+            newBoneInfo.id = boneCounter;
+            newBoneInfo.offsetMatrix = 
+                AssimpGLMHelpers::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
+            boneInfoMap[boneName] = newBoneInfo;
+            boneID = boneCounter;
+            ++boneCounter;
+        }
+        else
+        {
+            boneID = boneInfoMap[boneName].id;
+        }
+        assert(boneID != -1);
+
+        // Get weights from a bone and add data to a vertex
+        auto weights = mesh->mBones[boneIndex]->mWeights;
+        int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+        {
+            int vertexId = weights[weightIndex].mVertexId;
+            float weight = weights[weightIndex].mWeight;
+            assert(vertexId <= vertices.size());
+
+            // if vertex hasn't assign bone weight then assign
+            for (int i = 0; i < MAX_BONE_WEIGHTS; ++i)
+            {
+                if (vertices[vertexId].boneIDs[i] < 0)
+                {
+                    vertices[vertexId].boneWeights[i] = weight;
+                    vertices[vertexId].boneIDs[i] = boneID;
+                    break;
+                }
+            }
+        }
+    }
 }

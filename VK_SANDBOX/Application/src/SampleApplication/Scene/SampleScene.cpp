@@ -25,7 +25,8 @@ void SampleApplication::SampleScene::Load()
 	// testmodel
 	auto testModel = graphicsManager->CreateModel("testModel",
 		//"Application/assets/Test/mococo-abyssgard/Mococo_pose.fbx");
-		"Application/assets/Test/X Bot.fbx");
+		//"Application/assets/Test/X Bot.fbx");
+		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
 	
 	assetManager->GetModelRepository().AddAsset("testModel",
 		std::move(testModel));

@@ -230,10 +230,6 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
 {
     // Bind Pipeline 
     wireframePipeline->Bind(frameInfo.commandBuffer);
-
-    // Bind Global Descriptor Set (at set 0)  
-    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
-    // Our case:  ubo, sampler
     vkCmdBindDescriptorSets
     (
         frameInfo.commandBuffer,
@@ -246,21 +242,13 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
         nullptr
     );
 
-    // Update Global Push Constants
-    // Common case:  Global time value, Viewport Information
-    // Our case: None
-
-
-    // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
         IHCEngine::Core::GameObject* gobj = g.second;
 
-        // Temporary here
+        // temporary
         if (gobj->model != nullptr)
         {
-
-
             auto meshes = gobj->model->GetMeshes();
             for (const auto& mesh : meshes)
             {
@@ -306,49 +294,13 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             continue;
         }
 
-        if (gobj->texture == nullptr) continue;
+        if (gobj->mesh == nullptr) continue;
+        // Not need to bind texture
 
-        // Bind its respective Pipeline
-        // Each object may have its own pipeline, especially if it uses a different shader 
-        // or rendering technique. For instance, some objects might be rendered with a 
-        // reflection shader while others use a basic diffuse shader.
-        if (wireframeEnabled)
-        {
-            wireframePipeline->Bind(frameInfo.commandBuffer);
-        }
-        else
-        {
-            defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
-        }
-        // Bind Local Descriptor Set
-        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
-        // Our case: None
-
-        std::string textureID = gobj->texture->GetName();
-        auto descriptorSet = frameInfo.textureToDescriptorSetsMap[textureID][frameInfo.frameIndex];
-        vkCmdBindDescriptorSets
-        (
-            frameInfo.commandBuffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            defaultGraphicsPipelineLayout,
-            1,
-            1,
-            &descriptorSet,
-            0,
-            nullptr
-        );
-
-        // Update Local Push Constants (ex: Transform)
-        // Common case: Model Matrix, Material Properties, Animation Data:
-        // Our case: Model Matrix
+        // Model Matrix
         SimplePushConstantData push{};
         push.modelMatrix = gobj->transform.GetModelMatrix();
         push.normalMatrix = glm::mat4(1);
-
-
-        // potential for lighting
-        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
-        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
         vkCmdPushConstants
         (
             frameInfo.commandBuffer,
@@ -359,10 +311,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             &push
         );
 
-        // Bind Mesh(Model)
         gobj->mesh->Bind(frameInfo.commandBuffer);
-
-        // Step 4: Draw Object
         gobj->mesh->Draw(frameInfo.commandBuffer);
     }
 }

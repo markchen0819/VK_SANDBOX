@@ -107,6 +107,7 @@ IHCEngine::Graphics::IHCMesh::~IHCMesh()
 // staging buffer great for static data (model with same vertex/index data)
 void IHCEngine::Graphics::IHCMesh::createVertexBuffers(const std::vector<Vertex>& vertices)
 {
+    this->vertices = vertices;
     vertexCount = static_cast<uint32_t>(vertices.size());
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
 

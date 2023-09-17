@@ -194,6 +194,7 @@
     <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h" />
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\AssetManagerLocator.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Engine\src\Core\Locator\SceneManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\BoneInfo.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\MaterialData.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CameraController.h" />

@@ -34,6 +34,8 @@ namespace IHCEngine::Graphics
         void Bind(VkCommandBuffer commandBuffer);
         void Draw(VkCommandBuffer commandBuffer);
 
+        std::vector<Vertex>& GetVertices() { return vertices; } // for bones
+
     private:
 
         void createVertexBuffers(const std::vector<Vertex>& vertices);
@@ -47,5 +49,7 @@ namespace IHCEngine::Graphics
         bool hasIndexBuffer = false;
         std::unique_ptr<IHCBuffer> indexBuffer;
         uint32_t indexCount;
+
+        std::vector<Vertex> vertices; // for bones
     };
 }
