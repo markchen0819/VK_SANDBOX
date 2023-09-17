@@ -34,14 +34,16 @@ namespace IHCEngine::Core
 
         Scene* GetScene() { return scene; }
 
+
         IHCEngine::Component::Transform transform;
-        IHCEngine::Graphics::IHCMesh* mesh = nullptr;
+        std::vector<Component::Component*> componentList;
+
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
         IHCEngine::Graphics::Model* model = nullptr;
 
         // Component
 		template<class T>
-		void AddComponent();
+		T* AddComponent();
 		template<class T>
 		T* GetComponent();
 		template <typename T>

@@ -14,6 +14,12 @@ namespace SampleApplication
 
 		void Init() override;
 		void Reset() override;
+
+	private:
+
+		void createGridMeshAndLoadGridTexture();
+		void createAxisMeshAndLoadAxisTexture();
+
 	};
 
 }

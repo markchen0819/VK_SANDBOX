@@ -8,6 +8,7 @@
 #include "../VKWraps/IHCTexture.h"
 #include "../../Core/Time/Time.h"
 #include "../../Core/Scene/GameObject.h"
+#include "../../Core/Scene/Components/MeshComponent.h"
 #include "../Animation/Model.h"
 
 
@@ -179,7 +180,7 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
         IHCEngine::Core::GameObject* gobj = g.second;
 
         // Has mesh & texture (model in a different pipeline)
-        if (gobj->mesh == nullptr) continue;
+        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
         if (gobj->texture == nullptr) continue;
 
         // Bind Local Descriptor Set
@@ -218,11 +219,11 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
             &push
         );
 
-        // Bind Mesh(Model)
-        gobj->mesh->Bind(frameInfo.commandBuffer);
 
-        // Step 4: Draw Object
-        gobj->mesh->Draw(frameInfo.commandBuffer);
+        // Bind Mesh and Draw
+        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
+
     }
 }
 
@@ -294,7 +295,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             continue;
         }
 
-        if (gobj->mesh == nullptr) continue;
+        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
         // Not need to bind texture
 
         // Model Matrix
@@ -311,8 +312,9 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             &push
         );
 
-        gobj->mesh->Bind(frameInfo.commandBuffer);
-        gobj->mesh->Draw(frameInfo.commandBuffer);
+        // Bind Mesh and Draw
+        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
     }
 }
 

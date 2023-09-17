@@ -192,6 +192,7 @@
     <ClCompile Include="Libraries\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />
@@ -246,6 +247,7 @@
     <ClInclude Include="Libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Model.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

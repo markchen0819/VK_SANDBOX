@@ -11,6 +11,7 @@ namespace IHCEngine::Component
 	{
 		Base,      
 		Transform,
+		Mesh,
 		CustomBehavior,
 		// add more component types as needed
 	};
@@ -22,16 +23,11 @@ namespace IHCEngine::Component
 		Component()
 			: gameObject(nullptr), type(ComponentType::Base), isActive(true)
 		{ };
-
 		Component(ComponentType type)
 			: gameObject(nullptr), type(type), isActive(true)
 		{ }
-
 		virtual ~Component() = default;
 
-		virtual void Init() {}
-		virtual void Update() {}
-		virtual void Destroy() {}
 
 		IHCEngine::Core::GameObject& GetOwner() const { return *gameObject; }
 		void SetOwner(IHCEngine::Core::GameObject* gobj) { gameObject = gobj; }
@@ -46,7 +42,7 @@ namespace IHCEngine::Component
 		friend class GameObject;
 		IHCEngine::Core::GameObject* gameObject;
 
-		virtual void Remove() = 0;
+		virtual void Remove() = 0; // Remove from locator if used
 	};
 
 }
