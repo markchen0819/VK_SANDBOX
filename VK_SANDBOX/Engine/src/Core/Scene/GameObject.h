@@ -2,11 +2,13 @@
 #include <vector>
 #include "Components/Transform.h"
 #include "Components/CustomBehavior/CustomBehavior.h"
-
+#include "../../Graphics/Animation/Animation.h"
+#include "../../Graphics/Animation/Animator.h"
 // Forward declaration
 namespace IHCEngine::Graphics 
 {
-    class IHCMesh; 
+	class Animator;
+	class IHCMesh; 
     class IHCTexture;
     class Model;
 }
@@ -40,6 +42,8 @@ namespace IHCEngine::Core
 
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
         IHCEngine::Graphics::Model* model = nullptr;
+        IHCEngine::Graphics::Animator animator;
+        IHCEngine::Graphics::Animation* animation = nullptr;
 
         // Component
 		template<class T>

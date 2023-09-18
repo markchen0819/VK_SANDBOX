@@ -152,6 +152,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Bone.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\Animator.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animation.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Bone.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />

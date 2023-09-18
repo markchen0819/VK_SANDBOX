@@ -20,6 +20,13 @@ IHCEngine::Graphics::Animation::Animation(const std::string animationPath, Model
     ticksPerSecond = animation->mTicksPerSecond;
     ReadHierarchyData(rootNode, scene->mRootNode);
     ReadMissingBones(animation, *model);
+
+    std::cout << "============" << std::endl;
+    std::cout << "Loading Animation:" << animationPath << std::endl;
+    std::cout << "duration:" << duration << std::endl;
+    std::cout << "ticksPerSecond:" << ticksPerSecond << std::endl;
+    std::cout << "boneInfoMap count:" << boneInfoMap->size() <<std::endl;
+    std::cout << "============" << std::endl;
 }
 
 IHCEngine::Graphics::Bone* IHCEngine::Graphics::Animation::FindBone(const std::string& name)

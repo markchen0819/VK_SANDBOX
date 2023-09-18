@@ -1,14 +1,10 @@
 #pragma once
 #include <map>
 #include <assimp/anim.h>
-#include "BoneInfo.h"
+#include "Model.h"
+#include "Bone.h"
 
 struct aiNode;
-namespace IHCEngine::Graphics
-{
-	class Bone;
-	class Model;
-}
 
 namespace IHCEngine::Graphics
 {

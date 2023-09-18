@@ -29,9 +29,18 @@ void SampleApplication::SampleScene::Load()
 		//"Application/assets/Test/mococo-abyssgard/Mococo_pose.fbx");
 		//"Application/assets/Test/X Bot.fbx");
 		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
-	
+
+	IHCEngine::Graphics::Model* testModelRawPtr = testModel.get();
+
+
+	auto testAnimation = std::make_unique<IHCEngine::Graphics::Animation>(
+		"Application/assets/Test/Bot/Crouch To Stand.fbx", testModelRawPtr);
+
 	assetManager->GetModelRepository().AddAsset("testModel",
 		std::move(testModel));
+	assetManager->GetAnimationRepository().AddAsset("testAnimation",
+		std::move(testAnimation));
+
 
 	// viking Room
 	auto roomTexture = 
@@ -66,7 +75,7 @@ void SampleApplication::SampleScene::UnLoad()
 	// testModel
 	graphicsManager->DestroyModel("testModel");
 	assetManager->GetModelRepository().RemoveAsset("testModel");
-
+	assetManager->GetAnimationRepository().RemoveAsset("testAnimation");
 
 	// viking Room
 	graphicsManager->DestroyTexture("roomTexture");
@@ -110,7 +119,8 @@ void SampleApplication::SampleScene::Init()
 
 	IHCEngine::Core::GameObject& testModel = AddGameObject("testModel");
 	testModel.model = assetManager->GetModelRepository().GetAsset("testModel");
-
+	testModel.animation = assetManager->GetAnimationRepository().GetAsset("testAnimation");
+	testModel.animator.PlayAnimation(testModel.animation);
 
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
