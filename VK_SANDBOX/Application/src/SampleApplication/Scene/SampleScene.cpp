@@ -96,6 +96,11 @@ void SampleApplication::SampleScene::UnLoad()
 
 void SampleApplication::SampleScene::Init()
 {
+
+	//////////////////////////////////////////////////////////////////
+	// GameObjects creation and component adding here
+	//////////////////////////////////////////////////////////////////
+
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 

@@ -25,6 +25,9 @@ namespace IHCEngine::Graphics
 		std::unordered_map<std::string, IHCMesh*> GetMeshes();
 		MaterialData GetMaterialForMesh(std::string key);
 
+		std::map<std::string, BoneInfo>& GetBoneInfoMap() { return boneInfoMap; }
+		int& GetBoneCount() { return boneCounter; }
+
 	private:
 
 		std::string filepath;
@@ -35,14 +38,8 @@ namespace IHCEngine::Graphics
 		std::string currentKeyStr = ""; // key for following unordered_maps
 		std::unordered_map<std::string, IHCMesh*> meshes;
 		std::unordered_map<std::string, MaterialData> meshMaterialMap;
-
-		std::map<std::string, BoneInfo> boneInfoMap; //
+		std::map<std::string, BoneInfo> boneInfoMap;
 		int boneCounter = 0;
-
-		// stores all the textures loaded so far,
-		// optimization to make sure textures aren't loaded more than once.
-		std::vector<IHCTexture*> textures_loaded;
-
 
 		// graphics manager & assetManager required to generate texture and meshes
 		void loadModel(std::string filepath);

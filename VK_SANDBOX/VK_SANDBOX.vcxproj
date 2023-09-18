@@ -152,7 +152,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\src\Graphics\Animation\AssimpModelLoader.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Bone.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
@@ -193,10 +194,12 @@
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\Animation.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\Bone.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />
-    <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h" />
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\AssetManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\GraphicsManagerLocator.h" />
@@ -248,6 +251,7 @@
     <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Model.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

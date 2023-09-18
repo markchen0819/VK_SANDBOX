@@ -1,0 +1,25 @@
+#pragma once
+#include "Component.h"
+
+namespace IHCEngine::Graphics
+{
+	class IHCTexture;
+}
+
+namespace IHCEngine::Component
+{
+	class TextureComponent : public Component
+	{
+	public:
+		TextureComponent();
+		~TextureComponent() = default;
+
+		void SetMesh(Graphics::IHCTexture* mesh);
+
+
+	private:
+
+		IHCEngine::Graphics::IHCTexture* texture = nullptr;
+		void Remove() override;
+	};
+}

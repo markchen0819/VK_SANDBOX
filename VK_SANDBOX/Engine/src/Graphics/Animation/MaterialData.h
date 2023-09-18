@@ -3,6 +3,7 @@ namespace IHCEngine::Graphics
 {
 	class IHCTexture;
 
+    // Parsed data from Assimp
 	struct MaterialData
     {
         std::string name;

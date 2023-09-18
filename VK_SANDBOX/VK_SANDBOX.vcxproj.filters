@@ -120,13 +120,19 @@
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\src\Graphics\Animation\AssimpModelLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\Bone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -275,9 +281,6 @@
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\src\Graphics\Animation\AssimpModelLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\src\Graphics\Animation\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -291,6 +294,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\Bone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
