@@ -14,10 +14,16 @@ IHCEngine::Core::Time::Time()
 
 void IHCEngine::Core::Time::Reset()
 {
-	frameCount = 0;
-	totalFixedTime = 0;
 	totalTime = 0;
+	frameTimeCounter = 0;
+	
+	totalFixedTime = 0;
+
 	timeScale = 1.0f;
+	frameCount = 0;
+
+	previousTime = std::chrono::high_resolution_clock::now();
+	shouldExecuteUpdate = false;
 }
 
 void IHCEngine::Core::Time::Update()
@@ -32,6 +38,12 @@ void IHCEngine::Core::Time::Update()
 	if (frameTimeCounter <= minFrameTime)
 	{
 		return; // framerate control
+	}
+
+	// window interrupt fix
+	if(frameTimeCounter > maxFrameTime)
+	{
+		frameTimeCounter = maxFrameTime;
 	}
 
 	unscaledDeltaTime = frameTimeCounter;

@@ -72,8 +72,8 @@ void IHCEngine::Core::Engine::Update()
 	while (!appWindow->ShouldClose())
 	{
 		glfwPollEvents();
-
 		Time::GetInstance().Update();
+
 		application->Update();
 
 		if (sceneManager->ShouldLoadNextScene())

@@ -78,5 +78,8 @@ namespace IHCEngine::Core
 		float calculatedFps{ 0.0f };
 		int frameCount{0};
 
+		// fix for window interruption
+		float maxFrameTime = 0.2; //250 ms
+
 	};
 }

@@ -71,8 +71,9 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 }
 void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
-    //glfwPollEvents();
-    //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change need recheck
+    // Fixes window interrupt
+    glfwPollEvents();
+    IHCEngine::Core::Time::GetInstance().Update();
     
     // Render
     std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects = scene->GetGameObjectsMap();
