@@ -135,6 +135,7 @@ struct SimplePushConstantData
 {
     alignas(16) glm::mat4 modelMatrix{1.f};
     alignas(16) glm::mat4 normalMatrix{1.f};
+    alignas(4) bool hasBones;
 };
 // larger amount of data that doesn't change often
 // common use: Camera Matrices, Global Lighting, Per-Object Data, Array of bone transformations
@@ -144,6 +145,11 @@ struct GlobalUniformBufferObject
     alignas(16) glm::mat4 viewMatrix;
     alignas(16) glm::mat4 projectionMatrix;
     alignas(16) glm::mat4 inverseViewMatrix{1.f};
+};
+
+struct SkeletalUniformBufferObject
+{
+    alignas(16) glm::mat4 finalBonesMatrices[100];
 };
 
 #pragma endregion

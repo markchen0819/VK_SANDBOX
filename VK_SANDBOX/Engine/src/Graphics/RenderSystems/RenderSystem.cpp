@@ -206,6 +206,8 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
         SimplePushConstantData push{};
         push.modelMatrix = gobj->transform.GetModelMatrix();
         push.normalMatrix = glm::mat4(1);
+        push.hasBones = false;
+
         // potential for lighting
         /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
         glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
@@ -302,6 +304,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
         SimplePushConstantData push{};
         push.modelMatrix = gobj->transform.GetModelMatrix();
         push.normalMatrix = glm::mat4(1);
+        push.hasBones = false;
         vkCmdPushConstants
         (
             frameInfo.commandBuffer,
@@ -376,6 +379,14 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             SimplePushConstantData push{};
             push.modelMatrix = gobj->transform.GetModelMatrix();
             push.normalMatrix = glm::mat4(1);
+            if (gobj->animator.GetCurrentAnimation() != nullptr)
+            {
+                push.hasBones = true;
+            }
+            else
+            {
+                push.hasBones = false;
+            }
             vkCmdPushConstants
             (
                 frameInfo.commandBuffer,

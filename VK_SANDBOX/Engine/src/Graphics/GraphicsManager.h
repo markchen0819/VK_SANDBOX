@@ -15,6 +15,7 @@ namespace IHCEngine::Core
 }
 namespace IHCEngine::Graphics
 {
+	class GraphicsAssetCreator;
 	class Model;
 	class IHCDevice;
     class IHCBuffer;
@@ -42,18 +43,10 @@ namespace IHCEngine::Graphics
         void Update(IHCEngine::Core::Scene* scene);  
         void Shutdown();
 
+        // Helper for asset creation
+        GraphicsAssetCreator& GetGraphicsAssetCreator() { return *graphicsAssetCreator; }
 
-        // Helper Functions for AssetManagement
-        std::unique_ptr<IHCEngine::Graphics::IHCTexture> CreateTexture(std::string assetName, std::string path);
-        void DestroyTexture(std::string assetName);
-        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateMesh(std::string assetName, std::string path);
-        std::unique_ptr<IHCEngine::Graphics::IHCMesh> CreateMesh(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder);
-        void DestroyMesh(std::string assetName);
-        std::unique_ptr<IHCEngine::Graphics::Model> CreateModel(std::string assetName, std::string path);
-        void DestroyModel(std::string assetName);
-
-
-        // Helper for ImGui
+    	// Helper for ImGui
         bool usingIMGUI = true;
         VkRenderPass GetRenderPass();
         IHCEngine::Graphics::IHCDevice* GetIHCDevice();
@@ -71,6 +64,7 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
         std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; // Swapchain
         std::unique_ptr<IHCEngine::Graphics::IHCDescriptorManager> descriptorManager;
+        std::unique_ptr<IHCEngine::Graphics::GraphicsAssetCreator> graphicsAssetCreator;
 
         // rendersystems
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; 

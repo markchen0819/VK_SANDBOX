@@ -211,14 +211,9 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
     }
     // Create IHCMesh, store it in asset manager, store ptrs in Model class for reference
     auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-    auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-
-    // Add to a map and move resource to asset manager
     std::string meshIDStr = filename + "_mesh_" + std::to_string(keyID);
     currentKeyStr = meshIDStr;
-	auto meshUniquePtr = graphicsManager->CreateMesh(currentKeyStr, meshBuilder);
-    IHCMesh* meshPtr = meshUniquePtr.get();
-    assetManager->GetMeshRepository().AddAsset(currentKeyStr,std::move(meshUniquePtr));
+    IHCMesh* meshPtr = graphicsManager->GetGraphicsAssetCreator().CreateMesh(currentKeyStr, meshBuilder);
     ++keyID;
 
     std::cout << meshIDStr << ": vertices: " << meshBuilder.vertices.size();
@@ -268,9 +263,7 @@ std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTe
             break;
         }
         // texture hasn't been loaded already, load it
-        auto textureUniquePtr = graphicsManager->CreateTexture(str.C_Str(), directory+"/"+str.C_Str());
-        IHCTexture* texturePtr = textureUniquePtr.get();
-        assetManager->GetTextureRepository().AddAsset(str.C_Str(), std::move(textureUniquePtr));
+        IHCTexture* texturePtr = graphicsManager->GetGraphicsAssetCreator().CreateTexture(str.C_Str(), directory+"/"+str.C_Str());
         textures.push_back(texturePtr);
     }
     return textures;

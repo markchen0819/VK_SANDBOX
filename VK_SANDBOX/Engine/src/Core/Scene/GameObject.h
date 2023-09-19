@@ -43,7 +43,6 @@ namespace IHCEngine::Core
         IHCEngine::Graphics::IHCTexture* texture = nullptr;
         IHCEngine::Graphics::Model* model = nullptr;
         IHCEngine::Graphics::Animator animator;
-        IHCEngine::Graphics::Animation* animation = nullptr;
 
         // Component
 		template<class T>

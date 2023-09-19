@@ -12,7 +12,7 @@ namespace IHCEngine::Graphics
 
 		void UpdateAnimation();
 		void PlayAnimation(Animation* animation);
-
+		Animation* GetCurrentAnimation() { return currentAnimation; }
 	private:
 
 		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);

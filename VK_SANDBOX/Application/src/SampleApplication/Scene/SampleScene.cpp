@@ -14,45 +14,27 @@ SampleApplication::SampleScene::SampleScene()
 
 void SampleApplication::SampleScene::Load()
 {
-	// Create Texture & Model functions belongs to Graphics Manager 
-	// as it requires Vulkan parts (vkdevice, vkdesciptorsets...
-	//////////////////////////////////////////////////////////////////
-	// STEP1: Create textures and models using GraphicsManager
-	// STEP2: Move resources to AssetManager to  manage life time of the resources
-	//////////////////////////////////////////////////////////////////
-	
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	// Create Graphics resource using GraphicsAssetCreator
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	// testmodel
-	auto testModel = graphicsManager->CreateModel("testModel",
+	auto testModel = graphicsAssetCreator.CreateModel("testModel",
 		//"Application/assets/Test/mococo-abyssgard/Mococo_pose.fbx");
 		//"Application/assets/Test/X Bot.fbx");
 		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
 
-	IHCEngine::Graphics::Model* testModelRawPtr = testModel.get();
-
+	IHCEngine::Graphics::Model* testModelRawPtr = testModel;
 
 	auto testAnimation = std::make_unique<IHCEngine::Graphics::Animation>(
 		"Application/assets/Test/Bot/Crouch To Stand.fbx", testModelRawPtr);
 
-	assetManager->GetModelRepository().AddAsset("testModel",
-		std::move(testModel));
-	assetManager->GetAnimationRepository().AddAsset("testAnimation",
-		std::move(testAnimation));
-
-
 	// viking Room
 	auto roomTexture = 
-		graphicsManager->CreateTexture("roomTexture",
+		graphicsAssetCreator.CreateTexture("roomTexture",
 			"Engine/assets/textures/viking_room/viking_room.png");
 	auto roomModel = 
-		graphicsManager->CreateMesh("roomModel",
+		graphicsAssetCreator.CreateMesh("roomModel",
 			"Engine/assets/models/viking_room/viking_room.obj");
-	assetManager->GetTextureRepository().AddAsset("roomTexture",
-		std::move(roomTexture));
-	assetManager->GetMeshRepository().AddAsset("roomModel", 
-		std::move(roomModel));
 
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
@@ -64,43 +46,26 @@ void SampleApplication::SampleScene::Load()
 
 void SampleApplication::SampleScene::UnLoad()
 {
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-
-	//////////////////////////////////////////////////////////////////
-	// STEP1: release Vulkan parts for reuse (vkdesciptorsets...) in GraphicsManager
-	// STEP2: End of resource lifetime in AssetManager 
-	//////////////////////////////////////////////////////////////////
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	// testModel
-	graphicsManager->DestroyModel("testModel");
-	assetManager->GetModelRepository().RemoveAsset("testModel");
-	assetManager->GetAnimationRepository().RemoveAsset("testAnimation");
+	graphicsAssetCreator.DestroyModel("testModel");
+	//assetManager->GetModelRepository().RemoveAsset("testModel");
+	//assetManager->GetAnimationRepository().RemoveAsset("testAnimation");
 
 	// viking Room
-	graphicsManager->DestroyTexture("roomTexture");
-	graphicsManager->DestroyMesh("roomModel");
-	assetManager->GetTextureRepository().RemoveAsset("roomTexture");
-	assetManager->GetMeshRepository().RemoveAsset("roomModel");
-
+	graphicsAssetCreator.DestroyTexture("roomTexture");
+	graphicsAssetCreator.DestroyMesh("roomModel");
 
 	// x y z axis
-	graphicsManager->DestroyTexture("plainTexture");
-	graphicsManager->DestroyMesh("x_axisModel");
-	graphicsManager->DestroyMesh("y_axisModel");
-	graphicsManager->DestroyMesh("z_axisModel");
-	assetManager->GetTextureRepository().RemoveAsset("plainTexture");
-	assetManager->GetMeshRepository().RemoveAsset("x_axisModel");
-	assetManager->GetMeshRepository().RemoveAsset("y_axisModel");
-	assetManager->GetMeshRepository().RemoveAsset("z_axisModel");
+	graphicsAssetCreator.DestroyTexture("plainTexture");
+	graphicsAssetCreator.DestroyMesh("x_axisModel");
+	graphicsAssetCreator.DestroyMesh("y_axisModel");
+	graphicsAssetCreator.DestroyMesh("z_axisModel");
 
 	// grid
-	graphicsManager->DestroyTexture("gridTexture");
-	graphicsManager->DestroyMesh("gridModel");
-	assetManager->GetTextureRepository().RemoveAsset("gridTexture");
-	assetManager->GetMeshRepository().RemoveAsset("gridModel");
-
-
+	graphicsAssetCreator.DestroyTexture("gridTexture");
+	graphicsAssetCreator.DestroyMesh("gridModel");
 }
 
 void SampleApplication::SampleScene::Init()
@@ -119,8 +84,10 @@ void SampleApplication::SampleScene::Init()
 
 	IHCEngine::Core::GameObject& testModel = AddGameObject("testModel");
 	testModel.model = assetManager->GetModelRepository().GetAsset("testModel");
-	testModel.animation = assetManager->GetAnimationRepository().GetAsset("testAnimation");
-	testModel.animator.PlayAnimation(testModel.animation);
+	//auto animation = assetManager->GetAnimationRepository().GetAsset("testAnimation");
+	//testModel.animator.PlayAnimation(animation);
+
+
 
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
@@ -165,10 +132,9 @@ void SampleApplication::SampleScene::Reset()
 
 void SampleApplication::SampleScene::createGridMeshAndLoadGridTexture()
 {
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
-	auto gridTexture = graphicsManager->CreateTexture("gridTexture", "Engine/assets/textures/Grid.png");
+	auto gridTexture = graphicsAssetCreator.CreateTexture("gridTexture", "Engine/assets/textures/Grid.png");
 	IHCEngine::Graphics::IHCMesh::Builder gridBuilder;
 	int gridSize = 100;
 	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
@@ -205,14 +171,11 @@ void SampleApplication::SampleScene::createGridMeshAndLoadGridTexture()
 			gridBuilder.indices.push_back(topRight);
 		}
 	}
-	auto gridModel = graphicsManager->CreateMesh("gridModel", gridBuilder);
-	assetManager->GetTextureRepository().AddAsset("gridTexture", std::move(gridTexture));
-	assetManager->GetMeshRepository().AddAsset("gridModel", std::move(gridModel));
+	auto gridModel = graphicsAssetCreator.CreateMesh("gridModel", gridBuilder);
 }
 void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
 {
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	IHCEngine::Graphics::IHCMesh::Builder axisBuilder;
 	axisBuilder.vertices = {
@@ -233,7 +196,7 @@ void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
 		4, 5, 6,  4, 6, 7,
 		0, 3, 2,  0, 2, 1
 	};
-	auto x_axisModel = graphicsManager->CreateMesh(
+	auto x_axisModel = graphicsAssetCreator.CreateMesh(
 		"x_axisModel", axisBuilder);
 	axisBuilder.vertices = {
 	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
@@ -245,7 +208,7 @@ void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
 	{{-1.0f, -0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
 	{{-1.0f,  0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}}
 	};
-	auto y_axisModel = graphicsManager->CreateMesh(
+	auto y_axisModel = graphicsAssetCreator.CreateMesh(
 		"y_axisModel", axisBuilder);
 	axisBuilder.vertices = {
 	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
@@ -257,17 +220,8 @@ void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
 	{{-1.0f, -0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
 	{{-1.0f,  0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}}
 	};
-	auto z_axisModel = graphicsManager->CreateMesh(
+	auto z_axisModel = graphicsAssetCreator.CreateMesh(
 		"z_axisModel", axisBuilder);
 
-	assetManager->GetMeshRepository().AddAsset("x_axisModel",
-		std::move(x_axisModel));
-	assetManager->GetMeshRepository().AddAsset("y_axisModel",
-		std::move(y_axisModel));
-	assetManager->GetMeshRepository().AddAsset("z_axisModel",
-		std::move(z_axisModel));
-
-	auto plainTexture = graphicsManager->CreateTexture("plainTexture", "Engine/assets/textures/Plain.png");
-	assetManager->GetTextureRepository().AddAsset("plainTexture", std::move(plainTexture));
-
+	auto plainTexture = graphicsAssetCreator.CreateTexture("plainTexture", "Engine/assets/textures/Plain.png");
 }

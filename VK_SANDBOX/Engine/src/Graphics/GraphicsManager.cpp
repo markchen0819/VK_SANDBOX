@@ -11,9 +11,10 @@
 #include "VKWraps/VKHelpers.h"
 #include "VKWraps/IHCDevice.h"
 #include "VKWraps/IHCBuffer.h"
-#include "Renderer.h"
-#include "VKWraps/IHCDescriptors.h"
 #include "VKWraps/IHCTexture.h"
+#include "VKWraps/IHCDescriptors.h"
+#include "VKWraps/IHCDescriptorManager.h"
+#include "Renderer.h"
 //#include "VKWraps/IHCMesh.h"
 #include "RenderSystems/RenderSystem.h" 
 // Scene
@@ -21,8 +22,9 @@
 // Imgui
 #include <imgui_impl_vulkan.h>
 // Model
+#include "GraphicsAssetCreator.h"
 #include "Animation/Model.h"
-#include "VKWraps/IHCDescriptorManager.h"
+
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)
@@ -53,6 +55,8 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     // Create Descriptor Manager
     descriptorManager = std::make_unique<IHCEngine::Graphics::IHCDescriptorManager>(*ihcDevice);
 
+    // Create Graphics Asset Creator
+    graphicsAssetCreator = std::make_unique<IHCEngine::Graphics::GraphicsAssetCreator>(*ihcDevice, descriptorManager.get());
 }
 void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 {
@@ -121,45 +125,6 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
     vkDeviceWaitIdle(ihcDevice->GetDevice()); // sync then allowed to destroy
 }
 
-#pragma region Helpers for assetManagement (texture, mesh)
-std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string assetName, std::string path)
-{
-    auto texture = std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, assetName, path);
-    descriptorManager->AllocateLocalDescriptorSetForTexture(texture.get());
-    return texture;
-}
-void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
-{
-    descriptorManager->DeallocateLocalDescriptorSetForTexture(assetName);
-}
-std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateMesh(std::string assetName, std::string path)
-{
-    // Don't need to keep track for models, they self-deallocate
-    // Textures need keeping track due to descriptors
-    return IHCMesh::CreateMeshFromFile(*ihcDevice, path);
-}
-std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateMesh(std::string assetName, IHCEngine::Graphics::IHCMesh::Builder& builder)
-{
-    // Don't need to keep track for models, they self-deallocate
-    // Textures need keeping track due to descriptors
-    return std::make_unique<IHCEngine::Graphics::IHCMesh>(*ihcDevice, builder);
-}
-void IHCEngine::Graphics::GraphicsManager::DestroyMesh(std::string assetName)
-{
-    // Don't need to keep track for models
-    // just created for same format
-}
-
-std::unique_ptr<IHCEngine::Graphics::Model> IHCEngine::Graphics::GraphicsManager::CreateModel(std::string assetName, std::string path)
-{
-    return std::move(std::make_unique<IHCEngine::Graphics::Model>(path));
-}
-
-void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
-{
-}
-
-#pragma endregion
 
 #pragma region Imgui
 VkRenderPass IHCEngine::Graphics::GraphicsManager::GetRenderPass()

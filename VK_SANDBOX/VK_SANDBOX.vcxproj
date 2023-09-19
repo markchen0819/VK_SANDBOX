@@ -187,6 +187,7 @@
     <ClCompile Include="Application\src\SampleApplication\Scene\SampleScene.cpp" />
     <ClCompile Include="Engine\src\Imgui\ImGuiManager.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\GraphicsAssetCreator.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="Application\src\SampleApplication\Scene\SampleScene.h" />
     <ClInclude Include="Engine\src\Imgui\ImGuiManager.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.h" />
+    <ClInclude Include="Engine\src\Graphics\GraphicsAssetCreator.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />

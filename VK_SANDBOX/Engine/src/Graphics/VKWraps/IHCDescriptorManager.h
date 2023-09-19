@@ -1,6 +1,7 @@
 #pragma once
 namespace IHCEngine::Graphics
 {
+	class Animator;
 	class IHCTexture;
 	class IHCDevice;
 	class IHCBuffer;
@@ -27,17 +28,21 @@ namespace IHCEngine::Graphics
         std::vector<VkDescriptorSet> GetGlobalDescriptorSets() { return globalDescriptorSets; }
         std::unordered_map<std::string, std::vector<VkDescriptorSet>>& GetTextureToDescriptorSetsMap() { return textureToDescriptorSetsMap; }
 
-        void AllocateLocalDescriptorSetForTexture(IHCTexture* texture);
-        void DeallocateLocalDescriptorSetForTexture(std::string assetName);
+        void AllocateTextureDescriptorSetForTexture(IHCTexture* texture);
+        void DeallocateTextureDescriptorSetForTexture(std::string assetName);
 
+        void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
+        void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
 	private:
         void createDescriptorSetLayouts();
         void initPool();
         void createGlobalUniformBuffers();
+        void createCustomUniformBuffers();
         void allocateGlobalDescriptorSets();
        
 
-        int TEXTURE_COUNT_LIMIT = 200;
+        const int TEXTURE_COUNT_LIMIT = 200;
+        const int SKELETAL_COUNT_LIMIT = 20;
 
         IHCDevice& ihcDevice;
         std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{};
@@ -46,25 +51,31 @@ namespace IHCEngine::Graphics
         // DescriptorSetLayout: slots on the pipeline
         // accepting descriptor sets to be bound
         std::unique_ptr <IHCDescriptorSetLayout> globalDescriptorSetLayout; // UNIFORM_BUFFER
-        std::unique_ptr <IHCDescriptorSetLayout> localDescriptorSetLayout; // COMBINED_IMAGE_SAMPLER
-
+        std::unique_ptr <IHCDescriptorSetLayout> textureDescriptorSetLayout; // COMBINED_IMAGE_SAMPLER
+        std::unique_ptr <IHCDescriptorSetLayout> skeletalDescriptorSetLayout; // UNIFORM_BUFFER
 
         // resource having camera matrices, global light info
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> globalUBOs;
         // resource having textures are in assetManager texture repo
 
-
+        //// Camera matrices
         // pointer to resource: globalUBOs
         std::vector<VkDescriptorSet> globalDescriptorSets;
 
+        //// Texture
         // pointer to resource: textures
-        std::vector<VkDescriptorSet> localDescriptorSets;
+        std::vector<VkDescriptorSet> textureDescriptorSets;
         // Stack of available descriptor sets, texture load/ unload
-        std::stack<VkDescriptorSet> availableLocalDescriptorSets; 
-
+        std::stack<VkDescriptorSet> availableTextureDescriptorSets; 
         // Use map to track texture <-> descriptorset
         // holds the info per scene (as tecture is loaded/ unloaded per scene)
         std::unordered_map<std::string, std::vector<VkDescriptorSet>> textureToDescriptorSetsMap;
+
+        //// Skeletal
+        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> skeletalUBOs;
+        std::stack<VkDescriptorSet> availableSkeletalDescriptorSets;
+        std::vector<VkDescriptorSet> skeletalDescriptorSets;
+        std::unordered_map<Animator*, std::vector<VkDescriptorSet>> animatorToDescriptorSetsMap;
 
 	};
 }
