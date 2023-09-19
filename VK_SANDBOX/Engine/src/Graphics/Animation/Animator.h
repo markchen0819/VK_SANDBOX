@@ -8,15 +8,17 @@ namespace IHCEngine::Graphics
 	{
 	public:
 		Animator();
-		~Animator() = default;
+		~Animator();
 
-		void UpdateAnimation();
+		void UpdateAnimation(float dt);
 		void PlayAnimation(Animation* animation);
 		Animation* GetCurrentAnimation() { return currentAnimation; }
+		std::vector<glm::mat4> GetFinalBoneMatrices();
+
 	private:
 
 		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
-		std::vector<glm::mat4> GetFinalBoneMatrices();
+
 
 		std::vector<glm::mat4> finalBoneMatrices;
 		Animation* currentAnimation;

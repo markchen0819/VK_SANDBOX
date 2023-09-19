@@ -117,7 +117,7 @@ namespace IHCEngine::Graphics
 	void IHCDescriptorManager::createCustomUniformBuffers()
 	{
 		skeletalUBOs.resize(SKELETAL_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < globalUBOs.size(); i++)
+		for (int i = 0; i < skeletalUBOs.size(); i++)
 		{
 			skeletalUBOs[i] = std::make_unique<IHCBuffer>
 				(
@@ -207,27 +207,35 @@ namespace IHCEngine::Graphics
 		{
 			assert("Duplicated animator");
 		}
+		if( skeletalUBOIndex >= SKELETAL_COUNT_LIMIT* IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
+		{
+			assert("Using too many skeletalUBOs! Consider adding pool size");
+		}
 		// allocate MAX_FRAMES_IN_FLIGHT descriptorsets for 1 animator
 		std::vector<VkDescriptorSet> descriptorSetsForAnimator;
+		std::vector<int> skeletalUBOsForAnimator;
+
 		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			if (availableSkeletalDescriptorSets.empty())
 			{
 				assert("No available descriptor sets for allocation. Check if exceed poolsize");
 			}
-
 			VkDescriptorSet descriptor = availableSkeletalDescriptorSets.top();
 			availableSkeletalDescriptorSets.pop();
 
-			auto bufferInfo =skeletalUBOs[i]->GetDescriptorInfo();
+			auto bufferInfo =skeletalUBOs[skeletalUBOIndex]->GetDescriptorInfo();
 			IHCDescriptorWriter(*skeletalDescriptorSetLayout, *localDescriptorPool)
 				.WriteBuffer(0, &bufferInfo)
 				.Build(descriptor);
 
 			descriptorSetsForAnimator.push_back(descriptor);
+			skeletalUBOsForAnimator.push_back(skeletalUBOIndex);
+			++skeletalUBOIndex;
 		}
 		// Add the collection of descriptor sets to the map.
 		animatorToDescriptorSetsMap[animator] = descriptorSetsForAnimator;
+		animatorToSkeletalUBOIndexMap[animator] = skeletalUBOsForAnimator;
 	}
 	void IHCDescriptorManager::DeallocateSkeletalDescriptorSetForAnimator(Animator* animator)
 	{
@@ -247,5 +255,8 @@ namespace IHCEngine::Graphics
 		}
 		// Remove the animator  from the map.
 		animatorToDescriptorSetsMap.erase(it);
+
+		// PROBLEM HERE!!!!!!!
+		// how to clean animatorToSkeletalUBOIndexMap?
 	}
 }

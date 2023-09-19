@@ -1,6 +1,7 @@
 #include "SampleScene.h"
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
 #include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
+#include "../../Engine/src/Core/Time/Time.h"
 
 // Components
 #include "../CustomBehaviors/CameraController.h"
@@ -23,11 +24,10 @@ void SampleApplication::SampleScene::Load()
 		//"Application/assets/Test/X Bot.fbx");
 		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
 
-	IHCEngine::Graphics::Model* testModelRawPtr = testModel;
-
-	auto testAnimation = std::make_unique<IHCEngine::Graphics::Animation>(
-		"Application/assets/Test/Bot/Crouch To Stand.fbx", testModelRawPtr);
-
+	auto testAnimation = graphicsAssetCreator.CreateAnimation(
+		"CrouchAni", "Application/assets/Test/Bot/Crouch To Stand.fbx", testModel);
+		//"CrouchAni", "Application/assets/Test/Bot/Idle.fbx", testModel);
+		
 	// viking Room
 	auto roomTexture = 
 		graphicsAssetCreator.CreateTexture("roomTexture",
@@ -50,8 +50,8 @@ void SampleApplication::SampleScene::UnLoad()
 
 	// testModel
 	graphicsAssetCreator.DestroyModel("testModel");
-	//assetManager->GetModelRepository().RemoveAsset("testModel");
-	//assetManager->GetAnimationRepository().RemoveAsset("testAnimation");
+	graphicsAssetCreator.DestroyAnimation("CrouchAni");
+
 
 	// viking Room
 	graphicsAssetCreator.DestroyTexture("roomTexture");
@@ -70,7 +70,7 @@ void SampleApplication::SampleScene::UnLoad()
 
 void SampleApplication::SampleScene::Init()
 {
-
+	IHCEngine::Core::Time::GetInstance().LockFrameRate(60);
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////
@@ -83,12 +83,13 @@ void SampleApplication::SampleScene::Init()
 	camera.AddComponent<SampleApplication::CameraController>();
 
 	IHCEngine::Core::GameObject& testModel = AddGameObject("testModel");
+	testModel.transform.SetScale(glm::vec3(0.3, 0.3, 0.3));
 	testModel.model = assetManager->GetModelRepository().GetAsset("testModel");
-	//auto animation = assetManager->GetAnimationRepository().GetAsset("testAnimation");
-	//testModel.animator.PlayAnimation(animation);
+	auto crouchAnimation = assetManager->GetAnimationRepository().GetAsset("CrouchAni");
+	testModel.animator.PlayAnimation(crouchAnimation);
 
 
-
+	
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));

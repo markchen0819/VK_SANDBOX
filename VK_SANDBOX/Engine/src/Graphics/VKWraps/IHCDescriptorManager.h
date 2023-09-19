@@ -33,6 +33,10 @@ namespace IHCEngine::Graphics
 
         void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
+
+        IHCEngine::Graphics::IHCBuffer* GetSkeletalUBOByIndex(int index) { return skeletalUBOs[index].get(); }
+        std::unordered_map<Animator*, std::vector<VkDescriptorSet>>& GetAnimatorToDescriptorSetsMap() { return animatorToDescriptorSetsMap; }
+        std::unordered_map<Animator*, std::vector<int>>& GetAnimatorToSkeletalUBOIndexMap() { return animatorToSkeletalUBOIndexMap; }
 	private:
         void createDescriptorSetLayouts();
         void initPool();
@@ -73,10 +77,11 @@ namespace IHCEngine::Graphics
 
         //// Skeletal
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> skeletalUBOs;
+        int skeletalUBOIndex = 0;
         std::stack<VkDescriptorSet> availableSkeletalDescriptorSets;
         std::vector<VkDescriptorSet> skeletalDescriptorSets;
         std::unordered_map<Animator*, std::vector<VkDescriptorSet>> animatorToDescriptorSetsMap;
-
+        std::unordered_map<Animator*, std::vector<int>> animatorToSkeletalUBOIndexMap;
 	};
 }
 

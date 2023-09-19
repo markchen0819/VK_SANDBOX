@@ -90,6 +90,11 @@ std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::IHCMesh::Crea
     return std::make_unique<IHCEngine::Graphics::IHCMesh>(device, builder);
 }
 
+void IHCEngine::Graphics::IHCMesh::UpdateVertices()
+{
+    createVertexBuffers(this->GetVertices());
+}
+
 IHCEngine::Graphics::IHCMesh::IHCMesh(IHCDevice& device, const IHCMesh::Builder& builder) 
     : ihcDevice{ device }
 {

@@ -85,8 +85,7 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
             frameIndex,
             IHCEngine::Core::Time::GetInstance().GetDeltaTime(),
             commandBuffer,
-            descriptorManager->GetGlobalDescriptorSets()[frameIndex],
-            descriptorManager->GetTextureToDescriptorSetsMap(),
+        	descriptorManager.get(),
             gameObjects
         };
 

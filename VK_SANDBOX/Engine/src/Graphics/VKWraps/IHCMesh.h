@@ -31,6 +31,10 @@ namespace IHCEngine::Graphics
         static std::unique_ptr<IHCMesh> CreateMeshFromFile
         (IHCDevice& device, const std::string& filepath);
 
+        // data are written into buffer when created
+        // but in Model extra vertex data is apply when bone is used;
+        void UpdateVertices();
+		
         void Bind(VkCommandBuffer commandBuffer);
         void Draw(VkCommandBuffer commandBuffer);
 

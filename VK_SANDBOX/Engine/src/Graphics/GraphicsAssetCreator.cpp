@@ -80,4 +80,32 @@ namespace IHCEngine::Graphics
         auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
         assetManager->GetModelRepository().RemoveAsset(assetName);
     }
+
+    Animation* GraphicsAssetCreator::CreateAnimation(std::string assetName, std::string path, Model* model)
+    {
+        auto animation = std::make_unique<IHCEngine::Graphics::Animation>(
+            path, model);
+        auto rawPtr = animation.get();
+        // No descriptor for animation
+        auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+        assetManager->GetAnimationRepository().AddAsset(assetName, std::move(animation));
+        return rawPtr;
+    }
+
+    void GraphicsAssetCreator::DestroyAnimation(std::string assetName)
+    {
+        // No descriptor for animation
+        auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+        assetManager->GetAnimationRepository().RemoveAsset(assetName);
+    }
+
+    // Skeletal Data for Animator (vulkan ubo)
+    void GraphicsAssetCreator::CreateSkeletalData(Animator* animator)
+    {
+        descriptorManager->AllocateSkeletalDescriptorSetForAnimator(animator);
+    }
+    void GraphicsAssetCreator::DestroySkeletalData(Animator* animator)
+    {
+        descriptorManager->DeallocateSkeletalDescriptorSetForAnimator(animator);
+    }
 }

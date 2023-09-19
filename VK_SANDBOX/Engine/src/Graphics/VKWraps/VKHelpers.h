@@ -72,6 +72,7 @@ struct Vertex
     glm::vec2 uv{};
     glm::vec3 tangent{};
     glm::vec3 bitangent{};
+
     int boneIDs[MAX_BONE_WEIGHTS];     //bone indexes which will influence this vertex
     float boneWeights[MAX_BONE_WEIGHTS];   //weights from each bone
 
@@ -111,19 +112,32 @@ struct Vertex
 };
 namespace IHCEngine::Graphics
 {
-    // from: https://stackoverflow.com/a/57595105
-    template <typename T, typename... Rest>
-    void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+	// from: https://stackoverflow.com/a/57595105
+    template <typename T>
+    void hashCombine(std::size_t& seed, const T& v) {
         seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
-        (hashCombine(seed, rest), ...);
-    };
+    }
+
+    template <typename T, std::size_t N>
+    void hashArrayCombine(std::size_t& seed, const T(&arr)[N]) {
+        for (std::size_t i = 0; i < N; ++i) {
+            hashCombine(seed, arr[i]);
+        }
+    }
 }
 namespace std 
 {
-    template<> struct hash<Vertex> { 
+    template<> struct hash<Vertex> {
         size_t operator()(Vertex const& vertex) const {
             size_t seed = 0;
-            IHCEngine::Graphics::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            IHCEngine::Graphics::hashCombine(seed, vertex.position);
+            IHCEngine::Graphics::hashCombine(seed, vertex.color);
+            IHCEngine::Graphics::hashCombine(seed, vertex.normal);
+            IHCEngine::Graphics::hashCombine(seed, vertex.uv);
+            IHCEngine::Graphics::hashCombine(seed, vertex.tangent);
+            IHCEngine::Graphics::hashCombine(seed, vertex.bitangent);
+            IHCEngine::Graphics::hashArrayCombine(seed, vertex.boneIDs);
+            IHCEngine::Graphics::hashArrayCombine(seed, vertex.boneWeights);
             return seed;
         }
     };
@@ -158,13 +172,14 @@ struct SkeletalUniformBufferObject
 #pragma region FrameInfo (Data passing for VKwraps)
 namespace IHCEngine::Graphics
 {
+    class IHCDescriptorManager;
+
     struct FrameInfo
     {
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        VkDescriptorSet globalDescriptorSet;
-        std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
+        IHCDescriptorManager* descriptorManager;
         std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }

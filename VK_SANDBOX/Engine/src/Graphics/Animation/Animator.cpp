@@ -4,6 +4,7 @@
 #include "../../Core/Time/Time.h"
 #include "Animation.h"
 #include "Bone.h"
+#include "../../Core/Locator/GraphicsManagerLocator.h"
 
 namespace IHCEngine::Graphics
 {
@@ -16,16 +17,24 @@ namespace IHCEngine::Graphics
 		{
 			finalBoneMatrices.push_back(glm::mat4(1.0f));
 		}
+
+		auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+		graphicsAssetCreator.CreateSkeletalData(this);
 	}
 
-	void Animator::UpdateAnimation()
+	Animator::~Animator()
+	{
+		auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+		graphicsAssetCreator.DestroySkeletalData(this);
+	}
+
+	void Animator::UpdateAnimation(float dt)
 	{
 		if(currentAnimation==nullptr)
 		{
 			assert("No animation assigned to animator");
 		}
 
-		float dt = IHCEngine::Core::Time::GetInstance().GetDeltaTime();
 		currentTime += currentAnimation->GetTicksPerSecond() * dt;
 		currentTime = fmod(currentTime, currentAnimation->GetDuration());
 		calculateBoneTransform(&currentAnimation->GetRootNode(), glm::mat4(1.0f));

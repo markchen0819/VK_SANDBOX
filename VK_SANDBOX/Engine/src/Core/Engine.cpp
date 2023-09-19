@@ -113,9 +113,10 @@ void IHCEngine::Core::Engine::Shutdown()
 
 	customBehaviorManager = nullptr;
 	imguiManager = nullptr;
+	sceneManager = nullptr;
 	graphicsManager = nullptr;
 	assetManager = nullptr;
-	sceneManager = nullptr;
+
 
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(nullptr);
 	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);

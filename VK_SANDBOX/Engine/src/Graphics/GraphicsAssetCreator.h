@@ -3,6 +3,8 @@
 
 namespace IHCEngine::Graphics
 {
+	class Animation;
+	class Animator;
 	class IHCDescriptorManager;
 	class IHCTexture;
 	class IHCMesh;
@@ -25,6 +27,12 @@ namespace IHCEngine::Graphics
 
 		Model* CreateModel(std::string assetName, std::string path);
 		void DestroyModel(std::string assetName);
+
+		Animation* CreateAnimation(std::string assetName, std::string path, Model* model);
+		void DestroyAnimation(std::string assetName);
+
+		void CreateSkeletalData(Animator* animator);
+		void DestroySkeletalData(Animator* animator);
 
 	private:
 

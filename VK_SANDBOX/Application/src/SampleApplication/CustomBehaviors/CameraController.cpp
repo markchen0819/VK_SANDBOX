@@ -13,7 +13,7 @@ void SampleApplication::CameraController::Awake()
 {
     window = IHCEngine::Core::AppWindowLocator::GetAppWindow()->GetWindowHandle();
     camera = &(this->gameObject->GetScene()->GetCamera());
-    camera->transform.SetWorldPosition(glm::vec3(0.0f, 3.0f, 10.0f));
+    camera->transform.SetWorldPosition(glm::vec3(0.0f, 3.0f, 50.0f));
     currentRotation = camera->transform.GetRotationInQuaternion();
 }
 

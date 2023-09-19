@@ -121,6 +121,7 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene)
         meshes.insert(processMesh(mesh, scene));
         meshMaterialMap.insert(processMaterials(mesh, scene));
         extractBoneWeightForVertices(meshes[currentKeyStr]->GetVertices(), mesh, scene);
+        meshes[currentKeyStr]->UpdateVertices(); // must need as boneinfo must write into buffer
     }
     // recursively process children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
