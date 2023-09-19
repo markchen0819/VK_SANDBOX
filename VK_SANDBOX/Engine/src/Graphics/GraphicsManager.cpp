@@ -22,6 +22,7 @@
 #include <imgui_impl_vulkan.h>
 // Model
 #include "Animation/Model.h"
+#include "VKWraps/IHCDescriptorManager.h"
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
     : appWindow(*w)
@@ -49,83 +50,20 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     // Create Swapchain to render to screen
     renderer = std::make_unique<IHCEngine::Graphics::Renderer>(appWindow, *ihcDevice);
 
+    // Create Descriptor Manager
+    descriptorManager = std::make_unique<IHCEngine::Graphics::IHCDescriptorManager>(*ihcDevice);
+
 }
 void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 {
-    ////// Create a basic shading pipeline //////
-    //// Set up shader interface (DescriptorSetLayout (ubo, sampler), PipelineLayout)
-    globalDescriptorSetLayout =
-        IHCDescriptorSetLayout::Builder(*ihcDevice)
-        .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)  // Assuming this is for vertex shaders
-        .Build();
-    localDescriptorSetLayout =
-        IHCDescriptorSetLayout::Builder(*ihcDevice)
-        .AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)  // Assuming this is for fragment shaders
-        .Build();
-
-    // In GLSL, our case
-    // globalDescriptorSetLayout set 0, Binding0
-    // localDescriptorSetLayout set 1, Binding0
-    std::vector<VkDescriptorSetLayout> layouts { globalDescriptorSetLayout->GetDescriptorSetLayout(), localDescriptorSetLayout->GetDescriptorSetLayout()};
-    //// Use the above to create pipeline layout, also create the pipeline afterwards
+    auto layouts = descriptorManager->GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
+    // Use above to create pipeline layout, also create the pipeline afterwards
     basicRenderSystem = std::make_unique<IHCEngine::Graphics::RenderSystem>
         (
             *ihcDevice,
             renderer->GetSwapChainRenderPass(),
-            layouts //globalDescriptorSetLayout->GetDescriptorSetLayout()
+            layouts 
         );
-
-    //// Allocate memory (ubo)
-    // Allocate UniformBuffers for updating shaders (camera matrices, global light info)
-    // other data that's consistent across a single draw call or frame
-    uboBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < uboBuffers.size(); i++)
-    {
-        uboBuffers[i] = std::make_unique<IHCBuffer>
-            (
-                *ihcDevice,
-                sizeof(GlobalUniformBufferObject),
-                1,
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-                //| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
-                // we can uncomment this as we're not using minOffsetAlignment for now
-            );
-        uboBuffers[i]->Map(); // persistent mapping
-    }
-    globalDescriptorPool =
-        IHCDescriptorPool::Builder(*ihcDevice)
-        .SetMaxSets(IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
-        .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
-        .Build();
-    globalDescriptorSets.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-    // Allocate global descriptor sets
-    for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        auto bufferInfo = uboBuffers[i]->GetDescriptorInfo();
-        IHCDescriptorWriter(*globalDescriptorSetLayout, *globalDescriptorPool)
-            .WriteBuffer(0, &bufferInfo)  // UBO
-            .Build(globalDescriptorSets[i]);
-    }
-    // Analogy
-    // uboBuffers: (ingredients)
-    // DescriptorSetLayout: (recipe, how to assemble the ingredients)
-    // DescriptorPool: Preparation table with limited space (memory). Dishes (DescriptorSets) occupy this space
-    // DescriptorSets: Dishes on the preparation table
-    // 
-    //// Allocate memory (sampler)
-    // Allocate a pool with size of TEXTURE_COUNT_LIMIT, sets are created after textures are loaded in
-    localDescriptorPool =
-        IHCDescriptorPool::Builder(*ihcDevice)
-        .SetMaxSets(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
-        .AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT) // sampler
-        .Build();
-    localDescriptorSets.resize(TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-    // Pre-populate the availableDescriptorSets stack:
-    for (auto& descSet : localDescriptorSets) 
-    {
-        availableDescriptorSets.push(descSet);
-    }
 }
 void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
@@ -133,38 +71,34 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
     //IHCEngine::Core::Time::GetInstance().Update(); // windowsize change need recheck
     
     // Render
-    std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects
-        = scene->GetGameObjectsMap();
+    std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects = scene->GetGameObjectsMap();
     if (auto commandBuffer = renderer->BeginFrame())
     {
         int frameIndex = renderer->GetFrameIndex();
-
+        
         FrameInfo frameInfo
         {
             frameIndex,
             IHCEngine::Core::Time::GetInstance().GetDeltaTime(),
             commandBuffer,
-            globalDescriptorSets[frameIndex],
-            textureToDescriptorSetsMap,
+            descriptorManager->GetGlobalDescriptorSets()[frameIndex],
+            descriptorManager->GetTextureToDescriptorSetsMap(),
             gameObjects
         };
 
-        GlobalUniformBufferObject ubo{};
-
         // Vulkan uses a right-handed coordinate system by default.
-        // Y points down
-        // Z points out of screen
-
+		// Y points down
+		// Z points out of screen
+        GlobalUniformBufferObject ubo{};
         auto camera = scene->GetCamera();
         camera.SetAspectRatio(renderer->GetAspectRatio());
-
         ubo.viewMatrix = camera.GetViewMatrix();
         ubo.projectionMatrix = camera.GetProjectionMatrix();
         ubo.inverseViewMatrix = camera.GetInverseViewMatrix();
         ubo.projectionMatrix[1][1] *= -1; // Flip the Y-axis for vulkan <-> opengl
 
-        uboBuffers[frameIndex]->WriteToBuffer(&ubo);
-        uboBuffers[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+        descriptorManager->GetGlobalUBOs()[frameIndex]->WriteToBuffer(&ubo);
+        descriptorManager->GetGlobalUBOs()[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
         renderer->BeginSwapChainRenderPass(commandBuffer);
         //// System Render order here matters ////
@@ -191,59 +125,12 @@ void IHCEngine::Graphics::GraphicsManager::Shutdown()
 std::unique_ptr<IHCEngine::Graphics::IHCTexture> IHCEngine::Graphics::GraphicsManager::CreateTexture(std::string assetName, std::string path)
 {
     auto texture = std::make_unique<IHCEngine::Graphics::IHCTexture>(*ihcDevice, assetName, path);
-
-    // check if already allocate  descriptorsets for the texture;
-    if (textureToDescriptorSetsMap.find(assetName) != textureToDescriptorSetsMap.end())
-    {
-        assert("Loading Duplicated Texture into memory, abort");
-        return nullptr;
-    }
-    // allocate MAX_FRAMES_IN_FLIGHT descriptorsets for  1 textrue
-    std::vector<VkDescriptorSet> descriptorSetsForTexture;
-    for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        if (availableDescriptorSets.empty())
-        {
-            assert("No available descriptor sets for allocation. Check if exceed poolsize");
-        }
-
-        VkDescriptorSet descriptor = availableDescriptorSets.top();
-        availableDescriptorSets.pop();
-
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = texture->GetTextureImageView();
-        imageInfo.sampler = texture->GetTextureSampler();
-
-        IHCDescriptorWriter(*localDescriptorSetLayout, *localDescriptorPool)
-            .WriteImage(0, &imageInfo)// Sampler
-            .Build(descriptor);
-
-        descriptorSetsForTexture.push_back(descriptor);
-    }
-    // Add the collection of descriptor sets to the map.
-    textureToDescriptorSetsMap[assetName] = descriptorSetsForTexture;
+    descriptorManager->AllocateLocalDescriptorSetForTexture(texture.get());
     return texture;
 }
 void IHCEngine::Graphics::GraphicsManager::DestroyTexture(std::string assetName)
 {
-    // All submitted commands that refer to sampler must have completed execution
-    vkDeviceWaitIdle(ihcDevice->GetDevice());
-    // Check if the textureID exists in the map.
-    auto it = textureToDescriptorSetsMap.find(assetName);
-    if (it == textureToDescriptorSetsMap.end())
-    {
-        std::cerr << "Texture not found in descriptor map." << std::endl;
-        return;
-    }
-
-    // Push all its descriptor sets as available.
-    for (VkDescriptorSet descSet : it->second)
-    {
-        availableDescriptorSets.push(descSet);
-    }
-    // Remove the textureID from the map.
-    textureToDescriptorSetsMap.erase(it);
+    descriptorManager->DeallocateLocalDescriptorSetForTexture(assetName);
 }
 std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::GraphicsManager::CreateMesh(std::string assetName, std::string path)
 {
@@ -271,8 +158,6 @@ std::unique_ptr<IHCEngine::Graphics::Model> IHCEngine::Graphics::GraphicsManager
 void IHCEngine::Graphics::GraphicsManager::DestroyModel(std::string assetName)
 {
 }
-
-
 
 #pragma endregion
 

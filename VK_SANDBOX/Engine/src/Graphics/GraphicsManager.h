@@ -19,9 +19,7 @@ namespace IHCEngine::Graphics
 	class IHCDevice;
     class IHCBuffer;
     class Renderer;  // contains IHCSwapchain
-    class IHCDescriptorPool;
-    class IHCDescriptorSetLayout;
-    class IHCDescriptorWriter;
+    class IHCDescriptorManager;
     class IHCTexture;
     class IHCMesh;
     class RenderSystem; // contains IHCPipeline
@@ -55,8 +53,6 @@ namespace IHCEngine::Graphics
         void DestroyModel(std::string assetName);
 
 
-
-
         // Helper for ImGui
         bool usingIMGUI = true;
         VkRenderPass GetRenderPass();
@@ -71,31 +67,11 @@ namespace IHCEngine::Graphics
         void setupBasicRenderSystem();
         Window::AppWindow& appWindow;
 
-
         //// order of declarations matter for vulkan cleanup ////
         std::unique_ptr<IHCEngine::Graphics::IHCDevice> ihcDevice;
         std::unique_ptr<IHCEngine::Graphics::Renderer> renderer; // Swapchain
+        std::unique_ptr<IHCEngine::Graphics::IHCDescriptorManager> descriptorManager;
 
-
-        // For accessing between shader(pipeline) and resources
-        // The followings are for
-        // basicRenderSystem: ihcpipeline & wireframe pipeline
-        // both using same shaders and pipeline layout (therefore descritpor layout)
-        std::unique_ptr<IHCDescriptorPool> globalDescriptorPool{}; // memory pool
-        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> uboBuffers; // resource having camera matrices
-        std::vector<VkDescriptorSet> globalDescriptorSets; // pointer to resource: uboBuffers
-        std::unique_ptr <IHCDescriptorSetLayout> globalDescriptorSetLayout; // slots on the pipeline accepting descriptor sets to be bound
-        int TEXTURE_COUNT_LIMIT = 200;
-        std::unique_ptr<IHCDescriptorPool> localDescriptorPool{}; // memory pool
-        // resource having textures are in assetManager texture repo
-        std::vector<VkDescriptorSet> localDescriptorSets;// pointer to resource: textures
-        std::unique_ptr <IHCDescriptorSetLayout> localDescriptorSetLayout; // slots on the pipeline accepting descriptor sets to be bound
-        // use map to find texture's correspoind descriptorsets
-        // holds the info per scene (as tecture is loaded/ unloaded per scene)
-        std::unordered_map<std::string, std::vector<VkDescriptorSet>> textureToDescriptorSetsMap; 
-        std::stack<VkDescriptorSet> availableDescriptorSets; // Stack of available descriptor sets.
-        
-        
         // rendersystems
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; 
         // std::unique_ptr<IHCEngine::Graphics::RenderSystem> particleSystem;
@@ -105,6 +81,7 @@ namespace IHCEngine::Graphics
     };
 }
 
+
 // Logic breakdown for GraphicsManager
 // 
 // Init()
@@ -112,18 +89,18 @@ namespace IHCEngine::Graphics
 // 2. Window and Presentation Setup (Swapchain)
 // 
 // setupBasicRenderSystem()
-// 1. Rendering Setup (RenderSystems (Pipelines,DescriptorSetLayouts )
-// 2. Resource Setup (UniformBuffers, DescriptorPool, DescriptorSets(ubo, textures))
+// 1. DescriptorManager set up for pipeline creations in rendersystems
+// 2. Rendering Setup (RenderSystems (Pipelines)
 //
 // Update()
 // 1. Handle System Events:
-// 2. Pre-rendering Updates (Update Uniform Buffers)
+// 2. Pre-rendering Updates (Update GlobalUBOs)
 // 3. Render
 //    BeginSwapChainRenderPass
 //    RenderGameObjects
-//        Bind Global Pipeline and GlobalDescriptors(ubo)
+//        Bind Target Pipeline and GlobalDescriptors 
 //        For each GameObject
-//            Bind Local Pipeline and LocalDescriptors(texture)
+//            Bind LocalDescriptors
 //            Update push constants (per-object)
 //            Bind model(mesh)
 //            Draw the object

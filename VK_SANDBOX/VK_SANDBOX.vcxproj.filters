@@ -138,6 +138,9 @@
     <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -309,6 +312,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\Animation\Animator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
