@@ -32,8 +32,9 @@ namespace IHCEngine::Graphics
         // Create texture
         // Deallocate descriptorSet
         // Destroy texture asset in AssetManager
-        descriptorManager->DeallocateTextureDescriptorSetForTexture(assetName);
         auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+        auto ihcTexture = assetManager->GetTextureRepository().GetAsset(assetName);
+        descriptorManager->DeallocateTextureDescriptorSetForTexture(ihcTexture);
         assetManager->GetTextureRepository().RemoveAsset(assetName);
     }
 

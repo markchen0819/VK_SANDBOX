@@ -26,17 +26,13 @@ namespace IHCEngine::Graphics
 
         // Get DescriptorSets to bind to pipeline slot for access (set up shader binding)
         std::vector<VkDescriptorSet> GetGlobalDescriptorSets() { return globalDescriptorSets; }
-        std::unordered_map<std::string, std::vector<VkDescriptorSet>>& GetTextureToDescriptorSetsMap() { return textureToDescriptorSetsMap; }
 
         void AllocateTextureDescriptorSetForTexture(IHCTexture* texture);
-        void DeallocateTextureDescriptorSetForTexture(std::string assetName);
+        void DeallocateTextureDescriptorSetForTexture(IHCTexture* texture);
 
         void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
 
-        IHCEngine::Graphics::IHCBuffer* GetSkeletalUBOByIndex(int index) { return skeletalUBOs[index].get(); }
-        std::unordered_map<Animator*, std::vector<VkDescriptorSet>>& GetAnimatorToDescriptorSetsMap() { return animatorToDescriptorSetsMap; }
-        std::unordered_map<Animator*, std::vector<int>>& GetAnimatorToSkeletalUBOIndexMap() { return animatorToSkeletalUBOIndexMap; }
 	private:
         void createDescriptorSetLayouts();
         void initPool();
@@ -71,17 +67,13 @@ namespace IHCEngine::Graphics
         std::vector<VkDescriptorSet> textureDescriptorSets;
         // Stack of available descriptor sets, texture load/ unload
         std::stack<VkDescriptorSet> availableTextureDescriptorSets; 
-        // Use map to track texture <-> descriptorset
-        // holds the info per scene (as tecture is loaded/ unloaded per scene)
-        std::unordered_map<std::string, std::vector<VkDescriptorSet>> textureToDescriptorSetsMap;
 
         //// Skeletal
-        std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> skeletalUBOs;
-        int skeletalUBOIndex = 0;
-        std::stack<VkDescriptorSet> availableSkeletalDescriptorSets;
+        std::vector<std::unique_ptr<IHCBuffer>> skeletalUBOs;
         std::vector<VkDescriptorSet> skeletalDescriptorSets;
-        std::unordered_map<Animator*, std::vector<VkDescriptorSet>> animatorToDescriptorSetsMap;
-        std::unordered_map<Animator*, std::vector<int>> animatorToSkeletalUBOIndexMap;
+        std::stack<IHCBuffer*> availableSkeletalUBOs;
+        std::stack<VkDescriptorSet> availableSkeletalDescriptorSets;
+
 	};
 }
 

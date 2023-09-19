@@ -12,6 +12,9 @@ namespace IHCEngine::Component
 		Base,      
 		Transform,
 		Mesh,
+		Texture,
+		Model,
+		Animator,
 		CustomBehavior,
 		// add more component types as needed
 	};

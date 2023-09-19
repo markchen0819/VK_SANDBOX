@@ -36,13 +36,7 @@ namespace IHCEngine::Core
 
         Scene* GetScene() { return scene; }
 
-
         IHCEngine::Component::Transform transform;
-        std::vector<Component::Component*> componentList;
-
-        IHCEngine::Graphics::IHCTexture* texture = nullptr;
-        IHCEngine::Graphics::Model* model = nullptr;
-        IHCEngine::Graphics::Animator animator;
 
         // Component
 		template<class T>
@@ -65,6 +59,7 @@ namespace IHCEngine::Core
 
         std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
         std::vector<IHCEngine::Component::CustomBehavior*> customBehaviors;
+        std::vector<Component::Component*> componentList;
 
         friend class Scene;
         Scene* scene;

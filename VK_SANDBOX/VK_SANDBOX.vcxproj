@@ -152,6 +152,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Bone.cpp" />
@@ -198,8 +199,10 @@
     <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animator.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animation.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Bone.h" />
@@ -258,6 +261,7 @@
     <ClInclude Include="Engine\src\Graphics\Animation\Model.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

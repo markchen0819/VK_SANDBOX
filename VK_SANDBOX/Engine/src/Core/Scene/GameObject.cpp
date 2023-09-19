@@ -19,6 +19,4 @@ void IHCEngine::Core::GameObject::DestroyGameObject()
     // destroy child
     // destroy components
     componentList.clear();
-    texture = nullptr;
-    model = nullptr;
 }

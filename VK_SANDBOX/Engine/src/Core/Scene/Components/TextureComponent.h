@@ -14,8 +14,8 @@ namespace IHCEngine::Component
 		TextureComponent();
 		~TextureComponent() = default;
 
-		void SetMesh(Graphics::IHCTexture* mesh);
-
+		void SetTexture(Graphics::IHCTexture* texture);
+		std::vector<VkDescriptorSet>& GetDescriptorSets(); 
 
 	private:
 

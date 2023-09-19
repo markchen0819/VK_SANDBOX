@@ -1,18 +1,24 @@
 #include "../../pch.h"
 #include "RenderSystem.h"
 
+// Vulkan
 #include "../VKWraps/VKHelpers.h"
 #include "../VKWraps/IHCDevice.h"
 #include "../VKWraps/IHCPipeline.h"
 #include "../VKWraps/IHCBuffer.h"
 #include "../VKWraps/IHCMesh.h"
 #include "../VKWraps/IHCTexture.h"
-#include "../../Core/Time/Time.h"
-#include "../../Core/Scene/GameObject.h"
-#include "../../Core/Scene/Components/MeshComponent.h"
-#include "../Animation/Model.h"
 #include "../VKWraps/IHCDescriptorManager.h"
 
+// Scene
+#include "../../Core/Time/Time.h"
+#include "../../Core/Scene/GameObject.h"
+
+// Components
+#include "../../Core/Scene/Components/MeshComponent.h"
+#include "../../Core/Scene/Components/ModelComponent.h"
+#include "../../Core/Scene/Components/AnimatorComponent.h"
+#include "../Animation/Model.h"
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
     : ihcDevice{ device }, vkrenderpass{ renderPass }
@@ -152,183 +158,184 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         renderSkeletalAnimationPipeline(frameInfo);
     }
 }
-void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
-{
-    // Bind Pipeline 
-    defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
-
-    // Bind Global Descriptor Set (at set 0)  
-    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
-    // Our case:  ubo, sampler
-    vkCmdBindDescriptorSets
-    (
-        frameInfo.commandBuffer,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        defaultGraphicsPipelineLayout,
-        0,
-        1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
-        0,
-        nullptr
-    );
-
-    // Update Global Push Constants
-    // Common case:  Global time value, Viewport Information
-    // Our case: None
-
-    // For each game object
-    for (auto& g : frameInfo.gameObjects)
-    {
-        IHCEngine::Core::GameObject* gobj = g.second;
-
-        // Has mesh & texture (model in a different pipeline)
-        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
-        if (gobj->texture == nullptr) continue;
-
-        // Bind Local Descriptor Set
-        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
-        // Our case: Texture
-        std::string textureID = gobj->texture->GetName();
-        auto descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()[textureID][frameInfo.frameIndex];
-        vkCmdBindDescriptorSets
-        (
-            frameInfo.commandBuffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            defaultGraphicsPipelineLayout,
-            1,
-            1,
-            &descriptorSet,
-            0,
-            nullptr
-        );
-
-        // Update Local Push Constants (ex: Transform)
-        // Common case: Model Matrix, Material Properties, Animation Data:
-        // Our case: Model Matrix
-        SimplePushConstantData push{};
-        push.modelMatrix = gobj->transform.GetModelMatrix();
-        push.normalMatrix = glm::mat4(1);
-        push.hasBones = false;
-
-        // potential for lighting
-        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
-        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
-        vkCmdPushConstants
-        (
-            frameInfo.commandBuffer,
-            defaultGraphicsPipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-            0,
-            sizeof(SimplePushConstantData),
-            &push
-        );
-
-
-        // Bind Mesh and Draw
-        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
-        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
-
-    }
-}
-
-void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frameInfo)
-{
-    // Bind Pipeline 
-    wireframePipeline->Bind(frameInfo.commandBuffer);
-    vkCmdBindDescriptorSets
-    (
-        frameInfo.commandBuffer,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        defaultGraphicsPipelineLayout,
-        0,
-        1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
-        0,
-        nullptr
-    );
-
-    for (auto& g : frameInfo.gameObjects)
-    {
-        IHCEngine::Core::GameObject* gobj = g.second;
-
-        // temporary
-        if (gobj->model != nullptr)
-        {
-            auto meshes = gobj->model->GetMeshes();
-            for (const auto& mesh : meshes)
-            {
-                MaterialData materialdata = gobj->model->GetMaterialForMesh(mesh.first);
-
-                VkDescriptorSet_T* descriptorSet;
-                if (materialdata.diffuseMaps.size() == 0) // no texture, only color
-                {
-                    descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()
-                	["plainTexture"][frameInfo.frameIndex];
-                }
-                else
-                {
-                    std::string textureID = materialdata.diffuseMaps[0]->GetName();
-                    descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()
-                        [textureID][frameInfo.frameIndex];
-                }
-                vkCmdBindDescriptorSets
-                (
-                    frameInfo.commandBuffer,
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    defaultGraphicsPipelineLayout,
-                    1,
-                    1,
-                    &descriptorSet,
-                    0,
-                    nullptr
-                );
-
-                SimplePushConstantData push{};
-                push.modelMatrix = gobj->transform.GetModelMatrix();
-                push.normalMatrix = glm::mat4(1);
-                vkCmdPushConstants
-                (
-                    frameInfo.commandBuffer,
-                    defaultGraphicsPipelineLayout,
-                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                    0,
-                    sizeof(SimplePushConstantData),
-                    &push
-                );
-                mesh.second->Bind(frameInfo.commandBuffer);
-                mesh.second->Draw(frameInfo.commandBuffer);
-            }
-            continue;
-        }
-
-        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
-        // Not need to bind texture
-
-        // Model Matrix
-        SimplePushConstantData push{};
-        push.modelMatrix = gobj->transform.GetModelMatrix();
-        push.normalMatrix = glm::mat4(1);
-        push.hasBones = false;
-        vkCmdPushConstants
-        (
-            frameInfo.commandBuffer,
-            defaultGraphicsPipelineLayout,
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-            0,
-            sizeof(SimplePushConstantData),
-            &push
-        );
-
-        // Bind Mesh and Draw
-        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
-        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
-    }
-}
+//void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
+//{
+//    // Bind Pipeline 
+//    defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
+//
+//    // Bind Global Descriptor Set (at set 0)  
+//    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
+//    // Our case:  ubo, sampler
+//    vkCmdBindDescriptorSets
+//    (
+//        frameInfo.commandBuffer,
+//        VK_PIPELINE_BIND_POINT_GRAPHICS,
+//        defaultGraphicsPipelineLayout,
+//        0,
+//        1,
+//        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+//        0,
+//        nullptr
+//    );
+//
+//    // Update Global Push Constants
+//    // Common case:  Global time value, Viewport Information
+//    // Our case: None
+//
+//    // For each game object
+//    for (auto& g : frameInfo.gameObjects)
+//    {
+//        IHCEngine::Core::GameObject* gobj = g.second;
+//
+//        // Has mesh & texture (model in a different pipeline)
+//        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
+//        if (gobj->texture == nullptr) continue;
+//
+//        // Bind Local Descriptor Set
+//        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
+//        // Our case: Texture
+//
+//        auto descriptorSet = gobj->texture->GetDescriptorSets()[frameInfo.frameIndex];
+//
+//        vkCmdBindDescriptorSets
+//        (
+//            frameInfo.commandBuffer,
+//            VK_PIPELINE_BIND_POINT_GRAPHICS,
+//            defaultGraphicsPipelineLayout,
+//            1,
+//            1,
+//            &descriptorSet,
+//            0,
+//            nullptr
+//        );
+//
+//        // Update Local Push Constants (ex: Transform)
+//        // Common case: Model Matrix, Material Properties, Animation Data:
+//        // Our case: Model Matrix
+//        SimplePushConstantData push{};
+//        push.modelMatrix = gobj->transform.GetModelMatrix();
+//        push.normalMatrix = glm::mat4(1);
+//        push.hasBones = false;
+//
+//        // potential for lighting
+//        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
+//        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
+//        vkCmdPushConstants
+//        (
+//            frameInfo.commandBuffer,
+//            defaultGraphicsPipelineLayout,
+//            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+//            0,
+//            sizeof(SimplePushConstantData),
+//            &push
+//        );
+//
+//
+//        // Bind Mesh and Draw
+//        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+//        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
+//
+//    }
+//}
+//void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frameInfo)
+//{
+//    // Bind Pipeline 
+//    wireframePipeline->Bind(frameInfo.commandBuffer);
+//    vkCmdBindDescriptorSets
+//    (
+//        frameInfo.commandBuffer,
+//        VK_PIPELINE_BIND_POINT_GRAPHICS,
+//        defaultGraphicsPipelineLayout,
+//        0,
+//        1,
+//        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+//        0,
+//        nullptr
+//    );
+//
+//    for (auto& g : frameInfo.gameObjects)
+//    {
+//        IHCEngine::Core::GameObject* gobj = g.second;
+//
+//        // temporary
+//        if (gobj->model != nullptr)
+//        {
+//            auto meshes = gobj->model->GetMeshes();
+//            for (const auto& mesh : meshes)
+//            {
+//                MaterialData materialdata = gobj->model->GetMaterialForMesh(mesh.first);
+//
+//                VkDescriptorSet_T* descriptorSet;
+//                if (materialdata.diffuseMaps.size() == 0) // no texture, only color
+//                {
+//
+//                 //   auto descriptorSet = materialdata.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
+//                 //   descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()
+//                	//["plainTexture"][frameInfo.frameIndex];
+//                }
+//                else
+//                {
+//                    descriptorSet = materialdata.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
+//                }
+//                vkCmdBindDescriptorSets
+//                (
+//                    frameInfo.commandBuffer,
+//                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+//                    defaultGraphicsPipelineLayout,
+//                    1,
+//                    1,
+//                    &descriptorSet,
+//                    0,
+//                    nullptr
+//                );
+//
+//                SimplePushConstantData push{};
+//                push.modelMatrix = gobj->transform.GetModelMatrix();
+//                push.normalMatrix = glm::mat4(1);
+//                vkCmdPushConstants
+//                (
+//                    frameInfo.commandBuffer,
+//                    defaultGraphicsPipelineLayout,
+//                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+//                    0,
+//                    sizeof(SimplePushConstantData),
+//                    &push
+//                );
+//                mesh.second->Bind(frameInfo.commandBuffer);
+//                mesh.second->Draw(frameInfo.commandBuffer);
+//            }
+//            continue;
+//        }
+//
+//        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
+//        // Not need to bind texture
+//
+//        // Model Matrix
+//        SimplePushConstantData push{};
+//        push.modelMatrix = gobj->transform.GetModelMatrix();
+//        push.normalMatrix = glm::mat4(1);
+//        push.hasBones = false;
+//        vkCmdPushConstants
+//        (
+//            frameInfo.commandBuffer,
+//            defaultGraphicsPipelineLayout,
+//            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+//            0,
+//            sizeof(SimplePushConstantData),
+//            &push
+//        );
+//
+//        // Bind Mesh and Draw
+//        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+//        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
+//    }
+//}
 
 void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngine::Graphics::FrameInfo& frameInfo)
 {
     // Bind Pipeline 
     skeletalAnimationPipeline->Bind(frameInfo.commandBuffer);
+
     // global Descriptor Sets
     vkCmdBindDescriptorSets
     (
@@ -348,19 +355,20 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         IHCEngine::Core::GameObject* gobj = g.second;
         SimplePushConstantData push{};
 
-        // Has model
-        if (gobj->model == nullptr) continue;
+        // SkeletalAnimationPipeline Requires a model
+        if (!gobj->HasComponent<Component::ModelComponent>()) continue;
+
 
         // Has animation
-        if (gobj->animator.GetCurrentAnimation() != nullptr)
+        auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
+        if(animatorComponent==nullptr || animatorComponent->HasAnimation())
         {
             push.hasBones = true;
 
-             gobj->animator.UpdateAnimation(frameInfo.frameTime);
+            animatorComponent->UpdateAnimation(frameInfo.frameTime);
 
             // link to shader
-            auto descriptorSet2 = frameInfo.descriptorManager->GetAnimatorToDescriptorSetsMap()
-                [&(gobj->animator)][frameInfo.frameIndex];
+            auto descriptorSet2 = animatorComponent->GetDescriptorSets()[frameInfo.frameIndex];
             vkCmdBindDescriptorSets
             (
                 frameInfo.commandBuffer,
@@ -374,7 +382,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             );
 
             //// write to buffer
-            auto boneMatrices = gobj->animator.GetFinalBoneMatrices();
+            auto boneMatrices = animatorComponent->GetFinalBoneMatrices();
             SkeletalUniformBufferObject subo;
             size_t copySize = std::min(boneMatrices.size(), static_cast<size_t>(100));
             for (size_t i = 0; i < copySize; ++i)
@@ -382,10 +390,9 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
                 subo.finalBonesMatrices[i] = boneMatrices[i];
             }
 
-            int bufferIndex = frameInfo.descriptorManager->GetAnimatorToSkeletalUBOIndexMap()
-                [&(gobj->animator)][frameInfo.frameIndex];
-            frameInfo.descriptorManager->GetSkeletalUBOByIndex(bufferIndex)->WriteToBuffer(&subo);
-            frameInfo.descriptorManager->GetSkeletalUBOByIndex(bufferIndex)->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+            auto buffersforwriting = animatorComponent->GetBuffers()[frameInfo.frameIndex];
+            buffersforwriting->WriteToBuffer(&subo);
+            buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
         }
         else
@@ -406,21 +413,23 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         //    nullptr
         //);
 
-        auto meshes = gobj->model->GetMeshes();
-        for (const auto& mesh : meshes)
+        auto gobjModel = gobj->GetComponent<Component::ModelComponent>();
+        auto modelMeshes = gobjModel->GetMeshes();
+        for (const auto& mesh : modelMeshes)
         {
-            MaterialData materialdata = gobj->model->GetMaterialForMesh(mesh.first);
+            MaterialData materialDataForMesh = gobjModel->GetMaterialForMesh(mesh.first);
 
             // Get texture descriptorSe
             VkDescriptorSet_T* descriptorSet;
-            if (materialdata.diffuseMaps.size() == 0) // no texture, only color
+            if (materialDataForMesh.diffuseMaps.size() == 0) // no texture, only color
             {
-                descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()["plainTexture"][frameInfo.frameIndex];
+               // descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()["plainTexture"][frameInfo.frameIndex];
             }
             else
             {
-                std::string textureID = materialdata.diffuseMaps[0]->GetName();
-                descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()[textureID][frameInfo.frameIndex];
+                descriptorSet = materialDataForMesh.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
+                std::string textureID = materialDataForMesh.diffuseMaps[0]->GetName();
+                //descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()[textureID][frameInfo.frameIndex];
             }
 
             // local Descriptor Sets

@@ -7,6 +7,7 @@
 #include "IHCDevice.h"
 #include "IHCTexture.h"
 #include "VKHelpers.h"
+#include "../Animation/Animator.h"
 
 namespace IHCEngine::Graphics
 {
@@ -131,6 +132,10 @@ namespace IHCEngine::Graphics
 				);
 			skeletalUBOs[i]->Map(); // persistent mapping
 		}
+		for (const auto& uboUniquePtr : skeletalUBOs)
+		{
+			availableSkeletalUBOs.push(uboUniquePtr.get());
+		}
 	}
 
 	void IHCDescriptorManager::allocateGlobalDescriptorSets()
@@ -150,10 +155,11 @@ namespace IHCEngine::Graphics
 		auto assetName = texture->GetName();
 
 		// check if already allocate descriptorsets for the texture;
-		if (textureToDescriptorSetsMap.find(assetName) != textureToDescriptorSetsMap.end())
+		if(!texture->GetDescriptorSets().empty())
 		{
 			assert("Loading Duplicated Texture into memory, abort");
 		}
+
 		// allocate MAX_FRAMES_IN_FLIGHT descriptorsets for 1 texture
 		std::vector<VkDescriptorSet> descriptorSetsForTexture;
 		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -171,49 +177,53 @@ namespace IHCEngine::Graphics
 			imageInfo.imageView = texture->GetTextureImageView();
 			imageInfo.sampler = texture->GetTextureSampler();
 
+
+			int binding = 0;
+			if(texture->GetTextureType() == TextureType::DIFFUSE ||
+				texture->GetTextureType() == TextureType::NOTSPECIFIED)
+			{
+				binding = 0;
+			}
+			// else if() add other types....
+
 			IHCDescriptorWriter(*textureDescriptorSetLayout, *localDescriptorPool)
-				.WriteImage(0, &imageInfo)// Sampler
+				.WriteImage(binding, &imageInfo)// Sampler
 				.Build(descriptor);
 
 			descriptorSetsForTexture.push_back(descriptor);
 		}
-		// Add the collection of descriptor sets to the map.
-		textureToDescriptorSetsMap[assetName] = descriptorSetsForTexture;
+		texture->SetDescriptorSets(descriptorSetsForTexture);
 	}
-	void IHCDescriptorManager::DeallocateTextureDescriptorSetForTexture(std::string assetName)
+	void IHCDescriptorManager::DeallocateTextureDescriptorSetForTexture(IHCTexture* texture)
 	{
 		// All submitted commands that refer to sampler must have completed execution
 		vkDeviceWaitIdle(ihcDevice.GetDevice());
-		// Check if the textureID exists in the map.
-		auto it = textureToDescriptorSetsMap.find(assetName);
-		if (it == textureToDescriptorSetsMap.end())
+
+		const std::vector<VkDescriptorSet>& textureDescriptorSets = texture->GetDescriptorSets();
+
+		if (textureDescriptorSets.empty())
 		{
-			std::cerr << "Texture not found in descriptor map." << std::endl;
-			return;
+			assert("Clearing a texture descriptor sets were not allocated, shouldnt be here ");
 		}
-		// Push all its descriptor sets as available.
-		for (VkDescriptorSet descSet : it->second)
+
+		// Push back each descriptor set to the available pool 
+		for (VkDescriptorSet descriptor : textureDescriptorSets)
 		{
-			availableTextureDescriptorSets.push(descSet);
+			availableTextureDescriptorSets.push(descriptor);
 		}
-		// Remove the textureID from the map.
-		textureToDescriptorSetsMap.erase(it);
+		texture->SetDescriptorSets({});
 	}
 
 	void IHCDescriptorManager::AllocateSkeletalDescriptorSetForAnimator(Animator* animator)
 	{
 		// check if already allocate descriptorsets for the texture;
-		if (animatorToDescriptorSetsMap.find(animator) != animatorToDescriptorSetsMap.end())
+		if (!animator->GetDescriptorSets().empty())
 		{
 			assert("Duplicated animator");
 		}
-		if( skeletalUBOIndex >= SKELETAL_COUNT_LIMIT* IHCSwapChain::MAX_FRAMES_IN_FLIGHT)
-		{
-			assert("Using too many skeletalUBOs! Consider adding pool size");
-		}
 		// allocate MAX_FRAMES_IN_FLIGHT descriptorsets for 1 animator
 		std::vector<VkDescriptorSet> descriptorSetsForAnimator;
-		std::vector<int> skeletalUBOsForAnimator;
+		std::vector<IHCBuffer*> skeletalUBOsForAnimator;
 
 		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
@@ -224,39 +234,53 @@ namespace IHCEngine::Graphics
 			VkDescriptorSet descriptor = availableSkeletalDescriptorSets.top();
 			availableSkeletalDescriptorSets.pop();
 
-			auto bufferInfo =skeletalUBOs[skeletalUBOIndex]->GetDescriptorInfo();
+			if (availableSkeletalUBOs.empty())
+			{
+				assert("No buffers for allocation. Check if exceed poolsize");
+			}
+			IHCBuffer* buffer = availableSkeletalUBOs.top();
+			availableSkeletalUBOs.pop();
+
+
+			auto bufferInfo = buffer->GetDescriptorInfo();
 			IHCDescriptorWriter(*skeletalDescriptorSetLayout, *localDescriptorPool)
 				.WriteBuffer(0, &bufferInfo)
 				.Build(descriptor);
 
 			descriptorSetsForAnimator.push_back(descriptor);
-			skeletalUBOsForAnimator.push_back(skeletalUBOIndex);
-			++skeletalUBOIndex;
+			skeletalUBOsForAnimator.push_back(buffer);
 		}
-		// Add the collection of descriptor sets to the map.
-		animatorToDescriptorSetsMap[animator] = descriptorSetsForAnimator;
-		animatorToSkeletalUBOIndexMap[animator] = skeletalUBOsForAnimator;
+
+		animator->SetDescriptorSets(descriptorSetsForAnimator);
+		animator->SetBuffers(skeletalUBOsForAnimator);
 	}
 	void IHCDescriptorManager::DeallocateSkeletalDescriptorSetForAnimator(Animator* animator)
 	{
 		// All submitted commands that refer to sampler must have completed execution
 		vkDeviceWaitIdle(ihcDevice.GetDevice());
-		// Check if the animator exists in the map.
-		auto it = animatorToDescriptorSetsMap.find(animator);
-		if (it == animatorToDescriptorSetsMap.end())
-		{
-			std::cerr << "Animator not found in descriptor map." << std::endl;
-			return;
-		}
-		// Push all its descriptor sets as available.
-		for (VkDescriptorSet descSet : it->second)
-		{
-			availableSkeletalDescriptorSets.push(descSet);
-		}
-		// Remove the animator  from the map.
-		animatorToDescriptorSetsMap.erase(it);
 
-		// PROBLEM HERE!!!!!!!
-		// how to clean animatorToSkeletalUBOIndexMap?
+		const std::vector<VkDescriptorSet>& animatorDescriptorSets = animator->GetDescriptorSets();
+		if (animatorDescriptorSets.empty())
+		{
+			assert("Clearing a skeletal descriptor sets were not allocated, shouldnt be here ");
+		}
+		// Push back each descriptor set to the available pool 
+		for (VkDescriptorSet descriptor : animatorDescriptorSets)
+		{
+			availableSkeletalDescriptorSets.push(descriptor);
+		}
+		animator->SetDescriptorSets({});
+
+		const std::vector<IHCBuffer*>& animatorBuffers = animator->GetBuffers();
+		if (animatorBuffers.empty())
+		{
+			assert("Clearing a skeletal buffers were not allocated, shouldnt be here ");
+		}
+		// Push back each buffer  to the available pool 
+		for (IHCBuffer* buffer : animatorBuffers)
+		{
+			availableSkeletalUBOs.push(buffer);
+		}
+		animator->SetBuffers({});
 	}
 }
