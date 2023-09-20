@@ -16,14 +16,18 @@
 
 // Components
 #include "../../Core/Scene/Components/MeshComponent.h"
+#include "../../Core/Scene/Components/TextureComponent.h"
 #include "../../Core/Scene/Components/ModelComponent.h"
 #include "../../Core/Scene/Components/AnimatorComponent.h"
-#include "../Animation/Model.h"
+#include "../../Core/Scene/Components/PipelineComponent.h"
 
-IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
-    : ihcDevice{ device }, vkrenderpass{ renderPass }
+IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, IHCDescriptorManager* descriptorManager)
+    :   ihcDevice{ device },
+		vkrenderpass{ renderPass },
+		descriptorManager{ descriptorManager }
 {
-    createDefaultPipelineLayout(descriptorSetLayouts);
+    auto layout = descriptorManager->GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
+    createDefaultPipelineLayout(layout);
     createDefaultPipeline(vkrenderpass);
 
  //   // example of DefaultPipeline using custom pipeline creation
@@ -44,27 +48,49 @@ IHCEngine::Graphics::RenderSystem::~RenderSystem()
 }
 void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines()
 {
-    // Wire frame 
+    // Skeletal animation pipeline
+    PipelineConfigInfo skeletalAnimationPipelineConfig{};
+    // In GLSL, our case
+	// globalDescriptorSetLayout set 0, Binding0, UNIFORM_BUFFER
+	// textureDescriptorSetLayout set 1, Binding0, COMBINED_IMAGE_SAMPLER
+	// skeletalDescriptorSetLayout set 2, Binding0, UNIFORM_BUFFER
+	std::vector<VkDescriptorSetLayout> layouts {
+        descriptorManager->GetGlobalDescriptorSetLayouts(),
+        descriptorManager->GetTextureDescriptorSetLayouts(),
+        descriptorManager->GetSkeletalDescriptorSetLayouts(),
+    };
+    IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(skeletalAnimationPipelineConfig, ihcDevice);
+    createCustomPipelineLayout(&skeletalPipelineLayout, layouts);
+    // config info
+	skeletalAnimationPipelineConfig.renderPass = vkrenderpass;
+    skeletalAnimationPipelineConfig.pipelineLayout = skeletalPipelineLayout; // use default
+    skeletalAnimationPipeline = createCustomPipeline(
+        skeletalAnimationPipelineConfig,
+        "Engine/assets/shaders/skeletalvert.spv",
+        "Engine/assets/shaders/skeletalfrag.spv");
+
+    // Wire frame
+    // use same layout as skeletal
+    createCustomPipelineLayout(&wireframePipelineLayout, layouts);
+    // config info
     PipelineConfigInfo wireframePipelineConfig{};
     IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(wireframePipelineConfig, ihcDevice);
     wireframePipelineConfig.renderPass = vkrenderpass;
-    wireframePipelineConfig.pipelineLayout = defaultGraphicsPipelineLayout; // use default
+    wireframePipelineConfig.pipelineLayout = wireframePipelineLayout; // use default
     wireframePipelineConfig.rasterizer.polygonMode = VK_POLYGON_MODE_LINE; // This is the crucial line for wireframe mode.
     wireframePipelineConfig.rasterizer.lineWidth = 1.0f; // You can adjust this as needed
     wireframePipelineConfig.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // Or whatever culling mode you prefer
-    wireframePipeline = createCustomPipeline(wireframePipelineConfig, "Engine/assets/shaders/vert.spv", "Engine/assets/shaders/frag.spv");
 
-    // Skeletal animation pipeline
-    PipelineConfigInfo skeletalAnimationPipelineConfig{};
-    IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(skeletalAnimationPipelineConfig, ihcDevice);
-    skeletalAnimationPipelineConfig.renderPass = vkrenderpass;
-    skeletalAnimationPipelineConfig.pipelineLayout = defaultGraphicsPipelineLayout; // use default
-    skeletalAnimationPipeline = createCustomPipeline(skeletalAnimationPipelineConfig, "Engine/assets/shaders/vert.spv", "Engine/assets/shaders/frag.spv");
+	wireframePipeline = createCustomPipeline(wireframePipelineConfig,
+        "Engine/assets/shaders/skeletalvert.spv",
+        "Engine/assets/shaders/skeletalfrag.spv");
 
 }
 void IHCEngine::Graphics::RenderSystem::destroyCustomPipelineLayouts()
 {
     //vkDestroyPipelineLayout(ihcDevice.GetDevice(), PLACEHOLDER, nullptr);
+    vkDestroyPipelineLayout(ihcDevice.GetDevice(), skeletalPipelineLayout, nullptr);
+    vkDestroyPipelineLayout(ihcDevice.GetDevice(), wireframePipelineLayout, nullptr);
 }
 #pragma region PipelineLayout (for shaders interface) & Pipeline
 void IHCEngine::Graphics::RenderSystem::createDefaultPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
@@ -150,186 +176,237 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
     if (wireframeEnabled)
     {
-        //renderWireframePipeline(frameInfo);
+        renderWireframePipeline(frameInfo);
     }
     else
     {
-        //renderDefaultGraphicsPipeline(frameInfo);
+        renderDefaultGraphicsPipeline(frameInfo);
         renderSkeletalAnimationPipeline(frameInfo);
     }
 }
-//void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
-//{
-//    // Bind Pipeline 
-//    defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
-//
-//    // Bind Global Descriptor Set (at set 0)  
-//    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
-//    // Our case:  ubo, sampler
-//    vkCmdBindDescriptorSets
-//    (
-//        frameInfo.commandBuffer,
-//        VK_PIPELINE_BIND_POINT_GRAPHICS,
-//        defaultGraphicsPipelineLayout,
-//        0,
-//        1,
-//        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
-//        0,
-//        nullptr
-//    );
-//
-//    // Update Global Push Constants
-//    // Common case:  Global time value, Viewport Information
-//    // Our case: None
-//
-//    // For each game object
-//    for (auto& g : frameInfo.gameObjects)
-//    {
-//        IHCEngine::Core::GameObject* gobj = g.second;
-//
-//        // Has mesh & texture (model in a different pipeline)
-//        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
-//        if (gobj->texture == nullptr) continue;
-//
-//        // Bind Local Descriptor Set
-//        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
-//        // Our case: Texture
-//
-//        auto descriptorSet = gobj->texture->GetDescriptorSets()[frameInfo.frameIndex];
-//
-//        vkCmdBindDescriptorSets
-//        (
-//            frameInfo.commandBuffer,
-//            VK_PIPELINE_BIND_POINT_GRAPHICS,
-//            defaultGraphicsPipelineLayout,
-//            1,
-//            1,
-//            &descriptorSet,
-//            0,
-//            nullptr
-//        );
-//
-//        // Update Local Push Constants (ex: Transform)
-//        // Common case: Model Matrix, Material Properties, Animation Data:
-//        // Our case: Model Matrix
-//        SimplePushConstantData push{};
-//        push.modelMatrix = gobj->transform.GetModelMatrix();
-//        push.normalMatrix = glm::mat4(1);
-//        push.hasBones = false;
-//
-//        // potential for lighting
-//        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
-//        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
-//        vkCmdPushConstants
-//        (
-//            frameInfo.commandBuffer,
-//            defaultGraphicsPipelineLayout,
-//            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-//            0,
-//            sizeof(SimplePushConstantData),
-//            &push
-//        );
-//
-//
-//        // Bind Mesh and Draw
-//        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
-//        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
-//
-//    }
-//}
-//void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frameInfo)
-//{
-//    // Bind Pipeline 
-//    wireframePipeline->Bind(frameInfo.commandBuffer);
-//    vkCmdBindDescriptorSets
-//    (
-//        frameInfo.commandBuffer,
-//        VK_PIPELINE_BIND_POINT_GRAPHICS,
-//        defaultGraphicsPipelineLayout,
-//        0,
-//        1,
-//        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
-//        0,
-//        nullptr
-//    );
-//
-//    for (auto& g : frameInfo.gameObjects)
-//    {
-//        IHCEngine::Core::GameObject* gobj = g.second;
-//
-//        // temporary
-//        if (gobj->model != nullptr)
-//        {
-//            auto meshes = gobj->model->GetMeshes();
-//            for (const auto& mesh : meshes)
-//            {
-//                MaterialData materialdata = gobj->model->GetMaterialForMesh(mesh.first);
-//
-//                VkDescriptorSet_T* descriptorSet;
-//                if (materialdata.diffuseMaps.size() == 0) // no texture, only color
-//                {
-//
-//                 //   auto descriptorSet = materialdata.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
-//                 //   descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()
-//                	//["plainTexture"][frameInfo.frameIndex];
-//                }
-//                else
-//                {
-//                    descriptorSet = materialdata.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
-//                }
-//                vkCmdBindDescriptorSets
-//                (
-//                    frameInfo.commandBuffer,
-//                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-//                    defaultGraphicsPipelineLayout,
-//                    1,
-//                    1,
-//                    &descriptorSet,
-//                    0,
-//                    nullptr
-//                );
-//
-//                SimplePushConstantData push{};
-//                push.modelMatrix = gobj->transform.GetModelMatrix();
-//                push.normalMatrix = glm::mat4(1);
-//                vkCmdPushConstants
-//                (
-//                    frameInfo.commandBuffer,
-//                    defaultGraphicsPipelineLayout,
-//                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-//                    0,
-//                    sizeof(SimplePushConstantData),
-//                    &push
-//                );
-//                mesh.second->Bind(frameInfo.commandBuffer);
-//                mesh.second->Draw(frameInfo.commandBuffer);
-//            }
-//            continue;
-//        }
-//
-//        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
-//        // Not need to bind texture
-//
-//        // Model Matrix
-//        SimplePushConstantData push{};
-//        push.modelMatrix = gobj->transform.GetModelMatrix();
-//        push.normalMatrix = glm::mat4(1);
-//        push.hasBones = false;
-//        vkCmdPushConstants
-//        (
-//            frameInfo.commandBuffer,
-//            defaultGraphicsPipelineLayout,
-//            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-//            0,
-//            sizeof(SimplePushConstantData),
-//            &push
-//        );
-//
-//        // Bind Mesh and Draw
-//        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
-//        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
-//    }
-//}
+void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
+{
+    // Bind Pipeline 
+    defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
+
+    // Bind Global Descriptor Set (at set 0)  
+    // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
+    // Our case:  ubo, sampler
+    vkCmdBindDescriptorSets
+    (
+        frameInfo.commandBuffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        defaultGraphicsPipelineLayout,
+        0,
+        1,
+        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+        0,
+        nullptr
+    );
+
+    // Update Global Push Constants
+    // Common case:  Global time value, Viewport Information
+    // Our case: None
+
+    // For each game object
+    for (auto& g : frameInfo.gameObjects)
+    {
+        IHCEngine::Core::GameObject* gobj = g.second;
+
+        // Only render the ones specifying this pipeline
+        auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
+        if (pipelineComponent == nullptr ||
+            pipelineComponent->GetPipelineType() !=
+            Component::PipelineType::DEFAULT) continue;
+
+        // Has mesh & texture (model in a different pipeline)
+        if (!gobj->HasComponent<Component::MeshComponent>()) continue;
+        if (!gobj->HasComponent<Component::TextureComponent>()) continue;
+
+        // Bind Local Descriptor Set
+        // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
+        // Our case: Texture
+
+        auto descriptorSet = gobj->GetComponent<Component::TextureComponent>()->GetDescriptorSets()[frameInfo.frameIndex];
+        vkCmdBindDescriptorSets
+        (
+            frameInfo.commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            defaultGraphicsPipelineLayout,
+            1,
+            1,
+            &descriptorSet,
+            0,
+            nullptr
+        );
+
+        // Update Local Push Constants (ex: Transform)
+        // Common case: Model Matrix, Material Properties, Animation Data:
+        // Our case: Model Matrix
+        SimplePushConstantData push{};
+        push.modelMatrix = gobj->transform.GetModelMatrix();
+        push.normalMatrix = glm::mat4(1);
+        push.hasBones = false;
+
+        // potential for lighting
+        /*glm::mat4 modelViewMatrix = camera.GetViewMatrix() * transform.GetWorldMatrix();
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelViewMatrix)));*/
+        vkCmdPushConstants
+        (
+            frameInfo.commandBuffer,
+            defaultGraphicsPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(SimplePushConstantData),
+            &push
+        );
+
+        // Bind Mesh and Draw
+        gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+        gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
+
+    }
+}
+void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frameInfo)
+{
+    // Bind Pipeline 
+    wireframePipeline->Bind(frameInfo.commandBuffer);
+    vkCmdBindDescriptorSets
+    (
+        frameInfo.commandBuffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        wireframePipelineLayout,
+        0,
+        1,
+        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+        0,
+        nullptr
+    );
+
+    for (auto& g : frameInfo.gameObjects)
+    {
+        IHCEngine::Core::GameObject* gobj = g.second;
+        SimplePushConstantData push{};
+
+
+        if (gobj->HasComponent<Component::ModelComponent>())
+        {
+            // Has animation
+            auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
+            if (animatorComponent == nullptr || animatorComponent->HasAnimation())
+            {
+                push.hasBones = true;
+
+                animatorComponent->UpdateAnimation(frameInfo.frameTime);
+
+                // link to shader
+                auto descriptorSet2 = animatorComponent->GetDescriptorSets()[frameInfo.frameIndex];
+                vkCmdBindDescriptorSets
+                (
+                    frameInfo.commandBuffer,
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    wireframePipelineLayout,
+                    2,
+                    1,
+                    &descriptorSet2,
+                    0,
+                    nullptr
+                );
+
+                //// write to buffer
+                auto boneMatrices = animatorComponent->GetFinalBoneMatrices();
+                SkeletalUniformBufferObject subo;
+                size_t copySize = std::min(boneMatrices.size(), static_cast<size_t>(100));
+                for (size_t i = 0; i < copySize; ++i)
+                {
+                    subo.finalBonesMatrices[i] = boneMatrices[i];
+                }
+
+                auto buffersforwriting = animatorComponent->GetBuffers()[frameInfo.frameIndex];
+                buffersforwriting->WriteToBuffer(&subo);
+                buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+
+            }
+            else
+            {
+                push.hasBones = false;
+            }
+
+            auto gobjModel = gobj->GetComponent<Component::ModelComponent>();
+            auto modelMeshes = gobjModel->GetMeshes();
+            for (const auto& mesh : modelMeshes)
+            {
+                MaterialData materialDataForMesh = gobjModel->GetMaterialForMesh(mesh.first);
+
+                // Get texture descriptorSe
+                VkDescriptorSet_T* descriptorSet;
+                if (materialDataForMesh.diffuseMaps.size() == 0) // no texture, only color
+                {
+                    // descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()["plainTexture"][frameInfo.frameIndex];
+                }
+                else
+                {
+                    descriptorSet = materialDataForMesh.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
+                    std::string textureID = materialDataForMesh.diffuseMaps[0]->GetName();
+                    //descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()[textureID][frameInfo.frameIndex];
+                }
+
+                // local Descriptor Sets
+                vkCmdBindDescriptorSets
+                (
+                    frameInfo.commandBuffer,
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    wireframePipelineLayout,
+                    1,
+                    1,
+                    &descriptorSet,
+                    0,
+                    nullptr
+                );
+
+                push.modelMatrix = gobj->transform.GetModelMatrix();
+                push.normalMatrix = glm::mat4(1);
+
+                vkCmdPushConstants
+                (
+                    frameInfo.commandBuffer,
+                    wireframePipelineLayout,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    0,
+                    sizeof(SimplePushConstantData),
+                    &push
+                );
+                mesh.second->Bind(frameInfo.commandBuffer);
+                mesh.second->Draw(frameInfo.commandBuffer);
+            }
+
+        }
+        else if (gobj->HasComponent<Component::MeshComponent>()
+            && gobj->HasComponent<Component::TextureComponent>())
+        {
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            push.hasBones = false;
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                wireframePipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
+            // Bind Mesh and Draw
+            gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
+            gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
+        }
+        else
+        {
+            continue;
+        }
+
+    }
+}
 
 void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngine::Graphics::FrameInfo& frameInfo)
 {
@@ -341,7 +418,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
     (
         frameInfo.commandBuffer,
         VK_PIPELINE_BIND_POINT_GRAPHICS,
-        defaultGraphicsPipelineLayout, // to:do change
+        skeletalPipelineLayout,
         0,
         1,
         &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
@@ -353,11 +430,17 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
     for (auto& g : frameInfo.gameObjects)
     {
         IHCEngine::Core::GameObject* gobj = g.second;
+
+        // Only render the ones specifying this pipeline
+        auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
+        if (pipelineComponent==nullptr ||
+            pipelineComponent->GetPipelineType()!= 
+            Component::PipelineType::SKELETAL) continue;
+
         SimplePushConstantData push{};
 
         // SkeletalAnimationPipeline Requires a model
         if (!gobj->HasComponent<Component::ModelComponent>()) continue;
-
 
         // Has animation
         auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
@@ -373,7 +456,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             (
                 frameInfo.commandBuffer,
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                defaultGraphicsPipelineLayout, // to:do change
+                skeletalPipelineLayout,
                 2,
                 1,
                 &descriptorSet2,
@@ -399,19 +482,6 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         {
             push.hasBones = false;
         }
-        //auto descriptorSet2 = frameInfo.descriptorManager->GetAnimatorToDescriptorSetsMap()
-        //    [&(gobj->animator)][frameInfo.frameIndex];
-        //vkCmdBindDescriptorSets
-        //(
-        //    frameInfo.commandBuffer,
-        //    VK_PIPELINE_BIND_POINT_GRAPHICS,
-        //    defaultGraphicsPipelineLayout, // to:do change
-        //    2,
-        //    1,
-        //    &descriptorSet2,
-        //    0,
-        //    nullptr
-        //);
 
         auto gobjModel = gobj->GetComponent<Component::ModelComponent>();
         auto modelMeshes = gobjModel->GetMeshes();
@@ -437,7 +507,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             (
                 frameInfo.commandBuffer,
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
-                defaultGraphicsPipelineLayout, // to:do change
+                skeletalPipelineLayout,
                 1,
                 1,
                 &descriptorSet,
@@ -451,7 +521,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             vkCmdPushConstants
             (
                 frameInfo.commandBuffer,
-                defaultGraphicsPipelineLayout,
+                skeletalPipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
                 sizeof(SimplePushConstantData),

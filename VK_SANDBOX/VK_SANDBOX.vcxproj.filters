@@ -150,6 +150,9 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -333,6 +336,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

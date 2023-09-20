@@ -26,11 +26,9 @@ namespace IHCEngine::Graphics
 		// In GLSL, our case
 		// globalDescriptorSetLayout set 0, Binding0, UNIFORM_BUFFER
 		// textureDescriptorSetLayout set 1, Binding0, COMBINED_IMAGE_SAMPLER
-		// skeletalDescriptorSetLayout set 2, Binding0, UNIFORM_BUFFER
 		std::vector<VkDescriptorSetLayout> layouts {
 			globalDescriptorSetLayout->GetDescriptorSetLayout(),
 			textureDescriptorSetLayout->GetDescriptorSetLayout(),
-			skeletalDescriptorSetLayout->GetDescriptorSetLayout(),
 		};
 		return layouts;
 	}

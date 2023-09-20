@@ -2,6 +2,7 @@
 // Forward declaration
 namespace IHCEngine::Graphics
 {
+	class IHCDescriptorManager;
 	struct FrameInfo;
     class IHCDevice;
     class IHCPipeline;
@@ -14,7 +15,7 @@ namespace IHCEngine::Graphics
     {
     public:
 
-        RenderSystem(IHCDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+        RenderSystem(IHCDevice& device, VkRenderPass renderPass, IHCDescriptorManager* descriptorManager);
         ~RenderSystem();
 
         // no duplication
@@ -32,6 +33,8 @@ namespace IHCEngine::Graphics
 
         IHCEngine::Graphics::IHCDevice& ihcDevice;
         VkRenderPass vkrenderpass;
+        IHCDescriptorManager* descriptorManager = nullptr;
+
         VkPipelineLayout defaultGraphicsPipelineLayout;
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> defaultGraphicsPipeline; // basic shading
 
@@ -46,10 +49,11 @@ namespace IHCEngine::Graphics
         bool wireframeEnabled = false;
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> wireframePipeline; // wireframe
         void renderWireframePipeline(FrameInfo& frameInfo);
-
+        VkPipelineLayout wireframePipelineLayout;
 
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> skeletalAnimationPipeline; 
         void renderSkeletalAnimationPipeline(FrameInfo& frameInfo);
+        VkPipelineLayout skeletalPipelineLayout;
 
         // Each system can have one to many pipelines
 		// Example: 

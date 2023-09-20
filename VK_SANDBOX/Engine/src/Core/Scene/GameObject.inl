@@ -54,7 +54,7 @@ namespace IHCEngine::Core
 				return static_cast<T*>(component.get());
 			}
 		}
-		std::cout << "Null Component: " << typeid(T).name() << std::endl;
+		//std::cout << "Null Component: " << typeid(T).name() << std::endl;
 		return nullptr;
 	}
 

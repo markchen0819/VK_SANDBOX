@@ -200,6 +200,7 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
@@ -262,6 +263,7 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

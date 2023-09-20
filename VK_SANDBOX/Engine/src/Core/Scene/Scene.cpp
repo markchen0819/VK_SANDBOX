@@ -73,6 +73,11 @@ void IHCEngine::Core::Scene::RemoveGameObject(GameObject& gameObject)
 	HierachyChanged();
 }
 
+void IHCEngine::Core::Scene::RemoveAllGameObject()
+{
+	gameObjectsMap.clear();
+}
+
 IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByName(const std::string& name)
 {
 	for (auto& pair : gameObjectsMap)

@@ -11,6 +11,7 @@ namespace IHCEngine::Component
 	{
 		Base,      
 		Transform,
+		Pipeline,
 		Mesh,
 		Texture,
 		Model,

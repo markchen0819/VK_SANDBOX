@@ -1,4 +1,6 @@
 #pragma once
+#include "IHCDescriptors.h"
+
 namespace IHCEngine::Graphics
 {
 	class Animator;
@@ -20,6 +22,11 @@ namespace IHCEngine::Graphics
         // Get Layouts for pipeline creation
         std::vector<VkDescriptorSetLayout> GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
         // Add GetCustomDescriptorSetLayouts for different pipeline creation
+        VkDescriptorSetLayout GetGlobalDescriptorSetLayouts() { return globalDescriptorSetLayout->GetDescriptorSetLayout(); }
+        VkDescriptorSetLayout GetTextureDescriptorSetLayouts() { return textureDescriptorSetLayout->GetDescriptorSetLayout(); }
+        VkDescriptorSetLayout GetSkeletalDescriptorSetLayouts() { return skeletalDescriptorSetLayout->GetDescriptorSetLayout(); }
+
+
 
         // Get Resources tp write into and store
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>>& GetGlobalUBOs() { return globalUBOs; }

@@ -60,13 +60,12 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
 }
 void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 {
-    auto layouts = descriptorManager->GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
     // Use above to create pipeline layout, also create the pipeline afterwards
     basicRenderSystem = std::make_unique<IHCEngine::Graphics::RenderSystem>
         (
             *ihcDevice,
             renderer->GetSwapChainRenderPass(),
-            layouts 
+            descriptorManager.get()
         );
 }
 void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
