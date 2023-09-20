@@ -27,18 +27,18 @@ namespace IHCEngine::Graphics
         VkDescriptorSetLayout GetSkeletalDescriptorSetLayouts() { return skeletalDescriptorSetLayout->GetDescriptorSetLayout(); }
 
 
-
-        // Get Resources tp write into and store
+        // Get Resources to write into and store
         std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>>& GetGlobalUBOs() { return globalUBOs; }
-
         // Get DescriptorSets to bind to pipeline slot for access (set up shader binding)
         std::vector<VkDescriptorSet> GetGlobalDescriptorSets() { return globalDescriptorSets; }
 
         void AllocateTextureDescriptorSetForTexture(IHCTexture* texture);
         void DeallocateTextureDescriptorSetForTexture(IHCTexture* texture);
-
         void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
+
+        VkDescriptorSet GetDummySkeletalDescriptorSet() { return dummySkeletalDescriptorSet; }
+        IHCBuffer* GetDummySkeletalUBO() { return dummySkeletalUBO.get(); }
 
 	private:
         void createDescriptorSetLayouts();
@@ -80,7 +80,8 @@ namespace IHCEngine::Graphics
         std::vector<VkDescriptorSet> skeletalDescriptorSets;
         std::stack<IHCBuffer*> availableSkeletalUBOs;
         std::stack<VkDescriptorSet> availableSkeletalDescriptorSets;
-
+        std::unique_ptr<IHCBuffer> dummySkeletalUBO; // If animation not used, we still need one for validation errors
+        VkDescriptorSet dummySkeletalDescriptorSet;
 	};
 }
 

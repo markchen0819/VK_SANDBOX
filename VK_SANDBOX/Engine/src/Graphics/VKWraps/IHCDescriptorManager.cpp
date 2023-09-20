@@ -115,6 +115,7 @@ namespace IHCEngine::Graphics
 
 	void IHCDescriptorManager::createCustomUniformBuffers()
 	{
+		// Skeletal
 		skeletalUBOs.resize(SKELETAL_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < skeletalUBOs.size(); i++)
 		{
@@ -134,6 +135,24 @@ namespace IHCEngine::Graphics
 		{
 			availableSkeletalUBOs.push(uboUniquePtr.get());
 		}
+
+		// Skeletal Dummy
+		dummySkeletalUBO = std::make_unique<IHCBuffer>
+			(
+				ihcDevice,
+				sizeof(SkeletalUniformBufferObject),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+				//| VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+				// we can uncomment this as we're not using minOffsetAlignment for now
+			);
+		dummySkeletalUBO->Map();
+
+		auto bufferInfo = dummySkeletalUBO->GetDescriptorInfo();
+		IHCDescriptorWriter(*skeletalDescriptorSetLayout, *localDescriptorPool)
+			.WriteBuffer(0, &bufferInfo)
+			.Build(dummySkeletalDescriptorSet);
 	}
 
 	void IHCDescriptorManager::allocateGlobalDescriptorSets()

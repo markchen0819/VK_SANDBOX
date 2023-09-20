@@ -4,8 +4,6 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
-  bool hasBones;
-
 } push;
 
 
@@ -22,6 +20,7 @@ const int MAX_BONE_INFLUENCE = 4;
 layout(set = 2, binding = 0) uniform SkeletalUniformBufferObject
 {
     mat4 finalBonesMatrices[100];
+    bool hasAnimation;   
 
 } skeletalubo;
 
@@ -39,8 +38,7 @@ layout(location = 1) out vec2 fragTexCoord;
 
 void main() 
 {
-
-    if(push.hasBones)
+    if(skeletalubo.hasAnimation)
     {
          vec4 totalPosition = vec4(0.0f);
          for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
@@ -68,7 +66,6 @@ void main()
         fragColor = inColor;
         fragTexCoord = inTexCoord;
     }
-
 
 }
 
