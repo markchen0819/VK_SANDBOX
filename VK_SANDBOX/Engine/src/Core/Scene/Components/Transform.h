@@ -36,8 +36,8 @@ namespace IHCEngine::Component
 		glm::vec3 GetUp();
 
 		glm::vec3 GetPosition() const { return position; };
-		glm::vec3 GetRotation() const { return rotation; }; // Euler angles
-		glm::quat GetRotationInQuaternion() const { return glm::quat(glm::radians(rotation)); }
+		glm::vec3 GetRotation() const{ return glm::degrees(glm::eulerAngles(rotation));} // Euler angles
+		glm::quat GetRotationInQuaternion() const { return rotation; }
 		glm::vec3 GetScale() const { return scale; };
 		void SetPosition(glm::vec3 position);
 		void SetRotation(glm::vec3 angles);
@@ -78,17 +78,14 @@ namespace IHCEngine::Component
 		Transform* parent = nullptr;
 		std::vector<Transform*> children;
 
-		// Globals are calculated
 		glm::mat4 worldModelMatrix; 
-
-		// Locals are where values are stored/ set
-		glm::mat3 normalMatrix;
-		glm::vec3 position;
-		glm::vec3 rotation; // store in degrees instead of radians
-		glm::vec3 scale;
 		glm::mat4 localModelMatrix;
+		glm::mat3 normalMatrix;
 
-		glm::quat rotationQuaternion;
+		glm::vec3 position;
+		glm::quat rotation; 
+		glm::vec3 scale;
+
 
 		bool isDirty = false;
 		void setDirty() { isDirty = true; }

@@ -49,12 +49,14 @@ glm::mat4 IHCEngine::Graphics::Camera::GetViewMatrix()
     // Recalculate correct view Matrix
     auto cameraUp = transform.GetUp();
     auto cameraRight = transform.GetRight();
-    auto cameraForward = glm::normalize(glm::cross(cameraUp, cameraRight));
+    auto cameraForward = transform.GetForward();
+        //glm::normalize(glm::cross(cameraUp, cameraRight));
     auto cameraPosition = transform.GetWorldPosition();
-    cameraForward.x = -cameraForward.x;
-    cameraForward.y = -cameraForward.y;
-    cameraRight.z = -cameraRight.z;
+    //cameraForward.x = -cameraForward.x;
+   // cameraForward.y = -cameraForward.y;
+   // cameraRight.z = -cameraRight.z;
     viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
+
 
     return viewMatrix;
 }

@@ -6,62 +6,22 @@
 IHCEngine::Component::Transform::Transform()
 	: Component(ComponentType::Transform),
 	position(glm::vec3(0.0f)),
-	rotation(glm::vec3(0.0f)),
+	rotation(glm::identity<glm::quat>()),
 	scale(glm::vec3(1.0f)),
 	worldModelMatrix(glm::mat4(1.0f)),
 	localModelMatrix(glm::mat4(1.0f)),
-	normalMatrix(glm::mat3(1.0f)),
-	rotationQuaternion(glm::identity<glm::quat>())
+	normalMatrix(glm::mat3(1.0f))
 {
 
 }
 
 glm::mat4 IHCEngine::Component::Transform::GetModelMatrix() 
 {
-	if (isDirty || (parent != nullptr && parent->IsDirty()))
-	{
-		// update model matrix
-		glm::mat4 transMat = glm::translate(glm::mat4(1.0f), position);
-		//glm::mat4 rotMat = glm::eulerAngleXYZ(glm::radians(rotation.x),
-		//									  glm::radians(rotation.y),
-		//								      glm::radians(rotation.z));
-		glm::mat4 rotMat = glm::mat4_cast(rotationQuaternion);  // Convert quaternion to rotation matrix
-		glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
-		localModelMatrix = transMat * rotMat * scaleMat;
-
-		// update normal matrix
-		if (scale.x == scale.y && scale.y == scale.z) // uniform scaling
-		{
-			normalMatrix = glm::mat3(localModelMatrix);
-		}
-		else
-		{
-			normalMatrix = glm::transpose(glm::inverse(localModelMatrix));
-		}
-
-
-		// SCENE GRAPH!!
-		// If there's a parent, multiply with parent's model matrix
-		// This approach will traverse up the hierarchy 
-		// every time GetModelMatrix is called, making it 
-		// inefficient for deep hierarchies
-		if (parent != nullptr)
-		{
-			worldModelMatrix = parent->GetModelMatrix() * localModelMatrix;
-		}
-		else
-		{
-			worldModelMatrix = localModelMatrix;
-		}
-		isDirty = false;
-	}
 	return worldModelMatrix;
 }
 
 glm::mat3 IHCEngine::Component::Transform::GetNormalMatrix()
 {
-	// values updated after calling GetModelMatrix()
-	GetModelMatrix();
 	return normalMatrix;
 }
 
@@ -74,18 +34,10 @@ void IHCEngine::Component::Transform::Translate(glm::vec3 translation)
 
 void IHCEngine::Component::Transform::Rotate(glm::vec3 eulerangle)
 {
-	rotation += eulerangle;
-	rotation.x = std::fmod(rotation.x + 360.0f, 360.0f);
-	rotation.y = std::fmod(rotation.y + 360.0f, 360.0f);
-	rotation.z = std::fmod(rotation.z + 360.0f, 360.0f);
-
-	// Quaternioin
-	glm::quat pitch = glm::angleAxis(glm::radians(eulerangle.x), glm::vec3(1, 0, 0));
-	glm::quat yaw = glm::angleAxis(glm::radians(eulerangle.y), glm::vec3(0, 1, 0));
-	glm::quat roll = glm::angleAxis(glm::radians(eulerangle.z), glm::vec3(0, 0, 1));
-	// Multiply quaternions in the correct order
-	rotationQuaternion = yaw * pitch * roll * rotationQuaternion;
-
+	// Convert the Euler angles to a quaternion
+	glm::quat deltaRotation = glm::quat(glm::radians(eulerangle));
+	// Apply the rotation (this avoids gimbal lock)
+	rotation *= deltaRotation;
 	setDirty();
 }
 
@@ -106,21 +58,16 @@ void IHCEngine::Component::Transform::SetPosition(glm::vec3 position)
 
 void IHCEngine::Component::Transform::SetRotation(glm::vec3 angles)
 {
-	rotationQuaternion = glm::identity<glm::quat>();
-	rotation = glm::vec3(0.0f);
-	Rotate(angles);
-	////setDirty(); // called already in Rotate(angles)
+	rotation = glm::quat(glm::radians(angles));
+	rotation = glm::normalize(rotation);
+	setDirty();
 }
 
 void IHCEngine::Component::Transform::SetRotationInQuaternion(glm::quat quaternion)
 {
-	rotationQuaternion = quaternion;
+	rotation = quaternion;
+	rotation = glm::normalize(rotation);
 	setDirty();
-	// below is display only for now
-	rotation = glm::degrees(glm::eulerAngles(quaternion));
-	//glm::vec3 eulerDegrees = glm::degrees(glm::eulerAngles(quaternion));
-	//SetRotation(eulerDegrees);
-	////setDirty(); // called already in Rotate(angles)
 }
 
 void IHCEngine::Component::Transform::SetScale(glm::vec3 scale)
@@ -146,23 +93,23 @@ glm::vec3 IHCEngine::Component::Transform::GetWorldRotation() const
 {
 	if (parent != nullptr)
 	{
-		glm::quat parentRot = glm::quat(glm::radians(parent->GetWorldRotation()));
-		glm::quat localRot = glm::quat(glm::radians(rotation));
+		glm::quat parentRot = parent->GetWorldRotationInQuaternion();
+		glm::quat localRot = rotation;
 		glm::quat worldRot = parentRot * localRot;
 		return glm::degrees(glm::eulerAngles(worldRot));
 	}
-	return rotation;
+	return glm::degrees(glm::eulerAngles(rotation));
 }
 
 glm::quat IHCEngine::Component::Transform::GetWorldRotationInQuaternion() const
 {
 	if (parent != nullptr)
 	{
-		glm::quat parentRot = glm::quat(glm::radians(parent->GetWorldRotation()));
-		glm::quat localRot = glm::quat(glm::radians(rotation));
+		glm::quat parentRot = parent->GetWorldRotationInQuaternion();
+		glm::quat localRot = rotation;
 		return parentRot * localRot;
 	}
-	return glm::quat(glm::radians(rotation));
+	return rotation;
 }
 
 glm::vec3 IHCEngine::Component::Transform::GetWorldScale() const
@@ -203,11 +150,11 @@ void IHCEngine::Component::Transform::SetWorldRotationInQuaternion(glm::quat wor
 		// conjugate (inverse for unit quaternions) of the parent's rotation with the world rotation.
 		// Find target local rotation in quat (reverse parent's rotation * targetQuat)
 		glm::quat localQuaternion = glm::conjugate(parent->GetRotationInQuaternion()) * worldQuaternion;
-		rotation = glm::degrees(glm::eulerAngles(localQuaternion));
+		rotation = localQuaternion;
 	}
 	else
 	{
-		rotation = glm::degrees(glm::eulerAngles(worldQuaternion));
+		rotation = worldQuaternion;
 	}
 	setDirty();
 }
@@ -256,36 +203,58 @@ glm::vec3 IHCEngine::Component::Transform::GetUp()
 #pragma endregion
 
 
-
+#pragma region SceneGraph
 IHCEngine::Component::Transform IHCEngine::Component::Transform::LocalToWorld(Transform* parent, Transform* child)
 {
-	Transform result;
-
-	result.SetScale(parent->GetScale() * child->GetScale());
-
-    // Rotations are stored as Euler angles
-	// Convert degrees to radians then to Quaternion
-	glm::quat parentQuat = glm::quat(glm::radians(parent->GetRotation())); 
-	glm::quat childQuat = glm::quat(glm::radians(child->GetRotation()));
-	glm::quat resultQuat = parentQuat * childQuat;
-	// Convert back to degrees
-	result.SetRotation(glm::degrees(glm::eulerAngles(resultQuat)));  
-
-	result.SetPosition(parent->GetPosition() + parent->GetScale() * child->GetPosition());
-
-	return result;
+	Transform worldTransform;
+	// Calculate the world matrix.
+	glm::mat4 worldMatrix = parent->GetModelMatrix() * child->GetModelMatrix();
+	// Extract Position
+	glm::vec3 worldPosition = glm::vec3(worldMatrix[3]);
+	// Extract Scale
+	glm::vec3 worldScale;
+	worldScale.x = glm::length(glm::vec3(worldMatrix[0]));
+	worldScale.y = glm::length(glm::vec3(worldMatrix[1]));
+	worldScale.z = glm::length(glm::vec3(worldMatrix[2]));
+	// Remove scaling from the matrix to extract rotation
+	if (worldScale.x != 0) worldMatrix[0] /= worldScale.x;
+	if (worldScale.y != 0) worldMatrix[1] /= worldScale.y;
+	if (worldScale.z != 0) worldMatrix[2] /= worldScale.z;
+	// Extract Rotation
+	glm::quat worldRotation = glm::quat_cast(worldMatrix);
+	// Set decomposed values to the worldTransform.
+	worldTransform.SetPosition(worldPosition);
+	worldTransform.SetRotationInQuaternion(worldRotation);
+	worldTransform.SetScale(worldScale);
+	return worldTransform;
 }
 
 IHCEngine::Component::Transform IHCEngine::Component::Transform::WorldToLocal(Transform* parent, Transform* world)
 {
-	Transform result;
-	result.SetScale(world->GetScale() / parent->GetScale());
-	result.SetRotation(world->GetRotation() - parent->GetRotation());
-	result.SetPosition((world->GetPosition() - parent->GetPosition()) / parent->GetScale());
-	return result;
+	Transform localTransform;
+	// Compute parent's inverse matrix.
+	glm::mat4 parentInverseMatrix = glm::inverse(parent->GetModelMatrix());
+	// Calculate the local matrix.
+	glm::mat4 localMatrix = parentInverseMatrix * world->GetModelMatrix();
+	// Extract Position
+	glm::vec3 localPosition = glm::vec3(localMatrix[3]);
+	// Extract Scale
+	glm::vec3 localScale;
+	localScale.x = glm::length(glm::vec3(localMatrix[0]));
+	localScale.y = glm::length(glm::vec3(localMatrix[1]));
+	localScale.z = glm::length(glm::vec3(localMatrix[2]));
+	// Remove scaling from the matrix to extract rotation
+	if (localScale.x != 0) localMatrix[0] /= localScale.x;
+	if (localScale.y != 0) localMatrix[1] /= localScale.y;
+	if (localScale.z != 0) localMatrix[2] /= localScale.z;
+	// Extract Rotation
+	glm::quat localRotation = glm::quat_cast(localMatrix);
+	// Set decomposed values to the localTransform.
+	localTransform.SetPosition(localPosition);
+	localTransform.SetRotationInQuaternion(localRotation);
+	localTransform.SetScale(localScale);
+	return localTransform;
 }
-
-
 
 void IHCEngine::Component::Transform::SetParent(Transform* parentTransform)
 {
@@ -357,49 +326,47 @@ int IHCEngine::Component::Transform::GetChildCount()
 
 void IHCEngine::Component::Transform::Propagate()
 {
-	//this->parentLocalMatrix = parentLocalTransform;
-	//for (const auto& childTransform : this->children)
-	//{
-	//	childTransform->PropagateParentLocalTransform(parentLocalTransform * this->GetLocalModelMatrix(true));
-	//}
-	//setWorldDirty();
-	setDirty();
-	for (const auto& childTransform : this->children)
+	if (isDirty)
 	{
-		childTransform->GetModelMatrix();
+		// Compute local model matrix first
+		glm::mat4 transMat = glm::translate(glm::mat4(1.0f), position);
+		glm::mat4 rotMat = glm::mat4_cast(rotation);  // Convert quaternion to rotation matrix
+		glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
+		localModelMatrix = transMat * rotMat * scaleMat;
+
+		// Compute normal matrix
+		if (scale.x == scale.y && scale.y == scale.z) // uniform scaling
+		{
+			normalMatrix = glm::mat3(localModelMatrix);
+		}
+		else
+		{
+			normalMatrix = glm::transpose(glm::inverse(localModelMatrix));
+		}
 	}
 
+	// Compute world matrix
+	if (parent)
+	{
+		worldModelMatrix = parent->worldModelMatrix * localModelMatrix;
+	}
+	else
+	{
+		worldModelMatrix = localModelMatrix;
+	}
+
+	// Reset the dirty flag for this node
+	isDirty = false;
+
+
+	// Now propagate to children
+	for (int i = 0; i < GetChildCount(); ++i)
+	{
+		IHCEngine::Component::Transform* childTransform = GetChildAt(i);
+		childTransform->Propagate();
+	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-#pragma region Local
-
-#pragma endregion
-
-
-#pragma region World
-
-#pragma endregion
-
-
-#pragma region World and LocalModelMatrix
-
-#pragma endregion
-
-
-
-#pragma region SceneGraph Hierachy
 
 #pragma endregion
 

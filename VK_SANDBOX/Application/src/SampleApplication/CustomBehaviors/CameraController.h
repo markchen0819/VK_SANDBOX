@@ -29,10 +29,8 @@ namespace SampleApplication
         bool isRotating = false;
         double mouseX, mouseY;
         double lastX = 0.0, lastY = 0.0;
-        glm::quat currentRotation;
         float yaw = 0; float pitch = 0;
 
         void HandleInput();
-
 	};
 }

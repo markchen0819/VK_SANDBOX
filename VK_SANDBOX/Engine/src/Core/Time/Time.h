@@ -34,6 +34,7 @@ namespace IHCEngine::Core
 		float GetTimeScale() { return timeScale; }
 
 		int GetFrameRate() { return static_cast<int>(calculatedFps); }
+		int GetAverageFrameRate() { return static_cast<int>(averageFps); }
 		void UnlockFrameRate() { minFrameTime = 0.0f; }
 		void LockFrameRate(int maxFrameRate)
 		{
@@ -75,7 +76,9 @@ namespace IHCEngine::Core
 		float unscaledFixedDeltaTime{ 0.0f };
 
 		// other info
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 		float calculatedFps{ 0.0f };
+		float averageFps{ 0.0f };
 		int frameCount{0};
 
 		// fix for window interruption

@@ -13,11 +13,15 @@ void SampleApplication::CameraController::Awake()
 {
     window = IHCEngine::Core::AppWindowLocator::GetAppWindow()->GetWindowHandle();
     camera = &(this->gameObject->GetScene()->GetCamera());
-    camera->transform.SetWorldPosition(glm::vec3(0.0f, 3.0f, 10.0f));
-    currentRotation = camera->transform.GetRotationInQuaternion();
+    camera->transform.Rotate(glm::vec3(20, 180, 0));
+    camera->transform.SetWorldPosition(glm::vec3(0.0f, 10.0f, 20.0f));
+    pitch = -20;
+    yaw = 180;
 }
 
-void SampleApplication::CameraController::Start(){}
+void SampleApplication::CameraController::Start()
+{
+}
 void SampleApplication::CameraController::Update()
 {
     HandleInput();
@@ -48,12 +52,12 @@ void SampleApplication::CameraController::HandleInput()
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        auto p = -1.0f * cameraRight * movementSpeed * dt;
+        auto p = cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        auto p = cameraRight * movementSpeed * dt;
+        auto p = -1.0f * cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -83,19 +87,15 @@ void SampleApplication::CameraController::HandleInput()
         glfwGetCursorPos(window, &mouseX, &mouseY);
 
         float mouseDeltaX = -rotationSpeed * (mouseX - lastX) * dt; //glm::radians((mouseX - lastX) * dt);
-        float mouseDeltaY = -rotationSpeed * (mouseY - lastY) * dt; // glm::radians((mouseY - lastY) * dt);
+        float mouseDeltaY = rotationSpeed * (mouseY - lastY) * dt; // glm::radians((mouseY - lastY) * dt);
 
         // gimbal lock prevention
         yaw += mouseDeltaX;
         pitch += mouseDeltaY;
-        // Clamp the pitch to avoid gimbal lock
-        const float maxPitch = 89.0f;  // Just short of 90 degrees
-        pitch = glm::clamp(pitch, -maxPitch, maxPitch);
         // Convert pitch and yaw to a quaternion
         glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
         glm::quat qYaw = glm::angleAxis(glm::radians(yaw), glm::vec3(0, 1, 0));
         glm::quat orientation = qPitch * qYaw;
-        //orientation = camera->transform.GetRotationInQuaternion() * orientation;
         camera->transform.SetRotationInQuaternion(orientation);
 
         // Euler (Gimbal lock)

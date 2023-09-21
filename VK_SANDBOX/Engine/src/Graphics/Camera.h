@@ -36,11 +36,7 @@ namespace IHCEngine::Graphics
 		// Fix transform z, camera -z
 		glm::vec3 GetFoward() 
 		{
-			glm::vec forward =  glm::normalize(glm::cross(transform.GetUp(), transform.GetRight()));
-			forward.x = -forward.x;
-			forward.y = -forward.y;
-			return forward;
-		
+			return transform.GetForward();
 		};
 		glm::vec3 GetUp() 
 		{ 
@@ -48,9 +44,7 @@ namespace IHCEngine::Graphics
 		};
 		glm::vec3 GetRight()
 		{
-			glm::vec3 right = transform.GetRight();
-			right.z = -right.z;
-			return right;
+			return transform.GetRight();
 		};
 
 	private:
