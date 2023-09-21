@@ -155,7 +155,6 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp" />
-    <ClCompile Include="Engine\src\Graphics\Animation\Bone.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
@@ -201,12 +200,12 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animator.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animation.h" />
-    <ClInclude Include="Engine\src\Graphics\Animation\Bone.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\AssetManagerLocator.h" />
@@ -215,7 +214,7 @@
     <ClInclude Include="Engine\src\Core\Locator\SceneManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.h" />
-    <ClInclude Include="Engine\src\Graphics\Animation\BoneInfo.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\AnimationInfo.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\MaterialData.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CameraController.h" />
@@ -264,6 +263,7 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

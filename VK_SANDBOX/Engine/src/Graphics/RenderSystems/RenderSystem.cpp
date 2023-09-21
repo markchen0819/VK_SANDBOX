@@ -180,7 +180,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     }
     else
     {
-        //renderDefaultGraphicsPipeline(frameInfo);
+        renderDefaultGraphicsPipeline(frameInfo);
         renderSkeletalAnimationPipeline(frameInfo);
     }
 }

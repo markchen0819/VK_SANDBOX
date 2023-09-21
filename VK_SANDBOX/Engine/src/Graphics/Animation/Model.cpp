@@ -74,17 +74,18 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
     }
     directory = filepath.substr(0, filepath.find_last_of('/'));
     filename = filepath.substr(filepath.find_last_of('/') + 1);
-    std::cout << "directory:" << directory <<std::endl;
+
+    // process ASSIMP's root node recursively
+    processNode(ai_scene->mRootNode, ai_scene, rootNodeOfHierachy);
+
+    std::cout << "============" << std::endl;
+    std::cout << "directory:" << directory << std::endl;
     std::cout << " filename:" << filename << std::endl;
     std::cout << "mNumMeshes:" << ai_scene->mNumMeshes << std::endl;
-    std::cout << "aiScene Info:"<<std::endl;
-    std::cout << "mNumMeshes:" << ai_scene->mNumMeshes <<std::endl;
+    std::cout << "aiScene Info:" << std::endl;
+    std::cout << "mNumMeshes:" << ai_scene->mNumMeshes << std::endl;
     std::cout << "mNumMaterials:" << ai_scene->mNumMaterials << std::endl;
     std::cout << "mNumTextures:" << ai_scene->mNumTextures << std::endl;
-    std::cout << "============" << std::endl;
-    // process ASSIMP's root node recursively
-    processNode(ai_scene->mRootNode, ai_scene);
-
     std::cout <<"============"<< std::endl;
     for (const auto& pair : meshMaterialMap)
     {
@@ -112,9 +113,14 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
 
 }
 
-void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene)
+void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene, AssimpNodeData& root)
 {
     // process current node
+    root.name = node->mName.data;
+    root.transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    root.childrenCount = node->mNumChildren;
+
+    // extract info of current node (mesh, material, bone)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -126,7 +132,9 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene)
     // recursively process children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        processNode(node->mChildren[i], scene);
+        AssimpNodeData newNode;
+        processNode(node->mChildren[i], scene, newNode);
+        root.children.push_back(newNode);
     }
 }
 

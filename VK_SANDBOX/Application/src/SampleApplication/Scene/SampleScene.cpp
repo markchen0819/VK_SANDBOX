@@ -72,7 +72,7 @@ void SampleApplication::SampleScene::UnLoad()
 void SampleApplication::SampleScene::Init()
 {
 
-	IHCEngine::Core::Time::GetInstance().LockFrameRate(120);
+	IHCEngine::Core::Time::GetInstance().LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();

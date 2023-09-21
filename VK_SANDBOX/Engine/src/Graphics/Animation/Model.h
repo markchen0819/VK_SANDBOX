@@ -3,7 +3,7 @@
 #include <assimp/scene.h>
 #include <map>
 #include "MaterialData.h"
-#include "BoneInfo.h"
+#include "AnimationInfo.h"
 
 struct Vertex;
 
@@ -18,7 +18,6 @@ namespace IHCEngine::Graphics
 	class Model
 	{
 	public:
-
 		Model(const std::string& filepath);
 		~Model();
 
@@ -27,7 +26,7 @@ namespace IHCEngine::Graphics
 
 		std::map<std::string, BoneInfo>& GetBoneInfoMap() { return boneInfoMap; }
 		int& GetBoneCount() { return boneCounter; }
-
+		AssimpNodeData& GetRootNodeOfHierarhcy() { return rootNodeOfHierachy;}
 	private:
 
 		std::string filepath;
@@ -40,10 +39,11 @@ namespace IHCEngine::Graphics
 		std::unordered_map<std::string, MaterialData> meshMaterialMap;
 		std::map<std::string, BoneInfo> boneInfoMap;
 		int boneCounter = 0;
+		AssimpNodeData rootNodeOfHierachy;
 
 		// graphics manager & assetManager required to generate texture and meshes
 		void loadModel(std::string filepath);
-		void processNode(aiNode* node, const aiScene* scene);
+		void processNode(aiNode* node, const aiScene* scene, AssimpNodeData& root);
 		std::pair<std::string, IHCMesh*> processMesh(aiMesh* mesh, const aiScene* scene);
 		std::pair<std::string, MaterialData>  processMaterials(aiMesh* mesh, const aiScene* scene);
 		std::vector<IHCEngine::Graphics::IHCTexture*> loadTextures(aiMaterial* mat, aiTextureType type, std::string typeName);

@@ -1,82 +1,104 @@
 #include "../../pch.h"
 #include "Animation.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "AssimpGLMHelpers.h"
-#include "Bone.h"
+#include "AnimationInfo.h"
 #include "Model.h"
+#include "BoneAnimation.h"
 
 IHCEngine::Graphics::Animation::Animation(const std::string animationPath, Model* model)
 	: animationPath (animationPath),
-	  model(model),
-      boneInfoMap(nullptr)
+      model (model)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
     assert(scene && scene->mRootNode);
-    auto animation = scene->mAnimations[0];
+    aiAnimation* animation = scene->mAnimations[0];
     duration = animation->mDuration;
     ticksPerSecond = animation->mTicksPerSecond;
-    ReadHierarchyData(rootNode, scene->mRootNode);
-    ReadMissingBones(animation, *model);
-
     std::cout << "============" << std::endl;
     std::cout << "Loading Animation:" << animationPath << std::endl;
     std::cout << "duration:" << duration << std::endl;
     std::cout << "ticksPerSecond:" << ticksPerSecond << std::endl;
-    std::cout << "boneInfoMap count:" << boneInfoMap->size() <<std::endl;
     std::cout << "============" << std::endl;
+    std::cout << "Extract Animation for each bone:"<< std::endl;
+    extractAnimationData(animation);
+    std::cout << "Finished extraction" << std::endl;
 }
 
-IHCEngine::Graphics::Bone* IHCEngine::Graphics::Animation::FindBone(const std::string& name)
+void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiAnim)
 {
-    auto iter = std::find_if(
-        bones.begin(), 
-        bones.end(),
-        [&](const Bone& Bone)
-    {
-        return Bone.GetBoneName() == name;
-    });
-    if (iter == bones.end()) return nullptr;
-    else return &(*iter);
-}
+    auto& boneInfoMap = model->GetBoneInfoMap();  // getting boneInfoMap from Model class
+    int& boneCount = model->GetBoneCount();       // getting the boneCounter from Model class
 
-void IHCEngine::Graphics::Animation::ReadMissingBones(const aiAnimation* animation, Model& model)
-{
-    int size = animation->mNumChannels;
-    auto& boneInfoMap = model.GetBoneInfoMap();//getting boneInfoMap from Model class
-    int& boneCount = model.GetBoneCount(); //getting the boneCounter from Model class
-    // reading channels(bones engaged in an animation and their keyframes)
-    for (int i = 0; i < size; i++)
+	for (int i = 0; i < aiAnim->mNumChannels; i++) // For each animation channels
     {
-        auto channel = animation->mChannels[i];
+        aiNodeAnim* channel = aiAnim->mChannels[i]; 
         std::string boneName = channel->mNodeName.data;
+        int boneID = boneInfoMap[channel->mNodeName.data].id;
+
+        // Extract Individual bone animation 
+        std::vector<KeyPosition> keyPositions;
+        std::vector<KeyRotation> keyRotations;
+        std::vector<KeyScale> keyScales;
+        const int numPositions = channel->mNumPositionKeys;
+        const int numRotations = channel->mNumRotationKeys;
+        const int numScales = channel->mNumScalingKeys;
+
+        for (int positionIndex = 0; positionIndex < numPositions; ++positionIndex)
+        {
+            aiVector3D aiPosition = channel->mPositionKeys[positionIndex].mValue;
+            float timeStamp = channel->mPositionKeys[positionIndex].mTime;
+            KeyPosition data;
+            data.position = AssimpGLMHelpers::GetGLMVec3(aiPosition);
+            data.timeStamp = timeStamp;
+            keyPositions.push_back(data);
+        }
+        for (int rotationIndex = 0; rotationIndex < numRotations; ++rotationIndex)
+        {
+            aiQuaternion aiOrientation = channel->mRotationKeys[rotationIndex].mValue;
+            float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
+            KeyRotation data;
+            data.orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
+            data.timeStamp = timeStamp;
+            keyRotations.push_back(data);
+        }
+        for (int keyIndex = 0; keyIndex < numScales; ++keyIndex)
+        {
+            aiVector3D scale = channel->mScalingKeys[keyIndex].mValue;
+            float timeStamp = channel->mScalingKeys[keyIndex].mTime;
+            KeyScale data;
+            data.scale = AssimpGLMHelpers::GetGLMVec3(scale);
+            data.timeStamp = timeStamp;
+            keyScales.push_back(data);
+        }
 
         // Update bones in Model
         if (boneInfoMap.find(boneName) == boneInfoMap.end())
         {
-            boneInfoMap[boneName].id = boneCount;
-            ++boneCount;
+            // No match of bones between model & animation
+            // create this bone for the model 
+            boneInfoMap[boneName].id = boneCount; // changed in model ref
+            ++boneCount;                          // changed in model ref
         }
-        // Create bones for the animation
-        bones.push_back(Bone(channel->mNodeName.data,
-            boneInfoMap[channel->mNodeName.data].id, channel));
+        boneAnimations.push_back(BoneAnimation
+        (boneName, boneID, channel, keyPositions, keyRotations, keyScales));
     }
-    // Saves the reference
-    this->boneInfoMap = &boneInfoMap;
 }
 
-void IHCEngine::Graphics::Animation::ReadHierarchyData(AssimpNodeData& dest, const aiNode* src)
+IHCEngine::Graphics::BoneAnimation* IHCEngine::Graphics::Animation::FindBone(const std::string& name)
 {
-    assert(src);
-    dest.name = src->mName.data;
-    dest.transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(src->mTransformation);
-    dest.childrenCount = src->mNumChildren;
-    for (int i = 0; i < src->mNumChildren; i++)
+    auto iter = std::find_if(
+        boneAnimations.begin(),
+        boneAnimations.end(),
+        [&](const BoneAnimation& Bone)
     {
-        AssimpNodeData newData;
-        ReadHierarchyData(newData, src->mChildren[i]);
-        dest.children.push_back(newData);
-    }
+        return Bone.GetBoneName() == name;
+    });
+    if (iter == boneAnimations.end()) return nullptr;
+    else return &(*iter);
 }
+

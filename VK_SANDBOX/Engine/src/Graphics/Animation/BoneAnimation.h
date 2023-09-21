@@ -1,37 +1,29 @@
 #pragma once
-#include <assimp/anim.h>
-
-// A single bone
-// reads all keyframes data from aiNodeAnim
-// interpolate between its keys (TRS) based on the current animation time.
+#include "AnimationInfo.h"
+struct aiNodeAnim;
 
 namespace IHCEngine::Graphics
 {
-    struct KeyPosition
-    {
-        glm::vec3 position;
-        float timeStamp;
-    };
-    struct KeyRotation
-    {
-        glm::quat orientation;
-        float timeStamp;
-    };
-    struct KeyScale
-    {
-        glm::vec3 scale;
-        float timeStamp;
-    };
+	// Individual bone animation
+	// reads all keyframes data from aiNodeAnim
+	// interpolate between its keys (TRS) based on the current animation time.
 
-
-	class Bone
+	class BoneAnimation
 	{
 	public:
+        BoneAnimation(
+            const std::string& name, 
+            int boneID,
+            const aiNodeAnim* channel,
+            std::vector<KeyPosition> kP,
+            std::vector<KeyRotation> kR,
+            std::vector<KeyScale> kS
+        );;
 
-        Bone(const std::string& name, int ID, const aiNodeAnim* channel);
         void Update(float animationTime);
         glm::mat4 GetLocalTransform() const { return localTransform; }
-        std::string GetBoneName() const { return name; }
+
+        std::string GetBoneName() const { return boneName; }
         int GetBoneID() const { return id; }
 
         // Current Index to interpolate to based on the current animation time
@@ -39,7 +31,7 @@ namespace IHCEngine::Graphics
         int GetRotationIndex(float animationTime);
         int GetScaleIndex(float animationTime);
 
-    private:
+	private:
 
         // Gets normalized value for Lerp & Slerp used for interpolation
         float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
@@ -47,16 +39,17 @@ namespace IHCEngine::Graphics
         glm::mat4 interpolateRotation(float animationTime);
         glm::mat4 interpolateScaling(float animationTime);
 
-        std::vector<KeyPosition> keyPositions;
-        std::vector<KeyRotation> keyRotations;
-        std::vector<KeyScale> keyScales;
+        std::string boneName;
+        int id;
+        const aiNodeAnim* channel;
+
+        glm::mat4 localTransform;
+
         int numPositions;
         int numRotations;
         int numScales;
-
-        glm::mat4 localTransform;
-        std::string name;
-        int id;
+        std::vector<KeyPosition> keyPositions;
+        std::vector<KeyRotation> keyRotations;
+        std::vector<KeyScale> keyScales;
 	};
-
 }
