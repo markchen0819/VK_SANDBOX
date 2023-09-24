@@ -12,7 +12,6 @@
 #include "VKWraps/IHCDevice.h"
 #include "VKWraps/IHCBuffer.h"
 #include "VKWraps/IHCTexture.h"
-#include "VKWraps/IHCDescriptors.h"
 #include "VKWraps/IHCDescriptorManager.h"
 #include "Renderer.h"
 //#include "VKWraps/IHCMesh.h"
@@ -24,6 +23,7 @@
 // Model
 #include "GraphicsAssetCreator.h"
 #include "Animation/Model.h"
+#include "VKWraps/DescriptorWraps/GlobalDescriptorWrap.h"
 
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
@@ -100,8 +100,8 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         ubo.inverseViewMatrix = camera.GetInverseViewMatrix();
         ubo.projectionMatrix[1][1] *= -1; // Flip the Y-axis for vulkan <-> opengl
 
-        descriptorManager->GetGlobalUBOs()[frameIndex]->WriteToBuffer(&ubo);
-        descriptorManager->GetGlobalUBOs()[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+        descriptorManager->GetGlobalDescriptorWrap()->GetGlobalUBOs()[frameIndex]->WriteToBuffer(&ubo);
+        descriptorManager->GetGlobalDescriptorWrap()->GetGlobalUBOs()[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
         renderer->BeginSwapChainRenderPass(commandBuffer);
         //// System Render order here matters ////

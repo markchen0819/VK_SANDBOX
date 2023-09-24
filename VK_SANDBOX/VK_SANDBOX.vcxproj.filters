@@ -69,9 +69,6 @@
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -153,6 +150,18 @@
     <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -216,9 +225,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h">
@@ -341,7 +347,16 @@
     <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorWrap.h">
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

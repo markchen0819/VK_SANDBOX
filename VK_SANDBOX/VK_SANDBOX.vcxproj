@@ -160,6 +160,7 @@
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\CameraController.cpp" />
     <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDevice.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCSwapChain.cpp" />
@@ -181,13 +182,13 @@
     <ClCompile Include="Engine\src\Input\Input.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCBuffer.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCTexture.cpp" />
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptors.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Scene.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\SceneManager.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\SampleScene.cpp" />
     <ClCompile Include="Engine\src\Imgui\ImGuiManager.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.cpp" />
     <ClCompile Include="Engine\src\Graphics\GraphicsAssetCreator.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -201,6 +202,8 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
@@ -222,7 +225,7 @@
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Camera.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Component.h" />
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />
@@ -243,13 +246,13 @@
     <ClInclude Include="Engine\src\Input\Input.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCBuffer.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCTexture.h" />
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptors.h" />
     <ClInclude Include="Engine\src\Core\Scene\Scene.h" />
     <ClInclude Include="Engine\src\Core\Scene\SceneManager.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\SampleScene.h" />
     <ClInclude Include="Engine\src\Imgui\ImGuiManager.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.h" />
     <ClInclude Include="Engine\src\Graphics\GraphicsAssetCreator.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />
@@ -265,6 +268,8 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

@@ -9,6 +9,9 @@
 #include "../VKWraps/IHCMesh.h"
 #include "../VKWraps/IHCTexture.h"
 #include "../VKWraps/IHCDescriptorManager.h"
+#include "../VKWraps/DescriptorWraps/GlobalDescriptorWrap.h"
+#include "../VKWraps/DescriptorWraps/TextureDescriptorWrap.h"
+#include "../VKWraps/DescriptorWraps/SkeletalDescriptorWrap.h"
 
 // Scene
 #include "../../Core/Time/Time.h"
@@ -20,6 +23,7 @@
 #include "../../Core/Scene/Components/ModelComponent.h"
 #include "../../Core/Scene/Components/AnimatorComponent.h"
 #include "../../Core/Scene/Components/PipelineComponent.h"
+
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, IHCDescriptorManager* descriptorManager)
     :   ihcDevice{ device },
@@ -55,9 +59,9 @@ void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines(
 	// textureDescriptorSetLayout set 1, Binding0, COMBINED_IMAGE_SAMPLER
 	// skeletalDescriptorSetLayout set 2, Binding0, UNIFORM_BUFFER
 	std::vector<VkDescriptorSetLayout> layouts {
-        descriptorManager->GetGlobalDescriptorSetLayouts(),
-        descriptorManager->GetTextureDescriptorSetLayouts(),
-        descriptorManager->GetSkeletalDescriptorSetLayouts(),
+        descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
+        descriptorManager->GetTextureDescriptorWrap()->GetDescriptorSetLayout(),
+        descriptorManager->GetSkeletalDescriptorWrap()->GetDescriptorSetLayout(),
     };
     IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(skeletalAnimationPipelineConfig, ihcDevice);
     createCustomPipelineLayout(&skeletalPipelineLayout, layouts);
@@ -87,7 +91,7 @@ void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines(
 
     // Debug Bone
     std::vector<VkDescriptorSetLayout> boneLayouts {
-        descriptorManager->GetGlobalDescriptorSetLayouts(),
+        descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
     };
     createCustomPipelineLayout(&debugBonePipelineLayout, boneLayouts);
     PipelineConfigInfo debugBonePipelineConfig{};
@@ -109,6 +113,7 @@ void IHCEngine::Graphics::RenderSystem::destroyCustomPipelineLayouts()
     //vkDestroyPipelineLayout(ihcDevice.GetDevice(), PLACEHOLDER, nullptr);
     vkDestroyPipelineLayout(ihcDevice.GetDevice(), skeletalPipelineLayout, nullptr);
     vkDestroyPipelineLayout(ihcDevice.GetDevice(), wireframePipelineLayout, nullptr);
+    vkDestroyPipelineLayout(ihcDevice.GetDevice(), debugBonePipelineLayout, nullptr);
 }
 #pragma region PipelineLayout (for shaders interface) & Pipeline
 void IHCEngine::Graphics::RenderSystem::createDefaultPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
@@ -210,6 +215,10 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
     // Bind Global Descriptor Set (at set 0)  
     // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
     // Our case:  ubo, sampler
+
+    auto wrap = frameInfo.descriptorManager->GetGlobalDescriptorWrap();
+    auto sets = wrap->GetDescriptorSets();
+    auto descriptorSet = wrap->GetDescriptorSets()[frameInfo.frameIndex];
     vkCmdBindDescriptorSets
     (
         frameInfo.commandBuffer,
@@ -217,7 +226,7 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
         defaultGraphicsPipelineLayout,
         0,
         1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+        &descriptorSet,
         0,
         nullptr
     );
@@ -295,7 +304,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
         wireframePipelineLayout,
         0,
         1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSets()[frameInfo.frameIndex],
         0,
         nullptr
     );
@@ -342,7 +351,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             else // No animation
             {
                 // use dummy to prevent vulkan errors
-                skeletalDescriptorSet = descriptorManager->GetDummySkeletalDescriptorSet();
+                skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
                 vkCmdBindDescriptorSets
                 (
                     frameInfo.commandBuffer,
@@ -361,7 +370,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
                 {
                     subo.finalBonesMatrices[i] = glm::mat4(1.0);
                 }
-                auto buffersforwriting = descriptorManager->GetDummySkeletalUBO();
+                auto buffersforwriting = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalUBO();
                 buffersforwriting->WriteToBuffer(&subo);
                 buffersforwriting->Flush();
             }
@@ -430,7 +439,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             //    nullptr
             //);
             // use dummy to prevent vulkan errors
-            auto skeletalDescriptorSet = descriptorManager->GetDummySkeletalDescriptorSet();
+            auto skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
             vkCmdBindDescriptorSets
             (
                 frameInfo.commandBuffer,
@@ -449,7 +458,7 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
             {
                 subo.finalBonesMatrices[i] = glm::mat4(1.0);
             }
-            auto buffersforwriting = descriptorManager->GetDummySkeletalUBO();
+            auto buffersforwriting = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalUBO();
             buffersforwriting->WriteToBuffer(&subo);
             buffersforwriting->Flush();
 
@@ -485,7 +494,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         skeletalPipelineLayout,
         0,
         1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorSets()[frameInfo.frameIndex],
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSets()[frameInfo.frameIndex],
         0,
         nullptr
     );
@@ -537,6 +546,18 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
             // debug bones
+            SimplePushConstantData push{};
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                skeletalPipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
             debugBonePipeline->Bind(frameInfo.commandBuffer);
             auto bonevertices = animatorComponent->GetDebugBoneVertices();
             VkBuffer buffers[] = { animatorComponent->GetDebugBoneBuffer()->GetBuffer() };
@@ -549,7 +570,8 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         else // No animation
         {
             // use dummy to prevent vulkan errors
-            skeletalDescriptorSet = descriptorManager->GetDummySkeletalDescriptorSet();
+            skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
+
             vkCmdBindDescriptorSets
             (
                 frameInfo.commandBuffer,
@@ -568,7 +590,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             {
                 subo.finalBonesMatrices[i] = glm::mat4(1.0);
             }
-            auto buffersforwriting = descriptorManager->GetDummySkeletalUBO();
+            auto buffersforwriting = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalUBO();
             buffersforwriting->WriteToBuffer(&subo);
             buffersforwriting->Flush();
         }
