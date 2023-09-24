@@ -1,4 +1,7 @@
 #pragma once
+
+#include "../VKWraps/VKHelpers.h"
+
 namespace IHCEngine::Graphics
 {
 	struct AssimpNodeData;
@@ -22,7 +25,7 @@ namespace IHCEngine::Graphics
 		void SetBuffers(std::vector<IHCBuffer*> buffers) { skeletalBuffers = buffers; }
 		std::vector<IHCBuffer*>& GetBuffers() { return skeletalBuffers; }
 
-
+		std::vector<Vertex>& GetDebugBoneVertices() { return debugBoneVertices; }
 	private:
 
 		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
@@ -34,6 +37,11 @@ namespace IHCEngine::Graphics
 		// Vulkan
 		std::vector<VkDescriptorSet> descriptorSets;
 		std::vector<IHCBuffer*> skeletalBuffers;
+		std::vector<IHCBuffer*> debugBoneBuffers;
+
+		// Debug
+		std::vector<Vertex> debugBoneVertices;
+
 	};
 
 }

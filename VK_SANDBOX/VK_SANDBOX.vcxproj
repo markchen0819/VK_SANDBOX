@@ -222,6 +222,7 @@
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Camera.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Component.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />

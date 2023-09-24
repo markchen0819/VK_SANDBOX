@@ -9,6 +9,7 @@ namespace IHCEngine::Graphics
         std::string name;
         int childrenCount;
         std::vector<AssimpNodeData> children;
+        AssimpNodeData* parent=nullptr;
     };
 
     // Inverse bind pose

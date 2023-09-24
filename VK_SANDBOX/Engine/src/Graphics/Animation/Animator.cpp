@@ -38,6 +38,7 @@ namespace IHCEngine::Graphics
 
 		currentTime += currentAnimation->GetTicksPerSecond() * dt;
 		currentTime = fmod(currentTime, currentAnimation->GetDuration());
+		debugBoneVertices.clear();
 		calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 	}
 
@@ -64,6 +65,18 @@ namespace IHCEngine::Graphics
 		}
 		// Convert bone from local space into global space
 		glm::mat4 globalTransformation = parentTransform * nodeTransform; // ex: arm bone in the world (consider shoulder)
+
+		Vertex debugVertex;
+		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+		debugVertex.position = glm::vec3(globalTransformation[3]);
+		debugBoneVertices.push_back(debugVertex);
+		// If the bone has a parent, its position
+		// would be the end of the parent bone segment
+		if (node->parent)
+		{
+			debugVertex.position = glm::vec3(parentTransform[3]);
+			debugBoneVertices.push_back(debugVertex);
+		}
 
 		// find offset matrix in boneInfoMap (how each bone relates to original T-pose)
 		// transforms vertices from the original position of the mesh vertices

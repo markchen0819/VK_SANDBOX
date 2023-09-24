@@ -341,6 +341,9 @@
     <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\shader.vert" />

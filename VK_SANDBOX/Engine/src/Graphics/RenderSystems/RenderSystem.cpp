@@ -85,6 +85,24 @@ void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines(
         "Engine/assets/shaders/skeletalvert.spv",
         "Engine/assets/shaders/skeletalfrag.spv");
 
+    // Debug Bone
+    std::vector<VkDescriptorSetLayout> boneLayouts {
+        descriptorManager->GetGlobalDescriptorSetLayouts(),
+    };
+    createCustomPipelineLayout(&debugBonePipelineLayout, boneLayouts);
+    PipelineConfigInfo debugBonePipelineConfig{};
+    IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(debugBonePipelineConfig, ihcDevice);
+    debugBonePipelineConfig.renderPass = vkrenderpass;
+    debugBonePipelineConfig.pipelineLayout = debugBonePipelineLayout;
+    debugBonePipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    debugBonePipelineConfig.rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+    debugBonePipelineConfig.rasterizer.lineWidth = 1.0f;
+    debugBonePipelineConfig.depthStencil.depthTestEnable = VK_FALSE;
+    debugBonePipelineConfig.depthStencil.depthWriteEnable = VK_FALSE;
+    debugBonePipeline = createCustomPipeline(debugBonePipelineConfig,
+        "Engine/assets/shaders/debugbonevert.spv",
+        "Engine/assets/shaders/debugbonefrag.spv");
+
 }
 void IHCEngine::Graphics::RenderSystem::destroyCustomPipelineLayouts()
 {
@@ -517,6 +535,16 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             auto buffersforwriting = animatorComponent->GetBuffers()[frameInfo.frameIndex];
         	buffersforwriting->WriteToBuffer(&subo);
             buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+
+            // debug bones
+            debugBonePipeline->Bind(frameInfo.commandBuffer);
+            auto bonevertices = animatorComponent->GetDebugBoneVertices();
+            VkBuffer buffers[] = { animatorComponent->GetDebugBoneBuffer()->GetBuffer() };
+            VkDeviceSize offsets[] = { 0 };
+            vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
+            vkCmdDraw(frameInfo.commandBuffer, bonevertices.size(), 1, 0, 0);
+            animatorComponent->GetDebugBoneBuffer()->Flush();
+        	skeletalAnimationPipeline->Bind(frameInfo.commandBuffer);
         }
         else // No animation
         {

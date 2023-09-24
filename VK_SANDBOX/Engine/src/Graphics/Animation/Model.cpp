@@ -134,6 +134,7 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
     {
         AssimpNodeData newNode;
         processNode(node->mChildren[i], scene, newNode);
+        newNode.parent = &root;
         root.children.push_back(newNode);
     }
 }
