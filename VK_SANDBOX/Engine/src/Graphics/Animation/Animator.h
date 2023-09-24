@@ -24,8 +24,11 @@ namespace IHCEngine::Graphics
 		std::vector<VkDescriptorSet>& GetDescriptorSets() { return descriptorSets; }
 		void SetBuffers(std::vector<IHCBuffer*> buffers) { skeletalBuffers = buffers; }
 		std::vector<IHCBuffer*>& GetBuffers() { return skeletalBuffers; }
+		// Debug
+		std::vector<Vertex>& GetDebugBoneVertices();
+		void UpdateDebugBoneBuffer(FrameInfo& frameInfo);
+		IHCBuffer* GetDebugBoneBuffer(FrameInfo& frameInfo);
 
-		std::vector<Vertex>& GetDebugBoneVertices() { return debugBoneVertices; }
 	private:
 
 		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
@@ -37,11 +40,10 @@ namespace IHCEngine::Graphics
 		// Vulkan
 		std::vector<VkDescriptorSet> descriptorSets;
 		std::vector<IHCBuffer*> skeletalBuffers;
-		std::vector<IHCBuffer*> debugBoneBuffers;
 
 		// Debug
 		std::vector<Vertex> debugBoneVertices;
-
+		std::vector<std::unique_ptr<IHCBuffer>> debugBoneBuffers;
 	};
 
 }

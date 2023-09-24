@@ -20,14 +20,14 @@ namespace IHCEngine::Component
 		std::vector<VkDescriptorSet>& GetDescriptorSets();
 		std::vector<Graphics::IHCBuffer*>& GetBuffers();
 
+		// Debug
 		std::vector<Vertex>& GetDebugBoneVertices();
-		Graphics::IHCBuffer* GetDebugBoneBuffer();
+		void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
+		Graphics::IHCBuffer* GetDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
 
 	private:
 
 		IHCEngine::Graphics::Animator animator;
-
-		std::unique_ptr<Graphics::IHCBuffer> debugBoneBuffer;
 
 		void Remove() override;
 	};

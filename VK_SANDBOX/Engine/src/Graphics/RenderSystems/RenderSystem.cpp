@@ -205,20 +205,16 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     {
         renderDefaultGraphicsPipeline(frameInfo);
         renderSkeletalAnimationPipeline(frameInfo);
+        renderDebugBonePipeline(frameInfo);
     }
 }
 void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
 {
     // Bind Pipeline 
     defaultGraphicsPipeline->Bind(frameInfo.commandBuffer);
-
     // Bind Global Descriptor Set (at set 0)  
     // Common case: Camera Matrices (Proj & View) , Global Lighting Information, Shadow Maps, Environment Maps, IBL
     // Our case:  ubo, sampler
-
-    auto wrap = frameInfo.descriptorManager->GetGlobalDescriptorWrap();
-    auto sets = wrap->GetDescriptorSets();
-    auto descriptorSet = wrap->GetDescriptorSets()[frameInfo.frameIndex];
     vkCmdBindDescriptorSets
     (
         frameInfo.commandBuffer,
@@ -226,15 +222,14 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
         defaultGraphicsPipelineLayout,
         0,
         1,
-        &descriptorSet,
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+        ->GetDescriptorSets()[frameInfo.frameIndex],
         0,
         nullptr
     );
-
     // Update Global Push Constants
     // Common case:  Global time value, Viewport Information
     // Our case: None
-
     // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
@@ -253,7 +248,6 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
         // Bind Local Descriptor Set
         // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations
         // Our case: Texture
-
         auto descriptorSet = gobj->GetComponent<Component::TextureComponent>()->GetDescriptorSets()[frameInfo.frameIndex];
         vkCmdBindDescriptorSets
         (
@@ -266,7 +260,6 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
             0,
             nullptr
         );
-
         // Update Local Push Constants (ex: Transform)
         // Common case: Model Matrix, Material Properties, Animation Data:
         // Our case: Model Matrix
@@ -286,11 +279,9 @@ void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo&
             sizeof(SimplePushConstantData),
             &push
         );
-
         // Bind Mesh and Draw
         gobj->GetComponent<Component::MeshComponent>()->Bind(frameInfo.commandBuffer);
         gobj->GetComponent<Component::MeshComponent>()->Draw(frameInfo.commandBuffer);
-
     }
 }
 void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frameInfo)
@@ -494,15 +485,16 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         skeletalPipelineLayout,
         0,
         1,
-        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSets()[frameInfo.frameIndex],
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+        ->GetDescriptorSets()[frameInfo.frameIndex],
         0,
         nullptr
     );
-
     // For each game object
     for (auto& g : frameInfo.gameObjects)
     {
         IHCEngine::Core::GameObject* gobj = g.second;
+
         // Only render the ones specifying this pipeline
         auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
         if (pipelineComponent==nullptr ||
@@ -544,34 +536,11 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             auto buffersforwriting = animatorComponent->GetBuffers()[frameInfo.frameIndex];
         	buffersforwriting->WriteToBuffer(&subo);
             buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
-
-            // debug bones
-            SimplePushConstantData push{};
-            push.modelMatrix = gobj->transform.GetModelMatrix();
-            push.normalMatrix = glm::mat4(1);
-            vkCmdPushConstants
-            (
-                frameInfo.commandBuffer,
-                skeletalPipelineLayout,
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                0,
-                sizeof(SimplePushConstantData),
-                &push
-            );
-            debugBonePipeline->Bind(frameInfo.commandBuffer);
-            auto bonevertices = animatorComponent->GetDebugBoneVertices();
-            VkBuffer buffers[] = { animatorComponent->GetDebugBoneBuffer()->GetBuffer() };
-            VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-            vkCmdDraw(frameInfo.commandBuffer, bonevertices.size(), 1, 0, 0);
-            animatorComponent->GetDebugBoneBuffer()->Flush();
-        	skeletalAnimationPipeline->Bind(frameInfo.commandBuffer);
         }
         else // No animation
         {
             // use dummy to prevent vulkan errors
             skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
-
             vkCmdBindDescriptorSets
             (
                 frameInfo.commandBuffer,
@@ -594,7 +563,6 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             buffersforwriting->WriteToBuffer(&subo);
             buffersforwriting->Flush();
         }
-        
         // Bind and Draw the Model meshes
         auto gobjModel = gobj->GetComponent<Component::ModelComponent>();
         auto modelMeshes = gobjModel->GetMeshes();
@@ -639,6 +607,69 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             // Bind Mesh and draw
             mesh.second->Bind(frameInfo.commandBuffer);
             mesh.second->Draw(frameInfo.commandBuffer);
+        }
+    }
+}
+
+void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frameInfo)
+{
+    // Bind Pipeline 
+    debugBonePipeline->Bind(frameInfo.commandBuffer);
+    // global Descriptor Sets (Camera)
+    vkCmdBindDescriptorSets
+    (
+        frameInfo.commandBuffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        skeletalPipelineLayout,
+        0,
+        1,
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+        ->GetDescriptorSets()[frameInfo.frameIndex],
+        0,
+        nullptr
+    );
+    // For each game object
+    for (auto& g : frameInfo.gameObjects)
+    {
+        IHCEngine::Core::GameObject* gobj = g.second;
+
+        // Only render the ones specifying this pipeline
+        auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
+        if (pipelineComponent == nullptr ||
+            pipelineComponent->GetPipelineType() !=
+            Component::PipelineType::SKELETAL) continue;
+
+        // SkeletalAnimationPipeline Requires a model
+        if (!gobj->HasComponent<Component::ModelComponent>()) continue;
+
+        // Has animation
+        VkDescriptorSet_T* skeletalDescriptorSet;
+        auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
+        if (animatorComponent == nullptr || animatorComponent->HasAnimation())
+        {
+            // Draw Debug Bones
+            SimplePushConstantData push{};
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                skeletalPipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
+            animatorComponent->UpdateDebugBoneBuffer(frameInfo);
+            auto bonevertices = animatorComponent->GetDebugBoneVertices();
+            VkBuffer buffers[] = { animatorComponent->GetDebugBoneBuffer(frameInfo)->GetBuffer() };
+            VkDeviceSize offsets[] = { 0 };
+            vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
+            vkCmdDraw(frameInfo.commandBuffer, bonevertices.size(), 1, 0, 0);
+        }
+        else // No animation
+        {
+
         }
     }
 }

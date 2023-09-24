@@ -57,7 +57,7 @@ namespace IHCEngine::Graphics
 
 
         std::unique_ptr<IHCEngine::Graphics::IHCPipeline> debugBonePipeline;
-        //void renderSkeletalAnimationPipeline(FrameInfo& frameInfo);
+        void renderDebugBonePipeline(FrameInfo& frameInfo);
         VkPipelineLayout debugBonePipelineLayout;
 
 

@@ -25,8 +25,8 @@ layout(location = 5) in vec3 inBitangent;
 layout(location = 6) in ivec4 inBoneIDs;
 layout(location = 7) in vec4 inBoneWeights;
 
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec2 fragTexCoord;
+//layout(location = 0) out vec3 fragColor;
+//layout(location = 1) out vec2 fragTexCoord;
 
 void main() 
 {

@@ -12,6 +12,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../CustomBehaviors/AnimationTester.h"
 
 SampleApplication::SampleScene::SampleScene()
 	: Scene("SampleScene")
@@ -26,9 +27,10 @@ void SampleApplication::SampleScene::Load()
 	auto testCharacter = graphicsAssetCreator.CreateModel("testCharacter",
 		//"Application/assets/Test/X Bot.fbx");
 		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
-	auto testAnimation = graphicsAssetCreator.CreateAnimation(
-		"testAnimation", "Application/assets/Test/Bot/Crouch To Stand.fbx", testCharacter);
-		//"testAnimation", "Application/assets/Test/Bot/Idle.fbx", testCharacter);
+	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
+		"CrouchAnimation", "Application/assets/Test/Bot/Crouch To Stand.fbx", testCharacter);
+	auto IdleAnimation = graphicsAssetCreator.CreateAnimation(
+	"IdleAnimation", "Application/assets/Test/Bot/Idle.fbx", testCharacter);
 
 
 	// viking Room
@@ -52,7 +54,8 @@ void SampleApplication::SampleScene::UnLoad()
 
 	// testModel
 	graphicsAssetCreator.DestroyModel("testCharacter");
-	graphicsAssetCreator.DestroyAnimation("testAnimation");
+	graphicsAssetCreator.DestroyAnimation("CrouchAnimation");
+	graphicsAssetCreator.DestroyAnimation("IdleAnimation");
 
 	// viking Room
 	graphicsAssetCreator.DestroyTexture("roomTexture");
@@ -75,6 +78,7 @@ void SampleApplication::SampleScene::Init()
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
+	auto animationtester = camera.AddComponent<SampleApplication::AnimationTester>();
 
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
@@ -96,9 +100,9 @@ void SampleApplication::SampleScene::Init()
 	modelcomponent = testCharacter.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("testCharacter"));
 	animatorcomponent = testCharacter.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	auto testAnimation = assetManager->GetAnimationRepository().GetAsset("testAnimation");
+	auto testAnimation = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
 	animatorcomponent->PlayAnimation(testAnimation);
-
+	animationtester->SetGameObjectA(&testCharacter);
 
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
 	room.AddComponent<IHCEngine::Component::PipelineComponent>();
