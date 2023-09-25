@@ -11,19 +11,21 @@ namespace IHCEngine::Component
 		AnimatorComponent();
 		~AnimatorComponent() = default;
 
-		void PlayAnimation(Graphics::Animation* animation);
+		void SetAnimation(Graphics::Animation* animation);
+		void PlayAnimation();
 		bool HasAnimation();
 
 		void UpdateAnimation(float dt);
-		std::vector<glm::mat4> GetFinalBoneMatrices();
+		std::vector<glm::mat4>& GetFinalBoneMatrices();
 
 		std::vector<VkDescriptorSet>& GetDescriptorSets();
 		std::vector<Graphics::IHCBuffer*>& GetBuffers();
 
 		// Debug
-		std::vector<Vertex>& GetDebugBoneVertices();
+		void AllocateDebugBoneBuffer();
 		void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-		Graphics::IHCBuffer* GetDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
+		void DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
+
 
 	private:
 

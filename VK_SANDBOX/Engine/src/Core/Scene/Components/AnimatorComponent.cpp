@@ -10,9 +10,14 @@ IHCEngine::Component::AnimatorComponent::AnimatorComponent()
 
 }
 
-void IHCEngine::Component::AnimatorComponent::PlayAnimation(Graphics::Animation* animation)
+void IHCEngine::Component::AnimatorComponent::SetAnimation(Graphics::Animation* animation)
 {
-	animator.PlayAnimation(animation);
+	animator.SetAnimation(animation);
+}
+
+void IHCEngine::Component::AnimatorComponent::PlayAnimation()
+{
+	animator.PlayAnimation();
 }
 
 bool IHCEngine::Component::AnimatorComponent::HasAnimation()
@@ -29,7 +34,7 @@ void IHCEngine::Component::AnimatorComponent::UpdateAnimation(float dt)
 	animator.UpdateAnimation(dt);
 }
 
-std::vector<glm::mat4> IHCEngine::Component::AnimatorComponent::GetFinalBoneMatrices()
+std::vector<glm::mat4>& IHCEngine::Component::AnimatorComponent::GetFinalBoneMatrices()
 {
 	return animator.GetFinalBoneMatrices();
 }
@@ -44,19 +49,20 @@ std::vector<IHCEngine::Graphics::IHCBuffer*>& IHCEngine::Component::AnimatorComp
 	return animator.GetBuffers();
 }
 
-std::vector<Vertex>& IHCEngine::Component::AnimatorComponent::GetDebugBoneVertices()
+void IHCEngine::Component::AnimatorComponent::AllocateDebugBoneBuffer()
 {
-	return animator.GetDebugBoneVertices();
+	animator.AllocateDebugBoneBuffer();
 }
+
 
 void IHCEngine::Component::AnimatorComponent::UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
 {
 	animator.UpdateDebugBoneBuffer(frameInfo);
 }
 
-IHCEngine::Graphics::IHCBuffer* IHCEngine::Component::AnimatorComponent::GetDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
+void IHCEngine::Component::AnimatorComponent::DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
 {
-	return animator.GetDebugBoneBuffer(frameInfo);
+	animator.DrawDebugBoneBuffer(frameInfo);
 }
 
 void IHCEngine::Component::AnimatorComponent::Remove()
