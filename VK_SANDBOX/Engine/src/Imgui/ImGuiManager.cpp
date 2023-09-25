@@ -110,6 +110,27 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
             glm::vec3 cameraRot = cam.transform.GetRotation();
             ImGui::InputFloat3("cameraPosition", &cameraPos[0]);
             ImGui::InputFloat3("cameraRotation", &cameraRot[0]);
+
+            ImGui::Text("Interface");
+            ImGui::Text("' SPACE ': Cycle to the next animations");
+            ImGui::Text("' RIGHT/LEFT ARROW ': Switch Model");
+
+            ImGui::Text("' 0 ': Rotate camera left about camera center");
+            ImGui::Text("' . ': Rotate camera right about camera center");
+            ImGui::Text("' 5 ': Reset camera to default position");
+            ImGui::Text("' 4 ': Move camera AND camera center along the camera's left vector");
+            ImGui::Text("' 6 ': Move camera AND camera center along the camera's right vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 2 ': Move camera but NOT center along the camera's down vector");
+            ImGui::Text("' + ': Zoom camera in towards camera center");
+            ImGui::Text("' - ': Zoom camera out from camera center");
+
+            ImGui::Text("' * ': Increase the animation rate");
+            ImGui::Text("' / ': Decrease the animation rate");
+            ImGui::Text("' B ': Toggle the bone drawing on/off");
+            ImGui::Text("' M ': Toggle the mesh drawing on/off");
+
         }
 
 

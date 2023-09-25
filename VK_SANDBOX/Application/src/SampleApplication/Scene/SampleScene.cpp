@@ -24,14 +24,41 @@ void SampleApplication::SampleScene::Load()
 	// Create Graphics resource using GraphicsAssetCreator
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
-	auto testCharacter = graphicsAssetCreator.CreateModel("testCharacter",
-		//"Application/assets/Test/X Bot.fbx");
-		"Application/assets/Test/Bot/Ch44_nonPBR.fbx");
-	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
-		"CrouchAnimation", "Application/assets/Test/Bot/Crouch To Stand.fbx", testCharacter);
-	auto IdleAnimation = graphicsAssetCreator.CreateAnimation(
-	"IdleAnimation", "Application/assets/Test/Bot/Idle.fbx", testCharacter);
+	// Models
+	auto Ch44Model = graphicsAssetCreator.CreateModel("Ch44Model",
+		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
+	auto Ch03Model = graphicsAssetCreator.CreateModel("Ch03Model",
+		"Application/assets/Models/Ch03_nonPBR/Ch03_nonPBR.fbx");
+	auto CastleGuardModel = graphicsAssetCreator.CreateModel("CastleGuardModel",
+		"Application/assets/Models/castle_guard_01/castle_guard_01.fbx");
+	auto MutantModel = graphicsAssetCreator.CreateModel("MutantModel",
+		"Application/assets/Models/Mutant/Mutant.fbx");
 
+	// Animation
+	auto SaluteAnimation = graphicsAssetCreator.CreateAnimation(
+		"SaluteAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+		Ch44Model);
+	auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
+		"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
+		Ch44Model);
+	auto IdleAnimation = graphicsAssetCreator.CreateAnimation(
+		"IdleAnimation", "Application/assets/Animations/Idle.fbx",
+		Ch03Model);
+	auto HipHopAnimation = graphicsAssetCreator.CreateAnimation(
+		"HipHopAnimation", "Application/assets/Animations/Hip Hop Dancing.fbx",
+		Ch03Model);
+	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
+		"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+		CastleGuardModel);
+	auto ClappingAnimation = graphicsAssetCreator.CreateAnimation(
+		"ClappingAnimation", "Application/assets/Animations/Clapping.fbx",
+		CastleGuardModel);
+	auto BDEAnimation = graphicsAssetCreator.CreateAnimation(
+		"BDEAnimation", "Application/assets/Animations/Breakdance Ending 2.fbx",
+		MutantModel);
+	auto BD19Animation = graphicsAssetCreator.CreateAnimation(
+	"BD19Animation", "Application/assets/Animations/Breakdance 1990.fbx",
+		MutantModel);
 
 	// viking Room
 	auto roomTexture = 
@@ -53,9 +80,19 @@ void SampleApplication::SampleScene::UnLoad()
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	// testModel
-	graphicsAssetCreator.DestroyModel("testCharacter");
+	graphicsAssetCreator.DestroyModel("Ch44Model");
+	graphicsAssetCreator.DestroyModel("Ch03Model");
+	graphicsAssetCreator.DestroyModel("CastleGuardModel");
+	graphicsAssetCreator.DestroyModel("MutantModel");
+
+	graphicsAssetCreator.DestroyAnimation("BD19Animation");
+	graphicsAssetCreator.DestroyAnimation("BDEAnimation");
 	graphicsAssetCreator.DestroyAnimation("CrouchAnimation");
+	graphicsAssetCreator.DestroyAnimation("ClappingAnimation");
+	graphicsAssetCreator.DestroyAnimation("HipHopAnimation");
 	graphicsAssetCreator.DestroyAnimation("IdleAnimation");
+	graphicsAssetCreator.DestroyAnimation("JumpAttackAnimation");
+	graphicsAssetCreator.DestroyAnimation("SaluteAnimation");
 
 	// viking Room
 	graphicsAssetCreator.DestroyTexture("roomTexture");
@@ -91,26 +128,74 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
 
-
-
-	IHCEngine::Core::GameObject& testCharacter = AddGameObject("testCharacter");
-	testCharacter.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = testCharacter.AddComponent<IHCEngine::Component::PipelineComponent>();
+	//// Skeletal Animation ////
+	// Ch44
+	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Model");
+	ch44Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
-	modelcomponent = testCharacter.AddComponent<IHCEngine::Component::ModelComponent>();
-	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("testCharacter"));
-	animatorcomponent = testCharacter.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	auto testAnimation = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
-	animatorcomponent->PlayAnimation(testAnimation);
-	animationtester->SetGameObjectA(&testCharacter);
+	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
+	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	auto ani1 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
+	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
 
+	animationtester->AddAnimationGobjs(&ch44Gobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& ch03Gobj = AddGameObject("Ch03Model");
+	ch03Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = ch03Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = ch03Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch03Model"));
+	animatorcomponent = ch03Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("IdleAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("HipHopAnimation");
+
+	animationtester->AddAnimationGobjs(&ch03Gobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& CastleGuardGobj = AddGameObject("CastleGuardGobj");
+	CastleGuardGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("CastleGuardModel"));
+	animatorcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("ClappingAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
+
+	animationtester->AddAnimationGobjs(&CastleGuardGobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& MutantGobj = AddGameObject("MutantGobj");
+	MutantGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = MutantGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = MutantGobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("MutantModel"));
+	animatorcomponent = MutantGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("BDEAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("BD19Animation");
+
+	animationtester->AddAnimationGobjs(&MutantGobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+
+	///////////////////////////
+	// Others
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
 	room.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
 	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
 	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("roomTexture"));
-	room.transform.SetPosition(glm::vec3(2.0f, 0.01f, 2.0f));
+	room.transform.SetPosition(glm::vec3(10.0f, 0.01f, 2.0f));
 	room.transform.SetRotation(glm::vec3(-90, -90, 0));
 	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
 
