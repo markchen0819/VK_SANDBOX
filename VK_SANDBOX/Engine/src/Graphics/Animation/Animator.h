@@ -17,8 +17,12 @@ namespace IHCEngine::Graphics
 		void UpdateAnimation(float dt);
 		void SetAnimation(Animation* animation);
 		void PlayAnimation();
+
 		Animation* GetCurrentAnimation() { return currentAnimation; }
 		std::vector<glm::mat4>& GetFinalBoneMatrices();
+
+		void SetSpeed(float animatorSpeed);
+		float GetSpeed() { return speed; }
 
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { descriptorSets = set; }
@@ -38,6 +42,7 @@ namespace IHCEngine::Graphics
 		std::vector<glm::mat4> finalBoneMatrices;
 		Animation* currentAnimation = nullptr;
 		float currentTime;
+		float speed = 1.0f;
 
 		// Vulkan
 		std::vector<VkDescriptorSet> descriptorSets;

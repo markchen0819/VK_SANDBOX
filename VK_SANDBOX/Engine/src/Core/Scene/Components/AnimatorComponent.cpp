@@ -29,6 +29,11 @@ bool IHCEngine::Component::AnimatorComponent::HasAnimation()
 	return false;
 }
 
+void IHCEngine::Component::AnimatorComponent::SetSpeed(float speed)
+{
+	animator.SetSpeed(speed);
+}
+
 void IHCEngine::Component::AnimatorComponent::UpdateAnimation(float dt)
 {
 	animator.UpdateAnimation(dt);
@@ -37,6 +42,11 @@ void IHCEngine::Component::AnimatorComponent::UpdateAnimation(float dt)
 std::vector<glm::mat4>& IHCEngine::Component::AnimatorComponent::GetFinalBoneMatrices()
 {
 	return animator.GetFinalBoneMatrices();
+}
+
+float IHCEngine::Component::AnimatorComponent::GetSpeed()
+{
+	return animator.GetSpeed();
 }
 
 std::vector<VkDescriptorSet>& IHCEngine::Component::AnimatorComponent::GetDescriptorSets()

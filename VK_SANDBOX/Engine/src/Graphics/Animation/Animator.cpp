@@ -15,7 +15,8 @@ namespace IHCEngine::Graphics
 {
 	Animator::Animator()
 		: currentAnimation(nullptr),
-		  currentTime(0.0f)
+		  currentTime(0.0f),
+	      speed(1.0)
 	{
 		finalBoneMatrices.reserve(100);
 		for (int i = 0; i < 100; i++)
@@ -43,7 +44,7 @@ namespace IHCEngine::Graphics
 			assert(false);
 		}
 
-		currentTime += currentAnimation->GetTicksPerSecond() * dt;
+		currentTime += currentAnimation->GetTicksPerSecond() * speed * dt;
 		currentTime = fmod(currentTime, currentAnimation->GetDuration());
 		debugBoneVertices.clear();
 		calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
@@ -64,6 +65,11 @@ namespace IHCEngine::Graphics
 			assert(false);
 		}
 		currentTime = 0.0f;
+	}
+
+	void Animator::SetSpeed(float speed)
+	{
+		this->speed = speed;
 	}
 
 	void Animator::AllocateDebugBoneBuffer()

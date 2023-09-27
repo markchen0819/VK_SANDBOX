@@ -106,6 +106,27 @@ namespace SampleApplication
 			IHCEngine::Graphics::RenderSystem::animationMeshEnabled = !IHCEngine::Graphics::RenderSystem::animationMeshEnabled;
 		}
 		wasMKeyPressed = isMKeyPressed;
+
+
+		bool isAsteriskKeyPressed = glfwGetKey(window, GLFW_KEY_KP_MULTIPLY) == GLFW_PRESS;
+		if (isAsteriskKeyPressed && !wasAsteriskKeyPressed)
+		{
+			auto ac = animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>();
+			float speed = ac->GetSpeed();
+			speed += 0.15;
+			ac->SetSpeed(speed);
+		}
+		wasAsteriskKeyPressed = isAsteriskKeyPressed;
+
+		bool isSlashKeyPressed = glfwGetKey(window, GLFW_KEY_KP_DIVIDE) == GLFW_PRESS;
+		if (isSlashKeyPressed && !wasSlashKeyPressed)
+		{
+			auto ac = animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>();
+			float speed = ac->GetSpeed();
+			speed -= 0.15;
+			ac->SetSpeed(speed);
+		}
+		wasSlashKeyPressed = isSlashKeyPressed;
 	}
 
 	void AnimationTester::FixedUpdate()

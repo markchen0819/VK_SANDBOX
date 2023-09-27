@@ -49,7 +49,11 @@ namespace SampleApplication
         bool wasRightKeyPressed = false;
         bool wasLeftKeyPressed = false;
         bool wasSpaceKeyPressed = false;
+
         bool wasBKeyPressed = false;
         bool wasMKeyPressed = false;
+
+        bool wasAsteriskKeyPressed = false;
+        bool wasSlashKeyPressed = false;
     };
 }

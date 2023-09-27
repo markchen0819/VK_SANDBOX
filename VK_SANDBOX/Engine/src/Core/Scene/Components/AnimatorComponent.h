@@ -18,6 +18,9 @@ namespace IHCEngine::Component
 		void UpdateAnimation(float dt);
 		std::vector<glm::mat4>& GetFinalBoneMatrices();
 
+		float GetSpeed();
+		void SetSpeed(float speed);
+
 		std::vector<VkDescriptorSet>& GetDescriptorSets();
 		std::vector<Graphics::IHCBuffer*>& GetBuffers();
 
