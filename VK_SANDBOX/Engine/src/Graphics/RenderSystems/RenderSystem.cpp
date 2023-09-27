@@ -200,12 +200,19 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     if (wireframeEnabled)
     {
         renderWireframePipeline(frameInfo);
+        if (debugBonesEnabled)
+        {
+            renderDebugBonePipeline(frameInfo);
+        }
     }
     else
     {
         renderDefaultGraphicsPipeline(frameInfo);
         renderSkeletalAnimationPipeline(frameInfo);
-        renderDebugBonePipeline(frameInfo);
+        if(debugBonesEnabled)
+        {
+            renderDebugBonePipeline(frameInfo);
+        }
     }
 }
 void IHCEngine::Graphics::RenderSystem::renderDefaultGraphicsPipeline(FrameInfo& frameInfo)
@@ -597,8 +604,11 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
                 &push
             );
             // Bind Mesh and draw
-            mesh.second->Bind(frameInfo.commandBuffer);
-            mesh.second->Draw(frameInfo.commandBuffer);
+            if (animationMeshEnabled)
+            {
+                mesh.second->Bind(frameInfo.commandBuffer);
+                mesh.second->Draw(frameInfo.commandBuffer);
+            }
         }
     }
 }

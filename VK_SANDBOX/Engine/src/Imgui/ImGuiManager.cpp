@@ -8,6 +8,7 @@
 #include "../Core/Locator//AppWindowLocator.h"
 #include "../Core/Locator/GraphicsManagerLocator.h"
 #include "../Graphics/VKWraps/IHCDevice.h"
+#include "../Graphics/RenderSystems/RenderSystem.h"
 
 // For logging
 #include "../Core/Time/Time.h"
@@ -106,11 +107,18 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
         if (sceneManager->GetActiveScene() != nullptr)
         {
             auto cam = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
-            glm::vec3 cameraPos = cam.transform.GetPosition();
-            glm::vec3 cameraRot = cam.transform.GetRotation();
-            ImGui::InputFloat3("cameraPosition", &cameraPos[0]);
-            ImGui::InputFloat3("cameraRotation", &cameraRot[0]);
+            //glm::vec3 cameraPos = cam.transform.GetPosition();
+            //glm::vec3 cameraRot = cam.transform.GetRotation();
+            //ImGui::InputFloat3("CameraPosition", &cameraPos[0]);
+            //ImGui::InputFloat3("CameraRotation", &cameraRot[0]);
 
+
+            ImGui::Checkbox("wireframeEnabled", &Graphics::RenderSystem::wireframeEnabled);
+            ImGui::Checkbox("debugBonesEnabled", &Graphics::RenderSystem::debugBonesEnabled); 
+            ImGui::Checkbox("animationMeshEnabled", &Graphics::RenderSystem::animationMeshEnabled); 
+
+
+            ImGui::Text("-------------------");
             ImGui::Text("Interface");
             ImGui::Text("' SPACE ': Cycle to the next animations");
             ImGui::Text("' RIGHT/LEFT ARROW ': Switch Model");
@@ -130,6 +138,7 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
             ImGui::Text("' / ': Decrease the animation rate");
             ImGui::Text("' B ': Toggle the bone drawing on/off");
             ImGui::Text("' M ': Toggle the mesh drawing on/off");
+            ImGui::Text("-------------------");
 
         }
 

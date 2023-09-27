@@ -19,6 +19,8 @@ namespace IHCEngine::Graphics
 		glm::mat4 GetViewMatrix();
 		glm::mat4 GetInverseViewMatrix();
 
+		void LookAt(glm::vec3 target);
+
 		float GetNearClippingPlane() { return nearPlane; };
 		void SetNearClippingPlane(float d){ isProjectionDirty = true; nearPlane = d; };
 		float GetFarClippingPlane() { return farPlane; };
@@ -36,7 +38,7 @@ namespace IHCEngine::Graphics
 		// Fix transform z, camera -z
 		glm::vec3 GetFoward() 
 		{
-			return transform.GetForward();
+			return -transform.GetForward();
 		};
 		glm::vec3 GetUp() 
 		{ 

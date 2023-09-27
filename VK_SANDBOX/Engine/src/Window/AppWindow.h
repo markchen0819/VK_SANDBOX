@@ -21,8 +21,12 @@ namespace IHCEngine::Window
 		void SetWindowResized(bool b) { windowResized = b; }
 		std::string GetName() { return  windowName; }
 
-		static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+		void SetScrollOffset(double x,double y) { scrollXOffset = x; scrollYOffset = y; }
+		glm::vec2 GetScrollOffset() { return glm::vec2(scrollXOffset, scrollYOffset); }
+		void ResetScrollOffset() { scrollXOffset = 0; scrollYOffset = 0; }
 
+		static void WindowResizeCallback(GLFWwindow* window, int width, int height);
+		static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	private:
 
 		GLFWwindow* window;
@@ -30,6 +34,8 @@ namespace IHCEngine::Window
 		unsigned int height;
 		unsigned int width;
 		bool windowResized = false;
+		int scrollXOffset=0;
+		int scrollYOffset=0;
 
 	};
 }

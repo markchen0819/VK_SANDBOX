@@ -98,6 +98,7 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Update();
 			sceneManager->Update();
 			graphicsManager->Update(sceneManager->GetActiveScene());
+			appWindow->ResetScrollOffset();
 		}
 		sceneManager->DeferDestroyGameObjects();
 	}

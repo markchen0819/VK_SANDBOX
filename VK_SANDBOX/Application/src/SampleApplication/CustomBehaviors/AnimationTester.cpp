@@ -1,11 +1,13 @@
 #include <glm/gtx/string_cast.hpp> 
 #include "AnimationTester.h"
 
+#include "imgui.h"
 #include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Scene/GameObject.h"
 #include "../../Engine/src/Core/Locator/AppWindowLocator.h"
 #include "../../Engine/src/Core/Time/Time.h"
 #include "../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
 
 namespace SampleApplication
 {
@@ -88,6 +90,22 @@ namespace SampleApplication
 		}
 		wasSpaceKeyPressed = isSpaceKeyPressed;
 
+
+		bool isBKeyPressed = glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS;
+		if (isBKeyPressed && !wasBKeyPressed)
+		{
+			// bone drawing on/off.
+			IHCEngine::Graphics::RenderSystem::debugBonesEnabled = !IHCEngine::Graphics::RenderSystem::debugBonesEnabled;
+		}
+		wasBKeyPressed = isBKeyPressed;
+
+		bool isMKeyPressed = glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS;
+		if (isMKeyPressed && !wasMKeyPressed)
+		{
+			// mesh drawing on/off.
+			IHCEngine::Graphics::RenderSystem::animationMeshEnabled = !IHCEngine::Graphics::RenderSystem::animationMeshEnabled;
+		}
+		wasMKeyPressed = isMKeyPressed;
 	}
 
 	void AnimationTester::FixedUpdate()
