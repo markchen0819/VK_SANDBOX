@@ -178,13 +178,8 @@ void SampleApplication::CameraController::HandleEditorInput()
 
         yaw += mouseDeltaX;
         pitch += mouseDeltaY;
-        const float MAX_PITCH = 89.0f;
-        pitch = glm::clamp(pitch, -MAX_PITCH, MAX_PITCH);
-        // Convert pitch and yaw to a quaternion
-        glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
-        glm::quat qYaw = glm::angleAxis(glm::radians(yaw), glm::vec3(0, 1, 0));
-        glm::quat orientation = qPitch * qYaw;
-        camera->transform.SetRotationInQuaternion(orientation);
+        camera->transform.SetRotation(glm::vec3(pitch, yaw, 0.0f));
+
 
         lastX = mouseX;
         lastY = mouseY;
