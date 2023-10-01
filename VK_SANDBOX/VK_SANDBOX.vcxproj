@@ -205,6 +205,8 @@
     <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp" />
+    <ClCompile Include="Engine\src\Math\Quaternion.cpp" />
+    <ClCompile Include="Engine\src\Math\VQS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.h" />
@@ -272,6 +274,8 @@
     <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Math\Quaternion.h" />
+    <ClInclude Include="Engine\src\Math\VQS.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

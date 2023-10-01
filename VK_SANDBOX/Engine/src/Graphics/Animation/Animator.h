@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../VKWraps/VKHelpers.h"
+#include "../../Math/VQS.h"
 
 namespace IHCEngine::Graphics
 {
@@ -38,6 +39,7 @@ namespace IHCEngine::Graphics
 	private:
 
 		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
+		void calculateBoneTransformVQS(const AssimpNodeData* node, Math::VQS parentTransform);
 
 		std::vector<glm::mat4> finalBoneMatrices;
 		Animation* currentAnimation = nullptr;
