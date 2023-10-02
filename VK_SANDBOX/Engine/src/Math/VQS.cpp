@@ -91,15 +91,6 @@ namespace IHCEngine::Math
 		// qt = Slerp(q0, q1, t)
 		// st = Elerp(s0, s1, t)
 
-		//glm::vec3 finalTranslate = glm::mix(vqs1.translate,vqs2.translate,t.x);
-		//glm::quat q1 = Quaternion::ConvertToGLMQuat(vqs1.rotation);
-		//glm::quat q2 = Quaternion::ConvertToGLMQuat(vqs2.rotation);
-		//glm::quat finalRotation = glm::slerp(q1,q2,t.y);
-		//Quaternion finalRotate = Quaternion::CreateFromGLMQuat(finalRotation);
-		//finalRotate.Normalize();
-		//float finalScale = glm::mix(vqs1.scalar, vqs2.scalar, t.z);
-		//return VQS(finalTranslate, finalRotate, finalScale);
-
 		glm::vec3 finalTranslate = (1.0f - t.x) * vqs1.translate + t.x * vqs2.translate;
 		Quaternion finalRotate = Quaternion::Slerp(vqs1.rotation, vqs2.rotation, t.y);
 		finalRotate.Normalize();

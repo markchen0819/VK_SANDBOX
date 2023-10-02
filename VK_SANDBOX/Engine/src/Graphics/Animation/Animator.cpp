@@ -24,9 +24,11 @@ namespace IHCEngine::Graphics
 		{
 			finalBoneMatrices.push_back(glm::mat4(1.0f));
 		}
+
 		// vulkan
 		auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 		graphicsAssetCreator.CreateSkeletalData(this);
+
 		// debug
 		debugBoneBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 	}
@@ -59,81 +61,11 @@ namespace IHCEngine::Graphics
 		}
 	}
 
-	void Animator::SetAnimation(Animation* animation)
+#pragma region Animation calculations
+	std::vector<glm::mat4>& Animator::GetFinalBoneMatrices()
 	{
-		currentAnimation = animation;
-		currentTime = 0.0f;
-		AllocateDebugBoneBuffer();
+		return finalBoneMatrices;
 	}
-
-	void Animator::PlayAnimation()
-	{
-		if (currentAnimation == nullptr)
-		{
-			std::cerr << "No animation assigned to animator" << std::endl;
-			assert(false);
-		}
-		currentTime = 0.0f;
-	}
-
-	void Animator::SetSpeed(float speed)
-	{
-		this->speed = speed;
-	}
-
-	void Animator::AllocateDebugBoneBuffer()
-	{
-		if (currentAnimation == nullptr)
-		{
-			std::cerr << "No animation assigned to animator" << std::endl;
-			assert(false);
-		}
-		// Calculate first animation frame to get all bone vertices
-		currentTime = 0;
-		debugBoneVertices.clear();
-		if (AnimationConfig::calculateBonesWithVQS)
-		{
-			calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
-		}
-		else
-		{
-			calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
-		}
-		// Allocate Buffer
-		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-		std::vector<Vertex>& bonevertices = debugBoneVertices;
-		auto vertexCount = static_cast<uint32_t>(bonevertices.size());
-		uint32_t vertexSize = sizeof(bonevertices[0]);
-
-		vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
-
-		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; ++i)
-		{
-			debugBoneBuffers[i] = std::make_unique<Graphics::IHCBuffer>(
-				*graphicsManager->GetIHCDevice(),
-				vertexSize,
-				vertexCount,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-			);
-			debugBoneBuffers[i]->Map();
-		}
-	}
-
-	void Animator::UpdateDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		debugBoneBuffers[frameInfo.frameIndex]->WriteToBuffer((void*)debugBoneVertices.data());
-		debugBoneBuffers[frameInfo.frameIndex]->Flush();
-	}
-
-	void Animator::DrawDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		VkBuffer buffers[] = { debugBoneBuffers[frameInfo.frameIndex]->GetBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
-	}
-
 	void Animator::calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)
 	{
 		// Starting from root node of current animation
@@ -181,7 +113,6 @@ namespace IHCEngine::Graphics
 			calculateBoneTransform(&node->children[i], globalTransformation);
 		}
 	}
-
 	void Animator::calculateBoneTransformVQS(const AssimpNodeData* node, Math::VQS parentVQS)
 	{
 		// Starting from root node of current animation
@@ -229,9 +160,82 @@ namespace IHCEngine::Graphics
 			calculateBoneTransformVQS(&node->children[i], globalVQS);
 		}
 	}
+#pragma endregion
 
-	std::vector<glm::mat4>& Animator::GetFinalBoneMatrices()
+#pragma region Getters & Setters
+	void Animator::SetAnimation(Animation* animation)
 	{
-		return finalBoneMatrices;
+		currentAnimation = animation;
+		currentTime = 0.0f;
+		AllocateDebugBoneBuffer();
 	}
+	void Animator::PlayAnimation()
+	{
+		if (currentAnimation == nullptr)
+		{
+			std::cerr << "No animation assigned to animator" << std::endl;
+			assert(false);
+		}
+		currentTime = 0.0f;
+	}
+	void Animator::SetSpeed(float speed)
+	{
+		this->speed = speed;
+	}
+#pragma endregion
+
+#pragma region Debug
+	void Animator::AllocateDebugBoneBuffer()
+	{
+		if (currentAnimation == nullptr)
+		{
+			std::cerr << "No animation assigned to animator" << std::endl;
+			assert(false);
+		}
+		// Calculate first animation frame to get all bone vertices
+		currentTime = 0;
+		debugBoneVertices.clear();
+		if (AnimationConfig::calculateBonesWithVQS)
+		{
+			calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
+		}
+		else
+		{
+			calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+		}
+		// Allocate Buffer
+		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+		std::vector<Vertex>& bonevertices = debugBoneVertices;
+		auto vertexCount = static_cast<uint32_t>(bonevertices.size());
+		uint32_t vertexSize = sizeof(bonevertices[0]);
+
+		vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
+
+		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; ++i)
+		{
+			debugBoneBuffers[i] = std::make_unique<Graphics::IHCBuffer>(
+				*graphicsManager->GetIHCDevice(),
+				vertexSize,
+				vertexCount,
+				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			debugBoneBuffers[i]->Map();
+		}
+	}
+	void Animator::UpdateDebugBoneBuffer(FrameInfo& frameInfo)
+	{
+		debugBoneBuffers[frameInfo.frameIndex]->WriteToBuffer((void*)debugBoneVertices.data());
+		debugBoneBuffers[frameInfo.frameIndex]->Flush();
+	}
+	void Animator::DrawDebugBoneBuffer(FrameInfo& frameInfo)
+	{
+		VkBuffer buffers[] = { debugBoneBuffers[frameInfo.frameIndex]->GetBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
+		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
+	}
+#pragma endregion
+
+
 }

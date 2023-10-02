@@ -20,10 +20,11 @@ namespace IHCEngine::Graphics
 		void PlayAnimation();
 
 		Animation* GetCurrentAnimation() { return currentAnimation; }
-		std::vector<glm::mat4>& GetFinalBoneMatrices();
-
 		void SetSpeed(float animatorSpeed);
 		float GetSpeed() { return speed; }
+
+		// Drawing
+		std::vector<glm::mat4>& GetFinalBoneMatrices();
 
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { descriptorSets = set; }

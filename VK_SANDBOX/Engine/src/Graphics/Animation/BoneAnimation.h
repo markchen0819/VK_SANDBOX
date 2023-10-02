@@ -43,7 +43,6 @@ namespace IHCEngine::Graphics
         glm::mat4 interpolateScaling(float animationTime);
         Math::VQS interpolateVQS(float animationTime);
 
-
         std::string boneName;
         int id;
         const aiNodeAnim* channel;

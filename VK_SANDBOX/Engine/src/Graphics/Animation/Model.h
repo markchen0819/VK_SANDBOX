@@ -15,24 +15,31 @@ namespace IHCEngine::Graphics
 
 namespace IHCEngine::Graphics
 {
+	// Model
+	// storing meshes, materials related to mesh, bone weights
+	// interpolate between its keys (TRS) based on the current animation time.
+
 	class Model
 	{
 	public:
 		Model(const std::string& filepath);
 		~Model();
 
+		// Drawing functions
 		std::unordered_map<std::string, IHCMesh*> GetMeshes();
 		MaterialData GetMaterialForMesh(std::string key);
 
+		// Animation functions
 		std::map<std::string, BoneInfo>& GetBoneInfoMap() { return boneInfoMap; }
 		int& GetBoneCount() { return boneCounter; }
 		AssimpNodeData& GetRootNodeOfHierarhcy() { return rootNodeOfHierachy;}
+
 	private:
 
+		// Info & Extracted datas (meshes, materials, bone weights, node hierachy )
 		std::string filepath;
 		std::string directory;
 		std::string filename;
-
 		int keyID = 0;
 		std::string currentKeyStr = ""; // key for following unordered_maps
 		std::unordered_map<std::string, IHCMesh*> meshes;

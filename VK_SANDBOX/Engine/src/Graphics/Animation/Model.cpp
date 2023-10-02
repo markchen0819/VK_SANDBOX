@@ -44,22 +44,19 @@ IHCEngine::Graphics::Model::~Model()
     }
 }
 
-std::unordered_map<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model::GetMeshes()
-{
-    return meshes;
-}
 
-IHCEngine::Graphics::MaterialData IHCEngine::Graphics::Model::GetMaterialForMesh(std::string key)
-{
-    return meshMaterialMap[key];
-}
-
+// Model loading order (DFS, build hierachy)
+// 1. Create mesh
+// 2. Create Textures related to mesh
+// 3. Extra bone weights related to mesh
+// 4. Update bone weights info to mesh vertices that are sent to shader
+#pragma region Model loading 
 void IHCEngine::Graphics::Model::loadModel(std::string filepath)
 {
     Assimp::Importer importer;
-    const aiScene* ai_scene = importer.ReadFile(filepath, 
-        aiProcess_Triangulate 
-        | aiProcess_GenSmoothNormals 
+    const aiScene* ai_scene = importer.ReadFile(filepath,
+        aiProcess_Triangulate
+        | aiProcess_GenSmoothNormals
         | aiProcess_FlipUVs
         | aiProcess_CalcTangentSpace);
     // aiProcess_Triangulate: convert all to triangles
@@ -67,7 +64,7 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
     // aiProcess_GenNormals: create normal vectors
     // aiProcess_SplitLargeMeshes: split if mesh is too large
     // aiProcess_OptimizeMeshes: combine for reducing draw calls
-    if (!ai_scene || ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !ai_scene->mRootNode) 
+    if (!ai_scene || ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !ai_scene->mRootNode)
     {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
@@ -86,12 +83,12 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
     std::cout << "mNumMeshes:" << ai_scene->mNumMeshes << std::endl;
     std::cout << "mNumMaterials:" << ai_scene->mNumMaterials << std::endl;
     std::cout << "mNumTextures:" << ai_scene->mNumTextures << std::endl;
-    std::cout <<"============"<< std::endl;
+    std::cout << "============" << std::endl;
     for (const auto& pair : meshMaterialMap)
     {
         std::cout << "- Key: " << pair.first << std::endl;
-        std::cout << "MaterialName: "<<pair.second.name << std::endl;
-        std::cout << "Textures: " <<std::endl;
+        std::cout << "MaterialName: " << pair.second.name << std::endl;
+        std::cout << "Textures: " << std::endl;
         for (size_t i = 0; i < pair.second.diffuseMaps.size(); ++i)
         {
             std::cout << pair.second.diffuseMaps[i]->GetName() << std::endl;
@@ -110,9 +107,7 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
         }
         std::cout << std::endl;
     }
-
 }
-
 void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene, AssimpNodeData& root)
 {
     // process current node
@@ -138,7 +133,6 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
         root.children.push_back(newNode);
     }
 }
-
 std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     IHCEngine::Graphics::IHCMesh::Builder meshBuilder;
@@ -230,7 +224,6 @@ std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model
     std::cout << ", indices: " << meshBuilder.indices.size() << std::endl;
     return { currentKeyStr , meshPtr };
 }
-
 std::pair<std::string, IHCEngine::Graphics::MaterialData> IHCEngine::Graphics::Model::processMaterials(aiMesh* mesh, const aiScene* scene)
 {
     // process materials
@@ -252,9 +245,8 @@ std::pair<std::string, IHCEngine::Graphics::MaterialData> IHCEngine::Graphics::M
     std::vector<IHCTexture*> heightMaps = loadTextures(material, aiTextureType_AMBIENT, "texture_height");
     materialData.heightMaps = heightMaps;
 
-    return {currentKeyStr, materialData};
+    return { currentKeyStr, materialData };
 }
-
 std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
     std::vector<IHCEngine::Graphics::IHCTexture*> textures;
@@ -268,17 +260,16 @@ std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTe
         mat->GetTexture(type, i, &str);
 
         // texture was loaded before
-        if(assetManager->GetTextureRepository().HasAsset(str.C_Str()))
+        if (assetManager->GetTextureRepository().HasAsset(str.C_Str()))
         {
             break;
         }
         // texture hasn't been loaded already, load it
-        IHCTexture* texturePtr = graphicsManager->GetGraphicsAssetCreator().CreateTexture(str.C_Str(), directory+"/"+str.C_Str());
+        IHCTexture* texturePtr = graphicsManager->GetGraphicsAssetCreator().CreateTexture(str.C_Str(), directory + "/" + str.C_Str());
         textures.push_back(texturePtr);
     }
     return textures;
 }
-
 void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
 {
     // Check all bones for the mesh
@@ -291,7 +282,7 @@ void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex
         {
             BoneInfo newBoneInfo;
             newBoneInfo.id = boneCounter;
-            newBoneInfo.offsetMatrix = 
+            newBoneInfo.offsetMatrix =
                 AssimpGLMHelpers::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
             boneInfoMap[boneName] = newBoneInfo;
             boneID = boneCounter;
@@ -326,3 +317,17 @@ void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex
         }
     }
 }
+#pragma endregion
+
+#pragma region Model drawing
+std::unordered_map<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model::GetMeshes()
+{
+    return meshes;
+}
+IHCEngine::Graphics::MaterialData IHCEngine::Graphics::Model::GetMaterialForMesh(std::string key)
+{
+    return meshMaterialMap[key];
+}
+#pragma endregion
+
+
