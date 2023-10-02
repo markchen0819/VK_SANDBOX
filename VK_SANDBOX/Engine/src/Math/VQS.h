@@ -23,7 +23,7 @@ namespace IHCEngine::Math
 		glm::vec3 operator*(glm::vec3 const& point) const;
 		VQS Inverse() const;
 
-		static VQS Slerp(VQS const& vqs1, VQS const& vqs2, float t);
+		static VQS Slerp(VQS const& vqs1, VQS const& vqs2, glm::vec3 t); //glm::vec3 t as keyframes might not aligned
 		static glm::mat4 VQSToGLMMat4(VQS const& vqs);
 		static VQS GLMMat4ToVQS(glm::mat4 const& mat);
 

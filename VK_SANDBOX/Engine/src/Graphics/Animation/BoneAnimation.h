@@ -1,5 +1,6 @@
 #pragma once
 #include "AnimationInfo.h"
+#include "../../Math/VQS.h"
 struct aiNodeAnim;
 
 namespace IHCEngine::Graphics
@@ -22,6 +23,7 @@ namespace IHCEngine::Graphics
 
         void Update(float animationTime);
         glm::mat4 GetLocalTransform() const { return localTransform; }
+        Math::VQS GetLocalTransformVQS() const { return localVQS; }
 
         std::string GetBoneName() const { return boneName; }
         int GetBoneID() const { return id; }
@@ -30,6 +32,7 @@ namespace IHCEngine::Graphics
         int GetPositionIndex(float animationTime);
         int GetRotationIndex(float animationTime);
         int GetScaleIndex(float animationTime);
+        glm::vec3 GetVQSIndices(float animationTime); // keyframes of pos/rot/scale might not align
 
 	private:
 
@@ -38,12 +41,15 @@ namespace IHCEngine::Graphics
         glm::mat4 interpolatePosition(float animationTime);
         glm::mat4 interpolateRotation(float animationTime);
         glm::mat4 interpolateScaling(float animationTime);
+        Math::VQS interpolateVQS(float animationTime);
+
 
         std::string boneName;
         int id;
         const aiNodeAnim* channel;
 
         glm::mat4 localTransform;
+        Math::VQS localVQS;
 
         int numPositions;
         int numRotations;

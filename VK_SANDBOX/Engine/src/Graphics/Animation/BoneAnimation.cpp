@@ -1,6 +1,9 @@
 #include "../../pch.h"
 #include "BoneAnimation.h"
 #include <assimp/anim.h>
+#include <glm/gtx/string_cast.hpp>
+
+#include "AnimationConfig.h"
 
 namespace IHCEngine::Graphics
 {
@@ -21,10 +24,19 @@ namespace IHCEngine::Graphics
 
 	void BoneAnimation::Update(float animationTime)
 	{
-		glm::mat4 translation = interpolatePosition(animationTime);
-		glm::mat4 rotation = interpolateRotation(animationTime);
-		glm::mat4 scale = interpolateScaling(animationTime);
-		localTransform = translation * rotation * scale;
+
+		if (AnimationConfig::calculateBonesWithVQS)
+		{
+			localVQS = interpolateVQS(animationTime);
+		}
+		else
+		{
+			glm::mat4 translation = interpolatePosition(animationTime);
+			glm::mat4 rotation = interpolateRotation(animationTime);
+			glm::mat4 scale = interpolateScaling(animationTime);
+			localTransform = translation * rotation * scale;
+		}
+
 	}
 
 	int BoneAnimation::GetPositionIndex(float animationTime)
@@ -56,6 +68,67 @@ namespace IHCEngine::Graphics
 		}
 		assert(0);
 	}
+
+	glm::vec3 BoneAnimation::GetVQSIndices(float animationTime)
+	{
+		// position
+		int p0Index;
+		int p1Index;
+		if (numPositions == 1)
+		{
+			p0Index = p1Index = 0;
+		}
+		else
+		{
+			p0Index = GetPositionIndex(animationTime);
+			p1Index = p0Index + 1;
+		}
+		float posFactor = getScaleFactor
+		(
+			keyPositions[p0Index].timeStamp,
+			keyPositions[p1Index].timeStamp,
+			animationTime
+		);
+		// rotation
+		int r0Index;
+		int r1Index;
+		if (numRotations == 1)
+		{
+			r0Index = r1Index = 0;
+		}
+		else
+		{
+			r0Index = GetRotationIndex(animationTime);
+			r1Index = r0Index + 1;
+		}
+		float rotFactor = getScaleFactor
+		(
+			keyRotations[r0Index].timeStamp,
+			keyRotations[r1Index].timeStamp,
+			animationTime
+		);
+		//scale
+		int s0Index;
+		int s1Index;
+		if (numScales == 1)
+		{
+			s0Index = s1Index = 0;
+		}
+		else
+		{
+			s0Index = GetScaleIndex(animationTime);
+			s1Index = s0Index + 1;
+		}
+		float scaleFactor = getScaleFactor
+		(
+			keyScales[s0Index].timeStamp,
+			keyScales[s1Index].timeStamp,
+			animationTime
+		);
+
+		return glm::vec3(posFactor, rotFactor, scaleFactor);
+	}
+
 
 	float BoneAnimation::getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
 	{
@@ -126,6 +199,77 @@ namespace IHCEngine::Graphics
 			keyScales[p1Index].scale
 			, scaleFactor);
 		return glm::scale(glm::mat4(1.0f), finalScale);
+	}
+
+	Math::VQS BoneAnimation::interpolateVQS(float animationTime)
+	{
+		// Positions
+		glm::vec3 startPosition;
+		glm::vec3 endPosition;
+		if (numPositions == 1)
+		{
+			startPosition = endPosition = keyPositions[0].position;
+		}
+		else
+		{
+			int p0Index = GetPositionIndex(animationTime);
+			int p1Index = p0Index + 1;
+			startPosition = keyPositions[p0Index].position;
+			endPosition = keyPositions[p1Index].position;
+		}
+
+		// Rotations
+		glm::quat startRotation;
+		glm::quat endRotation;
+		if (numRotations == 1)
+		{
+			startRotation = endRotation = glm::normalize(keyRotations[0].orientation);
+		}
+		else
+		{
+			int r0Index = GetRotationIndex(animationTime);
+			int r1Index = r0Index + 1;
+			startRotation = glm::normalize(keyRotations[r0Index].orientation);
+			endRotation = glm::normalize(keyRotations[r1Index].orientation);
+		}
+
+		// Scales
+		float startScale;
+		float endScale;
+		if (numScales == 1)
+		{
+			startScale = endScale = keyScales[0].scale.x; // Assuming uniform scaling
+		}
+		else
+		{
+			int s0Index = GetScaleIndex(animationTime);
+			int s1Index = s0Index + 1;
+			startScale = keyScales[s0Index].scale.x; // Assuming uniform scaling
+			endScale = keyScales[s1Index].scale.x;
+		}
+
+		// Single key frame fixing (Not sure why VQS breaks on this case)
+		if (numPositions == 1 && numRotations == 1 && numScales == 1)
+		{
+			glm::mat4 translation = interpolatePosition(animationTime);
+			glm::mat4 rotation = interpolateRotation(animationTime);
+			glm::mat4 scale = interpolateScaling(animationTime);
+			localTransform = translation * rotation * scale;
+			Math::VQS vqs = Math::VQS::GLMMat4ToVQS(localTransform);
+			return vqs;
+		}
+
+		// Construct the VQS for start and end transformations
+		Math::Quaternion q1 = Math::Quaternion::CreateFromGLMQuat((startRotation));
+		Math::Quaternion q2 = Math::Quaternion::CreateFromGLMQuat((endRotation));
+		Math::VQS vqs1(startPosition, q1, startScale);
+		Math::VQS vqs2(endPosition, q2, endScale);
+
+		// Use the Slerp method to interpolate between vqs1 and vqs2
+		glm::vec3 indices = GetVQSIndices(animationTime);
+		Math::VQS resultVQS = Math::VQS::Slerp(vqs1, vqs2, indices);
+
+		return resultVQS;
 	}
 }
 

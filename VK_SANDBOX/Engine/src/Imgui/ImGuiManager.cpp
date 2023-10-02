@@ -9,6 +9,7 @@
 #include "../Core/Locator/GraphicsManagerLocator.h"
 #include "../Graphics/VKWraps/IHCDevice.h"
 #include "../Graphics/RenderSystems/RenderSystem.h"
+#include "../Graphics/Animation/AnimationConfig.h"
 
 // For logging
 #include "../Core/Time/Time.h"
@@ -116,7 +117,7 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
             ImGui::Checkbox("wireframeEnabled", &Graphics::RenderSystem::wireframeEnabled);
             ImGui::Checkbox("debugBonesEnabled", &Graphics::RenderSystem::debugBonesEnabled); 
             ImGui::Checkbox("animationMeshEnabled", &Graphics::RenderSystem::animationMeshEnabled); 
-
+            ImGui::Checkbox("calculateBonesWithVQS", &Graphics::AnimationConfig::calculateBonesWithVQS);
 
             ImGui::Text("-------------------");
             ImGui::Text("Interface");

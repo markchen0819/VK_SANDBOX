@@ -62,7 +62,6 @@ namespace IHCEngine::Math
 		// s2s1
 		float combinedScalar = scalar * rhs.scalar;
 		return VQS(combinedTranslation, combinedRotation, combinedScalar);
-
 	}
 
 	VQS VQS::Inverse() const
@@ -86,15 +85,25 @@ namespace IHCEngine::Math
 		return VQS(finalInverseTranslation, inverseRotation, inverseScalar);
 	}
 
-	VQS VQS::Slerp(VQS const& vqs1, VQS const& vqs2, float t)
+	VQS VQS::Slerp(VQS const& vqs1, VQS const& vqs2, glm::vec3 t)
 	{
 		// vt = Lerp(v0,v1,t)
 		// qt = Slerp(q0, q1, t)
 		// st = Elerp(s0, s1, t)
-		glm::vec3 finalTranslate = (1.0f - t) * vqs1.translate + t * vqs2.translate;
-		Quaternion finalRotate = Quaternion::Slerp(vqs1.rotation, vqs2.rotation, t);
+
+		//glm::vec3 finalTranslate = glm::mix(vqs1.translate,vqs2.translate,t.x);
+		//glm::quat q1 = Quaternion::ConvertToGLMQuat(vqs1.rotation);
+		//glm::quat q2 = Quaternion::ConvertToGLMQuat(vqs2.rotation);
+		//glm::quat finalRotation = glm::slerp(q1,q2,t.y);
+		//Quaternion finalRotate = Quaternion::CreateFromGLMQuat(finalRotation);
+		//finalRotate.Normalize();
+		//float finalScale = glm::mix(vqs1.scalar, vqs2.scalar, t.z);
+		//return VQS(finalTranslate, finalRotate, finalScale);
+
+		glm::vec3 finalTranslate = (1.0f - t.x) * vqs1.translate + t.x * vqs2.translate;
+		Quaternion finalRotate = Quaternion::Slerp(vqs1.rotation, vqs2.rotation, t.y);
 		finalRotate.Normalize();
-		float finalScale = pow(vqs2.scalar / vqs1.scalar, t) * vqs1.scalar;
+		float finalScale = pow(vqs2.scalar / vqs1.scalar, t.z) * vqs1.scalar;
 		return VQS(finalTranslate, finalRotate, finalScale);
 	}
 

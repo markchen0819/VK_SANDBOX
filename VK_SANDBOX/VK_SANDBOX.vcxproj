@@ -152,6 +152,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\Animation\AnimationConfig.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
@@ -209,6 +210,7 @@
     <ClCompile Include="Engine\src\Math\VQS.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\Animator.h" />
