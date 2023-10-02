@@ -2,12 +2,15 @@
 #include <vector>
 #include "Components/Transform.h"
 #include "Components/CustomBehavior/CustomBehavior.h"
-
+#include "../../Graphics/Animation/Animation.h"
+#include "../../Graphics/Animation/Animator.h"
 // Forward declaration
 namespace IHCEngine::Graphics 
 {
-    class IHCModel; 
-    class IHCTexture; 
+	class Animator;
+	class IHCMesh; 
+    class IHCTexture;
+    class Model;
 }
 namespace IHCEngine::Core
 {
@@ -34,12 +37,10 @@ namespace IHCEngine::Core
         Scene* GetScene() { return scene; }
 
         IHCEngine::Component::Transform transform;
-        IHCEngine::Graphics::IHCModel* model = nullptr;
-        IHCEngine::Graphics::IHCTexture* texture = nullptr;
 
         // Component
 		template<class T>
-		void AddComponent();
+		T* AddComponent();
 		template<class T>
 		T* GetComponent();
 		template <typename T>
@@ -58,6 +59,7 @@ namespace IHCEngine::Core
 
         std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
         std::vector<IHCEngine::Component::CustomBehavior*> customBehaviors;
+        std::vector<Component::Component*> componentList;
 
         friend class Scene;
         Scene* scene;

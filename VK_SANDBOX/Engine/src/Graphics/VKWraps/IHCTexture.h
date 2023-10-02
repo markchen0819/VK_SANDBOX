@@ -8,6 +8,15 @@ namespace IHCEngine::Graphics
 
 namespace IHCEngine::Graphics
 {
+    enum class TextureType
+    {
+        DIFFUSE,
+        SPECULAR,
+        NORMALMAP,
+        HEIGHTMAP,
+        NOTSPECIFIED
+    };
+
 	class IHCTexture
 	{
     public:
@@ -19,8 +28,15 @@ namespace IHCEngine::Graphics
         IHCTexture& operator=(const IHCTexture&) = delete;
 
         std::string GetName() { return name; }
+        std::string GetFilePath() { return filePath; }
         VkImageView GetTextureImageView() { return textureImageView; }
         VkSampler GetTextureSampler() { return textureSampler; }
+
+        void SetDescriptorSets(std::vector<VkDescriptorSet> set) { descriptorSets = set; }
+        std::vector<VkDescriptorSet>& GetDescriptorSets() { return descriptorSets;}
+
+        void SetTextureType(TextureType type) { textureType = type; }
+        TextureType GetTextureType() { return textureType; }
 
     private:
 
@@ -33,12 +49,16 @@ namespace IHCEngine::Graphics
         void createTextureSampler();
 
         IHCDevice& ihcDevice;
+        std::string filePath = "";
         std::string name="none";
         uint32_t mipLevels;
         VkImage textureImage; // pixel data
         VkDeviceMemory textureImageMemory;
         VkImageView textureImageView; // Describes how to access the texture image and which part of the image to access
         VkSampler textureSampler; // Used to read data from the texture image in the shaders.
+
+        TextureType textureType = TextureType::NOTSPECIFIED;
+        std::vector<VkDescriptorSet> descriptorSets;
 	};
 
 }

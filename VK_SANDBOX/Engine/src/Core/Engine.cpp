@@ -72,8 +72,8 @@ void IHCEngine::Core::Engine::Update()
 	while (!appWindow->ShouldClose())
 	{
 		glfwPollEvents();
-
 		Time::GetInstance().Update();
+
 		application->Update();
 
 		if (sceneManager->ShouldLoadNextScene())
@@ -98,6 +98,7 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Update();
 			sceneManager->Update();
 			graphicsManager->Update(sceneManager->GetActiveScene());
+			appWindow->ResetScrollOffset();
 		}
 		sceneManager->DeferDestroyGameObjects();
 	}
@@ -113,9 +114,10 @@ void IHCEngine::Core::Engine::Shutdown()
 
 	customBehaviorManager = nullptr;
 	imguiManager = nullptr;
+	sceneManager = nullptr;
 	graphicsManager = nullptr;
 	assetManager = nullptr;
-	sceneManager = nullptr;
+
 
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(nullptr);
 	IHCEngine::Core::GraphicsManagerLocator::Provide(nullptr);

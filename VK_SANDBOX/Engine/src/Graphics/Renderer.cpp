@@ -116,7 +116,7 @@ void IHCEngine::Graphics::Renderer::BeginSwapChainRenderPass(VkCommandBuffer com
 
     // clear screen values
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+    clearValues[0].color = { { clearColorValues.x, clearColorValues.y, clearColorValues.z, 1.0f} };
     //clearValues[0].depthStencil = X //depth attachment is 1 not 0
     clearValues[1].depthStencil = { 1.0f, 0 };
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

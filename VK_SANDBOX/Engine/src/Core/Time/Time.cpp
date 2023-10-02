@@ -9,20 +9,30 @@ void IHCEngine::Core::Time::Init()
 
 IHCEngine::Core::Time::Time()
 {
+	startTime = std::chrono::high_resolution_clock::now();
 	previousTime = std::chrono::high_resolution_clock::now();
 }
 
 void IHCEngine::Core::Time::Reset()
 {
-	frameCount = 0;
-	totalFixedTime = 0;
 	totalTime = 0;
+	frameTimeCounter = 0;
+	
+	totalFixedTime = 0;
+
 	timeScale = 1.0f;
+	frameCount = 0;
+	averageFps = 0.0;
+
+	startTime = std::chrono::high_resolution_clock::now();
+	previousTime = std::chrono::high_resolution_clock::now();
+	shouldExecuteUpdate = false;
 }
 
 void IHCEngine::Core::Time::Update()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
+	double elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0;  // Convert to seconds as a double
 	unscaledDeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()- previousTime).count()) * 0.000000001f;
 	
 	previousTime = currentTime;
@@ -34,11 +44,18 @@ void IHCEngine::Core::Time::Update()
 		return; // framerate control
 	}
 
+	// window interrupt fix
+	if(frameTimeCounter > maxFrameTime)
+	{
+		frameTimeCounter = maxFrameTime;
+	}
+
 	unscaledDeltaTime = frameTimeCounter;
 	deltaTime = timeScale * frameTimeCounter;
 	calculatedFps = 1.0f / frameTimeCounter;
 	shouldExecuteUpdate = true;
 	frameCount++;
+	averageFps = frameCount / elapsedTime;
 
 	if (minFrameTime == 0.0f)
 	{

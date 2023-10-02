@@ -1,8 +1,18 @@
 #include "SampleScene.h"
+
+// Engine resources
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
 #include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
-#include "../CustomBehaviors/CameraController.h"
+#include "../../Engine/src/Core/Time/Time.h"
 
+// Components
+#include "../CustomBehaviors/CameraController.h"
+#include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../CustomBehaviors/AnimationTester.h"
 
 SampleApplication::SampleScene::SampleScene()
 	: Scene("SampleScene")
@@ -11,89 +21,230 @@ SampleApplication::SampleScene::SampleScene()
 
 void SampleApplication::SampleScene::Load()
 {
-	// Create Texture & Model functions belongs to Graphics Manager 
-	// as it requires Vulkan parts (vkdevice, vkdesciptorsets...
-	//////////////////////////////////////////////////////////////////
-	// STEP1: Create textures and models using GraphicsManager
-	// STEP2: Move resources to AssetManager to  manage life time of the resources
-	//////////////////////////////////////////////////////////////////
-	
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	// Create Graphics resource using GraphicsAssetCreator
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
+	// Models
+	auto Ch44Model = graphicsAssetCreator.CreateModel("Ch44Model",
+		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
+	auto Ch03Model = graphicsAssetCreator.CreateModel("Ch03Model",
+		"Application/assets/Models/Ch03_nonPBR/Ch03_nonPBR.fbx");
+	auto CastleGuardModel = graphicsAssetCreator.CreateModel("CastleGuardModel",
+		"Application/assets/Models/castle_guard_01/castle_guard_01.fbx");
+	auto MutantModel = graphicsAssetCreator.CreateModel("MutantModel",
+		"Application/assets/Models/Mutant/Mutant.fbx");
+
+	// Animation
+	auto SaluteAnimation = graphicsAssetCreator.CreateAnimation(
+		"SaluteAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+		Ch44Model);
+	auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
+		"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
+		Ch44Model);
+	auto IdleAnimation = graphicsAssetCreator.CreateAnimation(
+		"IdleAnimation", "Application/assets/Animations/Idle.fbx",
+		Ch03Model);
+	auto HipHopAnimation = graphicsAssetCreator.CreateAnimation(
+		"HipHopAnimation", "Application/assets/Animations/Hip Hop Dancing.fbx",
+		Ch03Model);
+	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
+		"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+		CastleGuardModel);
+	auto ClappingAnimation = graphicsAssetCreator.CreateAnimation(
+		"ClappingAnimation", "Application/assets/Animations/Clapping.fbx",
+		CastleGuardModel);
+	auto BDEAnimation = graphicsAssetCreator.CreateAnimation(
+		"BDEAnimation", "Application/assets/Animations/Breakdance Ending 2.fbx",
+		MutantModel);
+	auto BD19Animation = graphicsAssetCreator.CreateAnimation(
+	"BD19Animation", "Application/assets/Animations/Breakdance 1990.fbx",
+		MutantModel);
 
 	// viking Room
 	auto roomTexture = 
-		graphicsManager->CreateTexture("roomTexture",
-			"Engine/assets/textures/viking_room/viking_room.png");
+		graphicsAssetCreator.CreateTexture("roomTexture",
+	"Engine/assets/textures/viking_room/viking_room.png");
 	auto roomModel = 
-		graphicsManager->CreateModel("roomModel",
+		graphicsAssetCreator.CreateMesh("roomModel",
 			"Engine/assets/models/viking_room/viking_room.obj");
-	assetManager->GetTextureRepository().AddAsset("roomTexture",
-		std::move(roomTexture));
-	assetManager->GetModelRepository().AddAsset("roomModel", 
-		std::move(roomModel));
+	// x y z axis
+	createAxisMeshAndLoadAxisTexture();
+	// grid
+	createGridMeshAndLoadGridTexture();
+}
+
+void SampleApplication::SampleScene::UnLoad()
+{
+	RemoveAllGameObject();
+
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+
+	// testModel
+	graphicsAssetCreator.DestroyModel("Ch44Model");
+	graphicsAssetCreator.DestroyModel("Ch03Model");
+	graphicsAssetCreator.DestroyModel("CastleGuardModel");
+	graphicsAssetCreator.DestroyModel("MutantModel");
+
+	graphicsAssetCreator.DestroyAnimation("BD19Animation");
+	graphicsAssetCreator.DestroyAnimation("BDEAnimation");
+	graphicsAssetCreator.DestroyAnimation("CrouchAnimation");
+	graphicsAssetCreator.DestroyAnimation("ClappingAnimation");
+	graphicsAssetCreator.DestroyAnimation("HipHopAnimation");
+	graphicsAssetCreator.DestroyAnimation("IdleAnimation");
+	graphicsAssetCreator.DestroyAnimation("JumpAttackAnimation");
+	graphicsAssetCreator.DestroyAnimation("SaluteAnimation");
+
+	// viking Room
+	graphicsAssetCreator.DestroyTexture("roomTexture");
+	graphicsAssetCreator.DestroyMesh("roomModel");
 
 	// x y z axis
-	IHCEngine::Graphics::IHCModel::Builder axisBuilder;
-	axisBuilder.vertices = {
-		{{ 1.0f,  0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{ 1.0f, -0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{ 1.0f, -0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{ 1.0f,  0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{-1.0f,  0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{-1.0f, -0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{-1.0f, -0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
-		{{-1.0f,  0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}}
-	};
-	axisBuilder.indices = {
-		0, 1, 5,  0, 5, 4,
-		1, 2, 6,  1, 6, 5,
-		2, 3, 7,  2, 7, 6,
-		3, 0, 4,  3, 4, 7,
-		4, 5, 6,  4, 6, 7,
-		0, 3, 2,  0, 2, 1
-	};
-	auto x_axisModel = graphicsManager->CreateModel(
-		"x_axisModel", axisBuilder);
-	axisBuilder.vertices = {
-	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{ 1.0f, -0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{ 1.0f, -0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{ 1.0f,  0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f,  0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f, -0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f, -0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
-	{{-1.0f,  0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}}
-	};
-	auto y_axisModel = graphicsManager->CreateModel(
-		"y_axisModel", axisBuilder);
-	axisBuilder.vertices = {
-	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{ 1.0f, -0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{ 1.0f, -0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{ 1.0f,  0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{-1.0f,  0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{-1.0f, -0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{-1.0f, -0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
-	{{-1.0f,  0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}}
-	};
-	auto z_axisModel = graphicsManager->CreateModel(
-		"z_axisModel", axisBuilder);
-
-	assetManager->GetModelRepository().AddAsset("x_axisModel",
-		std::move(x_axisModel));
-	assetManager->GetModelRepository().AddAsset("y_axisModel",
-		std::move(y_axisModel));
-	assetManager->GetModelRepository().AddAsset("z_axisModel",
-		std::move(z_axisModel));
-
-	auto plainTexture = graphicsManager->CreateTexture("plainTexture", "Engine/assets/textures/Plain.png");
-	assetManager->GetTextureRepository().AddAsset("plainTexture", std::move(plainTexture));
+	graphicsAssetCreator.DestroyTexture("plainTexture");
+	graphicsAssetCreator.DestroyMesh("x_axisModel");
+	graphicsAssetCreator.DestroyMesh("y_axisModel");
+	graphicsAssetCreator.DestroyMesh("z_axisModel");
 
 	// grid
-	auto gridTexture = graphicsManager->CreateTexture("gridTexture", "Engine/assets/textures/Grid.png");
-	IHCEngine::Graphics::IHCModel::Builder gridBuilder;
+	graphicsAssetCreator.DestroyTexture("gridTexture");
+	graphicsAssetCreator.DestroyMesh("gridModel");
+}
+
+void SampleApplication::SampleScene::Init()
+{
+	IHCEngine::Core::Time::GetInstance().LockFrameRate(144);
+
+	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
+	camera.AddComponent<SampleApplication::CameraController>();
+	auto animationtester = camera.AddComponent<SampleApplication::AnimationTester>();
+
+	//////////////////////////////////////////////////////////////////
+	// GameObjects creation and component adding here
+	//////////////////////////////////////////////////////////////////
+
+	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
+	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
+	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
+	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
+	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+
+	//// Skeletal Animation ////
+	// Ch44
+	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Model");
+	ch44Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
+	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	auto ani1 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
+	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
+
+	animationtester->AddAnimationGobjs(&ch44Gobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& ch03Gobj = AddGameObject("Ch03Model");
+	ch03Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = ch03Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = ch03Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch03Model"));
+	animatorcomponent = ch03Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("IdleAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("HipHopAnimation");
+
+	animationtester->AddAnimationGobjs(&ch03Gobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& CastleGuardGobj = AddGameObject("CastleGuardGobj");
+	CastleGuardGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("CastleGuardModel"));
+	animatorcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("ClappingAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
+
+	animationtester->AddAnimationGobjs(&CastleGuardGobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+	IHCEngine::Core::GameObject& MutantGobj = AddGameObject("MutantGobj");
+	MutantGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+	pipelinecomponent = MutantGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = MutantGobj.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("MutantModel"));
+	animatorcomponent = MutantGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	ani1 = assetManager->GetAnimationRepository().GetAsset("BDEAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("BD19Animation");
+
+	animationtester->AddAnimationGobjs(&MutantGobj);
+	animationtester->AddAnimationSlots1(ani1);
+	animationtester->AddAnimationSlots2(ani2);
+
+
+	///////////////////////////
+	// Others
+	IHCEngine::Core::GameObject& room = AddGameObject("room");
+	room.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
+	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("roomTexture"));
+	room.transform.SetPosition(glm::vec3(10.0f, 0.01f, 2.0f));
+	room.transform.SetRotation(glm::vec3(-90, -90, 0));
+	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
+
+	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
+	x_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));
+	texturecomponent = x_axis.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
+
+	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
+	y_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = y_axis.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("y_axisModel"));
+	texturecomponent = y_axis.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+	y_axis.transform.SetRotation(glm::vec3(0, 0, 90));
+	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
+
+	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
+	z_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = z_axis.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("z_axisModel"));
+	texturecomponent = z_axis.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+	z_axis.transform.SetRotation(glm::vec3(0, 90, 0));
+	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
+
+	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
+	grid.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = grid.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("gridModel"));
+	texturecomponent = grid.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("gridTexture"));
+	grid.transform.SetPosition(glm::vec3(0, -0.01, 0));
+}
+
+void SampleApplication::SampleScene::Reset()
+{
+
+}
+
+void SampleApplication::SampleScene::createGridMeshAndLoadGridTexture()
+{
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+
+	auto gridTexture = graphicsAssetCreator.CreateTexture("gridTexture", "Engine/assets/textures/Grid.png");
+	IHCEngine::Graphics::IHCMesh::Builder gridBuilder;
 	int gridSize = 100;
 	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
 	for (int i = 0; i <= gridSize; ++i)
@@ -129,89 +280,57 @@ void SampleApplication::SampleScene::Load()
 			gridBuilder.indices.push_back(topRight);
 		}
 	}
-	auto gridModel = graphicsManager->CreateModel("gridModel", gridBuilder);
-	assetManager->GetTextureRepository().AddAsset("gridTexture", std::move(gridTexture));
-	assetManager->GetModelRepository().AddAsset("gridModel", std::move(gridModel));
-
-
+	auto gridModel = graphicsAssetCreator.CreateMesh("gridModel", gridBuilder);
 }
-
-void SampleApplication::SampleScene::UnLoad()
+void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
 {
-	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
-	//////////////////////////////////////////////////////////////////
-	// STEP1: release Vulkan parts for reuse (vkdesciptorsets...) in GraphicsManager
-	// STEP2: End of resource lifetime in AssetManager 
-	//////////////////////////////////////////////////////////////////
+	IHCEngine::Graphics::IHCMesh::Builder axisBuilder;
+	axisBuilder.vertices = {
+		{{ 1.0f,  0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{ 1.0f, -0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{ 1.0f, -0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{ 1.0f,  0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{-1.0f,  0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{-1.0f, -0.1f,  0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{-1.0f, -0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}},
+		{{-1.0f,  0.1f, -0.1f}, {1.0f, 0.0f, 0.0f}}
+	};
+	axisBuilder.indices = {
+		0, 1, 5,  0, 5, 4,
+		1, 2, 6,  1, 6, 5,
+		2, 3, 7,  2, 7, 6,
+		3, 0, 4,  3, 4, 7,
+		4, 5, 6,  4, 6, 7,
+		0, 3, 2,  0, 2, 1
+	};
+	auto x_axisModel = graphicsAssetCreator.CreateMesh(
+		"x_axisModel", axisBuilder);
+	axisBuilder.vertices = {
+	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{ 1.0f, -0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{ 1.0f, -0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{ 1.0f,  0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{-1.0f,  0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{-1.0f, -0.1f,  0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{-1.0f, -0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}},
+	{{-1.0f,  0.1f, -0.1f}, {0.0f, 1.0f, 0.0f}}
+	};
+	auto y_axisModel = graphicsAssetCreator.CreateMesh(
+		"y_axisModel", axisBuilder);
+	axisBuilder.vertices = {
+	{{ 1.0f,  0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{ 1.0f, -0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{ 1.0f, -0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{ 1.0f,  0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{-1.0f,  0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{-1.0f, -0.1f,  0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{-1.0f, -0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}},
+	{{-1.0f,  0.1f, -0.1f}, {0.0f, 0.0f, 1.0f}}
+	};
+	auto z_axisModel = graphicsAssetCreator.CreateMesh(
+		"z_axisModel", axisBuilder);
 
-
-	// viking Room
-	graphicsManager->DestroyTexture("roomTexture");
-	graphicsManager->DestroyModel("roomModel");
-	assetManager->GetTextureRepository().RemoveAsset("roomTexture");
-	assetManager->GetModelRepository().RemoveAsset("roomModel");
-
-
-	// x y z axis
-	graphicsManager->DestroyTexture("plainTexture");
-	graphicsManager->DestroyModel("x_axisModel");
-	graphicsManager->DestroyModel("y_axisModel");
-	graphicsManager->DestroyModel("z_axisModel");
-	assetManager->GetTextureRepository().RemoveAsset("plainTexture");
-	assetManager->GetModelRepository().RemoveAsset("x_axisModel");
-	assetManager->GetModelRepository().RemoveAsset("y_axisModel");
-	assetManager->GetModelRepository().RemoveAsset("z_axisModel");
-
-	// grid
-	graphicsManager->DestroyTexture("gridTexture");
-	graphicsManager->DestroyModel("gridModel");
-	assetManager->GetTextureRepository().RemoveAsset("gridTexture");
-	assetManager->GetModelRepository().RemoveAsset("gridModel");
-
-
-}
-
-void SampleApplication::SampleScene::Init()
-{
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-
-	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	camera.AddComponent<SampleApplication::CameraController>();
-	
-	IHCEngine::Core::GameObject& room = AddGameObject("room");
-	room.model = assetManager->GetModelRepository().GetAsset("roomModel");
-	room.texture = assetManager->GetTextureRepository().GetAsset("roomTexture");
-	room.transform.SetPosition(glm::vec3(2.0f, 0.01f, 2.0f));
-	room.transform.SetRotation(glm::vec3(-90, -90, 0));
-	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
-
-	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
-	x_axis.model = assetManager->GetModelRepository().GetAsset("x_axisModel");
-	x_axis.texture = assetManager->GetTextureRepository().GetAsset("plainTexture");
-	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
-
-	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
-	y_axis.model = assetManager->GetModelRepository().GetAsset("y_axisModel");
-	y_axis.texture = assetManager->GetTextureRepository().GetAsset("plainTexture");
-	y_axis.transform.SetRotation(glm::vec3(0, 0, 90));
-	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
-
-	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
-	z_axis.model = assetManager->GetModelRepository().GetAsset("z_axisModel");
-	z_axis.texture = assetManager->GetTextureRepository().GetAsset("plainTexture");
-	z_axis.transform.SetRotation(glm::vec3(0, 90, 0));
-	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
-
-	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
-	grid.model = assetManager->GetModelRepository().GetAsset("gridModel");
-	grid.texture = assetManager->GetTextureRepository().GetAsset("gridTexture");
-	grid.transform.SetPosition(glm::vec3(0, -0.01, 0));
-
-}
-
-void SampleApplication::SampleScene::Reset()
-{
-
+	auto plainTexture = graphicsAssetCreator.CreateTexture("plainTexture", "Engine/assets/textures/Plain.png");
 }

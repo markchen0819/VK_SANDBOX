@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;$(SolutionDir)VK_SANDBOX\Libraries\assimp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -113,13 +113,16 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;$(SolutionDir)VK_SANDBOX\Libraries\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)\Libraries\assimp\assimp-vc143-mt.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -129,27 +132,37 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Include;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\include;$(SolutionDir)VK_SANDBOX\Libraries\glm;$(SolutionDir)VK_SANDBOX\Libraries\stb;$(SolutionDir)VK_SANDBOX\Libraries\tinyobjloader;$(SolutionDir)VK_SANDBOX\Libraries\imgui;$(SolutionDir)VK_SANDBOX\Libraries\assimp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)VK_SANDBOX\Libraries\VulkanSDK\1.3.243.0\Lib;$(SolutionDir)VK_SANDBOX\Libraries\glfw-3.3.8.bin.WIN64\lib-vc2022;$(SolutionDir)VK_SANDBOX\Libraries\assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)\Libraries\assimp\assimp-vc143-mt.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\src\Graphics\Animation\AnimationConfig.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Animation.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.cpp" />
     <ClCompile Include="Engine\src\Graphics\Camera.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\CameraController.cpp" />
     <ClCompile Include="Engine\src\Core\Asset\AssetManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDevice.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCSwapChain.cpp" />
@@ -162,7 +175,7 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\RenderSystem.cpp" />
     <ClCompile Include="Application\src\SampleApplication\SampleApplication.cpp" />
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCModel.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCMesh.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\GameObject.cpp" />
     <ClCompile Include="Engine\src\Graphics\Renderer.cpp" />
     <ClCompile Include="Engine\src\Graphics\GraphicsManager.cpp" />
@@ -171,11 +184,13 @@
     <ClCompile Include="Engine\src\Input\Input.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCBuffer.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\IHCTexture.cpp" />
-    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptors.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Scene.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\SceneManager.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\SampleScene.cpp" />
     <ClCompile Include="Engine\src\Imgui\ImGuiManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.cpp" />
+    <ClCompile Include="Engine\src\Graphics\GraphicsAssetCreator.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -183,8 +198,24 @@
     <ClCompile Include="Libraries\imgui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\Model.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp" />
+    <ClCompile Include="Engine\src\Math\Quaternion.cpp" />
+    <ClCompile Include="Engine\src\Math\VQS.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\Animator.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\Animation.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\AssimpGLMHelpers.h" />
     <ClInclude Include="Engine\src\Core\Locator\AppWindowLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\AssetManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Locator\GraphicsManagerLocator.h" />
@@ -192,12 +223,15 @@
     <ClInclude Include="Engine\src\Core\Locator\SceneManagerLocator.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehaviorManager.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\CustomBehavior\CustomBehavior.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\AnimationInfo.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\MaterialData.h" />
     <ClInclude Include="Engine\src\Graphics\Camera.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CameraController.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetManager.h" />
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Camera.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Component.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />
@@ -209,7 +243,7 @@
     <ClInclude Include="EntryPoint.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\RenderSystem.h" />
     <ClInclude Include="Application\src\SampleApplication\SampleApplication.h" />
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCModel.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCMesh.h" />
     <ClInclude Include="Engine\src\Core\Scene\GameObject.h" />
     <ClInclude Include="Engine\src\Graphics\Renderer.h" />
     <ClInclude Include="Engine\src\Graphics\GraphicsManager.h" />
@@ -218,11 +252,14 @@
     <ClInclude Include="Engine\src\Input\Input.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCBuffer.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCTexture.h" />
-    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptors.h" />
     <ClInclude Include="Engine\src\Core\Scene\Scene.h" />
     <ClInclude Include="Engine\src\Core\Scene\SceneManager.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\SampleScene.h" />
     <ClInclude Include="Engine\src\Imgui\ImGuiManager.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDescriptorManager.h" />
+    <ClInclude Include="Engine\src\Graphics\GraphicsAssetCreator.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.h" />
+    <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />
     <ClInclude Include="Libraries\imgui\imgui_impl_glfw.h" />
@@ -231,6 +268,16 @@
     <ClInclude Include="Libraries\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\imgui\imstb_truetype.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\Model.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Math\Quaternion.h" />
+    <ClInclude Include="Engine\src\Math\VQS.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
@@ -241,9 +288,13 @@
     <ClInclude Include="Engine\src\Core\Scene\GameObject.inl">
       <FileType>Document</FileType>
     </ClInclude>
+    <None Include="Libraries\assimp\assimp-vc143-mt.dll" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Libraries\imgui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Libraries\assimp\assimp-vc143-mt.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,9 +8,11 @@
 #include "Engine/src/Core/Engine.h"
 #include "Application/src/SampleApplication/SampleApplication.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 int main()
 {
-
+    Assimp::Importer importer;
 #ifdef _DEBUG
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif

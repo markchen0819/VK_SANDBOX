@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Graphics/GraphicsManager.h"
+#include "../../Graphics/GraphicsAssetCreator.h"
+
 namespace IHCEngine::Core
 {
 	class GraphicsManagerLocator

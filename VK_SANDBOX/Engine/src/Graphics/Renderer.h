@@ -67,6 +67,8 @@ namespace IHCEngine::Graphics
         // render pass compatiblity
         // https://registry.khronos.org/vulkan/specs/1.1-extensions/html/chap8.html#renderpass-compatibility
 
+        glm::vec3 clearColorValues{0.0, 0.7, 1.0};
+
         // Count breakdown
         // 
         // Assume we have ...

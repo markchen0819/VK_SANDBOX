@@ -39,23 +39,8 @@ glm::mat4 IHCEngine::Graphics::Camera::GetViewMatrix()
     // inverse rotation will orient the world 
     // such that the camera's forward direction aligns with
     // the desired view direction (e.g., the negative z-axis in a right-handed coordinate system).
-    
-    // ! This is incorrect due to coordinate system
-    //viewMatrix = glm::inverse(transform.GetModelMatrix());
 
-    // Transform: x-right, y-up, z-OUTSCREEN
-    // Camera: x-right, y-up, z-INSCREEN
-
-    // Recalculate correct view Matrix
-    auto cameraUp = transform.GetUp();
-    auto cameraRight = transform.GetRight();
-    auto cameraForward = glm::normalize(glm::cross(cameraUp, cameraRight));
-    auto cameraPosition = transform.GetWorldPosition();
-    cameraForward.x = -cameraForward.x;
-    cameraForward.y = -cameraForward.y;
-    cameraRight.z = -cameraRight.z;
-    viewMatrix = glm::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
-
+    viewMatrix = glm::inverse(transform.GetModelMatrix());
     return viewMatrix;
 }
 
@@ -63,6 +48,16 @@ glm::mat4 IHCEngine::Graphics::Camera::GetInverseViewMatrix()
 {
     inverseViewMatrix = glm::inverse(GetViewMatrix());;
     return inverseViewMatrix;
+}
+
+void IHCEngine::Graphics::Camera::LookAt(glm::vec3 target)
+{
+    viewMatrix = glm::lookAt(transform.GetPosition(),
+        target, glm::vec3(0,1,0));
+    // Extracting the camera's rotation:
+    glm::mat3 rotationMat3 = glm::inverse(glm::mat3(viewMatrix));
+    glm::quat cameraRotation = glm::quat_cast(rotationMat3);
+    transform.SetRotationInQuaternion(cameraRotation);
 }
 
 void IHCEngine::Graphics::Camera::SetCameraType(CameraType type)

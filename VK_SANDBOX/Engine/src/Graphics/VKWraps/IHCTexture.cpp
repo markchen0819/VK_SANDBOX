@@ -6,7 +6,7 @@
 #include "IHCBuffer.h"
 
 IHCEngine::Graphics::IHCTexture::IHCTexture(IHCDevice& device, std::string name, const std::string& filepath)
- : ihcDevice(device), name(name)
+    : ihcDevice(device), name(name), filePath(filepath)
 {
     createTextureImage(filepath);
     createTextureImageView();
@@ -30,7 +30,8 @@ void IHCEngine::Graphics::IHCTexture::createTextureImage(const std::string filep
     mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
     if (!pixels) 
     {
-        throw std::runtime_error("failed to load texture image!");
+        std::cerr << "failed to load texture image!"<< std::endl;
+    	assert(false);
     }
 
     // temporary buffer accessed by CPU and GPU

@@ -8,6 +8,8 @@
 #include "../Core/Locator//AppWindowLocator.h"
 #include "../Core/Locator/GraphicsManagerLocator.h"
 #include "../Graphics/VKWraps/IHCDevice.h"
+#include "../Graphics/RenderSystems/RenderSystem.h"
+#include "../Graphics/Animation/AnimationConfig.h"
 
 // For logging
 #include "../Core/Time/Time.h"
@@ -101,14 +103,44 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
     if (ImGui::Begin("Debug Information", &showWindow))
     {
         ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetInstance().GetFrameRate());
+        ImGui::Text("Average FPS: %d", IHCEngine::Core::Time::GetInstance().GetAverageFrameRate());
         auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
         if (sceneManager->GetActiveScene() != nullptr)
         {
             auto cam = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
-            glm::vec3 cameraPos = cam.transform.GetPosition();
-            glm::vec3 cameraRot = cam.transform.GetRotation();
-            ImGui::InputFloat3("cameraPosition", &cameraPos[0]);
-            ImGui::InputFloat3("cameraRotation", &cameraRot[0]);
+            //glm::vec3 cameraPos = cam.transform.GetPosition();
+            //glm::vec3 cameraRot = cam.transform.GetRotation();
+            //ImGui::InputFloat3("CameraPosition", &cameraPos[0]);
+            //ImGui::InputFloat3("CameraRotation", &cameraRot[0]);
+
+
+            ImGui::Checkbox("wireframeEnabled", &Graphics::RenderSystem::wireframeEnabled);
+            ImGui::Checkbox("debugBonesEnabled", &Graphics::RenderSystem::debugBonesEnabled); 
+            ImGui::Checkbox("animationMeshEnabled", &Graphics::RenderSystem::animationMeshEnabled); 
+            ImGui::Checkbox("calculateBonesWithVQS", &Graphics::AnimationConfig::calculateBonesWithVQS);
+
+            ImGui::Text("-------------------");
+            ImGui::Text("Interface");
+            ImGui::Text("' SPACE ': Cycle to the next animations");
+            ImGui::Text("' RIGHT/LEFT ARROW ': Switch Model");
+
+            ImGui::Text("' 0 ': Rotate camera left about camera center");
+            ImGui::Text("' . ': Rotate camera right about camera center");
+            ImGui::Text("' 5 ': Reset camera to default position");
+            ImGui::Text("' 4 ': Move camera AND camera center along the camera's left vector");
+            ImGui::Text("' 6 ': Move camera AND camera center along the camera's right vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 2 ': Move camera but NOT center along the camera's down vector");
+            ImGui::Text("' + ': Zoom camera in towards camera center");
+            ImGui::Text("' - ': Zoom camera out from camera center");
+
+            ImGui::Text("' * ': Increase the animation rate");
+            ImGui::Text("' / ': Decrease the animation rate");
+            ImGui::Text("' B ': Toggle the bone drawing on/off");
+            ImGui::Text("' M ': Toggle the mesh drawing on/off");
+            ImGui::Text("-------------------");
+
         }
 
 

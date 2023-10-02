@@ -29,6 +29,7 @@ namespace IHCEngine::Core
 		// GameObject helper functions
 		GameObject& AddGameObject(const std::string& name);
 		void RemoveGameObject(GameObject& gameObject);
+		void RemoveAllGameObject();
 		GameObject* GetGameObjectByName(const std::string& name);
 		GameObject* GetGameObjectByUID(unsigned int id);
 		// Scene graph

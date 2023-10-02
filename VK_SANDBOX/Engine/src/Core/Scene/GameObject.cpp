@@ -16,10 +16,7 @@ void IHCEngine::Core::GameObject::Destroy()
 
 void IHCEngine::Core::GameObject::DestroyGameObject()
 {
-
     // destroy child
     // destroy components
-
-    texture = nullptr;
-    model = nullptr;
+    componentList.clear();
 }

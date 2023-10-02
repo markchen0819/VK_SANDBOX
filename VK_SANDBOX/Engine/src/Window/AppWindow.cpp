@@ -7,6 +7,12 @@ void IHCEngine::Window::AppWindow::WindowResizeCallback(GLFWwindow* window, int 
     w->SetWidthHeight(width, height);
 }
 
+void IHCEngine::Window::AppWindow::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    auto w = reinterpret_cast<IHCEngine::Window::AppWindow*>(glfwGetWindowUserPointer(window));
+    w->SetScrollOffset(xoffset, yoffset);
+}
+
 IHCEngine::Window::AppWindow::AppWindow(std::string windowName , unsigned int width, unsigned int height)
     :windowName(windowName), width(width), height(height)
 {
@@ -16,6 +22,7 @@ IHCEngine::Window::AppWindow::AppWindow(std::string windowName , unsigned int wi
     window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, WindowResizeCallback);
+    glfwSetScrollCallback(window, ScrollCallback);
 }
 
 IHCEngine::Window::AppWindow::~AppWindow()

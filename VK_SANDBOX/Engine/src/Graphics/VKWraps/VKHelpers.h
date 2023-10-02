@@ -63,12 +63,18 @@ struct QueueFamilyIndices
 // -> allocate one large vertex buffer, each binding have different region
 // vertex buffer [ (binding 0 )( binding1) ]
 // single binding good for most cases, but still depends on implementaion
+static constexpr int MAX_BONE_WEIGHTS = 4;
 struct Vertex
 {
     glm::vec3 position{};
     glm::vec3 color{};
     glm::vec3 normal{};
     glm::vec2 uv{};
+    glm::vec3 tangent{};
+    glm::vec3 bitangent{};
+
+    int boneIDs[MAX_BONE_WEIGHTS];     //bone indexes which will influence this vertex
+    float boneWeights[MAX_BONE_WEIGHTS];   //weights from each bone
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
     {
@@ -87,32 +93,51 @@ struct Vertex
         attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
         attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
         attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+        attributeDescriptions.push_back({ 4, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, tangent) });
+        attributeDescriptions.push_back({ 5, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, bitangent) });
+        attributeDescriptions.push_back({ 6, 0, VK_FORMAT_R32G32B32A32_SINT, offsetof(Vertex, boneIDs) }); 
+        attributeDescriptions.push_back({ 7, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, boneWeights) }); 
 
-        return attributeDescriptions;
+    	return attributeDescriptions;
     }
     bool operator==(const Vertex& other) const 
     {
         return position == other.position 
             && color == other.color
             && normal == other.normal 
-            && uv == other.uv;
+            && uv == other.uv
+    	    && tangent == other.tangent
+            && bitangent == other.bitangent;
     }
 };
 namespace IHCEngine::Graphics
 {
-    // from: https://stackoverflow.com/a/57595105
-    template <typename T, typename... Rest>
-    void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+	// from: https://stackoverflow.com/a/57595105
+    template <typename T>
+    void hashCombine(std::size_t& seed, const T& v) {
         seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
-        (hashCombine(seed, rest), ...);
-    };
+    }
+
+    template <typename T, std::size_t N>
+    void hashArrayCombine(std::size_t& seed, const T(&arr)[N]) {
+        for (std::size_t i = 0; i < N; ++i) {
+            hashCombine(seed, arr[i]);
+        }
+    }
 }
 namespace std 
 {
-    template<> struct hash<Vertex> { 
+    template<> struct hash<Vertex> {
         size_t operator()(Vertex const& vertex) const {
             size_t seed = 0;
-            IHCEngine::Graphics::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            IHCEngine::Graphics::hashCombine(seed, vertex.position);
+            IHCEngine::Graphics::hashCombine(seed, vertex.color);
+            IHCEngine::Graphics::hashCombine(seed, vertex.normal);
+            IHCEngine::Graphics::hashCombine(seed, vertex.uv);
+            IHCEngine::Graphics::hashCombine(seed, vertex.tangent);
+            IHCEngine::Graphics::hashCombine(seed, vertex.bitangent);
+            IHCEngine::Graphics::hashArrayCombine(seed, vertex.boneIDs);
+            IHCEngine::Graphics::hashArrayCombine(seed, vertex.boneWeights);
             return seed;
         }
     };
@@ -135,19 +160,27 @@ struct GlobalUniformBufferObject
     alignas(16) glm::mat4 inverseViewMatrix{1.f};
 };
 
+struct SkeletalUniformBufferObject
+{
+    alignas(16) glm::mat4 finalBonesMatrices[100];
+    uint32_t hasAnimation;
+    //alignas(4) bool hasAnimation;
+};
+
 #pragma endregion
 
 
 #pragma region FrameInfo (Data passing for VKwraps)
 namespace IHCEngine::Graphics
 {
+    class IHCDescriptorManager;
+
     struct FrameInfo
     {
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        VkDescriptorSet globalDescriptorSet;
-        std::unordered_map<std::string, std::vector<VkDescriptorSet>>& textureToDescriptorSetsMap;
+        IHCDescriptorManager* descriptorManager;
         std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }

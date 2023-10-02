@@ -1,6 +1,6 @@
 #pragma once
 #include "../Locator/CustomBehaviorManagerLocator.h"
-#include "GameObject.h"
+#include "Components/Component.h"
 
 // Mosty using ECS approach
 // 
@@ -19,7 +19,7 @@
 namespace IHCEngine::Core
 {
 	template<class T>
-	void GameObject::AddComponent()
+	T* GameObject::AddComponent()
 	{
 		if (HasComponent<T>())
 		{
@@ -38,13 +38,15 @@ namespace IHCEngine::Core
 				->AddBehavior(customBehavior);
 			customBehaviors.push_back(customBehavior);
 		}
+		T* rawptr = dynamic_cast<T*>(component.get());
 		components.push_back(std::move(component));
+		return rawptr;
 	}
 
 	template<class T>
 	T* GameObject::GetComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+		static_assert(std::is_base_of<Component::Component, T>::value, "T must derive from Component");
 		for (auto& component : components)
 		{
 			if (dynamic_cast<T*>(component.get())) 
@@ -52,7 +54,7 @@ namespace IHCEngine::Core
 				return static_cast<T*>(component.get());
 			}
 		}
-		std::cout << "Null Component: " << typeid(T).name() << std::endl;
+		//std::cout << "Null Component: " << typeid(T).name() << std::endl;
 		return nullptr;
 	}
 
@@ -60,10 +62,10 @@ namespace IHCEngine::Core
 	void GameObject::RemoveComponent()
 	{
 		static_assert(typeid(T) != typeid(Component::Transform), "Removing Transform component from gameobject is not allowed");
-		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+		static_assert(std::is_base_of<Component::Component, T>::value, "T must derive from Component");
 
 		auto it = std::find_if(components.begin(), components.end(),
-			[](const std::unique_ptr<Component>& component) 
+			[](const std::unique_ptr<Component::Component>& component)
 		{
 			return dynamic_cast<T*>(component.get()) != nullptr;
 		});
