@@ -36,7 +36,7 @@ namespace IHCEngine::Graphics
 
 	private:
 
-        // Gets normalized value for Lerp & Slerp used for interpolation
+        // Gets normalized value for Lerp & Interpolate used for interpolation
         float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
         glm::mat4 interpolatePosition(float animationTime);
         glm::mat4 interpolateRotation(float animationTime);

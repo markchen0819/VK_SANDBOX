@@ -258,9 +258,9 @@ namespace IHCEngine::Graphics
 		Math::VQS vqs1(startPosition, q1, startScale);
 		Math::VQS vqs2(endPosition, q2, endScale);
 
-		// Use the Slerp method to interpolate between vqs1 and vqs2
+		// Use the Interpolate method to interpolate between vqs1 and vqs2
 		glm::vec3 indices = GetVQSIndices(animationTime);
-		Math::VQS resultVQS = Math::VQS::Slerp(vqs1, vqs2, indices);
+		Math::VQS resultVQS = Math::VQS::Interpolate(vqs1, vqs2, indices);
 
 		return resultVQS;
 	}
