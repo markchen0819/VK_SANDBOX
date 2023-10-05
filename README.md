@@ -21,12 +21,12 @@ A Vulkan graphics framework create by I Hsuan "Mark" Chen
     - Window
 
 ## 3rd party libraries
-glfw 3.3.8.bin.WIN64
-glm 0.9.9.8.
-Vulkan 1.3.243.0
-imgui
-stb_image
-Open Asset Import Library (assimp)
-tinyobjloader
+- glfw 3.3.8.bin.WIN64
+- glm 0.9.9.8.
+- Vulkan 1.3.243.0
+- imgui
+- stb_image
+- Open Asset Import Library (assimp)
+- tinyobjloader
 
 ## Last Update -  (2023/10/01)
