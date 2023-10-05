@@ -35,8 +35,8 @@ void SampleApplication::SampleScene::Load()
 		"Application/assets/Models/Mutant/Mutant.fbx");
 
 	// Animation
-	auto SaluteAnimation = graphicsAssetCreator.CreateAnimation(
-		"SaluteAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
+		"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
 		Ch44Model);
 	auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
 		"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
@@ -47,8 +47,8 @@ void SampleApplication::SampleScene::Load()
 	auto HipHopAnimation = graphicsAssetCreator.CreateAnimation(
 		"HipHopAnimation", "Application/assets/Animations/Hip Hop Dancing.fbx",
 		Ch03Model);
-	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
-		"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+	auto SaluteAnimation = graphicsAssetCreator.CreateAnimation(
+		"SaluteAnimation", "Application/assets/Animations/Salute.fbx",
 		CastleGuardModel);
 	auto ClappingAnimation = graphicsAssetCreator.CreateAnimation(
 		"ClappingAnimation", "Application/assets/Animations/Clapping.fbx",
@@ -137,7 +137,7 @@ void SampleApplication::SampleScene::Init()
 	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	auto ani1 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
+	auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
 	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
 
 	animationtester->AddAnimationGobjs(&ch44Gobj);
@@ -166,7 +166,7 @@ void SampleApplication::SampleScene::Init()
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("CastleGuardModel"));
 	animatorcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	ani1 = assetManager->GetAnimationRepository().GetAsset("ClappingAnimation");
-	ani2 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
+	ani2 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
 
 	animationtester->AddAnimationGobjs(&CastleGuardGobj);
 	animationtester->AddAnimationSlots1(ani1);

@@ -85,7 +85,7 @@ namespace IHCEngine::Math
 		return VQS(finalInverseTranslation, inverseRotation, inverseScalar);
 	}
 
-	VQS VQS::Slerp(VQS const& vqs1, VQS const& vqs2, glm::vec3 t)
+	VQS VQS::Interpolate(VQS const& vqs1, VQS const& vqs2, glm::vec3 t)
 	{
 		// vt = Lerp(v0,v1,t)
 		// qt = Slerp(q0, q1, t)
