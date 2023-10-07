@@ -44,12 +44,15 @@ void main()
          for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
          {
             if(inBoneIDs[i] == -1) 
+            {
                 continue;
+            }
             if(inBoneIDs[i] >= 100) 
             {
                 totalPosition = vec4(inPosition,1.0f);
                 break;
             }
+            // Get finalBonesMatrix of the bone and apply weights on the vertex
             vec4 localPosition = skeletalubo.finalBonesMatrices[inBoneIDs[i]] * vec4(inPosition,1.0f);
             totalPosition += localPosition * inBoneWeights[i];
             vec3 localNormal = mat3(skeletalubo.finalBonesMatrices[inBoneIDs[i]]) * inNormal;

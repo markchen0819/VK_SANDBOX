@@ -133,13 +133,13 @@ namespace IHCEngine::Graphics
 
 		Vertex debugVertex;
 		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
-		debugVertex.position = globalVQS.GetTranslate();//glm::vec3(globalTransformation[3]);
+		debugVertex.position = globalVQS.GetTranslate();
 		debugBoneVertices.push_back(debugVertex);
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
 		if (node->parent)
 		{
-			debugVertex.position = parentVQS.GetTranslate();// glm::vec3(parentTransform[3]);
+			debugVertex.position = parentVQS.GetTranslate();
 			debugBoneVertices.push_back(debugVertex);
 		}
 
