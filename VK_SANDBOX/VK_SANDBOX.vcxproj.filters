@@ -383,6 +383,9 @@
     <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\src\Math\MathConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\shader.vert" />
