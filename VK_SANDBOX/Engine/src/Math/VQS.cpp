@@ -102,9 +102,12 @@ namespace IHCEngine::Math
 	{
 		// translation matrix 
 		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), vqs.translate);
+
 		// rotation matrix
-		glm::quat quat = Quaternion::ConvertToGLMQuat(vqs.rotation);
-		glm::mat4 rotationMatrix = glm::mat4_cast(quat);
+		glm::mat4 rotationMatrix = vqs.rotation.GetRotationMatrix();
+		// glm::quat quat = Quaternion::ConvertToGLMQuat(vqs.rotation);
+		// glm::mat4 rotationMatrix = glm::mat4_cast(quat);
+	
 		// scaling matrix 
 		glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(vqs.scalar));
 		// Multiply the matrices together to get the final transformation
