@@ -42,7 +42,7 @@ void SampleApplication::CameraController::OnDisable(){}
 
 void SampleApplication::CameraController::HandleAnimationViewerInput()
 {
-    float dt = IHCEngine::Core::Time::GetInstance().GetDeltaTime();
+    float dt = IHCEngine::Core::Time::GetDeltaTime();
     auto cameraUp = camera->GetUp();
     auto cameraRight = camera->GetRight();
     auto cameraForward = camera->GetFoward();
@@ -120,7 +120,7 @@ void SampleApplication::CameraController::HandleAnimationViewerInput()
 void SampleApplication::CameraController::HandleEditorInput()
 {
     // Handle movement:
-    float dt = IHCEngine::Core::Time::GetInstance().GetDeltaTime();
+    float dt = IHCEngine::Core::Time::GetDeltaTime();
 
     auto cameraUp = camera->GetUp();
     auto cameraRight = camera->GetRight();

@@ -15,63 +15,63 @@ IHCEngine::Core::Time::Time()
 
 void IHCEngine::Core::Time::Reset()
 {
-	totalTime = 0;
-	frameTimeCounter = 0;
+	instance->totalTime = 0;
+	instance->frameTimeCounter = 0;
 	
-	totalFixedTime = 0;
+	instance->totalFixedTime = 0;
 
-	timeScale = 1.0f;
-	frameCount = 0;
-	averageFps = 0.0;
+	instance->timeScale = 1.0f;
+	instance->frameCount = 0;
+	instance->averageFps = 0.0;
 
-	startTime = std::chrono::high_resolution_clock::now();
-	previousTime = std::chrono::high_resolution_clock::now();
-	shouldExecuteUpdate = false;
+	instance->startTime = std::chrono::high_resolution_clock::now();
+	instance->previousTime = std::chrono::high_resolution_clock::now();
+	instance->shouldExecuteUpdate = false;
 }
 
 void IHCEngine::Core::Time::Update()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	double elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0;  // Convert to seconds as a double
-	unscaledDeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()- previousTime).count()) * 0.000000001f;
+	double elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - instance->startTime).count() / 1000.0;  // Convert to seconds as a double
+	instance->unscaledDeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()- instance->previousTime).count()) * 0.000000001f;
 	
-	previousTime = currentTime;
-	totalTime += unscaledDeltaTime;
-	frameTimeCounter += unscaledDeltaTime;
+	instance->previousTime = currentTime;
+	instance->totalTime += instance->unscaledDeltaTime;
+	instance->frameTimeCounter += instance->unscaledDeltaTime;
 
-	if (frameTimeCounter <= minFrameTime)
+	if (instance->frameTimeCounter <= instance->minFrameTime)
 	{
 		return; // framerate control
 	}
 
 	// window interrupt fix
-	if(frameTimeCounter > maxFrameTime)
+	if(instance->frameTimeCounter > instance->maxFrameTime)
 	{
-		frameTimeCounter = maxFrameTime;
+		instance->frameTimeCounter = instance->maxFrameTime;
 	}
 
-	unscaledDeltaTime = frameTimeCounter;
-	deltaTime = timeScale * frameTimeCounter;
-	calculatedFps = 1.0f / frameTimeCounter;
-	shouldExecuteUpdate = true;
-	frameCount++;
-	averageFps = frameCount / elapsedTime;
+	instance->unscaledDeltaTime = instance->frameTimeCounter;
+	instance->deltaTime = instance->timeScale * instance->frameTimeCounter;
+	instance->calculatedFps = 1.0f / instance->frameTimeCounter;
+	instance->shouldExecuteUpdate = true;
+	instance->frameCount++;
+	instance->averageFps = instance->frameCount / elapsedTime;
 
-	if (minFrameTime == 0.0f)
+	if (instance->minFrameTime == 0.0f)
 	{
-		frameTimeCounter = 0.0f;
+		instance->frameTimeCounter = 0.0f;
 	}
 	else
 	{
-		frameTimeCounter = frameTimeCounter - minFrameTime;
+		instance->frameTimeCounter = instance->frameTimeCounter - instance->minFrameTime;
 	}
 }
 
 bool IHCEngine::Core::Time::ShouldExecuteUpdate()
 {
-	if (shouldExecuteUpdate)
+	if (instance->shouldExecuteUpdate)
 	{
-		shouldExecuteUpdate = false;
+		instance->shouldExecuteUpdate = false;
 		return true;
 	}
 	return false;
@@ -79,16 +79,16 @@ bool IHCEngine::Core::Time::ShouldExecuteUpdate()
 
 void IHCEngine::Core::Time::UpdateFixedTime()
 {
-	totalFixedTime += unscaledFixedDeltaTime;
+	instance->totalFixedTime += instance->unscaledFixedDeltaTime;
 }
 void IHCEngine::Core::Time::SetFixedTime(int maxUpdatePerFrame)
 {
-	unscaledFixedDeltaTime = 1.0f / static_cast<float>(maxUpdatePerFrame);
+	instance->unscaledFixedDeltaTime = 1.0f / static_cast<float>(maxUpdatePerFrame);
 }
 bool IHCEngine::Core::Time::ShouldExecuteFixedUpdate()
 {
 	// Should call fixed update when 
 	// total fixed time is less than 1 fixed time step from total time
-	return (totalTime - totalFixedTime > unscaledFixedDeltaTime);
+	return (instance->totalTime - instance->totalFixedTime > instance->unscaledFixedDeltaTime);
 }
 

@@ -40,8 +40,8 @@ void IHCEngine::Core::Engine::Init()
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
 	// Time
 	IHCEngine::Core::Time::Init();
-	Time::GetInstance().LockFrameRate(120);
-	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
+	Time::LockFrameRate(120);
+	Time::SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 	// Asset
 	assetManager = std::make_unique<AssetManager>();
 	// Scene
@@ -72,7 +72,7 @@ void IHCEngine::Core::Engine::Update()
 	while (!appWindow->ShouldClose())
 	{
 		glfwPollEvents();
-		Time::GetInstance().Update();
+		Time::Update();
 
 		application->Update();
 
@@ -81,18 +81,18 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Reset();
 			sceneManager->LoadNextScene();
 			customBehaviorManager->Init();
-			Time::GetInstance().Reset();
+			Time::Reset();
 		}
 		// FixedUpdate
-		while (Time::GetInstance().ShouldExecuteFixedUpdate())
+		while (Time::ShouldExecuteFixedUpdate())
 		{
-			Time::GetInstance().UpdateFixedTime();
+			Time::UpdateFixedTime();
 			customBehaviorManager->FixedUpdate();
 			//physics->Update();
 			sceneManager->Update();
 		}
 		// Update
-		if (Time::GetInstance().ShouldExecuteUpdate())
+		if (Time::ShouldExecuteUpdate())
 		{
 			imguiManager->NewFrame();
 			customBehaviorManager->Update();

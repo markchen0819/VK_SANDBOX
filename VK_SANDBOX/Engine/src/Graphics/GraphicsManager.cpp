@@ -72,7 +72,7 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
     // Fixes window interrupt
     glfwPollEvents();
-    IHCEngine::Core::Time::GetInstance().Update();
+    IHCEngine::Core::Time::Update();
     
     // Render
     std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects = scene->GetGameObjectsMap();
@@ -83,7 +83,7 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         FrameInfo frameInfo
         {
             frameIndex,
-            IHCEngine::Core::Time::GetInstance().GetDeltaTime(),
+            IHCEngine::Core::Time::GetDeltaTime(),
             commandBuffer,
         	descriptorManager.get(),
             gameObjects

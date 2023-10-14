@@ -102,8 +102,8 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
 
     if (ImGui::Begin("Debug Information", &showWindow))
     {
-        ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetInstance().GetFrameRate());
-        ImGui::Text("Average FPS: %d", IHCEngine::Core::Time::GetInstance().GetAverageFrameRate());
+        ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetFrameRate());
+        ImGui::Text("Average FPS: %d", IHCEngine::Core::Time::GetAverageFrameRate());
         auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
         if (sceneManager->GetActiveScene() != nullptr)
         {
