@@ -211,6 +211,8 @@
     <ClCompile Include="Engine\src\Math\Quaternion.cpp" />
     <ClCompile Include="Engine\src\Math\VQS.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.cpp" />
+    <ClCompile Include="Engine\src\Math\Path\SpaceCurve.cpp" />
+    <ClCompile Include="Engine\src\Math\Path\SubCurve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
@@ -286,6 +288,8 @@
     <ClInclude Include="Engine\src\Math\Quaternion.h" />
     <ClInclude Include="Engine\src\Math\VQS.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.h" />
+    <ClInclude Include="Engine\src\Math\Path\SpaceCurve.h" />
+    <ClInclude Include="Engine\src\Math\Path\SubCurve.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

@@ -31,6 +31,23 @@ namespace IHCEngine::Core
 		ResetScrollDelta();
 	}
 
+	void Input::Reset()
+	{
+		for (auto& keyIndex : instance->keyActionArray)
+		{
+			keyIndex = InputAction::NONE;
+		}
+		for (auto& mouseButtonIndex : instance->mouseButtonActionArray)
+		{
+			mouseButtonIndex = InputAction::NONE;
+		}
+		instance->anyKeyHeldCounter = 0;
+		instance->anyKeyDownCounter = 0;
+		instance->isKeyInputDirty = false;
+		instance->isMouseButtonInputDirty = false;
+		ResetScrollDelta();
+	}
+
 	bool Input::IsKeyDown(int keyCode)
 	{
 		return instance->keyActionArray[keyCode] == InputAction::DOWN;

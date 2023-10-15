@@ -83,7 +83,6 @@ void IHCEngine::Core::Engine::Update()
 			continue; 
 		}
 
-		glfwPollEvents();
 		Time::Update();
 
 		application->Update();
@@ -93,8 +92,10 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Reset();
 			sceneManager->LoadNextScene();
 			customBehaviorManager->Init();
+			Input::Reset();
 			Time::Reset();
 		}
+
 		// FixedUpdate
 		while (Time::ShouldExecuteFixedUpdate())
 		{
@@ -111,6 +112,7 @@ void IHCEngine::Core::Engine::Update()
 			sceneManager->Update();
 			graphicsManager->Update(sceneManager->GetActiveScene());
 			Input::Update();
+			glfwPollEvents();
 		}
 		sceneManager->DeferDestroyGameObjects();
 	}

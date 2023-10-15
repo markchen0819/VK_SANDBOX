@@ -20,6 +20,7 @@ namespace IHCEngine::Core
 
 		static void Init();
 		static void Update();
+		static void Reset();
 
 		static bool IsKeyDown(int keyCode);
 		static bool IsKeyUp(int keyCode);

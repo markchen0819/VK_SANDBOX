@@ -25,12 +25,18 @@ void SampleApplication::SampleApplication::Update()
 	// AppWindow related updates
 
 	auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
-	if(IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_F1))
+	if(IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_F1))
 	{
+		std::cout <<"=========================================" <<std::endl;
+		std::cout << "==========    Loading Scene 0   ========" << std::endl;
+		std::cout << "=========================================" << std::endl;
 		sceneManager->SetNextSceneToLoad(0);
 	}
-	if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_F2))
+	if (IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_F2))
 	{
+		std::cout << "=========================================" << std::endl;
+		std::cout << "==========    Loading Scene 1   ========" << std::endl;
+		std::cout << "=========================================" << std::endl;
 		sceneManager->SetNextSceneToLoad(1);
 	}
 }
