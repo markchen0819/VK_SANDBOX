@@ -4,10 +4,10 @@
 namespace SampleApplication
 {
 
-	class SampleScene : public IHCEngine::Core::Scene
+	class MotionAlongPathScene : public IHCEngine::Core::Scene
 	{
 	public:
-		SampleScene();
+		MotionAlongPathScene();
 
 		void Load() override;
 		void UnLoad() override;

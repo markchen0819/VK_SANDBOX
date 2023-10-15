@@ -1,4 +1,4 @@
-#include "SampleScene.h"
+#include "SkeletalAnimationScene.h"
 
 // Engine resources
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
@@ -14,12 +14,12 @@
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/AnimationViewer.h"
 
-SampleApplication::SampleScene::SampleScene()
-	: Scene("SampleScene")
+SampleApplication::SkeletalAnimationScene::SkeletalAnimationScene()
+	: Scene("SkeletalAnimationScene")
 {
 }
 
-void SampleApplication::SampleScene::Load()
+void SampleApplication::SkeletalAnimationScene::Load()
 {
 	// Create Graphics resource using GraphicsAssetCreator
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
@@ -73,7 +73,7 @@ void SampleApplication::SampleScene::Load()
 	createGridMeshAndLoadGridTexture();
 }
 
-void SampleApplication::SampleScene::UnLoad()
+void SampleApplication::SkeletalAnimationScene::UnLoad()
 {
 	RemoveAllGameObject();
 
@@ -109,7 +109,7 @@ void SampleApplication::SampleScene::UnLoad()
 	graphicsAssetCreator.DestroyMesh("gridModel");
 }
 
-void SampleApplication::SampleScene::Init()
+void SampleApplication::SkeletalAnimationScene::Init()
 {
 	IHCEngine::Core::Time::LockFrameRate(144);
 
@@ -234,12 +234,12 @@ void SampleApplication::SampleScene::Init()
 	grid.transform.SetPosition(glm::vec3(0, -0.01, 0));
 }
 
-void SampleApplication::SampleScene::Reset()
+void SampleApplication::SkeletalAnimationScene::Reset()
 {
 
 }
 
-void SampleApplication::SampleScene::createGridMeshAndLoadGridTexture()
+void SampleApplication::SkeletalAnimationScene::createGridMeshAndLoadGridTexture()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
@@ -282,7 +282,7 @@ void SampleApplication::SampleScene::createGridMeshAndLoadGridTexture()
 	}
 	auto gridModel = graphicsAssetCreator.CreateMesh("gridModel", gridBuilder);
 }
-void SampleApplication::SampleScene::createAxisMeshAndLoadAxisTexture()
+void SampleApplication::SkeletalAnimationScene::createAxisMeshAndLoadAxisTexture()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
