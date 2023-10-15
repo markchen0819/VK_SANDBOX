@@ -2,6 +2,7 @@
 #include "Engine.h"
 
 #include "Time/Time.h"
+#include "../Input/Input.h"
 #include "../Window/AppWindow.h"
 #include "Asset/AssetManager.h"
 #include "Scene/SceneManager.h"
@@ -38,6 +39,8 @@ void IHCEngine::Core::Engine::Init()
 
 	// Window
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
+	// Input
+	IHCEngine::Core::Input::Init();
 	// Time
 	IHCEngine::Core::Time::Init();
 	Time::LockFrameRate(120);
@@ -98,7 +101,7 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Update();
 			sceneManager->Update();
 			graphicsManager->Update(sceneManager->GetActiveScene());
-			appWindow->ResetScrollOffset();
+			Input::Update();
 		}
 		sceneManager->DeferDestroyGameObjects();
 	}

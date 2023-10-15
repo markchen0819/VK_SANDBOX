@@ -21,12 +21,12 @@ namespace IHCEngine::Window
 		void SetWindowResized(bool b) { windowResized = b; }
 		std::string GetName() { return  windowName; }
 
-		void SetScrollOffset(double x,double y) { scrollXOffset = x; scrollYOffset = y; }
-		glm::vec2 GetScrollOffset() { return glm::vec2(scrollXOffset, scrollYOffset); }
-		void ResetScrollOffset() { scrollXOffset = 0; scrollYOffset = 0; }
+		// Callbacks
+		static void SetKeyCallback(std::function<void(int, int, int, int)> keyCallback);
+		static void SetMouseButtonCallback(std::function<void(int, int, int)> mouseButtonCallback);
+		static void SetMousePositionCallback(std::function<void(double, double)> mousePositionCallback);
+		static void SetMouseScrollCallback(std::function<void(double, double)> mouseScrollCallback);
 
-		static void WindowResizeCallback(GLFWwindow* window, int width, int height);
-		static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	private:
 
 		GLFWwindow* window;
@@ -34,8 +34,18 @@ namespace IHCEngine::Window
 		unsigned int height;
 		unsigned int width;
 		bool windowResized = false;
-		int scrollXOffset=0;
-		int scrollYOffset=0;
+
+		// Callbacks
+		static inline std::function<void(int, int, int, int)> keyCallback = nullptr;
+		static inline std::function<void(int, int, int)> mouseButtonCallback = nullptr;
+		static inline std::function<void(double, double)> mousePositionCallback = nullptr;
+		static inline std::function<void(double, double)> mouseScrollCallback = nullptr;
+		// GLFW Callbacks
+		static void GLFW_WindowResizeCallback(GLFWwindow* window, int width, int height);
+		static void GLFW_MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+		static void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void GLFW_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+		static void GLFW_MousePositionCallback(GLFWwindow* window, double xPosition, double yPosition);
 
 	};
 }

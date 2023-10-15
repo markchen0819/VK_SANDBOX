@@ -1,6 +1,7 @@
 #include <glm/gtx/string_cast.hpp> 
 #include "CameraController.h"
 
+#include "../../../../Engine/src/Input/Input.h"
 #include "../../Engine/src/Graphics/Camera.h"
 #include "../../Engine/src/Core/Scene/Scene.h"
 #include "../../Engine/src/Core/Scene/GameObject.h"
@@ -48,7 +49,7 @@ void SampleApplication::CameraController::HandleAnimationViewerInput()
     auto cameraForward = camera->GetFoward();
 
 
-    if (glfwGetKey(window, GLFW_KEY_KP_0) == GLFW_PRESS) // rotate right around target
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_0)) // rotate right around target
     {
         angleRespectToCenterPoint += angleSpeed * dt;
         glm::vec3 cameraPos = camera->transform.GetPosition();
@@ -59,7 +60,7 @@ void SampleApplication::CameraController::HandleAnimationViewerInput()
         camera->transform.SetWorldPosition(newPos);
         camera->LookAt(glm::vec3(0, 5, 0));
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_DECIMAL) == GLFW_PRESS)// rotate left around target
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_DECIMAL))// rotate left around target
     {
         angleRespectToCenterPoint -= angleSpeed * dt;
         glm::vec3 cameraPos = camera->transform.GetPosition();
@@ -70,7 +71,7 @@ void SampleApplication::CameraController::HandleAnimationViewerInput()
         camera->transform.SetWorldPosition(newPos);
         camera->LookAt(glm::vec3(0, 5, 0));
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_5) == GLFW_PRESS) // reset
+    if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_KP_5)) // reset
     {
         angleRespectToCenterPoint = 90;
         glm::vec3 cameraPos = camera->transform.GetPosition();
@@ -81,36 +82,36 @@ void SampleApplication::CameraController::HandleAnimationViewerInput()
         camera->transform.SetWorldPosition(newPos);
         camera->LookAt(glm::vec3(0, 5, 0));
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) // left
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_4)) // left
     {
         auto p = -cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) // right
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_6)) // right
     {
         auto p = cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS) // up
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_8)) // up
     {
         auto p = cameraUp * movementSpeed * dt;
         camera->transform.Translate(p);
         auto cameraX = camera->transform.GetPosition().x;
         camera->LookAt(glm::vec3(cameraX, 5, 0));
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS) // down
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_2)) // down
     {
         auto p = -cameraUp * movementSpeed * dt;
         camera->transform.Translate(p);
         auto cameraX = camera->transform.GetPosition().x;
         camera->LookAt(glm::vec3(cameraX, 5, 0));
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) // zoom in
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_ADD)) // zoom in
     {
         float newFov = camera->GetFOV() - 1 * zoomSpeed;
         camera->SetFOV(newFov);
     }
-    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) // zoom in
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_SUBTRACT)) // zoom in
     {
         float newFov = camera->GetFOV() + 1 * zoomSpeed;
         camera->SetFOV(newFov);
@@ -127,32 +128,32 @@ void SampleApplication::CameraController::HandleEditorInput()
     auto cameraForward = camera->GetFoward();
 
     // Translate
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_W))
     {
         auto p =  cameraForward * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_S))
     {
         auto p = -1.0f * cameraForward * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_A))
     {
         auto p = -1.0f * cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_D))
     {
         auto p = cameraRight * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
     {
         auto p = cameraUp * movementSpeed * dt;
         camera->transform.Translate(p);
     }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+    if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_LEFT_CONTROL))
     {
         auto p = -1.0f * cameraUp * movementSpeed * dt;
         camera->transform.Translate(p);
@@ -160,12 +161,12 @@ void SampleApplication::CameraController::HandleEditorInput()
 
     // Rotate
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && !isRotating)
+    if (IHCEngine::Core::Input::IsMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT) && !isRotating)
     {
         glfwGetCursorPos(window, &lastX, &lastY);
         isRotating = true;
     }
-    else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && isRotating)
+    else if (IHCEngine::Core::Input::IsMouseButtonUp(GLFW_MOUSE_BUTTON_RIGHT) && isRotating)
     {
         isRotating = false;
     }
@@ -185,9 +186,8 @@ void SampleApplication::CameraController::HandleEditorInput()
         lastY = mouseY;
     }
 
-    auto window = IHCEngine::Core::AppWindowLocator::GetAppWindow();
     // Zoom in & out
-    auto scrollDelta = window->GetScrollOffset();
+    auto scrollDelta = IHCEngine::Core::Input::GetScrollDelta();
     if (scrollDelta.y != 0.0)
     {
         float newFov = camera->GetFOV() - static_cast<float>(scrollDelta.y) * zoomSpeed ;
