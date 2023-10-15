@@ -12,7 +12,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
-#include "../CustomBehaviors/AnimationTester.h"
+#include "../CustomBehaviors/AnimationViewer.h"
 
 SampleApplication::SampleScene::SampleScene()
 	: Scene("SampleScene")
@@ -114,8 +114,8 @@ void SampleApplication::SampleScene::Init()
 	IHCEngine::Core::Time::LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	camera.AddComponent<SampleApplication::CameraController>();
-	auto animationtester = camera.AddComponent<SampleApplication::AnimationTester>();
+	//camera.AddComponent<SampleApplication::CameraController>();
+	auto animationViewer = camera.AddComponent<SampleApplication::AnimationViewer>();
 
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
@@ -140,9 +140,9 @@ void SampleApplication::SampleScene::Init()
 	auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
 	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
 
-	animationtester->AddAnimationGobjs(&ch44Gobj);
-	animationtester->AddAnimationSlots1(ani1);
-	animationtester->AddAnimationSlots2(ani2);
+	animationViewer->AddAnimationGobjs(&ch44Gobj);
+	animationViewer->AddAnimationSlots1(ani1);
+	animationViewer->AddAnimationSlots2(ani2);
 
 	IHCEngine::Core::GameObject& ch03Gobj = AddGameObject("Ch03Model");
 	ch03Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
@@ -154,9 +154,9 @@ void SampleApplication::SampleScene::Init()
 	ani1 = assetManager->GetAnimationRepository().GetAsset("IdleAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("HipHopAnimation");
 
-	animationtester->AddAnimationGobjs(&ch03Gobj);
-	animationtester->AddAnimationSlots1(ani1);
-	animationtester->AddAnimationSlots2(ani2);
+	animationViewer->AddAnimationGobjs(&ch03Gobj);
+	animationViewer->AddAnimationSlots1(ani1);
+	animationViewer->AddAnimationSlots2(ani2);
 
 	IHCEngine::Core::GameObject& CastleGuardGobj = AddGameObject("CastleGuardGobj");
 	CastleGuardGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
@@ -168,9 +168,9 @@ void SampleApplication::SampleScene::Init()
 	ani1 = assetManager->GetAnimationRepository().GetAsset("ClappingAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
 
-	animationtester->AddAnimationGobjs(&CastleGuardGobj);
-	animationtester->AddAnimationSlots1(ani1);
-	animationtester->AddAnimationSlots2(ani2);
+	animationViewer->AddAnimationGobjs(&CastleGuardGobj);
+	animationViewer->AddAnimationSlots1(ani1);
+	animationViewer->AddAnimationSlots2(ani2);
 
 	IHCEngine::Core::GameObject& MutantGobj = AddGameObject("MutantGobj");
 	MutantGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
@@ -182,9 +182,9 @@ void SampleApplication::SampleScene::Init()
 	ani1 = assetManager->GetAnimationRepository().GetAsset("BDEAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("BD19Animation");
 
-	animationtester->AddAnimationGobjs(&MutantGobj);
-	animationtester->AddAnimationSlots1(ani1);
-	animationtester->AddAnimationSlots2(ani2);
+	animationViewer->AddAnimationGobjs(&MutantGobj);
+	animationViewer->AddAnimationSlots1(ani1);
+	animationViewer->AddAnimationSlots2(ani2);
 
 
 	///////////////////////////

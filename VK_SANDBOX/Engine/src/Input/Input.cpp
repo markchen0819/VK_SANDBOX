@@ -71,8 +71,6 @@ namespace IHCEngine::Core
 		return instance->anyKeyHeldCounter > 0;
 	}
 
-
-
 	void Input::UpdateKeys()
 	{
 		if (instance->isKeyInputDirty)

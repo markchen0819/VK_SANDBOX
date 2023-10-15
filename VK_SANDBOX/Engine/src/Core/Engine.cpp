@@ -74,6 +74,12 @@ void IHCEngine::Core::Engine::Update()
 {
 	while (!appWindow->ShouldClose())
 	{
+		if (!appWindow->IsWindowFocused())
+		{
+			glfwWaitEvents(); // Wait for an event instead of polling
+			continue; 
+		}
+
 		glfwPollEvents();
 		Time::Update();
 

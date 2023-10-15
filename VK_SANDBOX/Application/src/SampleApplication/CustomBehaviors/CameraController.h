@@ -33,14 +33,5 @@ namespace SampleApplication
         double lastX = 0.0, lastY = 0.0;
         float yaw = 0; float pitch = 0;
         void HandleEditorInput();
-
-
-        // Animation Viewer Input
-        glm::vec3 centerPoint = glm::vec3(0.0);
-        float angleRespectToCenterPoint;
-        float distanceToCenterPoint;
-        float angleSpeed = 50.0;
-        void HandleAnimationViewerInput();
-   
 	};
 }

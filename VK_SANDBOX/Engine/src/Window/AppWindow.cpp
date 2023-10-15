@@ -1,6 +1,18 @@
 #include "AppWindow.h"
 
 // GLFW Callbacks
+void IHCEngine::Window::AppWindow::GLFW_WindowFocusCallback(GLFWwindow* window, int focused)
+{
+    auto w = reinterpret_cast<IHCEngine::Window::AppWindow*>(glfwGetWindowUserPointer(window));
+    if(focused)
+    {
+        w->SetWindowFocus(true);
+    }
+    else
+    {
+        w->SetWindowFocus(false);
+    }
+}
 void IHCEngine::Window::AppWindow::GLFW_WindowResizeCallback(GLFWwindow* window, int width, int height)
 {
     auto w = reinterpret_cast<IHCEngine::Window::AppWindow*>(glfwGetWindowUserPointer(window));
@@ -68,6 +80,7 @@ IHCEngine::Window::AppWindow::AppWindow(std::string windowName , unsigned int wi
     glfwSetWindowUserPointer(window, this);
 
     // GLFW Callbacks
+    glfwSetWindowFocusCallback(window, GLFW_WindowFocusCallback);
     glfwSetFramebufferSizeCallback(window, GLFW_WindowResizeCallback);
     glfwSetScrollCallback(window, GLFW_MouseScrollCallback);
     glfwSetKeyCallback(window, GLFW_KeyCallback);

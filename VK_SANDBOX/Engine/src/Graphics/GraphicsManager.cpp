@@ -24,6 +24,7 @@
 #include "GraphicsAssetCreator.h"
 #include "Animation/Model.h"
 #include "VKWraps/DescriptorWraps/GlobalDescriptorWrap.h"
+#include "../Input/Input.h"
 
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
@@ -71,7 +72,6 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
 void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
 {
     // Fixes window interrupt
-    glfwPollEvents();
     IHCEngine::Core::Time::Update();
     
     // Render

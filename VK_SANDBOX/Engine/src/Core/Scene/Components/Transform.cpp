@@ -189,15 +189,51 @@ void IHCEngine::Component::Transform::SetWorldScale(glm::vec3 worldScale)
 
 glm::vec3 IHCEngine::Component::Transform::GetForward()
 {
-	return glm::normalize(glm::vec3(localModelMatrix[0][2], localModelMatrix[1][2], localModelMatrix[2][2]));
+	glm::vec3 scale;
+	scale.x = glm::length(glm::vec3(localModelMatrix[0])); // length of the first column
+	scale.y = glm::length(glm::vec3(localModelMatrix[1])); // length of the second column
+	scale.z = glm::length(glm::vec3(localModelMatrix[2])); // length of the third column
+	glm::mat4 model;
+	model[0] = glm::vec4(glm::vec3(localModelMatrix[0]) / scale.x, localModelMatrix[0].w);
+	model[1] = glm::vec4(glm::vec3(localModelMatrix[1]) / scale.y, localModelMatrix[1].w);
+	model[2] = glm::vec4(glm::vec3(localModelMatrix[2]) / scale.z, localModelMatrix[2].w);
+	glm::mat3 rotation = glm::mat3(model);
+	return glm::normalize(glm::vec3(rotation[2]));
+
+	// Need to remove scaling
+	//return glm::normalize(glm::vec3(localModelMatrix[0][2], localModelMatrix[1][2], localModelMatrix[2][2]));
 }
 glm::vec3 IHCEngine::Component::Transform::GetRight()
 {
-	return glm::normalize(glm::vec3(localModelMatrix[0][0], localModelMatrix[1][0], localModelMatrix[2][0]));
+	glm::vec3 scale;
+	scale.x = glm::length(glm::vec3(localModelMatrix[0])); // length of the first column
+	scale.y = glm::length(glm::vec3(localModelMatrix[1])); // length of the second column
+	scale.z = glm::length(glm::vec3(localModelMatrix[2])); // length of the third column
+	glm::mat4 model;
+	model[0] = glm::vec4(glm::vec3(localModelMatrix[0]) / scale.x, localModelMatrix[0].w);
+	model[1] = glm::vec4(glm::vec3(localModelMatrix[1]) / scale.y, localModelMatrix[1].w);
+	model[2] = glm::vec4(glm::vec3(localModelMatrix[2]) / scale.z, localModelMatrix[2].w);
+	glm::mat3 rotation = glm::mat3(model);
+	return glm::normalize(glm::vec3(rotation[0]));
+
+	// Need to remove scaling
+	//return glm::normalize(glm::vec3(localModelMatrix[0][0], localModelMatrix[1][0], localModelMatrix[2][0]));
 }
 glm::vec3 IHCEngine::Component::Transform::GetUp()
 {
-	return glm::normalize(glm::vec3(localModelMatrix[0][1], localModelMatrix[1][1], localModelMatrix[2][1]));
+	glm::vec3 scale;
+	scale.x = glm::length(glm::vec3(localModelMatrix[0])); // length of the first column
+	scale.y = glm::length(glm::vec3(localModelMatrix[1])); // length of the second column
+	scale.z = glm::length(glm::vec3(localModelMatrix[2])); // length of the third column
+	glm::mat4 model;
+	model[0] = glm::vec4(glm::vec3(localModelMatrix[0]) / scale.x, localModelMatrix[0].w);
+	model[1] = glm::vec4(glm::vec3(localModelMatrix[1]) / scale.y, localModelMatrix[1].w);
+	model[2] = glm::vec4(glm::vec3(localModelMatrix[2]) / scale.z, localModelMatrix[2].w);
+	glm::mat3 rotation = glm::mat3(model);
+	return glm::normalize(glm::vec3(rotation[1]));
+
+	// Need to remove scaling
+	//return glm::normalize(glm::vec3(localModelMatrix[0][1], localModelMatrix[1][1], localModelMatrix[2][1]));
 }
 
 #pragma endregion

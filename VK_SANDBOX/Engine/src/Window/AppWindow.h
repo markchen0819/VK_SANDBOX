@@ -20,6 +20,8 @@ namespace IHCEngine::Window
 		bool IsWindowResized() { return windowResized; };
 		void SetWindowResized(bool b) { windowResized = b; }
 		std::string GetName() { return  windowName; }
+		bool IsWindowFocused() { return windowFocused; }
+		void SetWindowFocus(bool b) { windowFocused = b; }
 
 		// Callbacks
 		static void SetKeyCallback(std::function<void(int, int, int, int)> keyCallback);
@@ -34,6 +36,7 @@ namespace IHCEngine::Window
 		unsigned int height;
 		unsigned int width;
 		bool windowResized = false;
+		bool windowFocused = true;
 
 		// Callbacks
 		static inline std::function<void(int, int, int, int)> keyCallback = nullptr;
@@ -41,6 +44,7 @@ namespace IHCEngine::Window
 		static inline std::function<void(double, double)> mousePositionCallback = nullptr;
 		static inline std::function<void(double, double)> mouseScrollCallback = nullptr;
 		// GLFW Callbacks
+		static void GLFW_WindowFocusCallback(GLFWwindow* window, int focused);
 		static void GLFW_WindowResizeCallback(GLFWwindow* window, int width, int height);
 		static void GLFW_MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 		static void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
