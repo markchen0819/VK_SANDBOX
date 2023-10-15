@@ -17,6 +17,7 @@ namespace IHCEngine::Component
 		Model,
 		Animator,
 		CustomBehavior,
+		ImguiContext,
 		// add more component types as needed
 	};
 
@@ -43,9 +44,9 @@ namespace IHCEngine::Component
 		ComponentType type;
 		bool isActive;
 
-		friend class GameObject;
 		IHCEngine::Core::GameObject* gameObject;
 
+		friend class Core::GameObject;
 		virtual void Remove() = 0; // Remove from locator if used
 	};
 

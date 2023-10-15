@@ -18,6 +18,7 @@ void SampleApplication::CameraController::Awake()
     // Editor Input
     pitch = 0;
     yaw = 0;
+    camera->transform.SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
     camera->transform.SetPosition(glm::vec3(0.0f, 10.0f, 10.0f));
 }
 

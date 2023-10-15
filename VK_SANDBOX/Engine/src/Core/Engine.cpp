@@ -15,6 +15,7 @@
 #include "Locator/GraphicsManagerLocator.h"
 #include "Locator/SceneManagerLocator.h"
 #include "Locator/CustomBehaviorManagerLocator.h"
+#include "Locator/ImGuiManagerLocator.h"
 
 //STB
 #define STB_IMAGE_IMPLEMENTATION
@@ -22,6 +23,8 @@
 // tiny loader
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+
 
 
 // explicitly call Init & Shutdown
@@ -63,8 +66,8 @@ void IHCEngine::Core::Engine::Init()
 	IHCEngine::Core::SceneManagerLocator::Provide(sceneManager.get());
 	IHCEngine::Core::GraphicsManagerLocator::Provide(graphicsManager.get());
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(customBehaviorManager.get());
-
-
+	IHCEngine::Core::ImGuiManagerLocator::Provide(imguiManager.get());
+	
 	imguiManager->Init(); // window & graphics locator required
 	// Application
 	application->Init();

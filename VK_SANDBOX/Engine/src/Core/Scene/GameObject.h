@@ -59,7 +59,6 @@ namespace IHCEngine::Core
 
         std::vector<std::unique_ptr<IHCEngine::Component::Component>> components;
         std::vector<IHCEngine::Component::CustomBehavior*> customBehaviors;
-        std::vector<Component::Component*> componentList;
 
         friend class Scene;
         Scene* scene;

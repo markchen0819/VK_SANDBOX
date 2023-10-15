@@ -13,6 +13,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/AnimationViewer.h"
+#include "../CustomBehaviors/ImguiContext_AnimationViewer.h"
 
 SampleApplication::SkeletalAnimationScene::SkeletalAnimationScene()
 	: Scene("SkeletalAnimationScene")
@@ -114,7 +115,7 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	IHCEngine::Core::Time::LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	//camera.AddComponent<SampleApplication::CameraController>();
+	camera.AddComponent<IHCEngine::Component::ImguiContext_AnimationViewer>();
 	auto animationViewer = camera.AddComponent<SampleApplication::AnimationViewer>();
 
 	//////////////////////////////////////////////////////////////////

@@ -17,6 +17,11 @@ void IHCEngine::Core::GameObject::Destroy()
 void IHCEngine::Core::GameObject::DestroyGameObject()
 {
     // destroy child
+    // ...TODO
     // destroy components
-    componentList.clear();
+    for (auto& component : components)
+    {
+        component->Remove();;
+    }
+    components.clear();
 }

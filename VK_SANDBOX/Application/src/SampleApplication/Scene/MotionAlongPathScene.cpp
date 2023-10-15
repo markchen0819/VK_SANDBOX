@@ -49,8 +49,6 @@ void SampleApplication::MotionAlongPathScene::Load()
 
 void SampleApplication::MotionAlongPathScene::UnLoad()
 {
-	RemoveAllGameObject();
-
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	// testModel
