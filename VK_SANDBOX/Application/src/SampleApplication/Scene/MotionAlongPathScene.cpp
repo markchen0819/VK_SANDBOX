@@ -11,7 +11,9 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../CustomBehaviors/MotionAlongPathViewer.h"
 
 SampleApplication::MotionAlongPathScene::MotionAlongPathScene()
 	: Scene("MotionAlongPathScene")
@@ -76,6 +78,11 @@ void SampleApplication::MotionAlongPathScene::Init()
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
+
+	IHCEngine::Core::GameObject& emptyGobj = AddGameObject("emptyGobj");
+	emptyGobj.AddComponent<IHCEngine::Component::LineRendererComponent>();
+	emptyGobj.AddComponent<MotionAlongPathViewer>();
+
 
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here

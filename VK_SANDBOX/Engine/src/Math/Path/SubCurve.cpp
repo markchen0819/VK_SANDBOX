@@ -8,6 +8,16 @@ namespace IHCEngine::Math
 		buildArcLengthTable();
 	}
 
+	std::vector<glm::vec3> SubCurve::GetControlPoints()
+	{
+		std::vector<glm::vec3> controlpoints;
+		controlpoints.push_back(p0);
+		controlpoints.push_back(a0);
+		controlpoints.push_back(b1);
+		controlpoints.push_back(p1);
+		return controlpoints;
+	}
+
 	void SubCurve::buildArcLengthTable()
 	{
 		arcLengthTable.clear();

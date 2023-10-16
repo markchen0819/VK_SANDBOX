@@ -213,6 +213,8 @@
     <ClCompile Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.cpp" />
     <ClCompile Include="Engine\src\Math\Path\SpaceCurve.cpp" />
     <ClCompile Include="Engine\src\Math\Path\SubCurve.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\LineRendererComponent.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
@@ -243,6 +245,8 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\VKHelpers.h" />
     <ClInclude Include="Engine\src\Math\MathConstants.h" />
+    <ClInclude Include="Engine\src\Math\Path\ArcLengthEntry.h" />
+    <ClInclude Include="Engine\src\Math\Path\Segment.h" />
     <ClInclude Include="Engine\src\Window\AppWindow.h" />
     <ClInclude Include="Engine\src\Core\Engine.h" />
     <ClInclude Include="Application\src\IApplication.h" />
@@ -290,6 +294,8 @@
     <ClInclude Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.h" />
     <ClInclude Include="Engine\src\Math\Path\SpaceCurve.h" />
     <ClInclude Include="Engine\src\Math\Path\SubCurve.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\LineRendererComponent.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

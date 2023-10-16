@@ -1,25 +1,18 @@
 #pragma once
+#include "ArcLengthEntry.h"
+#include "Segment.h"
 
 namespace IHCEngine::Math
 {
-	struct Segment
-	{
-		float uStart;
-		float uEnd;
-		float length; // Linear approximation of the segment length
-	};
-
-	struct ArcLengthEntry
-	{
-		float u;
-		float length;
-	};
-
 	class SubCurve
 	{
 	public:
 
 		SubCurve(glm::vec3 p0, glm::vec3 a0, glm::vec3 b1, glm::vec3 p1);
+
+		std::vector<ArcLengthEntry>& GetArcLengthTable() { return arcLengthTable; }
+		std::vector<Segment>& GetSortedSegmentList() {return sortedSegmentList; }
+		std::vector<glm::vec3> GetControlPoints();
 
 	private:
 
@@ -39,6 +32,7 @@ namespace IHCEngine::Math
 
 		std::vector<Segment> sortedSegmentList;
 		std::vector<ArcLengthEntry> arcLengthTable;
+
 
 	};
 }

@@ -18,6 +18,7 @@ namespace IHCEngine::Component
 		Animator,
 		CustomBehavior,
 		ImguiContext,
+		LineRenderer
 		// add more component types as needed
 	};
 
