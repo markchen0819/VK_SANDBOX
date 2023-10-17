@@ -245,8 +245,7 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCSwapChain.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\VKHelpers.h" />
     <ClInclude Include="Engine\src\Math\MathConstants.h" />
-    <ClInclude Include="Engine\src\Math\Path\ArcLengthEntry.h" />
-    <ClInclude Include="Engine\src\Math\Path\Segment.h" />
+    <ClInclude Include="Engine\src\Math\Path\PathStructs.h" />
     <ClInclude Include="Engine\src\Window\AppWindow.h" />
     <ClInclude Include="Engine\src\Core\Engine.h" />
     <ClInclude Include="Application\src\IApplication.h" />

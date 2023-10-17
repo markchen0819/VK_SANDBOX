@@ -431,10 +431,7 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\src\Math\Path\Segment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\src\Math\Path\ArcLengthEntry.h">
+    <ClInclude Include="Engine\src\Math\Path\PathStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

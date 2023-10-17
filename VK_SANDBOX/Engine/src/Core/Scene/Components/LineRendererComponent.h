@@ -14,7 +14,7 @@ namespace IHCEngine::Component
 	public:
 
 		LineRendererComponent();
-		~LineRendererComponent() = default;
+		~LineRendererComponent();
 
 		void Draw(Graphics::FrameInfo& frameInfo);
 		void SetPoints(std::vector<glm::vec3> points);

@@ -17,6 +17,7 @@ namespace SampleApplication
 
 	private:
 
+		void createControlPointMesh();
 		void createGridMeshAndLoadGridTexture();
 		void createAxisMeshAndLoadAxisTexture();
 

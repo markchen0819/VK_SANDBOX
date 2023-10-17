@@ -10,6 +10,7 @@ namespace IHCEngine::Component
 
 namespace IHCEngine::Graphics
 {
+	class IHCMesh;
 	class Camera;
 }
 
@@ -19,6 +20,7 @@ namespace SampleApplication
     {
     public:
         MotionAlongPathViewer();
+        ~MotionAlongPathViewer(); 
         void Awake() override;
         void Start() override;
         void Update() override;
@@ -29,10 +31,23 @@ namespace SampleApplication
 
     private:
 
+        // Data 
+        std::vector<glm::vec3> data;
+
+        // Control point visualization
+        std::vector<IHCEngine::Core::GameObject*> debugControlPoints;
+        void createDebugControlPoints();
+        int controlPointID= 0;
+
+        // Path visualization
+        IHCEngine::Component::LineRendererComponent* lineRenderer;
+
+        // Path logic
+        IHCEngine::Math::SpaceCurve spaceCurve;
+
+
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;
 
-        IHCEngine::Math::SpaceCurve spaceCurve;
-        IHCEngine::Component::LineRendererComponent* lineRenderer;
     };
 }

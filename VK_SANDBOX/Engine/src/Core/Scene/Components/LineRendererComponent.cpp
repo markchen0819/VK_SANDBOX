@@ -10,16 +10,12 @@ namespace IHCEngine::Component
 {
 	LineRendererComponent::LineRendererComponent()
 	:Component(ComponentType::LineRenderer)
+	{}
+
+	LineRendererComponent::~LineRendererComponent()
 	{
-		//test
-		std::vector<glm::vec3> p;
-		p.push_back(glm::vec3(1, 1, 0));
-		p.push_back(glm::vec3(2, 1, 0));
-		p.push_back(glm::vec3(3, 2, 0));
-		p.push_back(glm::vec3(4, 2, 0));
-		p.push_back(glm::vec3(5, 3, 0));
-		p.push_back(glm::vec3(6, 3, 0));
-		SetPoints(p);
+		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+		vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
 	}
 
 	void LineRendererComponent::Draw(Graphics::FrameInfo& frameInfo)

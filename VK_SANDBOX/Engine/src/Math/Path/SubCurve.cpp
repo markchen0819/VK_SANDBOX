@@ -1,30 +1,25 @@
 #include "../../pch.h"
 #include "SubCurve.h"
+
+#include "PathStructs.h"
+
 namespace IHCEngine::Math
 {
 	SubCurve::SubCurve(glm::vec3 p0, glm::vec3 a0, glm::vec3 b1, glm::vec3 p1)
 		: p0(p0), a0(a0), b1(b1), p1(p1)
 	{
 		buildArcLengthTable();
+		generatePointsForRendering();
 	}
 
-	std::vector<glm::vec3> SubCurve::GetControlPoints()
-	{
-		std::vector<glm::vec3> controlpoints;
-		controlpoints.push_back(p0);
-		controlpoints.push_back(a0);
-		controlpoints.push_back(b1);
-		controlpoints.push_back(p1);
-		return controlpoints;
-	}
 
 	void SubCurve::buildArcLengthTable()
 	{
-		arcLengthTable.clear();
+		arcLengthTable.Clear();
 		sortedSegmentList.clear();
 
+		arcLengthTable.table.push_back({ 0, 0.0 });
         sortedSegmentList.push_back({ 0.0f, 1.0f, approximateLengthOfSegment(0.0f, 1.0f) });
-        float accumulatedLength = 0.0f;
 
         while (!sortedSegmentList.empty())
 		{
@@ -35,7 +30,7 @@ namespace IHCEngine::Math
             float A = approximateLengthOfSegment(current.uStart, uMid);
             float B = approximateLengthOfSegment(uMid, current.uEnd);
 
-            if (std::abs(A + B - current.length) > epsilon ||isSCurve(current.uStart, uMid, current.uEnd))
+            if (std::abs(A + B - current.length) > epsilon || isSCurve(current.uStart, uMid, current.uEnd))
 			{
                 // Split the segment
 				sortedSegmentList.push_back({ current.uStart, uMid, A });
@@ -43,21 +38,41 @@ namespace IHCEngine::Math
             }
             else 
 			{
-                // Record the arc length for both subdivisions
-                accumulatedLength += A;
-                arcLengthTable.push_back({ uMid, accumulatedLength });
-                accumulatedLength += B;
-                arcLengthTable.push_back({ current.uEnd, accumulatedLength });
+                // Record the arc length for both subdivisions (NOT ACCUMULATED ARC LENGTH)
+				// Avoid adding duplicate u
+				if (arcLengthTable.table.empty() || arcLengthTable.table.back().u != uMid)
+				{
+					arcLengthTable.table.push_back({ uMid, A });
+				}
+				// Avoid adding duplicate u
+				if (arcLengthTable.table.empty() || arcLengthTable.table.back().u != current.uEnd)
+				{
+					arcLengthTable.table.push_back({ current.uEnd, B });
+				}
             }
         }
-
+		// Sort u & accumulate arclength
+		std::sort(arcLengthTable.table.begin(), arcLengthTable.table.end(), 
+			[](const ArcLengthEntry& a, const ArcLengthEntry& b) 
+		{
+			return a.u < b.u;
+		});
+		float accumulatedLength = 0.0f;
+		for (auto& entry : arcLengthTable.table)
+		{
+			accumulatedLength += entry.arcLength; // individual segment length
+			entry.arcLength = accumulatedLength; // change to accumulated length up to this u
+		}
+		// Sort segment list
 		std::sort(sortedSegmentList.begin(), sortedSegmentList.end(),
 			[](const Segment& a, const Segment& b)
 		{
 			return a.uStart < b.uStart;
 		});
-	}
 
+		arcLengthTable.Normalize();
+		arcLengthTable.PrintTable();
+	}
 	float SubCurve::approximateLengthOfSegment(float uStart, float uEnd)
 	{
 		glm::vec3 const startPoint = computeBezier(uStart);
@@ -79,7 +94,6 @@ namespace IHCEngine::Math
 			   + 3 * one_minus_u * u2 * b1
 			   + u3 * p1;
 	}
-
 	glm::vec3 SubCurve::computeBezierDerivative(float u)
 	{
 		// First derivative for cubic Bezier:
@@ -89,7 +103,6 @@ namespace IHCEngine::Math
 			   + 6 * one_minus_u * u * (b1 - a0)
 			   + 3 * u * u * (p1 - b1);
 	}
-
 	bool SubCurve::isSCurve(float uStart, float uMid, float uEnd)
 	{
 		glm::vec3 tangentStart = glm::normalize(computeBezierDerivative(uStart));
@@ -99,8 +112,28 @@ namespace IHCEngine::Math
 		float dotProductStartMid = glm::dot(tangentStart, tangentMid);
 		float dotProductMidEnd = glm::dot(tangentMid, tangentEnd);
 
+		// Check for near parallelism (dot product close to 1).
+		bool isStraightLine = 
+		(dotProductStartMid > 0.95f || dotProductStartMid < -0.95f)
+		&& (dotProductMidEnd > 0.95f || dotProductMidEnd < -0.95f);
+
 		// If dot product is close to -1, tangents are nearly opposite
 		// indicating a potential S-curve
-		return (dotProductStartMid < -0.8f || dotProductMidEnd < -0.8f);
+		bool isSCurve = dotProductStartMid < -0.8f || dotProductMidEnd < -0.8f;
+
+		return (isSCurve && !isStraightLine);
+	}
+
+	void SubCurve::generatePointsForRendering()
+	{
+		pointsForRendering.clear();
+		float offset = 1.0 / density;
+		float u = 0.0;
+		while(u <= 1.0)
+		{
+			glm::vec3 point = computeBezier(u);
+			pointsForRendering.push_back(point);
+			u += offset;
+		}
 	}
 }
