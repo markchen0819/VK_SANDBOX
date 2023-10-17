@@ -3,16 +3,12 @@
 
 namespace IHCEngine::Math
 {
-	std::vector<glm::vec3> SpaceCurve::GetPoints()
+
+	std::vector<glm::vec3> SpaceCurve::GetPointsForRendering()
 	{
 		std::vector<glm::vec3> points;
-
 		for (auto& subcurve : subCurves)
 		{
-			// test to see contents
-			auto& list = subcurve->GetSortedSegmentList();
-			auto& table = subcurve->GetArcLengthTable();
-
 			auto pts = subcurve->GetPointsForRendering();
 			for (auto& pt : pts)
 			{
@@ -22,14 +18,30 @@ namespace IHCEngine::Math
 		return points;
 	}
 
-	void SpaceCurve::SetControlPoints(const std::vector<glm::vec3> controlPoints)
+	glm::vec3 SpaceCurve::GetPositionOnCurve(float traveledDistance)
 	{
-		this->controlPoints = controlPoints;
-		buildSegments();
+		// assume traveledDistance is 0 to 1
+		// i = G^-1(s) * k
+		// u = G^-1(s) * k - i
+
+		float normalizedU = globalArcLengthTable.GetUParameterFromNormalizedTable(traveledDistance);
+		int targetSubCurveIndex = std::ceil(normalizedU * globalArcLengthTable.totalU)-1;
+		float localU = normalizedU * globalArcLengthTable.totalU - targetSubCurveIndex;
+		//std::cout << localU << std::endl;
+		glm::vec3 position = subCurves[targetSubCurveIndex]->GetPointOnCurve(localU);
+
+		return position;
 	}
 
+	void SpaceCurve::SetControlPoints(const std::vector<glm::vec3> controlPoints)
+	{
+		subCurves.clear();
+		this->controlPoints = controlPoints;
+		buildSubCurves();
+		buildGlobalArcLengthTable();
+	}
 
-	void SpaceCurve::buildSegments()
+	void SpaceCurve::buildSubCurves()
 	{
 		if(controlPoints.size() < 4)
 		{
@@ -64,6 +76,32 @@ namespace IHCEngine::Math
 		glm::vec3 pn_minus1 = controlPoints[controlPoints.size() - 2];
 		glm::vec3 an_minus1 = pn_minus1 + (pn - controlPoints[controlPoints.size() - 3])/2.0f;
 		subCurves.push_back(std::make_unique<SubCurve>(pn_minus1, an_minus1, bn, pn));
-	} 
+	}
 
+	void SpaceCurve::buildGlobalArcLengthTable()
+	{
+		float subCurveStart = 0.0f;
+		for (auto& subcurve : subCurves)
+		{
+			auto table = subcurve->GetArcLengthTable();
+
+			for (int i=0; i<table.normalizedTable.size(); ++i)
+			{
+				auto& entry = table.normalizedTable[i];
+
+				if(subCurveStart!=0.0 && i==0)
+				{
+					// skip duplicates
+					continue;
+				}
+				ArcLengthEntry e;
+				e.u = entry.u + subCurveStart;
+				e.arcLength = entry.arcLength + subCurveStart;
+				globalArcLengthTable.table.push_back(e);
+			}
+			subCurveStart += 1.0f;
+		}
+		globalArcLengthTable.Normalize();
+		globalArcLengthTable.PrintTable();
+	}
 }

@@ -12,6 +12,11 @@ namespace IHCEngine::Math
 		generatePointsForRendering();
 	}
 
+	glm::vec3 SubCurve::GetPointOnCurve(float u)
+	{
+		return computeBezier(u);
+	}
+
 
 	void SubCurve::buildArcLengthTable()
 	{
@@ -71,7 +76,7 @@ namespace IHCEngine::Math
 		});
 
 		arcLengthTable.Normalize();
-		arcLengthTable.PrintTable();
+		//arcLengthTable.PrintTable();
 	}
 	float SubCurve::approximateLengthOfSegment(float uStart, float uEnd)
 	{

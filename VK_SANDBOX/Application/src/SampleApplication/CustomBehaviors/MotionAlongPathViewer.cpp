@@ -8,6 +8,8 @@
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../Engine/src/Input/Input.h"
+#include "../../../../Engine/src/Core/Time/Time.h"
 
 namespace IHCEngine::Component
 {
@@ -31,12 +33,11 @@ namespace SampleApplication
 	void MotionAlongPathViewer::Awake()
 	{
 
-
 		// TEST
-		//p.push_back(glm::vec3(0, 1, 0));
-		//p.push_back(glm::vec3(4, 1, -4)); 
-		//p.push_back(glm::vec3(8, 1, 0));
-		//p.push_back(glm::vec3(12, 1, -4));
+		//data.push_back(glm::vec3(0, 1, 0));
+		//data.push_back(glm::vec3(4, 1, -4));
+		//data.push_back(glm::vec3(8, 1, 0));
+		//data.push_back(glm::vec3(12, 1, -4));
 
 		// Circular
 		data.push_back(glm::vec3(0, 1, 10));
@@ -60,9 +61,23 @@ namespace SampleApplication
 
 
 		lineRenderer = gameObject->GetComponent<IHCEngine::Component::LineRendererComponent>();
-		lineRenderer->SetPoints(spaceCurve.GetPoints());
+		lineRenderer->SetPoints(spaceCurve.GetPointsForRendering());
 
 		createDebugControlPoints();
+
+
+		// TestMoveGobj
+		auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
+
+		testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
+		testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
+		auto meshcomponent = testMoveGobj->AddComponent<IHCEngine::Component::MeshComponent>();
+		meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
+		auto texturecomponent = testMoveGobj->AddComponent<IHCEngine::Component::TextureComponent>();
+		texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+		testMoveGobj->transform.SetPosition(data[0]);
+		testMoveGobj->transform.SetScale(glm::vec3(0.4, 0.4, 0.4));
 
 	}
 
@@ -73,7 +88,25 @@ namespace SampleApplication
 
 	void MotionAlongPathViewer::Update()
 	{
+		if(IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_P))
+		{
+			startMove = true;
+		}
 
+		if(startMove)
+		{
+			float totalDistance = 1.0;//spaceCurve.GetTotalDistanceOfCurve();
+			float speed = 0.10; // constant speed test
+
+			float dt = IHCEngine::Core::Time::GetDeltaTime();
+			passedTime += dt;
+			float distancePassed = speed * passedTime;
+			float param = distancePassed / totalDistance;
+
+			if (param >= 1.0) param = 1.0f;
+			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(param);
+			testMoveGobj->transform.SetPosition(targetPos);
+		}
 	}
 
 	void MotionAlongPathViewer::FixedUpdate(){}

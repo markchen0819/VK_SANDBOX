@@ -9,6 +9,7 @@ namespace IHCEngine::Math
 
 		SubCurve(glm::vec3 p0, glm::vec3 a0, glm::vec3 b1, glm::vec3 p1);
 
+		glm::vec3 GetPointOnCurve(float u);
 		ArcLengthTable& GetArcLengthTable() { return arcLengthTable; }
 		std::vector<Segment>& GetSortedSegmentList() {return sortedSegmentList; }
 		std::vector<glm::vec3> GetPointsForRendering() { return pointsForRendering; };

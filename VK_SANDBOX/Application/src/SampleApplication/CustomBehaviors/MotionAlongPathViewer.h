@@ -45,7 +45,11 @@ namespace SampleApplication
         // Path logic
         IHCEngine::Math::SpaceCurve spaceCurve;
 
-
+        //test
+        IHCEngine::Core::GameObject* testMoveGobj = nullptr;
+        bool startMove = false;
+        float totalTime = 5; // 5 seconds
+        float passedTime = 0;
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;
 

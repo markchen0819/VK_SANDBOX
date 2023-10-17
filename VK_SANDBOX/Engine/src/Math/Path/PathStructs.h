@@ -19,19 +19,20 @@ struct ArcLengthTable
 	std::vector<ArcLengthEntry> table;
 
 	std::vector<ArcLengthEntry> normalizedTable;
-	float denom = 0;
+	float totalU = 0;
+	float totalArcLength = 0;
 
 	// Run-time access table
-	float GetUParameter(float arclength)
+	float GetUParameterFromTable(float arclength)
 	{
 		assert(!table.empty(), "Empty ArcLengthTable");
 
 		assert(!(arclength <= 0.0f), "Invalid arclength input");
-		assert(!(arclength >= table.back().arcLength), "Invalid arclength input");
+		assert(!(arclength > table.back().arcLength), "Invalid arclength input");
 
-		int index = BinarySearchArcLength(0, table.size() - 1, arclength);
-
-		if(table[index].arcLength == arclength)
+		int index = BinarySearchArcLength(0, table.size() - 1, arclength, table);
+		index -= 1;
+		if(table[index].arcLength == arclength || (index == table.size() - 1))
 		{
 			return table[index].u;
 		}
@@ -46,16 +47,16 @@ struct ArcLengthTable
 		);
 		return result;
 	}
-	float GetArcLength(float u)
+	float GetArcLengthFromTable(float u)
 	{
 		assert(!table.empty(), "Empty ArcLengthTable");
 
 		assert(!(u <= 0.0f), "Invalid u input");
-		assert(!(u >= table.back().u), "Invalid u input");
+		assert(!(u > table.back().u), "Invalid u input");
 
-		int index = BinarySearchUParameter(0, table.size() - 1, u);
-
-		if (table[index].u == u)
+		int index = BinarySearchUParameter(0, table.size() - 1, u, table);
+		index -= 1;
+		if (table[index].u == u || (index == table.size() - 1))
 		{
 			return table[index].arcLength;
 		}
@@ -70,24 +71,73 @@ struct ArcLengthTable
 		);
 		return result;
 	}
+	float GetUParameterFromNormalizedTable(float arclength)
+	{
+		assert(!normalizedTable.empty(), "Empty ArcLengthTable");
+
+		assert(!(arclength <= 0.0f), "Invalid arclength input");
+		assert(!(arclength > normalizedTable.back().arcLength), "Invalid arclength input");
+
+		int index = BinarySearchArcLength(0, normalizedTable.size() - 1, arclength, normalizedTable);
+		index -= 1;
+		if (normalizedTable[index].arcLength == arclength || (index == normalizedTable.size() - 1))
+		{
+			return normalizedTable[index].u;
+		}
+
+		float result = LinearInterpolation
+		(
+			normalizedTable[index].arcLength,
+			normalizedTable[index + 1].arcLength,
+			normalizedTable[index].u,
+			normalizedTable[index + 1].u,
+			arclength
+		);
+		return result;
+	}
+	float GetArcLengthFromNormalizedTable(float u)
+	{
+		assert(!normalizedTable.empty(), "Empty ArcLengthTable");
+
+		assert(!(u <= 0.0f), "Invalid u input");
+		assert(!(u > normalizedTable.back().u), "Invalid u input");
+
+		int index = BinarySearchUParameter(0, normalizedTable.size() - 1, u, normalizedTable);
+		index -= 1;
+		if (normalizedTable[index].u == u || (index == normalizedTable.size() - 1))
+		{
+			return normalizedTable[index].arcLength;
+		}
+
+		float result = LinearInterpolation
+		(
+			normalizedTable[index].u,
+			normalizedTable[index + 1].u,
+			normalizedTable[index].arcLength,
+			normalizedTable[index + 1].arcLength,
+			u
+		);
+		return result;
+	}
+
 	float LinearInterpolation(float x0, float x1, float y0, float y1, float x)
 	{
 		float t = (x - x0) / (x1 - x0);
 		float result = (1 - t) * y0 + t * y1;
 		return result;
 	}
-	int BinarySearchArcLength(int start, int end, float arcLength)
+	int BinarySearchArcLength(int start, int end, float arcLength, std::vector<ArcLengthEntry>& targetTable)
 	{
 		while (start <= end)
 		{
 			int mid = start + (end - start) / 2;
 
 			// Check if it is at mid.
-			if (table[mid].arcLength == arcLength)
+			if (targetTable[mid].arcLength == arcLength)
 			{
 				return mid;
 			}
-			if (table[mid].arcLength < arcLength) // greater, ignore left
+			if (targetTable[mid].arcLength <= arcLength) // greater, ignore left
 			{
 				start = mid + 1;
 			}
@@ -96,20 +146,20 @@ struct ArcLengthTable
 				end = mid - 1;
 			}
 		}
-		return start;
+		return start; // return smallest that is greater than the desired
 	}
-	int BinarySearchUParameter(int start, int end, float u)
+	int BinarySearchUParameter(int start, int end, float u, std::vector<ArcLengthEntry>& targetTable)
 	{
 		while (start <= end)
 		{
 			int mid = start + (end - start) / 2;
 
 			// Check if it is at mid.
-			if (table[mid].u == u)
+			if (targetTable[mid].u == u)
 			{
 				return mid;
 			}
-			if (table[mid].u < u) // greater, ignore left
+			if (targetTable[mid].u < u) // greater, ignore left
 			{
 				start = mid + 1;
 			}
@@ -118,19 +168,19 @@ struct ArcLengthTable
 				end = mid - 1;
 			}
 		}
-		return start;
+		return start; // return smallest that is greater than the desired
 	}
 	void Normalize()
 	{
 		assert(!table.empty() && "Empty ArcLengthTable");
-		denom = table.back().arcLength; // last entry holds the total arc length
-
+		totalArcLength = table.back().arcLength; // last entry holds the total arc length
+		totalU = table.back().u;
 		normalizedTable.clear();
 		for (const auto& entry : table)
 		{
 			ArcLengthEntry normalizedEntry;
-			normalizedEntry.u = entry.u; // u remains the same.
-			normalizedEntry.arcLength = entry.arcLength / denom; // Normalize the arc length
+			normalizedEntry.u = entry.u/ totalU; // u remains the same.
+			normalizedEntry.arcLength = entry.arcLength / totalArcLength; // Normalize the arc length
 			normalizedTable.push_back(normalizedEntry);
 		}
 	}
@@ -138,21 +188,23 @@ struct ArcLengthTable
 	{
 		table.clear();
 		normalizedTable.clear();
-		denom = 0;
+		totalArcLength = 0;
 	}
 	void PrintTable()
 	{
+		std::cout << "========================" << std::endl;
 		std::cout << "ArcLengthTable" << std::endl;
 		for (const auto& entry : table)
 		{
 			std::cout << "U: " << entry.u << ", Arc Length: " << entry.arcLength << std::endl;
 		}
 		std::cout << "Normalized ArcLengthTable" << std::endl;
+		std::cout << "totalU: " << totalU << std::endl;
+		std::cout << "totalArcLength: " << totalArcLength << std::endl;
 		for (const auto& entry : normalizedTable)
 		{
 			std::cout << "U: " << entry.u << ", Arc Length: " << entry.arcLength << std::endl;
 		}
+		std::cout << "========================" << std::endl;
 	}
-	
-
 };
