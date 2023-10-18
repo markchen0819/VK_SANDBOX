@@ -79,6 +79,18 @@ namespace SampleApplication
 		testMoveGobj->transform.SetPosition(data[0]);
 		testMoveGobj->transform.SetScale(glm::vec3(0.4, 0.4, 0.4));
 
+		testMoveGobj2 = & sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj2");
+		testMoveGobj2->AddComponent<IHCEngine::Component::PipelineComponent>();
+		meshcomponent = testMoveGobj2->AddComponent<IHCEngine::Component::MeshComponent>();
+		meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
+		texturecomponent = testMoveGobj2->AddComponent<IHCEngine::Component::TextureComponent>();
+		texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+		testMoveGobj2->transform.SetPosition(data[0]);
+		testMoveGobj2->transform.SetScale(glm::vec3(0.4, 0.4, 0.4));
+
+		speedControl.SetTimings(2.0, 6.0, 8.0); //ease in out
+
+
 	}
 
 	void MotionAlongPathViewer::Start()
@@ -88,25 +100,38 @@ namespace SampleApplication
 
 	void MotionAlongPathViewer::Update()
 	{
+		if (startMove)
+		{
+			float dt = IHCEngine::Core::Time::GetDeltaTime();
+			passedTime += dt ;
+
+			float distance1 = speedControl.GetDistance(passedTime);
+			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(distance1);
+			testMoveGobj->transform.SetPosition(targetPos);
+
+			float distance2 = passedTime / 8; // constant for compare
+			if (distance2 > 1.0) distance2 = 1.0;
+			glm::vec3 targetPos2 = spaceCurve.GetPositionOnCurve(distance2);
+			testMoveGobj2->transform.SetPosition(targetPos2);
+
+			std::cout <<"passedTime "<< passedTime << std::endl;
+
+			std::cout << "distance1 " << distance1 << std::endl;
+			std::cout << "distance2 " << distance2 << std::endl;
+		
+
+			if(passedTime>=8)
+			{
+				startMove = false;
+			}
+		}
+
 		if(IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_P))
 		{
 			startMove = true;
+			passedTime = 0;
 		}
 
-		if(startMove)
-		{
-			float totalDistance = 1.0;//spaceCurve.GetTotalDistanceOfCurve();
-			float speed = 0.10; // constant speed test
-
-			float dt = IHCEngine::Core::Time::GetDeltaTime();
-			passedTime += dt;
-			float distancePassed = speed * passedTime;
-			float param = distancePassed / totalDistance;
-
-			if (param >= 1.0) param = 1.0f;
-			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(param);
-			testMoveGobj->transform.SetPosition(targetPos);
-		}
 	}
 
 	void MotionAlongPathViewer::FixedUpdate(){}

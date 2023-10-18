@@ -215,6 +215,7 @@
     <ClCompile Include="Engine\src\Math\Path\SubCurve.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\LineRendererComponent.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.cpp" />
+    <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
@@ -295,6 +296,7 @@
     <ClInclude Include="Engine\src\Math\Path\SubCurve.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\LineRendererComponent.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h" />
+    <ClInclude Include="Engine\src\Math\Path\SpeedControl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

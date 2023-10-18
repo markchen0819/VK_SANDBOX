@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
 #include "../../../../Engine/src/Math/Path/SpaceCurve.h"
+#include "../../../../Engine/src/Math/Path/SpeedControl.h"
 
 namespace IHCEngine::Component
 {
@@ -45,11 +46,16 @@ namespace SampleApplication
         // Path logic
         IHCEngine::Math::SpaceCurve spaceCurve;
 
+        // Ease in/out speed control
+        IHCEngine::Math::SpeedControl speedControl;
+        
         //test
         IHCEngine::Core::GameObject* testMoveGobj = nullptr;
+        IHCEngine::Core::GameObject* testMoveGobj2 = nullptr;
+
         bool startMove = false;
-        float totalTime = 5; // 5 seconds
         float passedTime = 0;
+
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;
 
