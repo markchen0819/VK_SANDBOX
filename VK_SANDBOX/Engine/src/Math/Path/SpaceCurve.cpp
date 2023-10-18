@@ -81,13 +81,13 @@ namespace IHCEngine::Math
 	void SpaceCurve::buildGlobalArcLengthTable()
 	{
 		float subCurveStart = 0.0f;
+		float previousTableEndingLength = 0.0f;
 		for (auto& subcurve : subCurves)
 		{
-			auto table = subcurve->GetArcLengthTable();
-
-			for (int i=0; i<table.normalizedTable.size(); ++i)
+			auto subCurveTable = subcurve->GetArcLengthTable();
+			for (int i=0; i<subCurveTable.table.size(); ++i)
 			{
-				auto& entry = table.normalizedTable[i];
+				auto& entry = subCurveTable.table[i];
 
 				if(subCurveStart!=0.0 && i==0)
 				{
@@ -96,10 +96,11 @@ namespace IHCEngine::Math
 				}
 				ArcLengthEntry e;
 				e.u = entry.u + subCurveStart;
-				e.arcLength = entry.arcLength + subCurveStart;
+				e.arcLength = entry.arcLength + previousTableEndingLength;
 				globalArcLengthTable.table.push_back(e);
 			}
 			subCurveStart += 1.0f;
+			previousTableEndingLength = globalArcLengthTable.table.back().arcLength;
 		}
 		globalArcLengthTable.Normalize();
 		globalArcLengthTable.PrintTable();
