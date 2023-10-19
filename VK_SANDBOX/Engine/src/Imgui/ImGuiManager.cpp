@@ -24,6 +24,14 @@ void IHCEngine::IMGUI::ImGuiManager::Init()
     // initialize imgui library
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    float fontSize = 14.0f;
+    ImFontConfig config;
+    config.OversampleH = 3;
+    config.OversampleV = 3;
+    config.SizePixels = fontSize; 
+    io.Fonts->AddFontDefault(&config);
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
     ImGui::StyleColorsDark();
    

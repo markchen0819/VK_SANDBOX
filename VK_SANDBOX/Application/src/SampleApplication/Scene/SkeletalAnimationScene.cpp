@@ -108,6 +108,9 @@ void SampleApplication::SkeletalAnimationScene::UnLoad()
 	// grid
 	graphicsAssetCreator.DestroyTexture("gridTexture");
 	graphicsAssetCreator.DestroyMesh("gridModel");
+
+	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	assetManager->ClearAllAssetRepositories();
 }
 
 void SampleApplication::SkeletalAnimationScene::Init()

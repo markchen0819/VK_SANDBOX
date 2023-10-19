@@ -13,6 +13,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../CustomBehaviors/ImguiContext_MotionAlongPathViewer.h"
 #include "../CustomBehaviors/MotionAlongPathViewer.h"
 
 SampleApplication::MotionAlongPathScene::MotionAlongPathScene()
@@ -28,13 +29,13 @@ void SampleApplication::MotionAlongPathScene::Load()
 	// Models
 	auto Ch44Model = graphicsAssetCreator.CreateModel("Ch44Model",
 		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
-	// Animation
-	auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
-		"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
-		Ch44Model);
-	auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
-		"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
-		Ch44Model);
+	//// Animation
+	//auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
+	//	"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
+	//	Ch44Model);
+	//auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
+	//	"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
+	//	Ch44Model);
 
 	// Control point
 	createControlPointMesh();
@@ -57,11 +58,12 @@ void SampleApplication::MotionAlongPathScene::UnLoad()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
-	// testModel
-	graphicsAssetCreator.DestroyModel("Ch44Model");
-	graphicsAssetCreator.DestroyAnimation("CrouchAnimation");
+	//// testModel
+	//graphicsAssetCreator.DestroyModel("Ch44Model");
+	//graphicsAssetCreator.DestroyAnimation("CrouchAnimation");
 	 
 	// control point
+	graphicsAssetCreator.DestroyModel("Ch44Model");
 	graphicsAssetCreator.DestroyMesh("controlPointModel");
 
 
@@ -78,6 +80,9 @@ void SampleApplication::MotionAlongPathScene::UnLoad()
 	// grid
 	graphicsAssetCreator.DestroyTexture("gridTexture");
 	graphicsAssetCreator.DestroyMesh("gridModel");
+
+	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	assetManager->ClearAllAssetRepositories();
 }
 
 void SampleApplication::MotionAlongPathScene::Init()
@@ -90,7 +95,7 @@ void SampleApplication::MotionAlongPathScene::Init()
 	IHCEngine::Core::GameObject& emptyGobj = AddGameObject("emptyGobj");
 	emptyGobj.AddComponent<IHCEngine::Component::LineRendererComponent>();
 	emptyGobj.AddComponent<MotionAlongPathViewer>();
-
+	emptyGobj.AddComponent<IHCEngine::Component::ImguiContext_MotionAlongPathViewer>();
 
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
@@ -112,8 +117,8 @@ void SampleApplication::MotionAlongPathScene::Init()
 	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
-	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
+	//auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
+	//auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
 
 	///////////////////////////
 	// Others

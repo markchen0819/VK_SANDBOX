@@ -21,6 +21,9 @@ namespace IHCEngine::Core
 		AssetRepository<IHCEngine::Graphics::IHCMesh>& GetMeshRepository() { return  meshRepository; };
 		AssetRepository<IHCEngine::Graphics::Model>& GetModelRepository() { return modelRepository; };
 		AssetRepository<IHCEngine::Graphics::Animation>& GetAnimationRepository() { return animationRepository; };
+
+		void ClearAllAssetRepositories();
+
 	private:
 		AssetRepository<IHCEngine::Graphics::IHCTexture> textureRepository;
 		AssetRepository<IHCEngine::Graphics::IHCMesh> meshRepository;

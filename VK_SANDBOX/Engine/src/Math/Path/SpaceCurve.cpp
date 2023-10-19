@@ -35,6 +35,7 @@ namespace IHCEngine::Math
 
 	void SpaceCurve::SetControlPoints(const std::vector<glm::vec3> controlPoints)
 	{
+		this->controlPoints.clear();
 		subCurves.clear();
 		this->controlPoints = controlPoints;
 		buildSubCurves();
@@ -80,6 +81,7 @@ namespace IHCEngine::Math
 
 	void SpaceCurve::buildGlobalArcLengthTable()
 	{
+		globalArcLengthTable.Clear();
 		float subCurveStart = 0.0f;
 		float previousTableEndingLength = 0.0f;
 		for (auto& subcurve : subCurves)
@@ -103,6 +105,6 @@ namespace IHCEngine::Math
 			previousTableEndingLength = globalArcLengthTable.table.back().arcLength;
 		}
 		globalArcLengthTable.Normalize();
-		globalArcLengthTable.PrintTable();
+		//globalArcLengthTable.PrintTable();
 	}
 }

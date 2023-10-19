@@ -12,6 +12,7 @@ namespace IHCEngine::Math
 		void SetControlPoints(const std::vector<glm::vec3> controlPoints);
 		std::vector<glm::vec3> GetPointsForRendering();
 		glm::vec3 GetPositionOnCurve(float u);
+		ArcLengthTable& GetArcLengthTable() { return globalArcLengthTable; }
 
 	private:
 

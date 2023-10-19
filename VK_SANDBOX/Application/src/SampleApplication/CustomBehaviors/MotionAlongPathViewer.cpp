@@ -1,5 +1,7 @@
 #include "MotionAlongPathViewer.h"
 
+#include <iomanip>
+
 #include "../../../../Engine/src/Core/Scene/GameObject.h"
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../../../../Engine/src/Core/Scene/Scene.h"
@@ -32,64 +34,23 @@ namespace SampleApplication
 
 	void MotionAlongPathViewer::Awake()
 	{
-
-		// TEST
-		//data.push_back(glm::vec3(0, 1, 0));
-		//data.push_back(glm::vec3(4, 1, -4));
-		//data.push_back(glm::vec3(8, 1, 0));
-		//data.push_back(glm::vec3(12, 1, -4));
-
-		// Circular
-		data.push_back(glm::vec3(0, 1, 10));
-		data.push_back(glm::vec3(10, 1, 0));
-		data.push_back(glm::vec3(0, 1, -10));
-		data.push_back(glm::vec3(-10, 1, 0));
-		data.push_back(glm::vec3(0, 1, 10));
-
-		// Detailed Circular
-		//data.push_back(glm::vec3(0, 1, 10));
-		//data.push_back(glm::vec3(7.071, 1, 7.071));
-		//data.push_back(glm::vec3(10, 1, 0));
-		//data.push_back(glm::vec3(7.071, 1, -7.071));
-		//data.push_back(glm::vec3(0, 1, -10));
-		//data.push_back(glm::vec3(-7.071, 1, -7.071));
-		//data.push_back(glm::vec3(-10, 1, 0));
-		//data.push_back(glm::vec3(-7.071, 1, 7.071));
-		//data.push_back(glm::vec3(0, 1, 10));
-
-		spaceCurve.SetControlPoints(data);
-
-
-		lineRenderer = gameObject->GetComponent<IHCEngine::Component::LineRendererComponent>();
-		lineRenderer->SetPoints(spaceCurve.GetPointsForRendering());
-
-		createDebugControlPoints();
-
-
 		// TestMoveGobj
 		auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
-		testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
-		testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
-		auto meshcomponent = testMoveGobj->AddComponent<IHCEngine::Component::MeshComponent>();
-		meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
-		auto texturecomponent = testMoveGobj->AddComponent<IHCEngine::Component::TextureComponent>();
-		texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
-		testMoveGobj->transform.SetPosition(data[0]);
-		testMoveGobj->transform.SetScale(glm::vec3(0.4, 0.4, 0.4));
+		testMoveGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Model");
+		//testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
+		//testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
+		//auto meshcomponent = testMoveGobj->AddComponent<IHCEngine::Component::MeshComponent>();
+		//meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
+		//auto texturecomponent = testMoveGobj->AddComponent<IHCEngine::Component::TextureComponent>();
+		//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+		testMoveGobj->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
 
-		testMoveGobj2 = & sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj2");
-		testMoveGobj2->AddComponent<IHCEngine::Component::PipelineComponent>();
-		meshcomponent = testMoveGobj2->AddComponent<IHCEngine::Component::MeshComponent>();
-		meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
-		texturecomponent = testMoveGobj2->AddComponent<IHCEngine::Component::TextureComponent>();
-		texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
-		testMoveGobj2->transform.SetPosition(data[0]);
-		testMoveGobj2->transform.SetScale(glm::vec3(0.4, 0.4, 0.4));
+		changeNextDataSet();
 
+		totalTime = 8;
 		speedControl.SetTimings(2.0, 6.0, 8.0); //ease in out
-
 
 	}
 
@@ -100,37 +61,42 @@ namespace SampleApplication
 
 	void MotionAlongPathViewer::Update()
 	{
-		if (startMove)
+
+		if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_RIGHT))
+		{
+			isMoving = false;
+			passedTime = 0;
+			prevFrameDistance = 0;
+			changeNextDataSet();
+		}
+
+		if (IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_P))
+		{
+			isMoving = true;
+			passedTime = 0;
+			prevFrameDistance = 0;
+		}
+
+		if (isMoving)
 		{
 			float dt = IHCEngine::Core::Time::GetDeltaTime();
-			passedTime += dt ;
+			passedTime += dt;
 
-			float distance1 = speedControl.GetDistance(passedTime);
-			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(distance1);
+			float passedDistance = speedControl.GetDistance(passedTime);
+			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(passedDistance);
 			testMoveGobj->transform.SetPosition(targetPos);
 
-			float distance2 = passedTime / 8; // constant for compare
-			if (distance2 > 1.0) distance2 = 1.0;
-			glm::vec3 targetPos2 = spaceCurve.GetPositionOnCurve(distance2);
-			testMoveGobj2->transform.SetPosition(targetPos2);
+			currentSpeed = (passedDistance - prevFrameDistance) / dt * 100;
+			prevFrameDistance = passedDistance;
 
-			std::cout <<"passedTime "<< passedTime << std::endl;
-
-			std::cout << "distance1 " << distance1 << std::endl;
-			std::cout << "distance2 " << distance2 << std::endl;
-		
-
-			if(passedTime>=8)
+			if(passedTime >= totalTime)
 			{
-				startMove = false;
+				currentSpeed = 0;
+				isMoving = false;
 			}
 		}
 
-		if(IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_P))
-		{
-			startMove = true;
-			passedTime = 0;
-		}
+
 
 	}
 
@@ -139,6 +105,65 @@ namespace SampleApplication
 	void MotionAlongPathViewer::OnEnable(){}
 
 	void MotionAlongPathViewer::OnDisable(){}
+
+	ArcLengthTable& MotionAlongPathViewer::GetArcLengthTable()
+	{
+		return spaceCurve.GetArcLengthTable();
+	}
+
+	void MotionAlongPathViewer::changeNextDataSet()
+	{
+		// Set control points
+		data.clear();
+		if(dataSetIndex==0) // Circular
+		{
+			data.push_back(glm::vec3(0, 1, 10));
+			data.push_back(glm::vec3(10, 1, 0));
+			data.push_back(glm::vec3(0, 1, -10));
+			data.push_back(glm::vec3(-10, 1, 0));
+			data.push_back(glm::vec3(0, 1, 10));
+		}
+		else if (dataSetIndex==1) // TEST
+		{		
+			data.push_back(glm::vec3(0, 1, 0));
+			data.push_back(glm::vec3(4, 1, -4));
+			data.push_back(glm::vec3(8, 1, 0));
+			data.push_back(glm::vec3(12, 1, -4));
+			data.push_back(glm::vec3(16, 1, 0));
+			data.push_back(glm::vec3(20, 1, -4));
+			data.push_back(glm::vec3(24, 1, 0));
+			data.push_back(glm::vec3(28, 1, -4));
+			data.push_back(glm::vec3(32, 1, 0));
+			data.push_back(glm::vec3(36, 1, -4));
+		}
+		else if(dataSetIndex==2) // Detailed Circular
+		{
+			data.push_back(glm::vec3(0, 1, 10));
+			data.push_back(glm::vec3(7.071, 1, 7.071));
+			data.push_back(glm::vec3(10, 1, 0));
+			data.push_back(glm::vec3(7.071, 1, -7.071));
+			data.push_back(glm::vec3(0, 1, -10));
+			data.push_back(glm::vec3(-7.071, 1, -7.071));
+			data.push_back(glm::vec3(-10, 1, 0));
+			data.push_back(glm::vec3(-7.071, 1, 7.071));
+			data.push_back(glm::vec3(0, 1, 10));
+		}
+
+		// Calculate for motion access
+		spaceCurve.SetControlPoints(data);
+
+		// Create Curve visual
+		lineRenderer = gameObject->GetComponent<IHCEngine::Component::LineRendererComponent>();
+		lineRenderer->SetPoints(spaceCurve.GetPointsForRendering());
+
+		// Create Debugging visual
+		createDebugControlPoints();
+
+		// Put moving gobj to start
+		testMoveGobj->transform.SetPosition(data[0]);
+		// Next set
+		dataSetIndex = (dataSetIndex + 1) % 3;
+	}
 
 	void MotionAlongPathViewer::createDebugControlPoints()
 	{
@@ -162,7 +187,7 @@ namespace SampleApplication
 			point.transform.SetPosition(data[i]);
 			point.transform.SetScale(glm::vec3(0.2,0.2,0.2));
 			controlPointID++;
+			debugControlPoints.push_back(&point);
 		}
-
 	}
 }

@@ -193,6 +193,7 @@
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ImguiContextComponent.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\GlobalDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ImguiContextComponent.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />

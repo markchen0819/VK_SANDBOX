@@ -21,7 +21,8 @@ namespace SampleApplication
     {
     public:
         MotionAlongPathViewer();
-        ~MotionAlongPathViewer(); 
+        ~MotionAlongPathViewer();
+
         void Awake() override;
         void Start() override;
         void Update() override;
@@ -29,11 +30,17 @@ namespace SampleApplication
         void OnEnable() override;
         void OnDisable() override;
 
+        std::vector<glm::vec3>& GetControlPoints() { return data; }
+        ArcLengthTable& GetArcLengthTable();
+        float GetCurrentSpeed() { return currentSpeed; }
+        float GetTimePassed() { return passedTime; }
 
     private:
 
         // Data 
         std::vector<glm::vec3> data;
+        int dataSetIndex = 0;
+        void changeNextDataSet();
 
         // Control point visualization
         std::vector<IHCEngine::Core::GameObject*> debugControlPoints;
@@ -48,13 +55,20 @@ namespace SampleApplication
 
         // Ease in/out speed control
         IHCEngine::Math::SpeedControl speedControl;
-        
-        //test
-        IHCEngine::Core::GameObject* testMoveGobj = nullptr;
-        IHCEngine::Core::GameObject* testMoveGobj2 = nullptr;
-
-        bool startMove = false;
+        bool isMoving = false;
+        float totalTime = 0;
+        float currentSpeed = 0;
+        float prevFrameDistance = 0;
         float passedTime = 0;
+
+
+
+        //test
+
+        IHCEngine::Core::GameObject* testMoveGobj = nullptr;
+
+ 
+  
 
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;
