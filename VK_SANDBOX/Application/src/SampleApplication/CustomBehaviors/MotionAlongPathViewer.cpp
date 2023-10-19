@@ -10,6 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Input/Input.h"
 #include "../../../../Engine/src/Core/Time/Time.h"
 
@@ -39,6 +40,9 @@ namespace SampleApplication
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
 		testMoveGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Model");
+
+		animator = testMoveGobj->GetComponent<IHCEngine::Component::AnimatorComponent>();
+
 		//testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
 		//testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
 		//auto meshcomponent = testMoveGobj->AddComponent<IHCEngine::Component::MeshComponent>();
@@ -75,6 +79,7 @@ namespace SampleApplication
 			isMoving = true;
 			passedTime = 0;
 			prevFrameDistance = 0;
+			animator->PlayAnimation();
 		}
 
 		if (isMoving)
@@ -86,13 +91,29 @@ namespace SampleApplication
 			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(passedDistance);
 			testMoveGobj->transform.SetPosition(targetPos);
 
-			currentSpeed = (passedDistance - prevFrameDistance) / dt * 100;
+			currentSpeed = (passedDistance - prevFrameDistance) / dt;
 			prevFrameDistance = passedDistance;
+
+			float cycleDuration = 43.0f / 60.0;
+			float normalSpeed = 0.125; // 1.0d / 8s
+			float idealPace = normalSpeed * cycleDuration;
+			float currentPace = currentSpeed * cycleDuration;
+
+			// Now, calculate the ratio of currentPace to idealPace. This will be your animation speed adjustment.
+			float n = currentPace / idealPace;
+
+			//float Pace = strideLength;
+			//float n = currentSpeed / Pace;
+			animator->SetSpeed(n);
+
+
+			//currentSpeed*=100; // display only
 
 			if(passedTime >= totalTime)
 			{
 				currentSpeed = 0;
 				isMoving = false;
+				animator->StopAnimation();
 			}
 		}
 

@@ -6,6 +6,7 @@
 
 namespace IHCEngine::Component
 {
+	class AnimatorComponent;
 	class LineRendererComponent;
 }
 
@@ -61,6 +62,8 @@ namespace SampleApplication
         float prevFrameDistance = 0;
         float passedTime = 0;
 
+        // Sliding and skidding control
+        IHCEngine::Component::AnimatorComponent* animator;
 
 
         //test

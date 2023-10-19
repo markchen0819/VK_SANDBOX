@@ -41,6 +41,8 @@ namespace IHCEngine::Graphics
 
 	void Animator::UpdateAnimation(float dt)
 	{
+		if (!isPlaying) return;
+
 		if(currentAnimation==nullptr)
 		{
 			std::cerr << "No animation assigned to animator" << std::endl;
@@ -177,7 +179,15 @@ namespace IHCEngine::Graphics
 			assert(false);
 		}
 		currentTime = 0.0f;
+		isPlaying = true;
 	}
+
+	void Animator::StopAnimation()
+	{
+		currentTime = 0.0f;
+		isPlaying = false;
+	}
+
 	void Animator::SetSpeed(float speed)
 	{
 		this->speed = speed;

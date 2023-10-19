@@ -36,6 +36,8 @@ void SampleApplication::AnimationViewer::Awake()
     animationGobjs[0]->GetComponent<IHCEngine::Component::AnimatorComponent>()
         ->SetAnimation(animationSlots1[0]);
 
+    animationGobjs[0]->GetComponent<IHCEngine::Component::AnimatorComponent>()->PlayAnimation();
+
 }
 
 void SampleApplication::AnimationViewer::Start(){}
@@ -66,6 +68,7 @@ void SampleApplication::AnimationViewer::HandleModelInput()
             animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()
                 ->SetAnimation(animationSlots2[modelIndex]);
         }
+        animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()->PlayAnimation();
     }
     if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_LEFT))
     {
@@ -83,6 +86,7 @@ void SampleApplication::AnimationViewer::HandleModelInput()
             animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()
                 ->SetAnimation(animationSlots2[modelIndex]);
         }
+        animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()->PlayAnimation();
     }
     if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_SPACE))
     {
@@ -97,6 +101,7 @@ void SampleApplication::AnimationViewer::HandleModelInput()
             animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()
                 ->SetAnimation(animationSlots2[modelIndex]);
         }
+        animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>()->PlayAnimation();
     }
 
     if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_B))

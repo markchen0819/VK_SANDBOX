@@ -18,6 +18,7 @@ namespace IHCEngine::Graphics
 		void UpdateAnimation(float dt);
 		void SetAnimation(Animation* animation);
 		void PlayAnimation();
+		void StopAnimation();
 
 		Animation* GetCurrentAnimation() { return currentAnimation; }
 		void SetSpeed(float animatorSpeed);
@@ -46,6 +47,7 @@ namespace IHCEngine::Graphics
 		Animation* currentAnimation = nullptr;
 		float currentTime;
 		float speed = 1.0f;
+		bool isPlaying = false;
 
 		// Vulkan
 		std::vector<VkDescriptorSet> descriptorSets;

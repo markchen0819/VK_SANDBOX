@@ -20,6 +20,11 @@ void IHCEngine::Component::AnimatorComponent::PlayAnimation()
 	animator.PlayAnimation();
 }
 
+void IHCEngine::Component::AnimatorComponent::StopAnimation()
+{
+	animator.StopAnimation();
+}
+
 bool IHCEngine::Component::AnimatorComponent::HasAnimation()
 {
 	if(animator.GetCurrentAnimation()!=nullptr)

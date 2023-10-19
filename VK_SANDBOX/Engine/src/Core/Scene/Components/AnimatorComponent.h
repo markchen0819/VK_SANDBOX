@@ -13,6 +13,7 @@ namespace IHCEngine::Component
 
 		void SetAnimation(Graphics::Animation* animation);
 		void PlayAnimation();
+		void StopAnimation();
 		bool HasAnimation();
 
 		void UpdateAnimation(float dt);
