@@ -446,6 +446,12 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\OrientationControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\PaceControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\shader.vert" />

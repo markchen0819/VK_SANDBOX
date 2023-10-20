@@ -3,6 +3,8 @@
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
 #include "../../../../Engine/src/Math/Path/SpaceCurve.h"
 #include "../../../../Engine/src/Math/Path/SpeedControl.h"
+#include "../../../../Engine/src/Math/Path/OrientationControl.h"
+#include "../../../../Engine/src/Math/Path/PaceControl.h"
 
 namespace IHCEngine::Component
 {
@@ -38,7 +40,13 @@ namespace SampleApplication
 
     private:
 
-        // Data 
+        bool isMoving = false;
+        float totalTime = 0;
+        float currentSpeed = 0;
+        float prevFrameDistance = 0;
+        float passedTime = 0;
+
+        // Data points
         std::vector<glm::vec3> data;
         int dataSetIndex = 0;
         void changeNextDataSet();
@@ -56,22 +64,19 @@ namespace SampleApplication
 
         // Ease in/out speed control
         IHCEngine::Math::SpeedControl speedControl;
-        bool isMoving = false;
-        float totalTime = 0;
-        float currentSpeed = 0;
-        float prevFrameDistance = 0;
-        float passedTime = 0;
 
-        // Sliding and skidding control
-        IHCEngine::Component::AnimatorComponent* animator;
+        // Pace Control (Sliding and skidding)
+        IHCEngine::Math::PaceControl paceControl;
 
+        // OrientationControl
+        IHCEngine::Math::OrientationControl orientationControl;
 
         //test
 
+        IHCEngine::Component::AnimatorComponent* animator;
+        IHCEngine::Component::AnimatorComponent* animator2;
         IHCEngine::Core::GameObject* testMoveGobj = nullptr;
-
- 
-  
+        IHCEngine::Core::GameObject* testMoveGobj2 = nullptr;
 
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;

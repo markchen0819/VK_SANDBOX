@@ -51,7 +51,7 @@ namespace IHCEngine::Math
 		// p0 - p1
 		glm::vec3 p0 = controlPoints[0];
 		glm::vec3 a0 = controlPoints[0];
-		glm::vec3 b1 = controlPoints[1] - (controlPoints[2] - controlPoints[0]) / 2.0f;
+		glm::vec3 b1 = controlPoints[1] - (controlPoints[2] - controlPoints[0]) / scalingFactor;
 		glm::vec3 p1 = controlPoints[1];
 		subCurves.push_back(std::make_unique<SubCurve>(p0, a0, b1, p1));
 		// p1 - p2 - ... - pn-1
@@ -66,8 +66,8 @@ namespace IHCEngine::Math
 			glm::vec3 pi_plus1 = controlPoints[i + 1];
 			glm::vec3 pi_minus1 = controlPoints[i - 1];
 			glm::vec3 pi_plus2 = controlPoints[i + 2];
-			glm::vec3 ai = pi + (pi_plus1 - pi_minus1) / 2.0f;
-			glm::vec3 bi_plus1 = pi_plus1 - (pi_plus2 - pi) / 2.0f;
+			glm::vec3 ai = pi + (pi_plus1 - pi_minus1) / scalingFactor;
+			glm::vec3 bi_plus1 = pi_plus1 - (pi_plus2 - pi) / scalingFactor;
 
 			subCurves.push_back(std::make_unique<SubCurve>(pi, ai, bi_plus1, pi_plus1));
 		}
@@ -75,7 +75,7 @@ namespace IHCEngine::Math
 		glm::vec3 pn = controlPoints[controlPoints.size() - 1];
 		glm::vec3 bn = controlPoints[controlPoints.size() - 1];
 		glm::vec3 pn_minus1 = controlPoints[controlPoints.size() - 2];
-		glm::vec3 an_minus1 = pn_minus1 + (pn - controlPoints[controlPoints.size() - 3])/2.0f;
+		glm::vec3 an_minus1 = pn_minus1 + (pn - controlPoints[controlPoints.size() - 3])/ scalingFactor;
 		subCurves.push_back(std::make_unique<SubCurve>(pn_minus1, an_minus1, bn, pn));
 	}
 

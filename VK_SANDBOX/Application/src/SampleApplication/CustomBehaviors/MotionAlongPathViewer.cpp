@@ -39,9 +39,11 @@ namespace SampleApplication
 		auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
-		testMoveGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Model");
-
+		testMoveGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj1");
 		animator = testMoveGobj->GetComponent<IHCEngine::Component::AnimatorComponent>();
+
+		testMoveGobj2 = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj2");
+		animator2 = testMoveGobj2->GetComponent<IHCEngine::Component::AnimatorComponent>();
 
 		//testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
 		//testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
@@ -50,12 +52,9 @@ namespace SampleApplication
 		//auto texturecomponent = testMoveGobj->AddComponent<IHCEngine::Component::TextureComponent>();
 		//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
 		testMoveGobj->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
+		testMoveGobj2->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
 
 		changeNextDataSet();
-
-		totalTime = 8;
-		speedControl.SetTimings(2.0, 6.0, 8.0); //ease in out
-
 	}
 
 	void MotionAlongPathViewer::Start()
@@ -80,40 +79,44 @@ namespace SampleApplication
 			passedTime = 0;
 			prevFrameDistance = 0;
 			animator->PlayAnimation();
+			animator2->PlayAnimation();
 		}
 
 		if (isMoving)
 		{
 			float dt = IHCEngine::Core::Time::GetDeltaTime();
+
+			// using Time-Distance function to get position on Space Curve
 			passedTime += dt;
-
 			float passedDistance = speedControl.GetDistance(passedTime);
-			glm::vec3 targetPos = spaceCurve.GetPositionOnCurve(passedDistance);
-			testMoveGobj->transform.SetPosition(targetPos);
-
+			glm::vec3 moveToPos = spaceCurve.GetPositionOnCurve(passedDistance);
 			currentSpeed = (passedDistance - prevFrameDistance) / dt;
 			prevFrameDistance = passedDistance;
 
-			float cycleDuration = 43.0f / 60.0;
-			float normalSpeed = 0.125; // 1.0d / 8s
-			float idealPace = normalSpeed * cycleDuration;
-			float currentPace = currentSpeed * cycleDuration;
 
-			// Now, calculate the ratio of currentPace to idealPace. This will be your animation speed adjustment.
-			float n = currentPace / idealPace;
 
-			//float Pace = strideLength;
-			//float n = currentSpeed / Pace;
+			testMoveGobj->transform.SetPosition(moveToPos);
+			//testMoveGobj2->transform.SetPosition(targetPos);
+
+
+			float n = paceControl.GetAnimatorSpeedModifier("WalkAnimation", currentSpeed, 1.0, totalTime);
+			float n2 = paceControl.GetAnimatorSpeedModifier("RunAnimation", currentSpeed, 1.0, totalTime);
+
 			animator->SetSpeed(n);
+			animator2->SetSpeed(n2);
 
 
-			//currentSpeed*=100; // display only
+			// Orientation Control
+			glm::vec3 rotation = orientationControl.GetRotation(spaceCurve, passedDistance);
+			testMoveGobj->transform.SetRotation(rotation);
+
 
 			if(passedTime >= totalTime)
 			{
 				currentSpeed = 0;
 				isMoving = false;
 				animator->StopAnimation();
+				animator2->StopAnimation();
 			}
 		}
 
@@ -143,19 +146,26 @@ namespace SampleApplication
 			data.push_back(glm::vec3(0, 1, -10));
 			data.push_back(glm::vec3(-10, 1, 0));
 			data.push_back(glm::vec3(0, 1, 10));
+
+			totalTime = 8;
+			speedControl.SetTimings(2.0, 6.0, 8.0); //ease in out
 		}
-		else if (dataSetIndex==1) // TEST
+		else if (dataSetIndex==1) // Curvy path with up downs
 		{		
-			data.push_back(glm::vec3(0, 1, 0));
-			data.push_back(glm::vec3(4, 1, -4));
-			data.push_back(glm::vec3(8, 1, 0));
-			data.push_back(glm::vec3(12, 1, -4));
-			data.push_back(glm::vec3(16, 1, 0));
-			data.push_back(glm::vec3(20, 1, -4));
-			data.push_back(glm::vec3(24, 1, 0));
-			data.push_back(glm::vec3(28, 1, -4));
-			data.push_back(glm::vec3(32, 1, 0));
-			data.push_back(glm::vec3(36, 1, -4));
+			data.push_back(glm::vec3(0, 0.5, 5));
+			data.push_back(glm::vec3(10, 0.5, 10));
+			data.push_back(glm::vec3(7, 0.5, 0));
+			data.push_back(glm::vec3(8, 0.5, -13));
+			data.push_back(glm::vec3(-7, 0.5,-20 ));
+			data.push_back(glm::vec3(-15, 0.5, 0));
+			data.push_back(glm::vec3(-7, 0.5, 7));
+			data.push_back(glm::vec3(-5, 0.5, -5));
+			data.push_back(glm::vec3(0, 1, -5));
+			data.push_back(glm::vec3(-5, 1, 15));
+			data.push_back(glm::vec3(0, 0.5, 10));
+
+			totalTime = 20;
+			speedControl.SetTimings(5.0, 15.0, totalTime);
 		}
 		else if(dataSetIndex==2) // Detailed Circular
 		{
@@ -168,6 +178,9 @@ namespace SampleApplication
 			data.push_back(glm::vec3(-10, 1, 0));
 			data.push_back(glm::vec3(-7.071, 1, 7.071));
 			data.push_back(glm::vec3(0, 1, 10));
+
+			totalTime = 8;
+			speedControl.SetTimings(2.0, 6.0, 8.0); //ease in out
 		}
 
 		// Calculate for motion access
@@ -182,6 +195,7 @@ namespace SampleApplication
 
 		// Put moving gobj to start
 		testMoveGobj->transform.SetPosition(data[0]);
+		testMoveGobj2->transform.SetPosition(data[0]);
 		// Next set
 		dataSetIndex = (dataSetIndex + 1) % 3;
 	}

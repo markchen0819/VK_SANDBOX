@@ -31,7 +31,10 @@ void SampleApplication::MotionAlongPathScene::Load()
 		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
 	// Animation
 	auto WalkAnimation = graphicsAssetCreator.CreateAnimation(
-		"WalkAnimation", "Application/assets/Animations/Standard Run.fbx",
+		"WalkAnimation", "Application/assets/Animations/Standard Walk.fbx",
+		Ch44Model);
+	auto RunAnimation = graphicsAssetCreator.CreateAnimation(
+		"RunAnimation", "Application/assets/Animations/Standard Run.fbx",
 		Ch44Model);
 	//auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
 	//	"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
@@ -61,7 +64,8 @@ void SampleApplication::MotionAlongPathScene::UnLoad()
 	// testModel
 	graphicsAssetCreator.DestroyModel("Ch44Model");
 	graphicsAssetCreator.DestroyAnimation("WalkAnimation");
-	 
+	graphicsAssetCreator.DestroyAnimation("RunAnimation");
+
 	// control point
 	graphicsAssetCreator.DestroyModel("Ch44Model");
 	graphicsAssetCreator.DestroyMesh("controlPointModel");
@@ -108,17 +112,23 @@ void SampleApplication::MotionAlongPathScene::Init()
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
 
-	//// Skeletal Animation ////
-	// Ch44
-	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Model");
-	ch44Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
+
+	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Gobj1");
 	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
-	//auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
+
+	IHCEngine::Core::GameObject& ch44Gobj2 = AddGameObject("Ch44Gobj2");
+	pipelinecomponent = ch44Gobj2.AddComponent<IHCEngine::Component::PipelineComponent>();
+	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	modelcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::ModelComponent>();
+	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
+	animatorcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("RunAnimation"));
+
 
 	///////////////////////////
 	// Others

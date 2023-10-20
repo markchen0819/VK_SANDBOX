@@ -20,9 +20,10 @@ namespace IHCEngine::Math
 		std::vector<std::unique_ptr<SubCurve>> subCurves;
 		void buildSubCurves();
 
-
 		ArcLengthTable globalArcLengthTable;
 		void buildGlobalArcLengthTable();
+
+		float scalingFactor = 4; // adjust ai bi handle
 
 	};
 

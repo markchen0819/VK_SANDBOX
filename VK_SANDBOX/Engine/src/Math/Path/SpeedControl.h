@@ -1,7 +1,6 @@
 #pragma once
 namespace IHCEngine::Math
 {
-
 	// Distance-time function using Sine interpolation
 	// input time will be normalized: 0-t1-t2-t
 	// GetDistance returns 0~1 to feed in ArcLength global table
