@@ -1,4 +1,5 @@
 #pragma once
+#include "../../Math/VQS.h"
 
 namespace IHCEngine::Graphics
 {
@@ -37,10 +38,10 @@ namespace IHCEngine::Graphics
         int childrenCount;
 
         // Using Matrix
-        glm::mat4 transformation;
+        glm::mat4 transformation_Matrix;
   
 		// Using VQS
-
+        IHCEngine::Math::VQS transformation_VQS;
     };
 
     // Represents Inverse bind pose

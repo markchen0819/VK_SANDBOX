@@ -99,7 +99,7 @@ namespace IHCEngine::Graphics
 	{
 		// Starting from root node of current animation
 		const std::string& nodeName = node->name;
-		glm::mat4 nodeTransform = node->transformation; // ex: arm bone bent 45 degrees
+		glm::mat4 nodeTransform = node->transformation_Matrix; // ex: arm bone bent 45 degrees
 
 		// Check if there is a bone in the root node related to the animation
 		BoneAnimation* boneAnimation = currentAnimation->FindBone(nodeName);
@@ -146,7 +146,7 @@ namespace IHCEngine::Graphics
 	{
 		// Starting from root node of current animation
 		const std::string& nodeName = node->name;
-		Math::VQS nodeTransformVQS = Math::VQS::GLMMat4ToVQS(node->transformation); // ex: arm bone bent 45 degrees
+		Math::VQS nodeVQS = node->transformation_VQS; 
 
 		// Check if there is a bone in the root node related to the animation
 		BoneAnimation* boneAnimation = currentAnimation->FindBone(nodeName);
@@ -155,10 +155,10 @@ namespace IHCEngine::Graphics
 			// interpolates bone transformation
 			// and return local bone transform matrix 
 			boneAnimation->Update(currentTime);
-			nodeTransformVQS = boneAnimation->GetLocalTransformVQS(); // ex: arm bone change to 65 degrees
+			nodeVQS = boneAnimation->GetLocalTransformVQS(); // ex: arm bone change to 65 degrees
 		}
 		// Convert bone from local space into global space
-		Math::VQS globalVQS = parentVQS * nodeTransformVQS; // ex: arm bone in the world (consider shoulder)
+		Math::VQS globalVQS = parentVQS * nodeVQS; // ex: arm bone in the world (consider shoulder)
 
 		Vertex debugVertex;
 		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
@@ -198,29 +198,26 @@ namespace IHCEngine::Graphics
 
 		// Starting from root node of model
 		const std::string& nodeName = node->name;
-		Math::VQS nodeTransformVQS = Math::VQS::GLMMat4ToVQS(node->transformation); // ex: arm bone bent 45 degrees
+		Math::VQS nodeVQS = node->transformation_VQS;
 
 		// Check if there is a bone in the root node related to the animation
 		BoneAnimation* boneAnimationA = animationA->FindBone(nodeName);
 		BoneAnimation* boneAnimationB = animationB->FindBone(nodeName);
 		if (boneAnimationA && boneAnimationB)
 		{
-			// interpolates bone transformation
-			// and return local bone transform matrix 
+			// Tri-linear interpolation 
 			boneAnimationA->Update(currentTime);
 			boneAnimationB->Update(currentTime);
-
 			auto vqs1 = boneAnimationA->GetLocalTransformVQS();
 			auto vqs2 = boneAnimationB->GetLocalTransformVQS();
 			float blendFactor = blendTree->GetBlendFactor();
 			glm::vec3 vec = glm::vec3(blendFactor, blendFactor, blendFactor);
 			auto resultVQS = Math::VQS::Interpolate(vqs1, vqs2, vec);
-
-			nodeTransformVQS = resultVQS;
+			nodeVQS = resultVQS;
 		}
 
 		// Convert bone from local space into global space
-		Math::VQS globalVQS = parentVQS * nodeTransformVQS; // ex: arm bone in the world (consider shoulder)
+		Math::VQS globalVQS = parentVQS * nodeVQS; // ex: arm bone in the world (consider shoulder)
 
 		Vertex debugVertex;
 		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);

@@ -112,7 +112,8 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
 {
     // process current node
     root.name = node->mName.data;
-    root.transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    root.transformation_Matrix = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    root.transformation_VQS = IHCEngine::Math::VQS::GLMMat4ToVQS(root.transformation_Matrix);
     root.childrenCount = node->mNumChildren;
 
     // extract info of current node (mesh, material, bone)
