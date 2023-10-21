@@ -5,6 +5,7 @@
 #include "../../../../Engine/src/Math/Path/SpeedControl.h"
 #include "../../../../Engine/src/Math/Path/OrientationControl.h"
 #include "../../../../Engine/src/Math/Path/PaceControl.h"
+#include "../../../../Engine/src/Graphics/Animation/BlendTree.h"
 
 namespace IHCEngine::Component
 {
@@ -71,12 +72,14 @@ namespace SampleApplication
         // OrientationControl
         IHCEngine::Math::OrientationControl orientationControl;
 
-        //test
+        // Motion blending
+        IHCEngine::Graphics::BlendTree blendTree;
 
+        //test
         IHCEngine::Component::AnimatorComponent* animator;
         IHCEngine::Component::AnimatorComponent* animator2;
         IHCEngine::Core::GameObject* testMoveGobj = nullptr;
-        IHCEngine::Core::GameObject* testMoveGobj2 = nullptr;
+        //IHCEngine::Core::GameObject* testMoveGobj2 = nullptr;
 
         // GLFWwindow* window = nullptr;
         //IHCEngine::Graphics::Camera* camera = nullptr;

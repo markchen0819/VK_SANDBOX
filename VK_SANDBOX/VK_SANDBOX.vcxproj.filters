@@ -201,6 +201,9 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -450,6 +453,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Math\Path\PaceControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

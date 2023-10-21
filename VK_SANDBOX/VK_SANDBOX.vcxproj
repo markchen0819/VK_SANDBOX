@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\AnimationConfig.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\Animator.cpp" />
@@ -220,6 +221,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h" />
     <ClInclude Include="Engine\src\Core\Locator\ImGuiManagerLocator.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\AnimatorComponent.h" />

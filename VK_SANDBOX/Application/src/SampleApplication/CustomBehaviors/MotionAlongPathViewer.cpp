@@ -35,24 +35,30 @@ namespace SampleApplication
 
 	void MotionAlongPathViewer::Awake()
 	{
-		// TestMoveGobj
 		auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
+		// Motion blending
+		auto walkAnimation = assetManager->GetAnimationRepository().GetAsset("WalkAnimation");
+		auto runAnimation = assetManager->GetAnimationRepository().GetAsset("RunAnimation");
+		blendTree.SetLowerBoundSpeed(0.06);
+		blendTree.SetUpperBoundSpeed(0.14);
+		blendTree.SetAnimationA(walkAnimation);
+		blendTree.SetAnimationB(runAnimation);
 
+		// TestMoveGobj
 		testMoveGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj1");
 		animator = testMoveGobj->GetComponent<IHCEngine::Component::AnimatorComponent>();
 
-		testMoveGobj2 = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj2");
-		animator2 = testMoveGobj2->GetComponent<IHCEngine::Component::AnimatorComponent>();
+		animator->SetAnimationType(IHCEngine::Graphics::AnimationType::BLEND_TREE);
+		animator->SetBlendTree(&blendTree);
 
-		//testMoveGobj = &sceneManager->GetActiveScene()->AddGameObject("TestMoveGobj");
-		//testMoveGobj->AddComponent<IHCEngine::Component::PipelineComponent>();
-		//auto meshcomponent = testMoveGobj->AddComponent<IHCEngine::Component::MeshComponent>();
-		//meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
-		//auto texturecomponent = testMoveGobj->AddComponent<IHCEngine::Component::TextureComponent>();
-		//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+
+		//testMoveGobj2 = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj2");
+		//animator2 = testMoveGobj2->GetComponent<IHCEngine::Component::AnimatorComponent>();
+
+
 		testMoveGobj->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
-		testMoveGobj2->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
+		//testMoveGobj2->transform.SetScale(glm::vec3(0.04, 0.04, 0.04));
 
 		changeNextDataSet();
 	}
@@ -79,7 +85,7 @@ namespace SampleApplication
 			passedTime = 0;
 			prevFrameDistance = 0;
 			animator->PlayAnimation();
-			animator2->PlayAnimation();
+			//animator2->PlayAnimation();
 		}
 
 		if (isMoving)
@@ -102,8 +108,9 @@ namespace SampleApplication
 			float n = paceControl.GetAnimatorSpeedModifier("WalkAnimation", currentSpeed, 1.0, totalTime);
 			float n2 = paceControl.GetAnimatorSpeedModifier("RunAnimation", currentSpeed, 1.0, totalTime);
 
-			animator->SetSpeed(n);
-			animator2->SetSpeed(n2);
+			animator->SetSpeed(n); // This is animation cycle speed
+			blendTree.SetCurrentSpeed(currentSpeed); // This is movement speed
+			//animator2->SetSpeed(n2);
 
 
 			// Orientation Control
@@ -116,7 +123,7 @@ namespace SampleApplication
 				currentSpeed = 0;
 				isMoving = false;
 				animator->StopAnimation();
-				animator2->StopAnimation();
+				//animator2->StopAnimation();
 			}
 		}
 
@@ -195,7 +202,7 @@ namespace SampleApplication
 
 		// Put moving gobj to start
 		testMoveGobj->transform.SetPosition(data[0]);
-		testMoveGobj2->transform.SetPosition(data[0]);
+		//testMoveGobj2->transform.SetPosition(data[0]);
 		// Next set
 		dataSetIndex = (dataSetIndex + 1) % 3;
 	}

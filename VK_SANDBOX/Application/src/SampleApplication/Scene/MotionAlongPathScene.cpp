@@ -121,13 +121,13 @@ void SampleApplication::MotionAlongPathScene::Init()
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
 
-	IHCEngine::Core::GameObject& ch44Gobj2 = AddGameObject("Ch44Gobj2");
-	pipelinecomponent = ch44Gobj2.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
-	modelcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::ModelComponent>();
-	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
-	animatorcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("RunAnimation"));
+	//IHCEngine::Core::GameObject& ch44Gobj2 = AddGameObject("Ch44Gobj2");
+	//pipelinecomponent = ch44Gobj2.AddComponent<IHCEngine::Component::PipelineComponent>();
+	//pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
+	//modelcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::ModelComponent>();
+	//modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
+	//animatorcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	//animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("RunAnimation"));
 
 
 	///////////////////////////

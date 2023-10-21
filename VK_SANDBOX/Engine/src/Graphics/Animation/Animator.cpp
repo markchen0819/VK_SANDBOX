@@ -9,6 +9,7 @@
 
 #include "Animation.h"
 #include "AnimationConfig.h"
+#include "BlendTree.h"
 #include "BoneAnimation.h"
 #include "../../Math/VQS.h"
 
@@ -43,24 +44,51 @@ namespace IHCEngine::Graphics
 	{
 		if (!isPlaying) return;
 
-		if(currentAnimation==nullptr)
-		{
-			std::cerr << "No animation assigned to animator" << std::endl;
-			assert(false);
-		}
-
-		currentTime += currentAnimation->GetTicksPerSecond() * speed * dt;
-		currentTime = fmod(currentTime, currentAnimation->GetDuration());
 		debugBoneVertices.clear();
 
-		if(AnimationConfig::calculateBonesWithVQS)
+		if(animationType == AnimationType::SINGLE_ANIMATION)
 		{
-			calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
+			if (currentAnimation == nullptr)
+			{
+				std::cerr << "No animation assigned to animator" << std::endl;
+				assert(false);
+			}
+
+			currentTime += currentAnimation->GetTicksPerSecond() * speed * dt;
+			currentTime = fmod(currentTime, currentAnimation->GetDuration());
+			debugBoneVertices.clear();
+
+			if (AnimationConfig::calculateBonesWithVQS)
+			{
+				calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
+			}
+			else
+			{
+				calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+			}
+
+
 		}
-		else
+		else if(animationType == AnimationType::BLEND_TREE)
 		{
-			calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+			// Assume animationA and animationB are synced using same time
+			auto animationA = blendTree->GetAnimationA();
+			currentTime += animationA->GetTicksPerSecond() * speed * dt;
+			currentTime = fmod(currentTime, animationA->GetDuration());
+
+			if (AnimationConfig::calculateBonesWithVQS)
+			{
+				// When we set animation
+				// we assume they are processed with same model -> same node hierachy
+				Animation* animationA = blendTree->GetAnimationA();
+				calculateBoneTransformVQS(blendTree, &animationA->GetRootNodeOfHierarhcy(), Math::VQS());
+			}
+			else
+			{
+				//calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+			}
 		}
+
 	}
 
 #pragma region Animation calculations
@@ -162,6 +190,68 @@ namespace IHCEngine::Graphics
 			calculateBoneTransformVQS(&node->children[i], globalVQS);
 		}
 	}
+
+
+	void Animator::calculateBoneTransformVQS(BlendTree* blendTree, const AssimpNodeData* node, Math::VQS parentVQS)
+	{
+		Animation* animationA = blendTree->GetAnimationA();
+		Animation* animationB = blendTree->GetAnimationB();
+
+		// Starting from root node of model
+		const std::string& nodeName = node->name;
+		Math::VQS nodeTransformVQS = Math::VQS::GLMMat4ToVQS(node->transformation); // ex: arm bone bent 45 degrees
+
+		// Check if there is a bone in the root node related to the animation
+		BoneAnimation* boneAnimationA = animationA->FindBone(nodeName);
+		BoneAnimation* boneAnimationB = animationB->FindBone(nodeName);
+		if (boneAnimationA && boneAnimationB)
+		{
+			// interpolates bone transformation
+			// and return local bone transform matrix 
+			boneAnimationA->Update(currentTime);
+			boneAnimationB->Update(currentTime);
+
+			auto vqs1 = boneAnimationA->GetLocalTransformVQS();
+			auto vqs2 = boneAnimationB->GetLocalTransformVQS();
+			float blendFactor = blendTree->GetBlendFactor();
+			glm::vec3 vec = glm::vec3(blendFactor, blendFactor, blendFactor);
+			auto resultVQS = Math::VQS::Interpolate(vqs1, vqs2, vec);
+
+			nodeTransformVQS = resultVQS;
+		}
+
+		// Convert bone from local space into global space
+		Math::VQS globalVQS = parentVQS * nodeTransformVQS; // ex: arm bone in the world (consider shoulder)
+
+		Vertex debugVertex;
+		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+		debugVertex.position = globalVQS.GetTranslate();
+		debugBoneVertices.push_back(debugVertex);
+		// If the bone has a parent, its position
+		// would be the end of the parent bone segment
+		if (node->parent)
+		{
+			debugVertex.position = parentVQS.GetTranslate();
+			debugBoneVertices.push_back(debugVertex);
+		}
+
+		// find offset matrix in boneInfoMap (how each bone relates to original T-pose)
+		// transforms vertices from the original position of the mesh vertices
+		// to match how the bone has moved
+		auto& boneInfoMap = animationA->GetBoneInfoMap();
+
+		auto iter = boneInfoMap.find(nodeName);
+		if (iter != boneInfoMap.end())
+		{
+			int index = iter->second.id;
+			glm::mat4 offsetMatrix = iter->second.offsetMatrix;
+			finalBoneMatrices[index] = Math::VQS::VQSToGLMMat4(globalVQS) * offsetMatrix;
+		}
+		for (int i = 0; i < node->childrenCount; i++)
+		{
+			calculateBoneTransformVQS(blendTree , &node->children[i], globalVQS);
+		}
+	}
 #pragma endregion
 
 #pragma region Getters & Setters
@@ -171,6 +261,14 @@ namespace IHCEngine::Graphics
 		currentTime = 0.0f;
 		AllocateDebugBoneBuffer();
 	}
+
+	void Animator::SetBlendTree(BlendTree* blendtree)
+	{
+		blendTree = blendtree;
+		currentTime = 0.0f;
+		AllocateDebugBoneBuffer();
+	}
+
 	void Animator::PlayAnimation()
 	{
 		if (currentAnimation == nullptr)
@@ -197,22 +295,46 @@ namespace IHCEngine::Graphics
 #pragma region Debug
 	void Animator::AllocateDebugBoneBuffer()
 	{
-		if (currentAnimation == nullptr)
+		if(animationType==AnimationType::SINGLE_ANIMATION)
 		{
-			std::cerr << "No animation assigned to animator" << std::endl;
-			assert(false);
+			if (currentAnimation == nullptr)
+			{
+				std::cerr << "No animation assigned to animator" << std::endl;
+				assert(false);
+			}
+			// Calculate first animation frame to get all bone vertices
+			currentTime = 0;
+			debugBoneVertices.clear();
+			if (AnimationConfig::calculateBonesWithVQS)
+			{
+				calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
+			}
+			else
+			{
+				calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+			}
 		}
-		// Calculate first animation frame to get all bone vertices
-		currentTime = 0;
-		debugBoneVertices.clear();
-		if (AnimationConfig::calculateBonesWithVQS)
+		else if (animationType == AnimationType::BLEND_TREE)
 		{
-			calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
+			if (blendTree == nullptr)
+			{
+				std::cerr << "No blendtree assigned to animator" << std::endl;
+				assert(false);
+			}
+			// Calculate first animation frame to get all bone vertices
+			currentTime = 0;
+			debugBoneVertices.clear();
+			auto animation = blendTree->GetAnimationA();
+			if (AnimationConfig::calculateBonesWithVQS)
+			{
+				calculateBoneTransformVQS(&animation->GetRootNodeOfHierarhcy(), Math::VQS());
+			}
+			else
+			{
+				calculateBoneTransform(&animation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+			}
 		}
-		else
-		{
-			calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
-		}
+
 		// Allocate Buffer
 		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 		std::vector<Vertex>& bonevertices = debugBoneVertices;
