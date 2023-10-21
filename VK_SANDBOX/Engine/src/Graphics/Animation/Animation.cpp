@@ -31,14 +31,14 @@ IHCEngine::Graphics::Animation::Animation(const std::string animationPath, Model
 
 void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiAnim)
 {
-    auto& boneInfoMap = model->GetBoneInfoMap();  // getting boneInfoMap from Model class
-    int& boneCount = model->GetBoneCount();       // getting the boneCounter from Model class
+    auto& skinningInfoMap = model->GetSkinningInfoMap();  // getting skinningInfoMap from Model class
+    int& boneCount = model->GetBoneCount();               // getting the boneCounter from Model class
 
 	for (int i = 0; i < aiAnim->mNumChannels; i++) // For each animation channels
     {
         aiNodeAnim* channel = aiAnim->mChannels[i]; 
         std::string boneName = channel->mNodeName.data;
-        int boneID = boneInfoMap[channel->mNodeName.data].id;
+        int boneID = skinningInfoMap[channel->mNodeName.data].id;
 
         // Extract Individual bone animation 
         std::vector<KeyPosition> keyPositions;
@@ -77,11 +77,11 @@ void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiA
         }
 
         // Update bones in Model
-        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        if (skinningInfoMap.find(boneName) == skinningInfoMap.end())
         {
             // No match of bones between model & animation
             // create this bone for the model 
-            boneInfoMap[boneName].id = boneCount; // changed in model ref
+            skinningInfoMap[boneName].id = boneCount; // changed in model ref
             ++boneCount;                          // changed in model ref
         }
         boneAnimations.push_back(BoneAnimation

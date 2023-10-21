@@ -64,9 +64,8 @@ namespace IHCEngine::Graphics
 			}
 			else
 			{
-				calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+				calculateBoneTransformMatrix(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
-
 
 		}
 		else if(animationType == AnimationType::BLEND_TREE)
@@ -85,7 +84,7 @@ namespace IHCEngine::Graphics
 			}
 			else
 			{
-				//calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+				//calculateBoneTransformMatrix(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
 		}
 
@@ -96,7 +95,7 @@ namespace IHCEngine::Graphics
 	{
 		return finalBoneMatrices;
 	}
-	void Animator::calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)
+	void Animator::calculateBoneTransformMatrix(const SkeletalNodeData* node, glm::mat4 parentTransform)
 	{
 		// Starting from root node of current animation
 		const std::string& nodeName = node->name;
@@ -126,10 +125,10 @@ namespace IHCEngine::Graphics
 			debugBoneVertices.push_back(debugVertex);
 		}
 
-		// find offset matrix in boneInfoMap (how each bone relates to original T-pose)
+		// find offset matrix in skinningInfoMap (how each bone relates to original T-pose)
 		// transforms vertices from the original position of the mesh vertices
 		// to match how the bone has moved
-		auto& boneInfoMap = currentAnimation->GetBoneInfoMap();
+		auto& boneInfoMap = currentAnimation->GetSkinningInfoMap();
 
 		auto iter = boneInfoMap.find(nodeName);
 		if (iter != boneInfoMap.end())
@@ -140,10 +139,10 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransform(&node->children[i], globalTransformation);
+			calculateBoneTransformMatrix(&node->children[i], globalTransformation);
 		}
 	}
-	void Animator::calculateBoneTransformVQS(const AssimpNodeData* node, Math::VQS parentVQS)
+	void Animator::calculateBoneTransformVQS(const SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		// Starting from root node of current animation
 		const std::string& nodeName = node->name;
@@ -173,10 +172,10 @@ namespace IHCEngine::Graphics
 			debugBoneVertices.push_back(debugVertex);
 		}
 
-		// find offset matrix in boneInfoMap (how each bone relates to original T-pose)
+		// find offset matrix in skinningInfoMap (how each bone relates to original T-pose)
 		// transforms vertices from the original position of the mesh vertices
 		// to match how the bone has moved
-		auto& boneInfoMap = currentAnimation->GetBoneInfoMap();
+		auto& boneInfoMap = currentAnimation->GetSkinningInfoMap();
 
 		auto iter = boneInfoMap.find(nodeName);
 		if (iter != boneInfoMap.end())
@@ -192,7 +191,7 @@ namespace IHCEngine::Graphics
 	}
 
 
-	void Animator::calculateBoneTransformVQS(BlendTree* blendTree, const AssimpNodeData* node, Math::VQS parentVQS)
+	void Animator::calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		Animation* animationA = blendTree->GetAnimationA();
 		Animation* animationB = blendTree->GetAnimationB();
@@ -235,10 +234,10 @@ namespace IHCEngine::Graphics
 			debugBoneVertices.push_back(debugVertex);
 		}
 
-		// find offset matrix in boneInfoMap (how each bone relates to original T-pose)
+		// find offset matrix in skinningInfoMap (how each bone relates to original T-pose)
 		// transforms vertices from the original position of the mesh vertices
 		// to match how the bone has moved
-		auto& boneInfoMap = animationA->GetBoneInfoMap();
+		auto& boneInfoMap = animationA->GetSkinningInfoMap();
 
 		auto iter = boneInfoMap.find(nodeName);
 		if (iter != boneInfoMap.end())
@@ -311,7 +310,7 @@ namespace IHCEngine::Graphics
 			}
 			else
 			{
-				calculateBoneTransform(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+				calculateBoneTransformMatrix(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
 		}
 		else if (animationType == AnimationType::BLEND_TREE)
@@ -331,7 +330,7 @@ namespace IHCEngine::Graphics
 			}
 			else
 			{
-				calculateBoneTransform(&animation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+				calculateBoneTransformMatrix(&animation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
 		}
 

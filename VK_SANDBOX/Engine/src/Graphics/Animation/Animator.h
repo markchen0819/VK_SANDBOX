@@ -6,7 +6,7 @@
 namespace IHCEngine::Graphics
 {
 	class BlendTree;
-	struct AssimpNodeData;
+	struct SkeletalNodeData;
 	class IHCBuffer;
 	class Animation;
 
@@ -24,9 +24,10 @@ namespace IHCEngine::Graphics
 
 		void SetAnimationType(AnimationType type) { animationType = type; }
 
-		void UpdateAnimation(float dt);
 		void PlayAnimation();
+		void UpdateAnimation(float dt);
 		void StopAnimation();
+
 		void SetSpeed(float animatorSpeed);
 		float GetSpeed() { return speed; }
 
@@ -54,19 +55,19 @@ namespace IHCEngine::Graphics
 	private:
 
 		AnimationType animationType = AnimationType::SINGLE_ANIMATION;
-		std::vector<glm::mat4> finalBoneMatrices;
 		bool isPlaying = false;
-		float speed = 1.0f;
 		float currentTime;
+		float speed = 1.0f;
+		std::vector<glm::mat4> finalBoneMatrices;
 
 		// Single Animation
-		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
-		void calculateBoneTransformVQS(const AssimpNodeData* node, Math::VQS parentTransform);
 		Animation* currentAnimation = nullptr;
+		void calculateBoneTransformMatrix(const SkeletalNodeData* node, glm::mat4 parentTransform);
+		void calculateBoneTransformVQS(const SkeletalNodeData* node, Math::VQS parentTransform);
 
 		// BlendTree
-		BlendTree* blendTree;
-		void calculateBoneTransformVQS(BlendTree* blendTree, const AssimpNodeData* node, Math::VQS parentTransform);
+		BlendTree* blendTree = nullptr;
+		void calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentTransform);
 
 
 		// Vulkan
