@@ -17,7 +17,6 @@ struct ArcLengthEntry
 struct ArcLengthTable
 {
 	std::vector<ArcLengthEntry> table;
-
 	std::vector<ArcLengthEntry> normalizedTable;
 	float totalU = 0;
 	float totalArcLength = 0;
@@ -207,4 +206,39 @@ struct ArcLengthTable
 		}
 		std::cout << "========================" << std::endl;
 	}
+
+	// global ArcLengthTable indexing
+	std::vector<float> subCurveRatio;
+	std::vector<float> accumulatedSubCurveRatio;
+	int GetSubCurveIndex(float normalizedU)
+	{
+		assert(normalizedU >= 0.0f && normalizedU <= 1.0f, "normalizedU must be between 0.0 and 1.0");
+
+		// Binary search to find the first element not less than normalizedU
+		auto lower = std::lower_bound(accumulatedSubCurveRatio.begin(), accumulatedSubCurveRatio.end(), normalizedU);
+		if (lower != accumulatedSubCurveRatio.end())
+		{
+			// On the boundary, belongs to higher curve
+			int subCurveIndex = std::distance(accumulatedSubCurveRatio.begin(), lower);
+			// Not the first subCurve
+			if (subCurveIndex > 0)
+			{
+				subCurveIndex -= 1;
+			}
+			return subCurveIndex;
+		}
+		return accumulatedSubCurveRatio.size() - 1;
+	}
+	float GetLocalUParameter(float normalizedU, int targetSubCurveIndex)
+	{
+		float accumulatedRatio = accumulatedSubCurveRatio[targetSubCurveIndex];
+		//float accumulatedRatio = 0.0f;
+		//for (int i = 0; i < targetSubCurveIndex; ++i)
+		//{
+		//	accumulatedRatio += subCurveRatio[i];
+		//}
+		float localU = (normalizedU - accumulatedRatio) / subCurveRatio[targetSubCurveIndex];
+		return localU;
+	}
+
 };

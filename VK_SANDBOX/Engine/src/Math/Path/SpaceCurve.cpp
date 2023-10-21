@@ -23,11 +23,15 @@ namespace IHCEngine::Math
 		// assume traveledDistance is 0 to 1
 		// i = G^-1(s) * k
 		// u = G^-1(s) * k - i
+		//float normalizedU = globalArcLengthTable.GetUParameterFromNormalizedTable(traveledDistance);
+		//int targetSubCurveIndex = std::ceil(normalizedU * globalArcLengthTable.totalU) - 1;
+		//float localU = normalizedU * globalArcLengthTable.totalU - targetSubCurveIndex;
+		//glm::vec3 position = subCurves[targetSubCurveIndex]->GetPointOnCurve(localU);
 
+		// above method is deprecated after u ratio for subcurves
 		float normalizedU = globalArcLengthTable.GetUParameterFromNormalizedTable(traveledDistance);
-		int targetSubCurveIndex = std::ceil(normalizedU * globalArcLengthTable.totalU)-1;
-		float localU = normalizedU * globalArcLengthTable.totalU - targetSubCurveIndex;
-		//std::cout << localU << std::endl;
+		int targetSubCurveIndex = globalArcLengthTable.GetSubCurveIndex(normalizedU);
+		float localU = globalArcLengthTable.GetLocalUParameter(normalizedU, targetSubCurveIndex);
 		glm::vec3 position = subCurves[targetSubCurveIndex]->GetPointOnCurve(localU);
 
 		return position;
@@ -82,29 +86,64 @@ namespace IHCEngine::Math
 	void SpaceCurve::buildGlobalArcLengthTable()
 	{
 		globalArcLengthTable.Clear();
-		float subCurveStart = 0.0f;
-		float previousTableEndingLength = 0.0f;
+
+		// Get total Length of each subcurve for u ratio
+		// to correctly normalize u for entire path (get consistent speed)
+		float totalLength = 0.0f;
+		std::vector<float> subCurveRatio;
+		std::vector<float> accumulatedSubCurveRatio;
 		for (auto& subcurve : subCurves)
 		{
 			auto subCurveTable = subcurve->GetArcLengthTable();
-			for (int i=0; i<subCurveTable.table.size(); ++i)
-			{
-				auto& entry = subCurveTable.table[i];
+			float tableLength = subCurveTable.table.back().arcLength;
+			totalLength += tableLength;
+			subCurveRatio.push_back(tableLength);
+		}
+		float accumulatedRatio = 0.0f;
+		for (int i = 0; i < subCurveRatio.size(); ++i)
+		{
+			subCurveRatio[i] = subCurveRatio[i] / totalLength;
+			accumulatedSubCurveRatio.push_back(accumulatedRatio);
+			accumulatedRatio += subCurveRatio[i];
+		}
+		globalArcLengthTable.subCurveRatio = subCurveRatio;
+		globalArcLengthTable.accumulatedSubCurveRatio = accumulatedSubCurveRatio;
 
-				if(subCurveStart!=0.0 && i==0)
+		// Create globalTable
+		float subCurveStart = 0.0f;
+		float previousTableEndingLength = 0.0f;
+		for (int i = 0; i < subCurveRatio.size(); ++i)
+		{
+			auto& subcurve = subCurves[i];
+			auto subCurveTable = subcurve->GetArcLengthTable();
+
+			for (int j = 0; j < subCurveTable.table.size(); ++j)
+			{
+				auto& entry = subCurveTable.table[j];
+
+				if(subCurveStart!=0.0 && j==0)
 				{
 					// skip duplicates
 					continue;
 				}
 				ArcLengthEntry e;
-				e.u = entry.u + subCurveStart;
+				e.u = entry.u * subCurveRatio[i] + subCurveStart; // u term needs to times ratio for the entire path
 				e.arcLength = entry.arcLength + previousTableEndingLength;
 				globalArcLengthTable.table.push_back(e);
 			}
-			subCurveStart += 1.0f;
+			subCurveStart += subCurveRatio[i];
 			previousTableEndingLength = globalArcLengthTable.table.back().arcLength;
 		}
+
 		globalArcLengthTable.Normalize();
 		//globalArcLengthTable.PrintTable();
+
+		// Before normalize:
+		// u 0 ~ 1 (with ratio applied)
+		// arclength 0 ~ totalarclength
+		//
+		// After normalize:
+		// u 0~1 
+		// arclength 0~1
 	}
 }
