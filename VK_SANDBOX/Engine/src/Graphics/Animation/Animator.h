@@ -67,6 +67,7 @@ namespace IHCEngine::Graphics
 
 		// BlendTree
 		BlendTree* blendTree = nullptr;
+		void calculateBoneTransformMatrix(BlendTree* blendTree, const SkeletalNodeData* node, glm::mat4 parentTransform);
 		void calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentTransform);
 
 

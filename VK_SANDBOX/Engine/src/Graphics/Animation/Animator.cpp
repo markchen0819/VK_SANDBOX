@@ -1,17 +1,19 @@
 #include "../../pch.h"
 #include "Animator.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 #include "../../Core/Time/Time.h"
 #include "../../Core/Locator/GraphicsManagerLocator.h"
 #include "../../Graphics/VKWraps/IHCSwapChain.h"
 #include "../../Graphics/VKWraps/IHCBuffer.h"
 #include "../../Graphics/VKWraps/IHCDevice.h"
-
-#include "Animation.h"
-#include "AnimationConfig.h"
-#include "BlendTree.h"
-#include "BoneAnimation.h"
 #include "../../Math/VQS.h"
+
+#include "AnimationConfig.h"
+#include "Animation.h"
+#include "BoneAnimation.h"
+#include "BlendTree.h"
 
 namespace IHCEngine::Graphics
 {
@@ -70,21 +72,22 @@ namespace IHCEngine::Graphics
 		}
 		else if(animationType == AnimationType::BLEND_TREE)
 		{
-			// Assume animationA and animationB are synced using same time
+			// When we set animation
+			// we assume they are processed with same model
+			// -> same node hierarchy -> choose 1 of the 2 animation
+			// also assume animationA and animationB motions are synced using same time
+
 			auto animationA = blendTree->GetAnimationA();
 			currentTime += animationA->GetTicksPerSecond() * speed * dt;
 			currentTime = fmod(currentTime, animationA->GetDuration());
 
 			if (AnimationConfig::calculateBonesWithVQS)
 			{
-				// When we set animation
-				// we assume they are processed with same model -> same node hierachy
-				Animation* animationA = blendTree->GetAnimationA();
 				calculateBoneTransformVQS(blendTree, &animationA->GetRootNodeOfHierarhcy(), Math::VQS());
 			}
 			else
 			{
-				//calculateBoneTransformMatrix(&currentAnimation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
+				calculateBoneTransformMatrix(blendTree,&animationA->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
 		}
 
@@ -108,7 +111,7 @@ namespace IHCEngine::Graphics
 			// interpolates bone transformation
 			// and return local bone transform matrix 
 			boneAnimation->Update(currentTime);
-			nodeTransform = boneAnimation->GetLocalTransform(); // ex: arm bone change to 65 degrees
+			nodeTransform = boneAnimation->GetLocalTransformMatrix(); // ex: arm bone change to 65 degrees
 		}
 		// Convert bone from local space into global space
 		glm::mat4 globalTransformation = parentTransform * nodeTransform; // ex: arm bone in the world (consider shoulder)
@@ -190,6 +193,90 @@ namespace IHCEngine::Graphics
 		}
 	}
 
+
+	void Animator::calculateBoneTransformMatrix(BlendTree* blendTree, const SkeletalNodeData* node,
+		glm::mat4 parentTransform)
+	{
+		Animation* animationA = blendTree->GetAnimationA();
+		Animation* animationB = blendTree->GetAnimationB();
+
+		// Starting from root node of model
+		const std::string& nodeName = node->name;
+		glm::mat4 nodeTransform = node->transformation_Matrix;
+
+		// Check if there is a bone in the root node related to the animation
+		BoneAnimation* boneAnimationA = animationA->FindBone(nodeName);
+		BoneAnimation* boneAnimationB = animationB->FindBone(nodeName);
+		if (boneAnimationA && boneAnimationB)
+		{
+			// Tri-linear interpolation 
+			boneAnimationA->Update(currentTime);
+			boneAnimationB->Update(currentTime);
+
+			glm::mat4 mat1 = boneAnimationA->GetLocalTransformMatrix();
+			glm::mat4 mat2 = boneAnimationB->GetLocalTransformMatrix();
+			float blendFactor = blendTree->GetBlendFactor();
+
+			// Not a good way here, VQS seems better
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			// Decompose the first matrix into its components
+			glm::vec3 translation1;
+			glm::vec3 scale1;
+			glm::quat rotation1;
+			glm::decompose(mat1, scale1, rotation1, translation1, skew, perspective);
+			// Decompose the second matrix into its components
+			glm::vec3 translation2;
+			glm::vec3 scale2;
+			glm::quat rotation2;
+			glm::decompose(mat2, scale2, rotation2, translation2, skew, perspective);
+			// Interpolate
+			glm::vec3 finalTranslation = glm::mix(translation1, translation2, blendFactor);
+			glm::quat finalRotation = glm::slerp(rotation1, rotation2, blendFactor);
+			glm::vec3 finalScale = glm::mix(scale1, scale2, blendFactor);
+
+			// Reconstruct the matrix (TRS)
+			glm::mat4 finalMatrix =
+				glm::translate(glm::mat4(1.0f), finalTranslation) *
+				glm::mat4_cast(finalRotation) *
+				glm::scale(glm::mat4(1.0f), finalScale);
+
+			nodeTransform = finalMatrix;
+		}
+
+		// Convert bone from local space into global space
+		glm::mat4 globalTransformation = parentTransform * nodeTransform;
+
+		Vertex debugVertex;
+		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+		debugVertex.position = glm::vec3(globalTransformation[3]);
+		debugBoneVertices.push_back(debugVertex);
+		// If the bone has a parent, its position
+		// would be the end of the parent bone segment
+		if (node->parent)
+		{
+			debugVertex.position = glm::vec3(parentTransform[3]);
+			debugBoneVertices.push_back(debugVertex);
+		}
+
+		// find offset matrix in skinningInfoMap (how each bone relates to original T-pose)
+		// transforms vertices from the original position of the mesh vertices
+		// to match how the bone has moved
+		auto& boneInfoMap = animationA->GetSkinningInfoMap();
+
+		auto iter = boneInfoMap.find(nodeName);
+		if (iter != boneInfoMap.end())
+		{
+			int index = iter->second.id;
+			glm::mat4 offsetMatrix = iter->second.offsetMatrix;
+			finalBoneMatrices[index] = globalTransformation * offsetMatrix;
+		}
+		for (int i = 0; i < node->childrenCount; i++)
+		{
+			calculateBoneTransformMatrix(blendTree, &node->children[i], globalTransformation);
+		}
+
+	}
 
 	void Animator::calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentVQS)
 	{

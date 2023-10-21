@@ -27,7 +27,7 @@ namespace IHCEngine::Graphics
         void Update(float animationTime);
 
         // Matrix 
-        glm::mat4 GetLocalTransform() const { return localTransform; }
+        glm::mat4 GetLocalTransformMatrix() const { return localTransform; }
 
         // VQS
         Math::VQS GetLocalTransformVQS() const { return localVQS; }

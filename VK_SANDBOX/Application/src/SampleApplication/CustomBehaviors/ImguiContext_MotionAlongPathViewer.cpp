@@ -4,13 +4,18 @@
 #include "imgui.h"
 #include "MotionAlongPathViewer.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
+#include "../../../../Engine/src/Graphics/Animation/AnimationConfig.h"
 
 namespace IHCEngine::Component
 {
     void ImguiContext_MotionAlongPathViewer::UpdateContext()
     {
+        ImGui::Checkbox("debugBonesEnabled", &IHCEngine::Graphics::RenderSystem::debugBonesEnabled);
+        ImGui::Checkbox("animationMeshEnabled", &IHCEngine::Graphics::RenderSystem::animationMeshEnabled);
+        ImGui::Checkbox("calculateBonesWithVQS", &IHCEngine::Graphics::AnimationConfig::calculateBonesWithVQS);
 
-        auto scene = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene();
+    	auto scene = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene();
         auto gobj = scene->GetGameObjectByName("emptyGobj");
         auto viewer = gobj->GetComponent<SampleApplication::MotionAlongPathViewer>();
 
