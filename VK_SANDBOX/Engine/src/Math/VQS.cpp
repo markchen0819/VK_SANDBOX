@@ -1,4 +1,5 @@
 #include "../pch.h"
+#include "MathConstants.h"
 #include "VQS.h"
 
 namespace IHCEngine::Math
@@ -92,23 +93,56 @@ namespace IHCEngine::Math
 		// st = Elerp(s0, s1, t)
 
 		glm::vec3 finalTranslate = (1.0f - t.x) * vqs1.translate + t.x * vqs2.translate;
-		Quaternion finalRotate = Quaternion::Slerp(vqs1.rotation, vqs2.rotation, t.y);
-		finalRotate.Normalize();
-		float finalScale = pow(vqs2.scalar / vqs1.scalar, t.z) * vqs1.scalar;
+
+		Quaternion finalRotate = Quaternion::Slerp(vqs1.rotation, vqs2.rotation, t.y).Normalize();
+
+		float finalScale;
+		if (fabs(vqs1.scalar) > EPSILON)
+		{
+			finalScale = pow(vqs2.scalar / vqs1.scalar, t.z) * vqs1.scalar;
+		}
+		else
+		{
+			//finalScale = vqs2.scalar; // vqs2 scale as fallback.
+			throw std::runtime_error("Division by zero or close to zero in VQS interpolation.");
+		}
+
 		return VQS(finalTranslate, finalRotate, finalScale);
 	}
 
 	glm::mat4 VQS::VQSToGLMMat4(VQS const& vqs)
 	{
-		// translation matrix 
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), vqs.translate);
-		// rotation matrix
-		glm::quat quat = Quaternion::ConvertToGLMQuat(vqs.rotation);
-		glm::mat4 rotationMatrix = glm::mat4_cast(quat);
-		// scaling matrix 
-		glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(vqs.scalar));
-		// Multiply the matrices together to get the final transformation
-		return translationMatrix * rotationMatrix * scalingMatrix;
+
+		glm::mat4 result = vqs.rotation.GetRotationMatrix();
+
+		// Scale the rotation matrix
+		for (int i = 0; i < 3; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				result[i][j] *= vqs.scalar;
+			}
+		}
+		// Apply the translation
+		result[3][0] = vqs.translate.x;
+		result[3][1] = vqs.translate.y;
+		result[3][2] = vqs.translate.z;
+
+		return result;
+
+		//  | Sx * R00  Sx * R01  Sx * R02  Tx |
+		//	| Sy * R10  Sy * R11  Sy * R12  Ty |
+		//	| Sz * R20  Sz * R21  Sz * R22  Tz |
+		//	|   0      0      0      1 |
+
+		//// translation matrix 
+		//glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), vqs.translate);
+		//// rotation matrix
+		//glm::mat4 rotationMatrix = vqs.rotation.GetRotationMatrix();
+		//// scaling matrix 
+		//glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(vqs.scalar));
+		//// Multiply the matrices together to get the final transformation
+		//return translationMatrix * rotationMatrix * scalingMatrix;
 	}
 
 	VQS VQS::GLMMat4ToVQS(glm::mat4 const& mat)

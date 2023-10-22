@@ -35,19 +35,19 @@ namespace IHCEngine::Graphics
 
 		IHCEngine::Component::Transform transform;
 
-		// Fix transform z, camera -z
-		glm::vec3 GetFoward() 
-		{
-			return -transform.GetForward();
-		};
-		glm::vec3 GetUp() 
-		{ 
-			return transform.GetUp(); 
-		};
-		glm::vec3 GetRight()
-		{
-			return transform.GetRight();
-		};
+		//// Fix transform z, camera -z
+		//glm::vec3 GetForward() 
+		//{
+		//	return -transform.GetForward();
+		//};
+		//glm::vec3 GetUp() 
+		//{ 
+		//	return transform.GetUp(); 
+		//};
+		//glm::vec3 GetRight()
+		//{
+		//	return transform.GetRight();
+		//};
 
 	private:
 

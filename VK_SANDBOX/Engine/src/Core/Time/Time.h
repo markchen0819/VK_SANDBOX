@@ -8,54 +8,55 @@ namespace IHCEngine::Core
 	public:
 
 		static constexpr int FIXED_UPDATE_TIME_STEP = 70;
-		static Time& GetInstance()
-		{
-			static Time instance;  // Static local variable
-			return instance;
-		}
-		static void Init();
-
 
 		// no duplication
 		Time(const  Time&) = delete;
 		Time& operator=(const Time&) = delete;
 
+		static void Init();
+		static void Reset();
+		static void Update();
 
-		void Reset();
-		void Update();
+		static float GetDeltaTime() { return  instance->deltaTime; }
+		static float GetUnscaledDeltaTime() { return instance->unscaledDeltaTime;}
 
-		float GetDeltaTime() { return  deltaTime; }
-		float GetUnscaledDeltaTime() { return unscaledDeltaTime;}
+		static float GetFixedDeltaTime() { return instance->unscaledFixedDeltaTime * instance->timeScale; }
+		static float GetUnscaledFixedDeltaTime() { return instance->unscaledFixedDeltaTime; }
 
-		float GetFixedDeltaTime() { return unscaledFixedDeltaTime * timeScale; }
-		float GetUnscaledFixedDeltaTime() { return unscaledFixedDeltaTime; }
+		static void SetTimeScale(float timeScale) { instance->timeScale = timeScale; }
+		static float GetTimeScale() { return instance->timeScale; }
 
-		void SetTimeScale(float timeScale) { timeScale = timeScale; }
-		float GetTimeScale() { return timeScale; }
-
-		int GetFrameRate() { return static_cast<int>(calculatedFps); }
-		int GetAverageFrameRate() { return static_cast<int>(averageFps); }
-		void UnlockFrameRate() { minFrameTime = 0.0f; }
-		void LockFrameRate(int maxFrameRate)
+		static int GetFrameRate() { return static_cast<int>(instance->calculatedFps); }
+		static int GetAverageFrameRate() { return static_cast<int>(instance->averageFps); }
+		static void UnlockFrameRate() { instance->minFrameTime = 0.0f; }
+		static void LockFrameRate(int maxFrameRate)
 		{
-			minFrameTime = 1.0f / maxFrameRate;
-			frameTimeCounter = 0.0f;
+			instance->minFrameTime = 1.0f / maxFrameRate;
+			instance->frameTimeCounter = 0.0f;
 		}
 
-		float GetElapsedTime() { return  totalTime; }
-		int GetFrameCount() { return frameCount; }
+		static float GetElapsedTime() { return  instance->totalTime; }
+		static int GetFrameCount() { return instance->frameCount; }
 
-		bool ShouldExecuteUpdate();
+		static bool ShouldExecuteUpdate();
 
 		// Physics
-		void UpdateFixedTime();
-		void SetFixedTime(int maxUpdatePerFrame);
-		bool ShouldExecuteFixedUpdate();
+		static void UpdateFixedTime();
+		static void SetFixedTime(int maxUpdatePerFrame);
+		static bool ShouldExecuteFixedUpdate();
 
 
 	private:
 		Time();
-		~Time() {};
+		static Time* GetInstance()
+		{
+			if (instance == nullptr)
+			{
+				instance = std::unique_ptr<Time>(new Time()); // Static local variable
+			}
+			return instance.get();
+		}
+		static inline std::unique_ptr<Time> instance = nullptr;
 
 		// lock frameRate
 		float minFrameTime{0.0};

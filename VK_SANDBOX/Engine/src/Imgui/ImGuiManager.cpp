@@ -14,6 +14,7 @@
 // For logging
 #include "../Core/Time/Time.h"
 #include "../Core/Locator/SceneManagerLocator.h"
+#include "../Core/Scene/Components/ImguiContextComponent.h"
 
 void IHCEngine::IMGUI::ImGuiManager::Init()
 {
@@ -23,6 +24,14 @@ void IHCEngine::IMGUI::ImGuiManager::Init()
     // initialize imgui library
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    float fontSize = 14.0f;
+    ImFontConfig config;
+    config.OversampleH = 3;
+    config.OversampleV = 3;
+    config.SizePixels = fontSize; 
+    io.Fonts->AddFontDefault(&config);
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
     ImGui::StyleColorsDark();
    
@@ -92,6 +101,20 @@ void IHCEngine::IMGUI::ImGuiManager::NewFrame()
     updateContent();
 }
 
+void IHCEngine::IMGUI::ImGuiManager::RegisterImguiContextComponent(Component::ImguiContextComponent* c)
+{
+    contextComponents.push_back(c);
+}
+
+void IHCEngine::IMGUI::ImGuiManager::RemoveImguiContextComponent(Component::ImguiContextComponent* c)
+{
+    auto it = std::find(contextComponents.begin(), contextComponents.end(), c);
+    if (it != contextComponents.end()) 
+    {
+        contextComponents.erase(it);
+    }
+}
+
 void IHCEngine::IMGUI::ImGuiManager::updateContent()
 {
 
@@ -102,48 +125,13 @@ void IHCEngine::IMGUI::ImGuiManager::updateContent()
 
     if (ImGui::Begin("Debug Information", &showWindow))
     {
-        ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetInstance().GetFrameRate());
-        ImGui::Text("Average FPS: %d", IHCEngine::Core::Time::GetInstance().GetAverageFrameRate());
-        auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
-        if (sceneManager->GetActiveScene() != nullptr)
+        ImGui::Text("FPS: %d", IHCEngine::Core::Time::GetFrameRate());
+        ImGui::Text("Average FPS: %d", IHCEngine::Core::Time::GetAverageFrameRate());
+
+        for(auto context : contextComponents)
         {
-            auto cam = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
-            //glm::vec3 cameraPos = cam.transform.GetPosition();
-            //glm::vec3 cameraRot = cam.transform.GetRotation();
-            //ImGui::InputFloat3("CameraPosition", &cameraPos[0]);
-            //ImGui::InputFloat3("CameraRotation", &cameraRot[0]);
-
-
-            ImGui::Checkbox("wireframeEnabled", &Graphics::RenderSystem::wireframeEnabled);
-            ImGui::Checkbox("debugBonesEnabled", &Graphics::RenderSystem::debugBonesEnabled); 
-            ImGui::Checkbox("animationMeshEnabled", &Graphics::RenderSystem::animationMeshEnabled); 
-            ImGui::Checkbox("calculateBonesWithVQS", &Graphics::AnimationConfig::calculateBonesWithVQS);
-
-            ImGui::Text("-------------------");
-            ImGui::Text("Interface");
-            ImGui::Text("' SPACE ': Cycle to the next animations");
-            ImGui::Text("' RIGHT/LEFT ARROW ': Switch Model");
-
-            ImGui::Text("' 0 ': Rotate camera left about camera center");
-            ImGui::Text("' . ': Rotate camera right about camera center");
-            ImGui::Text("' 5 ': Reset camera to default position");
-            ImGui::Text("' 4 ': Move camera AND camera center along the camera's left vector");
-            ImGui::Text("' 6 ': Move camera AND camera center along the camera's right vector");
-            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
-            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
-            ImGui::Text("' 2 ': Move camera but NOT center along the camera's down vector");
-            ImGui::Text("' + ': Zoom camera in towards camera center");
-            ImGui::Text("' - ': Zoom camera out from camera center");
-
-            ImGui::Text("' * ': Increase the animation rate");
-            ImGui::Text("' / ': Decrease the animation rate");
-            ImGui::Text("' B ': Toggle the bone drawing on/off");
-            ImGui::Text("' M ': Toggle the mesh drawing on/off");
-            ImGui::Text("-------------------");
-
+            context->UpdateContext();
         }
-
-
         // ... add more Vulkan-related info as needed.
     }
     ImGui::End();

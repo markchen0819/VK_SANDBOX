@@ -380,6 +380,7 @@ void IHCEngine::Graphics::IHCDevice::createLogicalDevice()
     }
     // Specify device features
     VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.wideLines = VK_TRUE;  // enable wide lines feature
     deviceFeatures.samplerAnisotropy = VK_TRUE; //  optional device feature
     // Create the logical device
     deviceFeatures.sampleRateShading = VK_TRUE; // enable sample shading feature for the device

@@ -38,7 +38,7 @@ namespace IHCEngine::Math
 		static inline Quaternion Conjugate(Quaternion const& q);
 		static Quaternion Inverse(Quaternion const& q);
 		static Quaternion Unit(Quaternion const& q);
-		void Normalize();
+		Quaternion Normalize();
 
 		// matrix transformations 
 		glm::mat4 GetMatrixOnLeftForMul() const;    //  matrix * rhs.vector = this * q

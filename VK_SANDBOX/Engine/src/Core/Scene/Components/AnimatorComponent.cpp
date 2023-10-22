@@ -10,9 +10,19 @@ IHCEngine::Component::AnimatorComponent::AnimatorComponent()
 
 }
 
+void IHCEngine::Component::AnimatorComponent::SetAnimationType(Graphics::AnimationType type)
+{
+	animator.SetAnimationType(type);
+}
+
 void IHCEngine::Component::AnimatorComponent::SetAnimation(Graphics::Animation* animation)
 {
 	animator.SetAnimation(animation);
+}
+
+void IHCEngine::Component::AnimatorComponent::SetBlendTree(Graphics::BlendTree* blendtree)
+{
+	animator.SetBlendTree(blendtree);
 }
 
 void IHCEngine::Component::AnimatorComponent::PlayAnimation()
@@ -20,9 +30,14 @@ void IHCEngine::Component::AnimatorComponent::PlayAnimation()
 	animator.PlayAnimation();
 }
 
+void IHCEngine::Component::AnimatorComponent::StopAnimation()
+{
+	animator.StopAnimation();
+}
+
 bool IHCEngine::Component::AnimatorComponent::HasAnimation()
 {
-	if(animator.GetCurrentAnimation()!=nullptr)
+	if(animator.GetCurrentAnimation()!=nullptr || animator.GetCurrentBlendTree() != nullptr)
 	{
 		return true;
 	}

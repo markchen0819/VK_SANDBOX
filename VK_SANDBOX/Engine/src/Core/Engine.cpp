@@ -2,6 +2,7 @@
 #include "Engine.h"
 
 #include "Time/Time.h"
+#include "../Input/Input.h"
 #include "../Window/AppWindow.h"
 #include "Asset/AssetManager.h"
 #include "Scene/SceneManager.h"
@@ -14,6 +15,7 @@
 #include "Locator/GraphicsManagerLocator.h"
 #include "Locator/SceneManagerLocator.h"
 #include "Locator/CustomBehaviorManagerLocator.h"
+#include "Locator/ImGuiManagerLocator.h"
 
 //STB
 #define STB_IMAGE_IMPLEMENTATION
@@ -21,6 +23,8 @@
 // tiny loader
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+
 
 
 // explicitly call Init & Shutdown
@@ -38,10 +42,12 @@ void IHCEngine::Core::Engine::Init()
 
 	// Window
 	appWindow = std::make_unique<Window::AppWindow>(application->GetName(), 1280, 720);
+	// Input
+	IHCEngine::Core::Input::Init();
 	// Time
 	IHCEngine::Core::Time::Init();
-	Time::GetInstance().LockFrameRate(120);
-	Time::GetInstance().SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
+	Time::LockFrameRate(120);
+	Time::SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 	// Asset
 	assetManager = std::make_unique<AssetManager>();
 	// Scene
@@ -60,8 +66,8 @@ void IHCEngine::Core::Engine::Init()
 	IHCEngine::Core::SceneManagerLocator::Provide(sceneManager.get());
 	IHCEngine::Core::GraphicsManagerLocator::Provide(graphicsManager.get());
 	IHCEngine::Core::CustomBehaviorManagerLocator::Provide(customBehaviorManager.get());
-
-
+	IHCEngine::Core::ImGuiManagerLocator::Provide(imguiManager.get());
+	
 	imguiManager->Init(); // window & graphics locator required
 	// Application
 	application->Init();
@@ -71,8 +77,13 @@ void IHCEngine::Core::Engine::Update()
 {
 	while (!appWindow->ShouldClose())
 	{
-		glfwPollEvents();
-		Time::GetInstance().Update();
+		if (!appWindow->IsWindowFocused())
+		{
+			glfwWaitEvents(); // Wait for an event instead of polling
+			continue; 
+		}
+
+		Time::Update();
 
 		application->Update();
 
@@ -81,24 +92,27 @@ void IHCEngine::Core::Engine::Update()
 			customBehaviorManager->Reset();
 			sceneManager->LoadNextScene();
 			customBehaviorManager->Init();
-			Time::GetInstance().Reset();
+			Input::Reset();
+			Time::Reset();
 		}
+
 		// FixedUpdate
-		while (Time::GetInstance().ShouldExecuteFixedUpdate())
+		while (Time::ShouldExecuteFixedUpdate())
 		{
-			Time::GetInstance().UpdateFixedTime();
+			Time::UpdateFixedTime();
 			customBehaviorManager->FixedUpdate();
 			//physics->Update();
 			sceneManager->Update();
 		}
 		// Update
-		if (Time::GetInstance().ShouldExecuteUpdate())
+		if (Time::ShouldExecuteUpdate())
 		{
 			imguiManager->NewFrame();
 			customBehaviorManager->Update();
 			sceneManager->Update();
 			graphicsManager->Update(sceneManager->GetActiveScene());
-			appWindow->ResetScrollOffset();
+			Input::Update();
+			glfwPollEvents();
 		}
 		sceneManager->DeferDestroyGameObjects();
 	}

@@ -108,11 +108,12 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
         std::cout << std::endl;
     }
 }
-void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene, AssimpNodeData& root)
+void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene, SkeletalNodeData& root)
 {
     // process current node
     root.name = node->mName.data;
-    root.transformation = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    root.transformation_Matrix = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    root.transformation_VQS = IHCEngine::Math::VQS::GLMMat4ToVQS(root.transformation_Matrix);
     root.childrenCount = node->mNumChildren;
 
     // extract info of current node (mesh, material, bone)
@@ -122,12 +123,12 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
         meshes.insert(processMesh(mesh, scene));
         meshMaterialMap.insert(processMaterials(mesh, scene));
         extractBoneWeightForVertices(meshes[currentKeyStr]->GetVertices(), mesh, scene);
-        meshes[currentKeyStr]->UpdateVertices(); // must need as boneinfo must write into buffer
+        meshes[currentKeyStr]->UpdateVertices(); // write boneWeights and boneID into buffer
     }
-    // recursively process children
+    // recursively process children (build hierarchy)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        AssimpNodeData newNode;
+        SkeletalNodeData newNode;
         processNode(node->mChildren[i], scene, newNode);
         newNode.parent = &root;
         root.children.push_back(newNode);
@@ -272,25 +273,25 @@ std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTe
 }
 void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
 {
-    // Check all bones for the mesh
+    // Check all bones for the mesh vertices
     for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
     {
         int boneID = -1;
-        // Find bone from our map or add new bone
+        // Find bone that influence this vertex from our map or add new bone
         std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        if (skinningInfoMap.find(boneName) == skinningInfoMap.end())
         {
-            BoneInfo newBoneInfo;
-            newBoneInfo.id = boneCounter;
-            newBoneInfo.offsetMatrix =
+            SkinningInfo newSkinningInfo;
+            newSkinningInfo.id = boneCounter;
+            newSkinningInfo.offsetMatrix =
                 AssimpGLMHelpers::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
-            boneInfoMap[boneName] = newBoneInfo;
+            skinningInfoMap[boneName] = newSkinningInfo;
             boneID = boneCounter;
             ++boneCounter;
         }
         else
         {
-            boneID = boneInfoMap[boneName].id;
+            boneID = skinningInfoMap[boneName].id;
         }
         assert(boneID != -1);
 

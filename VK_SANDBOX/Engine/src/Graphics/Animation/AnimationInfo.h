@@ -1,25 +1,70 @@
 #pragma once
+#include "../../Math/VQS.h"
 
 namespace IHCEngine::Graphics
 {
-    // Model node hiearachy
-    struct AssimpNodeData
+    // Logic:
+    //
+    // 1. Use SkeletalNodeData with hierarchy to concat
+    //    finalBoneTransforms (as one bone affects another)
+    // 2. finalBoneTransforms applied offsetMatrix
+    //    so that not only bones are moved
+    //    but vertices related to the bones are moved
+    // 3. boneWeights and boneIDs are stored on a vertex
+    //    to know how the bone influence the vertex position
+    //    and get final vertex position
+
+
+    // Relation Of Space
+    //
+    // SkeletalNodeData : bone's local space relative to parent bone's space
+    // Concat SkeletalNodeData up to root -> Model Space
+    // SkinningInfo:  Model Space -> target bone's local space to apply influence
+    //
+    // Order: bone movement updates
+    // -> calculate global transformations for bones
+    // -> skinning process (vertex deformation)
+
+
+    // Represents each bone in the skeleton hierarchy of the model
+    // holds the transformation matrix for the bone
+    // from bone's local space to  parent bone's space within the hierarchy
+    struct SkeletalNodeData
     {
-        glm::mat4 transformation;
         std::string name;
+
+        SkeletalNodeData* parent = nullptr;
+        std::vector<SkeletalNodeData> children;
         int childrenCount;
-        std::vector<AssimpNodeData> children;
-        AssimpNodeData* parent=nullptr;
+
+        // Using Matrix
+        glm::mat4 transformation_Matrix;
+  
+		// Using VQS
+        IHCEngine::Math::VQS transformation_VQS;
     };
 
-    // Inverse bind pose
-    struct BoneInfo
+    // Represents Inverse bind pose
+    // (Skinning, deform model vertices based on the bone)
+    // holds the offsetMatrix for a vertex
+    // from initial model space to bone local space
+    struct SkinningInfo
     {
-        int id; // index in finalBoneMatrices
+        int id;
         glm::mat4 offsetMatrix;
-    	// offset matrix transforms vertex from
-    	// model space to bone space
+
+    	// id:
+    	//     index in finalBoneMatrices
+        //     which is the boneMatrix that affects this vertex
+       
+        // offsetMatrix:
+        //     transform vertex from T-pose
+        //      -> move to origin
+        //      -> move to position after bone moved (bone's local space)
+
+        // BoneWeights are stored in vertex
     };
+
 
     struct KeyPosition
     {

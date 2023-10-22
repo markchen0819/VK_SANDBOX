@@ -1,20 +1,17 @@
-
 #pragma once
-#include "../../../../Engine/src/Core/Scene/GameObject.h"
-#include "../../../../Engine/src/Graphics/GraphicsManager.h"
+#include <GLFW/glfw3.h>
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
-
 namespace IHCEngine::Graphics
 {
 	class Animation;
+	class Camera;
 }
-
 namespace SampleApplication
 {
-    class AnimationTester : public IHCEngine::Component::CustomBehavior
+    class AnimationViewer : public IHCEngine::Component::CustomBehavior
     {
     public:
-        AnimationTester();
+        AnimationViewer();
         void Awake() override;
         void Start() override;
         void Update() override;
@@ -36,24 +33,25 @@ namespace SampleApplication
         }
 
     private:
+
         GLFWwindow* window = nullptr;
+        IHCEngine::Graphics::Camera* camera = nullptr;
 
         // Make each animation Models has corresponding 2 animations
-        std::vector<IHCEngine::Core::GameObject*> animationGobjs;
+        void HandleModelInput();
+    	std::vector<IHCEngine::Core::GameObject*> animationGobjs;
         std::vector<IHCEngine::Graphics::Animation*> animationSlots1;
         std::vector<IHCEngine::Graphics::Animation*> animationSlots2;
         int modelIndex = 0;
         int animationIndex = 0;
 
-
-        bool wasRightKeyPressed = false;
-        bool wasLeftKeyPressed = false;
-        bool wasSpaceKeyPressed = false;
-
-        bool wasBKeyPressed = false;
-        bool wasMKeyPressed = false;
-
-        bool wasAsteriskKeyPressed = false;
-        bool wasSlashKeyPressed = false;
+        // Animation Viewer Input
+        void HandleAnimationViewerInput();
+        glm::vec3 centerPoint = glm::vec3(0.0);
+        float angleRespectToCenterPoint;
+        float distanceToCenterPoint;
+        float angleSpeed = 50.0;
+        float movementSpeed = 10;
+        float zoomSpeed = 0.03f;
     };
 }

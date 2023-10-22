@@ -26,13 +26,7 @@ void IHCEngine::Core::Scene::Update()
 
 void IHCEngine::Core::Scene::Shutdown()
 {
-	// Destroy all game objects in the scene
-	const auto& updatedRootGameObjects = GetRootGameObjects();
-	for (GameObject* parent : updatedRootGameObjects)
-	{
-		parent->DestroyGameObject(); //destroy childs also with scene graph
-	}
-	rootGameObjects.clear();
+	RemoveAllGameObject();
 }
 
 std::map<unsigned int, IHCEngine::Core::GameObject*> IHCEngine::Core::Scene::GetGameObjectsMap()
@@ -68,7 +62,13 @@ void IHCEngine::Core::Scene::RemoveGameObject(GameObject& gameObject)
 
 void IHCEngine::Core::Scene::RemoveAllGameObject()
 {
+	const auto& updatedRootGameObjects = GetRootGameObjects();
+	for (GameObject* parent : updatedRootGameObjects)
+	{
+		parent->DestroyGameObject(); //destroy childs also with scene graph
+	}
 	gameObjectsMap.clear();
+	rootGameObjects.clear();
 }
 
 IHCEngine::Core::GameObject* IHCEngine::Core::Scene::GetGameObjectByName(const std::string& name)

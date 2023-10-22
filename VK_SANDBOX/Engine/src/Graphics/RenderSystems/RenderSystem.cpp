@@ -23,7 +23,7 @@
 #include "../../Core/Scene/Components/ModelComponent.h"
 #include "../../Core/Scene/Components/AnimatorComponent.h"
 #include "../../Core/Scene/Components/PipelineComponent.h"
-
+#include "../../Core/Scene/Components/LineRendererComponent.h"
 
 IHCEngine::Graphics::RenderSystem::RenderSystem(IHCDevice& device, VkRenderPass renderPass, IHCDescriptorManager* descriptorManager)
     :   ihcDevice{ device },
@@ -107,6 +107,25 @@ void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines(
         "Engine/assets/shaders/debugbonevert.spv",
         "Engine/assets/shaders/debugbonefrag.spv");
 
+
+    // LineRenderer
+    std::vector<VkDescriptorSetLayout> lineRendererLayouts
+	{
+        descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
+    };
+    createCustomPipelineLayout(&lineRendererPipelineLayout, lineRendererLayouts);
+    PipelineConfigInfo lineRendererPipelineConfig{};
+    IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(lineRendererPipelineConfig, ihcDevice);
+    lineRendererPipelineConfig.renderPass = vkrenderpass;
+    lineRendererPipelineConfig.pipelineLayout = lineRendererPipelineLayout;
+    lineRendererPipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    lineRendererPipelineConfig.rasterizer.lineWidth = 3.0f;
+    lineRendererPipeline = createCustomPipeline(lineRendererPipelineConfig,
+        "Engine/assets/shaders/linerenderervert.spv",
+        "Engine/assets/shaders/linerendererfrag.spv");
+
+
+
 }
 void IHCEngine::Graphics::RenderSystem::destroyCustomPipelineLayouts()
 {
@@ -114,6 +133,7 @@ void IHCEngine::Graphics::RenderSystem::destroyCustomPipelineLayouts()
     vkDestroyPipelineLayout(ihcDevice.GetDevice(), skeletalPipelineLayout, nullptr);
     vkDestroyPipelineLayout(ihcDevice.GetDevice(), wireframePipelineLayout, nullptr);
     vkDestroyPipelineLayout(ihcDevice.GetDevice(), debugBonePipelineLayout, nullptr);
+    vkDestroyPipelineLayout(ihcDevice.GetDevice(), lineRendererPipelineLayout, nullptr);
 }
 #pragma region PipelineLayout (for shaders interface) & Pipeline
 void IHCEngine::Graphics::RenderSystem::createDefaultPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
@@ -209,6 +229,7 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     {
         renderDefaultGraphicsPipeline(frameInfo);
         renderSkeletalAnimationPipeline(frameInfo);
+        renderLineRendererPipeline(frameInfo);
         if(debugBonesEnabled)
         {
             renderDebugBonePipeline(frameInfo);
@@ -612,7 +633,6 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         }
     }
 }
-
 void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frameInfo)
 {
     // Bind Pipeline 
@@ -669,6 +689,49 @@ void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frame
         {
 
         }
+    }
+}
+void IHCEngine::Graphics::RenderSystem::renderLineRendererPipeline(FrameInfo& frameInfo)
+{
+    // Bind Pipeline 
+    lineRendererPipeline->Bind(frameInfo.commandBuffer);
+    // global Descriptor Sets (Camera)
+    vkCmdBindDescriptorSets
+    (
+        frameInfo.commandBuffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        lineRendererPipelineLayout,
+        0,
+        1,
+        &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+        ->GetDescriptorSets()[frameInfo.frameIndex],
+        0,
+        nullptr
+    );
+    // For each game object
+    for (auto& g : frameInfo.gameObjects)
+    {
+        IHCEngine::Core::GameObject* gobj = g.second;
+        if (gobj->IsActive() == false) continue;
+        // Only render the ones specifying this pipeline
+
+
+        if(!gobj->HasComponent<Component::LineRendererComponent>()) continue;
+        auto lineRendererComponent = gobj->GetComponent<Component::LineRendererComponent>();
+
+        SimplePushConstantData push{};
+        push.modelMatrix = gobj->transform.GetModelMatrix();
+        push.normalMatrix = glm::mat4(1);
+        vkCmdPushConstants
+        (
+            frameInfo.commandBuffer,
+            skeletalPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(SimplePushConstantData),
+            &push
+        );
+        lineRendererComponent->Draw(frameInfo);
     }
 }
 

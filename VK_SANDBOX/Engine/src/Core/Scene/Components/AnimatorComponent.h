@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "../../../Graphics/Animation/Animator.h"
-
+#include "../../../Graphics/Animation/BlendTree.h"
 
 namespace IHCEngine::Component
 {
@@ -11,8 +11,15 @@ namespace IHCEngine::Component
 		AnimatorComponent();
 		~AnimatorComponent() = default;
 
+		void SetAnimationType(Graphics::AnimationType type);
+
+		// Animation
 		void SetAnimation(Graphics::Animation* animation);
+		// BlendTree
+		void SetBlendTree(Graphics::BlendTree* blendtree);
+
 		void PlayAnimation();
+		void StopAnimation();
 		bool HasAnimation();
 
 		void UpdateAnimation(float dt);

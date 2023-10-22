@@ -16,8 +16,10 @@ namespace IHCEngine::Graphics
 namespace IHCEngine::Graphics
 {
 	// Model
-	// storing meshes, materials related to mesh, bone weights
-	// interpolate between its keys (TRS) based on the current animation time.
+	// storing meshes,
+	// materials related to mesh,
+	// skinningInfoMap (bone weights and ID)
+	// skeletal hierarchy
 
 	class Model
 	{
@@ -30,27 +32,29 @@ namespace IHCEngine::Graphics
 		MaterialData GetMaterialForMesh(std::string key);
 
 		// Animation functions
-		std::map<std::string, BoneInfo>& GetBoneInfoMap() { return boneInfoMap; }
+		std::map<std::string, SkinningInfo>& GetSkinningInfoMap() { return skinningInfoMap; }
 		int& GetBoneCount() { return boneCounter; }
-		AssimpNodeData& GetRootNodeOfHierarhcy() { return rootNodeOfHierachy;}
+		SkeletalNodeData& GetRootNodeOfHierarhcy() { return rootNodeOfHierachy;}
 
 	private:
 
-		// Info & Extracted datas (meshes, materials, bone weights, node hierachy )
+		// Info 
 		std::string filepath;
 		std::string directory;
 		std::string filename;
 		int keyID = 0;
 		std::string currentKeyStr = ""; // key for following unordered_maps
+
+		// Extracted data (meshes, materials, skinningInfoMap (bone weights and ID), skeletal hierarchy)
 		std::unordered_map<std::string, IHCMesh*> meshes;
 		std::unordered_map<std::string, MaterialData> meshMaterialMap;
-		std::map<std::string, BoneInfo> boneInfoMap;
+		std::map<std::string, SkinningInfo> skinningInfoMap;
 		int boneCounter = 0;
-		AssimpNodeData rootNodeOfHierachy;
+		SkeletalNodeData rootNodeOfHierachy;
 
 		// graphics manager & assetManager required to generate texture and meshes
 		void loadModel(std::string filepath);
-		void processNode(aiNode* node, const aiScene* scene, AssimpNodeData& root);
+		void processNode(aiNode* node, const aiScene* scene, SkeletalNodeData& root);
 		std::pair<std::string, IHCMesh*> processMesh(aiMesh* mesh, const aiScene* scene);
 		std::pair<std::string, MaterialData>  processMaterials(aiMesh* mesh, const aiScene* scene);
 		std::vector<IHCEngine::Graphics::IHCTexture*> loadTextures(aiMaterial* mat, aiTextureType type, std::string typeName);

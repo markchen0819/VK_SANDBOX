@@ -78,7 +78,7 @@
     <ClCompile Include="Engine\src\Core\Scene\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\Scene\SampleScene.cpp">
+    <ClCompile Include="Application\src\SampleApplication\Scene\SkeletalAnimationScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\CameraController.cpp">
@@ -162,9 +162,6 @@
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\src\Math\Quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -172,6 +169,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Graphics\Animation\AnimationConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\ImguiContextComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Math\Path\SpaceCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Math\Path\SubCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\LineRendererComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -251,7 +281,7 @@
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\Scene\SampleScene.h">
+    <ClInclude Include="Application\src\SampleApplication\Scene\SkeletalAnimationScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CameraController.h">
@@ -371,9 +401,6 @@
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationTester.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\src\Math\Quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -381,6 +408,54 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\MathConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\Scene\MotionAlongPathScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\ImguiContextComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Locator\ImGuiManagerLocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\SpaceCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\SubCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\LineRendererComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\PathStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\SpeedControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\OrientationControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Math\Path\PaceControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

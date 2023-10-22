@@ -63,6 +63,10 @@ namespace IHCEngine::Graphics
         void renderDebugBonePipeline(FrameInfo& frameInfo);
         VkPipelineLayout debugBonePipelineLayout;
 
+        std::unique_ptr<IHCEngine::Graphics::IHCPipeline> lineRendererPipeline;
+        void renderLineRendererPipeline(FrameInfo& frameInfo);
+        VkPipelineLayout lineRendererPipelineLayout;
+
         // Each system can have one to many pipelines
 		// Example: 
 		// standardPipeline: Regular Phong shading with textures.

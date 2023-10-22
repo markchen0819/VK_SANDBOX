@@ -4,10 +4,10 @@
 namespace SampleApplication
 {
 
-	class SampleScene : public IHCEngine::Core::Scene
+	class SkeletalAnimationScene : public IHCEngine::Core::Scene
 	{
 	public:
-		SampleScene();
+		SkeletalAnimationScene();
 
 		void Load() override;
 		void UnLoad() override;

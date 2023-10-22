@@ -1,11 +1,9 @@
 #include "../pch.h"
+#include "MathConstants.h"
 #include "Quaternion.h"
 
 namespace IHCEngine::Math
 {
-	const static float PI = 3.14159265359;
-
-
 	Quaternion::Quaternion(float scalar, float x, float y, float z)
 		:	scalar(scalar),
 			imaginary(x, y, z)
@@ -33,17 +31,17 @@ namespace IHCEngine::Math
 		glm::vec3 convertedEuler = rotationEuler * (PI / 180.0f);
 
 		// Calculating the half-angles
-		float cosX = glm::cos(convertedEuler[0] * 0.5f);
-		float cosY = glm::cos(convertedEuler[1] * 0.5f);
-		float cosZ = glm::cos(convertedEuler[2] * 0.5f);
-		float sinX = glm::sin(convertedEuler[0] * 0.5f);
-		float sinY = glm::sin(convertedEuler[1] * 0.5f);
-		float sinZ = glm::sin(convertedEuler[2] * 0.5f);
+		float cosX = glm::cos(convertedEuler.x * 0.5f);
+		float cosY = glm::cos(convertedEuler.y * 0.5f);
+		float cosZ = glm::cos(convertedEuler.z * 0.5f);
+		float sinX = glm::sin(convertedEuler.x * 0.5f);
+		float sinY = glm::sin(convertedEuler.y * 0.5f);
+		float sinZ = glm::sin(convertedEuler.z * 0.5f);
 
 		// Constructing the Quaternion (with individual axes)
-		imaginary[0] = cosZ * cosY * sinX - sinZ * sinY * cosX;
-		imaginary[1] = cosZ * sinY * cosX + sinZ * cosY * sinX;
-		imaginary[2] = sinZ * cosY * cosX - cosZ * sinY * sinX;
+		imaginary.x = cosZ * cosY * sinX - sinZ * sinY * cosX;
+		imaginary.y = cosZ * sinY * cosX + sinZ * cosY * sinX;
+		imaginary.z = sinZ * cosY * cosX - cosZ * sinY * sinX;
 		scalar = cosZ * cosY * cosX + sinZ * sinY * sinX;
 	}
 
@@ -106,18 +104,18 @@ namespace IHCEngine::Math
 	Quaternion Quaternion::operator-(Quaternion const& rhs) const
 	{
 		glm::vec3 resultImaginary;
-		resultImaginary.x = imaginary[0] - rhs.imaginary[0];
-		resultImaginary.y = imaginary[1] - rhs.imaginary[1];
-		resultImaginary.z = imaginary[2] - rhs.imaginary[2];
+		resultImaginary.x = imaginary.x - rhs.imaginary.x;
+		resultImaginary.y = imaginary.y - rhs.imaginary.y;
+		resultImaginary.z = imaginary.z - rhs.imaginary.z;
 		return Quaternion(scalar - rhs.scalar, resultImaginary);
 	}
 
 	Quaternion Quaternion::operator-() const
 	{
 		float x, y, z;
-		x = -imaginary[0];
-		y = -imaginary[1];
-		z = -imaginary[2];
+		x = -imaginary.x;
+		y = -imaginary.y;
+		z = -imaginary.z;
 		return Quaternion(-scalar, x, y, z);
 	}
 
@@ -163,10 +161,9 @@ namespace IHCEngine::Math
 
 	glm::mat4 Quaternion::GetMatrixOnLeftForMul() const
 	{
-		float x, y, z;
-		x = imaginary[0];
-		y = imaginary[1];
-		z = imaginary[2];
+		float x = imaginary.x;
+		float y = imaginary.y;
+		float z = imaginary.z;
 		return glm::mat4
 		(
 			scalar, z, -y, -x,      
@@ -178,9 +175,9 @@ namespace IHCEngine::Math
 
 	glm::mat4 Quaternion::GetMatrixOnRightForMul() const
 	{
-		float x = imaginary[0];
-		float y = imaginary[1];
-		float z = imaginary[2];
+		float x = imaginary.x;
+		float y = imaginary.y;
+		float z = imaginary.z;
 
 		return glm::mat4
 		(
@@ -194,9 +191,9 @@ namespace IHCEngine::Math
 
 	glm::mat4 Quaternion::GetRotationMatrix() const
 	{
-		float x = imaginary[0];
-		float y = imaginary[1];
-		float z = imaginary[2];
+		float x = imaginary.x;
+		float y = imaginary.y;
+		float z = imaginary.z;
 
 		return glm::mat4
 		(
@@ -226,6 +223,7 @@ namespace IHCEngine::Math
 	{
 		Quaternion q3 = q2;
 		float dot = Dot(q1, q2); // cos angle
+
 		// Quaternions can represent the same rotation
 		// with either a positive or negative sign
 		// ensure we take shortest path 
@@ -239,29 +237,35 @@ namespace IHCEngine::Math
 		{
 			float angle = acosf(dot);
 
+			// Ensure that we don't divide by a very small value
 			// ( q1 sin((1-t)theta)  +  q2 sin((t)theta)) / sin theta
-			return (q1 * sinf(angle * (1 - t)) + q3 * sinf(angle * t))/ sinf(angle);
-		}
-		else
-		{
-			// angle is small
-			// use linear interpolation	to save computational costs.							
-			return Lerp(q1, q3, t);
+			float denom = sinf(angle);
+			if (fabs(denom) > EPSILON)
+			{
+				return (q1 * sinf(angle * (1 - t)) + q3 * sinf(angle * t)) / denom;
+			}
 		}
 
+		// small angles use lerp to save computational costs.	
+		return Lerp(q1, q3, t).Normalize();
 	}
 
 	Quaternion Quaternion::Lerp(const Quaternion& q1, const Quaternion& q2, float t)
 	{
 		Quaternion q3 = (q1 * (1 - t) + q2 * t);
-		q3.Normalize();
-		return q3;
+		return q3.Normalize();
 	}
 
-	void Quaternion::Normalize()
+	Quaternion Quaternion::Normalize()
 	{
 		const float length = Length(*this);
-		*this = *this / length;
+
+		if (length > EPSILON)
+		{
+			*this = *this / length;
+			return *this;
+		}
+		return *this;
 	}
 }
 
