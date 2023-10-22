@@ -36,13 +36,8 @@ void SampleApplication::MotionAlongPathScene::Load()
 	auto RunAnimation = graphicsAssetCreator.CreateAnimation(
 		"RunAnimation", "Application/assets/Animations/Standard Run.fbx",
 		Ch44Model);
-	//auto JumpAttackAnimation = graphicsAssetCreator.CreateAnimation(
-	//	"JumpAttackAnimation", "Application/assets/Animations/Jump Attack.fbx",
-	//	Ch44Model);
-
 	// Control point
 	createControlPointMesh();
-
 
 	// viking Room
 	auto roomTexture =
@@ -94,7 +89,7 @@ void SampleApplication::MotionAlongPathScene::Init()
 	IHCEngine::Core::Time::LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	camera.AddComponent<SampleApplication::CameraController>();
+	//camera.AddComponent<SampleApplication::CameraController>();
 
 	IHCEngine::Core::GameObject& emptyGobj = AddGameObject("emptyGobj");
 	emptyGobj.AddComponent<IHCEngine::Component::LineRendererComponent>();
@@ -112,7 +107,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
 
-
 	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Gobj1");
 	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
@@ -120,15 +114,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
-
-	//IHCEngine::Core::GameObject& ch44Gobj2 = AddGameObject("Ch44Gobj2");
-	//pipelinecomponent = ch44Gobj2.AddComponent<IHCEngine::Component::PipelineComponent>();
-	//pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
-	//modelcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::ModelComponent>();
-	//modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
-	//animatorcomponent = ch44Gobj2.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	//animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("RunAnimation"));
-
 
 	///////////////////////////
 	// Others
