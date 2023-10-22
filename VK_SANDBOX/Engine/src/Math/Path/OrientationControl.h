@@ -25,7 +25,7 @@ namespace IHCEngine::Math
 					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.02)
 					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.03)) / 3.0f;
 
-			glm::vec3 W = lookAtPos - spaceCurve.GetPositionOnCurve(passedDistance);
+			glm::vec3 W = normalize((lookAtPos - spaceCurve.GetPositionOnCurve(passedDistance)));
 			glm::vec3 U = glm::cross(globalUpVector, W);
 			glm::vec3 V = glm::cross(W, U);
 
