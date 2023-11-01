@@ -116,14 +116,14 @@ namespace IHCEngine::Graphics
 		// Convert bone from local space into global space
 		glm::mat4 globalTransformation = parentTransform * nodeTransform; // ex: arm bone in the world (consider shoulder)
 
-		Vertex debugVertex;
-		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
-		debugVertex.position = glm::vec3(globalTransformation[3]);
-		debugBoneVertices.push_back(debugVertex);
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
 		if (node->parent)
 		{
+			Vertex debugVertex;
+			debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+			debugVertex.position = glm::vec3(globalTransformation[3]);
+			debugBoneVertices.push_back(debugVertex);
 			debugVertex.position = glm::vec3(parentTransform[3]);
 			debugBoneVertices.push_back(debugVertex);
 		}
@@ -163,14 +163,15 @@ namespace IHCEngine::Graphics
 		// Convert bone from local space into global space
 		Math::VQS globalVQS = parentVQS * nodeVQS; // ex: arm bone in the world (consider shoulder)
 
-		Vertex debugVertex;
-		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
-		debugVertex.position = globalVQS.GetTranslate();
-		debugBoneVertices.push_back(debugVertex);
+
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
 		if (node->parent)
 		{
+			Vertex debugVertex;
+			debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+			debugVertex.position = globalVQS.GetTranslate();
+			debugBoneVertices.push_back(debugVertex);
 			debugVertex.position = parentVQS.GetTranslate();
 			debugBoneVertices.push_back(debugVertex);
 		}
@@ -247,14 +248,14 @@ namespace IHCEngine::Graphics
 		// Convert bone from local space into global space
 		glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-		Vertex debugVertex;
-		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
-		debugVertex.position = glm::vec3(globalTransformation[3]);
-		debugBoneVertices.push_back(debugVertex);
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
 		if (node->parent)
 		{
+			Vertex debugVertex;
+			debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+			debugVertex.position = glm::vec3(globalTransformation[3]);
+			debugBoneVertices.push_back(debugVertex);
 			debugVertex.position = glm::vec3(parentTransform[3]);
 			debugBoneVertices.push_back(debugVertex);
 		}
@@ -306,14 +307,14 @@ namespace IHCEngine::Graphics
 		// Convert bone from local space into global space
 		Math::VQS globalVQS = parentVQS * nodeVQS; // ex: arm bone in the world (consider shoulder)
 
-		Vertex debugVertex;
-		debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
-		debugVertex.position = globalVQS.GetTranslate();
-		debugBoneVertices.push_back(debugVertex);
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
 		if (node->parent)
 		{
+			Vertex debugVertex;
+			debugVertex.color = glm::vec3(0.0, 1.0, 0.0);
+			debugVertex.position = globalVQS.GetTranslate();
+			debugBoneVertices.push_back(debugVertex);
 			debugVertex.position = parentVQS.GetTranslate();
 			debugBoneVertices.push_back(debugVertex);
 		}
