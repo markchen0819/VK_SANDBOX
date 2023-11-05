@@ -6,7 +6,7 @@
 #include "../VKWraps/VKHelpers.h"
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
 #include "../../Engine/src/Core/Locator/AssetManagerLocator.h"
-
+#include "../VKWraps/IHCDevice.h"
 
 
 IHCEngine::Graphics::Model::Model(const std::string& filepath)
@@ -18,6 +18,10 @@ IHCEngine::Graphics::Model::Model(const std::string& filepath)
 IHCEngine::Graphics::Model::~Model()
 {
     auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+
+    auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+
+	vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
 
     for (const auto& pair : meshes)
     {

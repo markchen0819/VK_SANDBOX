@@ -204,6 +204,18 @@
     <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\Scene\InverseKinematicsScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\InverseKinematicsViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -456,6 +468,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\Scene\InverseKinematicsScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\InverseKinematicsViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
