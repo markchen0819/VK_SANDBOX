@@ -13,6 +13,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
 
 // Custom Behaviors
 #include "../CustomBehaviors/InverseKinematicsViewer.h"
@@ -30,7 +31,8 @@ void SampleApplication::InverseKinematicsScene::Load()
 
 	// IK
 	auto IKModel = graphicsAssetCreator.CreateModel("IKModel",
-		"Application/assets/Models/IKModel/IK.fbx");
+		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
+		//"Application/assets/Models/IKModel/IK.fbx");
 	createTargetObjectMesh();
 	//// Animation
 	//auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
@@ -105,11 +107,13 @@ void SampleApplication::InverseKinematicsScene::Init()
 	////// Skeletal Animation ////
 	//// Ch44
 	IHCEngine::Core::GameObject& IKGobj = AddGameObject("IKGobj");
-	IKGobj.transform.SetScale(glm::vec3(0.5, 0.5, 0.5));
+	IKGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
 	pipelinecomponent = IKGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = IKGobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("IKModel"));
+	auto ikcomponent = IKGobj.AddComponent<IHCEngine::Component::IKComponent>();
+	ikcomponent->SetModel(assetManager->GetModelRepository().GetAsset("IKModel"));
 	//animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	//auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
 	//auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
