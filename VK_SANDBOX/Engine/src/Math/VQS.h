@@ -12,6 +12,7 @@ namespace IHCEngine::Math
 		~VQS() = default;
 
 		// Getters
+		void SetTranslate(glm::vec3 v) { translate = v; }
 		glm::vec3 GetTranslate() const { return translate; }
 		Quaternion GetRotation() const { return rotation; }
 		float GetScalar() const { return scalar; }

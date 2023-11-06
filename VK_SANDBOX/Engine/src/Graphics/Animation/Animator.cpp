@@ -142,14 +142,14 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransformMatrix(&node->children[i], globalTransformation);
+			calculateBoneTransformMatrix(node->children[i].get(), globalTransformation);
 		}
 	}
 	void Animator::calculateBoneTransformVQS(const SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		// Starting from root node of current animation
 		const std::string& nodeName = node->name;
-		Math::VQS nodeVQS = node->transformation_VQS; 
+		Math::VQS nodeVQS = node->localVQS; 
 
 		// Check if there is a bone in the root node related to the animation
 		BoneAnimation* boneAnimation = currentAnimation->FindBone(nodeName);
@@ -190,7 +190,7 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransformVQS(&node->children[i], globalVQS);
+			calculateBoneTransformVQS(node->children[i].get(), globalVQS);
 		}
 	}
 
@@ -274,7 +274,7 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransformMatrix(blendTree, &node->children[i], globalTransformation);
+			calculateBoneTransformMatrix(blendTree, node->children[i].get(), globalTransformation);
 		}
 
 	}
@@ -286,7 +286,7 @@ namespace IHCEngine::Graphics
 
 		// Starting from root node of model
 		const std::string& nodeName = node->name;
-		Math::VQS nodeVQS = node->transformation_VQS;
+		Math::VQS nodeVQS = node->localVQS;
 
 		// Check if there is a bone in the root node related to the animation
 		BoneAnimation* boneAnimationA = animationA->FindBone(nodeName);
@@ -333,7 +333,7 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransformVQS(blendTree , &node->children[i], globalVQS);
+			calculateBoneTransformVQS(blendTree , node->children[i].get(), globalVQS);
 		}
 	}
 #pragma endregion

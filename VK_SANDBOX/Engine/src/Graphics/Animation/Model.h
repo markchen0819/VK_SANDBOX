@@ -31,11 +31,12 @@ namespace IHCEngine::Graphics
 		std::unordered_map<std::string, IHCMesh*> GetMeshes();
 		MaterialData GetMaterialForMesh(std::string key);
 
-		// Animation functions
+		// Animation & IK functions
 		std::map<std::string, SkinningInfo>& GetSkinningInfoMap() { return skinningInfoMap; }
 		int& GetBoneCount() { return boneCounter; }
 		SkeletalNodeData& GetRootNodeOfHierarhcy() { return rootNodeOfHierachy;}
-
+		SkeletalNodeData* GetNodeByName(const std::string& name);
+		std::vector<SkeletalNodeData*> GetPathFromRootToEE(SkeletalNodeData* endEffector, SkeletalNodeData* root);
 	private:
 
 		// Info 

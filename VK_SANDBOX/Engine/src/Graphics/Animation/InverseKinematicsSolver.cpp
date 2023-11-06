@@ -19,19 +19,63 @@ namespace IHCEngine::Graphics
 		vulkanResourceShutDown();
 	}
 
-	void InverseKinematicsSolver::SetJoints(const std::vector<glm::vec3>& initialJoints)
+	void InverseKinematicsSolver::SetEndEffector(std::string name)
+	{
+	}
+
+	void InverseKinematicsSolver::ConvertVQSLocalToGlobal(SkeletalNodeData* node)
+	{
+		if (node->parent!= nullptr)
+		{
+			const Math::VQS& parentVQS = node->parent->globalVQS;
+
+			node->globalVQS = parentVQS * node->localVQS;
+		}
+		else
+		{
+			node->globalVQS = node->localVQS;
+		}
+
+		for (unsigned int i = 0; i < node->children.size(); ++i)
+		{
+			ConvertVQSLocalToGlobal(node->children[i].get());
+		}
+	}
+
+	void InverseKinematicsSolver::ConvertVQSGlobalToLocal(SkeletalNodeData* node)
+	{
+		if (node->parent != nullptr) 
+		{
+			Math::VQS inverseParentVQS = node->parent->globalVQS.Inverse();
+			node->localVQS = inverseParentVQS * node->globalVQS;
+		}
+		else 
+		{
+			node->localVQS = node->globalVQS;
+		}
+		for (unsigned int i = 0; i < node->children.size(); ++i) 
+		{
+			ConvertVQSGlobalToLocal(node->children[i].get());
+		}
+	}
+
+
+	void InverseKinematicsSolver::SetJoints(std::vector<SkeletalNodeData*>& initialJoints)
 	{
 		// from root to E.E.
-
 		joints = initialJoints;
         totalDistance = 0;
 
 		for (size_t i = 1; i < joints.size(); i++) 
 		{
-            float distance = glm::length(joints[i] - joints[i - 1]);
+            float distance = glm::length(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
 			distances.push_back(distance);
             totalDistance += distance;
 		}
+
+		// E.E to root
+		//std::reverse(distances.begin(),distances.end());
+		//std::reverse(joints.begin(), joints.end());
 	}
 
 	void InverseKinematicsSolver::Solve_FABRIK(glm::vec3 target)
@@ -40,43 +84,80 @@ namespace IHCEngine::Graphics
         // https://youtu.be/UNoX65PRehA?si=qRPyM7tonfIDzYfX
 
         // Cannot reach, too far away
-        float distanceFromRootToTarget = glm::length(target - joints[0]);
+        float distanceFromRootToTarget = glm::length(target - joints[0]->globalVQS.GetTranslate());
         if(distanceFromRootToTarget > totalDistance)
         {
-            glm::vec3 dir = glm::normalize(target - joints[0]);
-            target = joints[0] + dir * distanceFromRootToTarget;
+            glm::vec3 dir = glm::normalize(target - joints[0]->globalVQS.GetTranslate());
+            target = joints[0]->globalVQS.GetTranslate() + dir * totalDistance;
             // straight line
         }
 
         // Can reach
         int iteration = 0;
-        float distanceFromEEtoTargetPos = glm::length(joints.back() - target);
+        float distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
+		std::vector<glm::vec3> pointsForCalculation;
+		glm::vec3 rootPos = joints.front()->globalVQS.GetTranslate();
         while (iteration < MAX_ITERATIONS && distanceFromEEtoTargetPos > EPSILON_DISTANCE_TO_TARGET)
         {
-            // Backward reaching (E.E. to root)
-            joints.back() = target;
-            for (int i = joints.size() - 2; i >= 0; --i)
-            {
-                glm::vec3& pointA = joints[i];
-                glm::vec3& pointB = joints[i+1];
-                const float distanceAB = distances[i];
-                glm::vec3 dir = glm::normalize(pointA - pointB);
-                pointA = pointB + dir * distanceAB;
-            }
 
-            // Forward reaching  (root to E.E.)
-            for (size_t i = 1; i < joints.size(); i++) 
-            {
-                glm::vec3& pointA = joints[i-1];
-                glm::vec3& pointB = joints[i];
-                const float distanceAB = distances[i-1];
+			// Backward
+			joints.back()->globalVQS.SetTranslate(target);
+			for (int i = joints.size() - 2; i >= 0; --i) 
+			{
+				glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
+				glm::vec3 pointB = joints[i + 1]->globalVQS.GetTranslate();
+				glm::vec3 dir = glm::normalize(pointA - pointB);
+				pointA = pointB + dir * distances[i];
+				joints[i]->globalVQS.SetTranslate(pointA);
+			}
 
-                glm::vec3 dir = glm::normalize(pointB - pointA);
-                pointB = pointA + dir * distanceAB;
-            }
+			// Keep root in place
+			joints.front()->globalVQS.SetTranslate(rootPos);
 
-            // Keep getting closer target
-            distanceFromEEtoTargetPos = glm::length(joints.back() - target);
+			// Forward
+			for (size_t i = 1; i < joints.size(); i++)
+			{
+				glm::vec3 pointA = joints[i - 1]->globalVQS.GetTranslate();
+				glm::vec3 dir = glm::normalize(joints[i]->globalVQS.GetTranslate() - pointA);
+				glm::vec3 pointB = pointA + dir * distances[i - 1];
+				joints[i]->globalVQS.SetTranslate(pointB);
+			}
+
+
+
+   //         // Backward reaching (E.E. to root)
+			//pointsForCalculation.push_back(target);
+   //         for (int i = joints.size() - 2; i >= 0; --i)
+   //         {
+   //             glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
+   //             glm::vec3 pointB = joints[i+1]->globalVQS.GetTranslate();
+			//	glm::vec3 pointC = pointsForCalculation[joints.size() - 2 - i];
+   //             const float distanceAB = distances[i];
+   //             glm::vec3 dirAC = glm::normalize(pointA - pointC);
+			//	glm::vec3 target = pointB + dirAC * distanceAB;
+			//	pointsForCalculation.push_back(target);
+   //         }
+
+			//joints.front()->globalVQS.SetTranslate(rootPos);
+			//std::reverse(pointsForCalculation.begin(), pointsForCalculation.end());
+   //         // Forward reaching  (root to E.E.)
+   //         for (size_t i = 1; i < joints.size(); i++) 
+   //         {
+   //             glm::vec3 pointA = joints[i-1]->globalVQS.GetTranslate();
+   //             glm::vec3 pointB = pointsForCalculation[i];
+			//	glm::vec3 pointC = joints[i]->globalVQS.GetTranslate();
+   //             const float distanceAC = distances[i-1];
+   //             glm::vec3 dirBA = glm::normalize(pointB - pointA);
+			//	glm::vec3 target = pointA + dirBA * distanceAC;
+			//	joints[i]->globalVQS.SetTranslate(target); // .SetTranslate(glm::vec3(-100, 100, 50));
+   //         }
+			////test
+			////joints.back()->globalVQS.SetTranslate(glm::vec3(100, 100, 2));
+   //         // Keep getting closer target
+			//auto test2 = joints.back()->globalVQS.GetTranslate();
+			//auto test = glm::length(joints.back()->globalVQS.GetTranslate() - target);
+            distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
+			pointsForCalculation.clear();
             iteration++;
         }
 
@@ -147,6 +228,8 @@ namespace IHCEngine::Graphics
 		debugBoneVertices.clear();
 
 		//Solve;
+		//Testing
+
 		calculateBoneTransformVQS(&model->GetRootNodeOfHierarhcy(), Math::VQS());
 	}
 
@@ -154,6 +237,18 @@ namespace IHCEngine::Graphics
 	{
 		model = m;
 		AllocateDebugBoneBuffer();
+
+		auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
+		auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
+		//auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
+		auto testPath = model->GetPathFromRootToEE(testEE, testRoot);
+		
+		ConvertVQSLocalToGlobal(&model->GetRootNodeOfHierarhcy());
+		SetJoints(testPath);
+		float scale=0.05;// welp localVQS fucked by global scale
+		// -84 152 -2.5
+		Solve_FABRIK(glm::vec3(-100, 100, 100));
+		ConvertVQSGlobalToLocal(&model->GetRootNodeOfHierarhcy());
 	}
 
 	std::vector<glm::mat4>& InverseKinematicsSolver::GetFinalBoneMatrices()
@@ -161,14 +256,14 @@ namespace IHCEngine::Graphics
 		return finalBoneMatrices;
 	}
 
-	void InverseKinematicsSolver::calculateBoneTransformVQS(const SkeletalNodeData* node, Math::VQS parentVQS)
+	void InverseKinematicsSolver::calculateBoneTransformVQS(SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		// Starting from root node
 		const std::string& nodeName = node->name;
 		// Use the VQS after IK is applied
-		Math::VQS nodeVQS = node->transformation_VQS;
+		Math::VQS nodeVQS = node->localVQS;
 		// Convert bone from local space into global space
-		Math::VQS globalVQS = parentVQS * nodeVQS; 
+		Math::VQS globalVQS = parentVQS * nodeVQS;
 
 		// If the bone has a parent, its position
 		// would be the end of the parent bone segment
@@ -196,7 +291,7 @@ namespace IHCEngine::Graphics
 		}
 		for (int i = 0; i < node->childrenCount; i++)
 		{
-			calculateBoneTransformVQS(&node->children[i], globalVQS);
+			calculateBoneTransformVQS(node->children[i].get(), globalVQS);
 		}
 	}
 

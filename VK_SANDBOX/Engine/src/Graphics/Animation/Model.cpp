@@ -121,7 +121,7 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
     // process current node
     root.name = node->mName.data;
     root.transformation_Matrix = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
-    root.transformation_VQS = IHCEngine::Math::VQS::GLMMat4ToVQS(root.transformation_Matrix);
+    root.localVQS = IHCEngine::Math::VQS::GLMMat4ToVQS(root.transformation_Matrix);
     root.childrenCount = node->mNumChildren;
 
     // extract info of current node (mesh, material, bone)
@@ -136,10 +136,10 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
     // recursively process children (build hierarchy)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        root.children.push_back(SkeletalNodeData()); // copy
-        SkeletalNodeData& newNode = root.children.back(); // reference
-        processNode(node->mChildren[i], scene, newNode);
-        newNode.parent = &root;
+        auto newNode = std::make_unique<SkeletalNodeData>();
+        newNode->parent = &root;
+        processNode(node->mChildren[i], scene, *newNode); // Pass the dereferenced object.
+        root.children.push_back(std::move(newNode));
     }
 }
 std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -328,6 +328,7 @@ void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex
 }
 void IHCEngine::Graphics::Model::storeHierachyInMap(SkeletalNodeData* node)
 {
+
     if (node == nullptr)
     {
         return;
@@ -337,9 +338,9 @@ void IHCEngine::Graphics::Model::storeHierachyInMap(SkeletalNodeData* node)
     hierarchyMap[node->name] = node;
 
     // Recursively add all children to the map
-    for (SkeletalNodeData& child : node->children) 
+    for (auto& child : node->children) 
     {
-        storeHierachyInMap(&child);
+        storeHierachyInMap(child.get());
     }
 }
 #pragma endregion
@@ -352,6 +353,47 @@ std::unordered_map<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphi
 IHCEngine::Graphics::MaterialData IHCEngine::Graphics::Model::GetMaterialForMesh(std::string key)
 {
     return meshMaterialMap[key];
+}
+
+IHCEngine::Graphics::SkeletalNodeData* IHCEngine::Graphics::Model::GetNodeByName(const std::string& name)
+{
+    auto it = hierarchyMap.find(name);
+    if (it != hierarchyMap.end()) 
+    {
+        return it->second;
+    }
+    else 
+    {
+        std::cerr << "Node not found: " << name << std::endl;
+        assert(false && "Node not found");
+        return nullptr;
+    }
+}
+
+std::vector<IHCEngine::Graphics::SkeletalNodeData*> IHCEngine::Graphics::Model::GetPathFromRootToEE(
+	SkeletalNodeData* endEffector, SkeletalNodeData* root)
+{
+    std::vector<SkeletalNodeData*> path;
+
+    SkeletalNodeData* currentNode = endEffector;
+    while (currentNode != nullptr && currentNode != root)
+    {
+        path.push_back(currentNode);
+        currentNode = currentNode->parent;
+    }
+
+    if (currentNode == root) 
+    {
+        path.push_back(root);
+    }
+    else
+    {
+        std::cerr << "Path not found: " << endEffector->name <<" to "<< root->name<< std::endl;
+        assert(false);
+        path.clear();
+    }
+    std::reverse(path.begin(), path.end()); 
+    return path;
 }
 #pragma endregion
 

@@ -17,17 +17,21 @@ namespace IHCEngine::Graphics
         ~InverseKinematicsSolver();
 
         // IK functionality
-        void SetJoints(const std::vector<glm::vec3>& initialJoints);
+
+        void SetModel(Model* m);
+        void SetJoints(std::vector<SkeletalNodeData*>& initialJoints);
+        void SetEndEffector(std::string name);
+        void ConvertVQSLocalToGlobal(SkeletalNodeData* node);
+        void ConvertVQSGlobalToLocal(SkeletalNodeData* node);
         void Solve_FABRIK(glm::vec3 target);
         void Solve_CCD(glm::vec3 target);
 
         void Update();
 
-        // Model
-        void SetModel(Model* m);
+
         // Drawing
         std::vector<glm::mat4>& GetFinalBoneMatrices();
-        void calculateBoneTransformVQS(const SkeletalNodeData* node, Math::VQS parentVQS);
+        void calculateBoneTransformVQS(SkeletalNodeData* node, Math::VQS parentVQS);
 
         // Vulkan
         void SetDescriptorSets(std::vector<VkDescriptorSet> set) { descriptorSets = set; }
@@ -45,7 +49,7 @@ namespace IHCEngine::Graphics
         int MAX_ITERATIONS = 10;
         float EPSILON_DISTANCE_TO_TARGET = 0.1;
         float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.1;
-        std::vector<glm::vec3> joints;
+        std::vector<SkeletalNodeData*> joints;
         std::vector<float> distances;
         float totalDistance = 0;
 
