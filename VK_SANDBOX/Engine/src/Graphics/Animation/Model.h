@@ -51,6 +51,7 @@ namespace IHCEngine::Graphics
 		std::map<std::string, SkinningInfo> skinningInfoMap;
 		int boneCounter = 0;
 		SkeletalNodeData rootNodeOfHierachy;
+		std::map<std::string, SkeletalNodeData*> hierarchyMap; // fast lookup
 
 		// graphics manager & assetManager required to generate texture and meshes
 		void loadModel(std::string filepath);
@@ -59,6 +60,8 @@ namespace IHCEngine::Graphics
 		std::pair<std::string, MaterialData>  processMaterials(aiMesh* mesh, const aiScene* scene);
 		std::vector<IHCEngine::Graphics::IHCTexture*> loadTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 		void extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
+		void storeHierachyInMap(SkeletalNodeData* node);
+
 	};
 }
 

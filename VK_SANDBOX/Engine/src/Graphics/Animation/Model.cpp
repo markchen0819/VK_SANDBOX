@@ -79,6 +79,10 @@ void IHCEngine::Graphics::Model::loadModel(std::string filepath)
     // process ASSIMP's root node recursively
     processNode(ai_scene->mRootNode, ai_scene, rootNodeOfHierachy);
 
+    // store hierarchy to fast access for IK
+    hierarchyMap.clear();
+    storeHierachyInMap(&rootNodeOfHierachy);
+
     std::cout << "============" << std::endl;
     std::cout << "directory:" << directory << std::endl;
     std::cout << " filename:" << filename << std::endl;
@@ -132,10 +136,10 @@ void IHCEngine::Graphics::Model::processNode(aiNode* node, const aiScene* scene,
     // recursively process children (build hierarchy)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        SkeletalNodeData newNode;
+        root.children.push_back(SkeletalNodeData()); // copy
+        SkeletalNodeData& newNode = root.children.back(); // reference
         processNode(node->mChildren[i], scene, newNode);
         newNode.parent = &root;
-        root.children.push_back(newNode);
     }
 }
 std::pair<std::string, IHCEngine::Graphics::IHCMesh*> IHCEngine::Graphics::Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -320,6 +324,22 @@ void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex
                 }
             }
         }
+    }
+}
+void IHCEngine::Graphics::Model::storeHierachyInMap(SkeletalNodeData* node)
+{
+    if (node == nullptr)
+    {
+        return;
+    }
+
+    // Add the current node to the map
+    hierarchyMap[node->name] = node;
+
+    // Recursively add all children to the map
+    for (SkeletalNodeData& child : node->children) 
+    {
+        storeHierachyInMap(&child);
     }
 }
 #pragma endregion

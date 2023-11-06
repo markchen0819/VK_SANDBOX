@@ -8,6 +8,7 @@
 
 #include "IHCTexture.h"
 #include "../Animation/Animator.h"
+#include "../Animation/InverseKinematicsSolver.h"
 
 namespace IHCEngine::Graphics
 {
@@ -140,5 +141,60 @@ namespace IHCEngine::Graphics
 			skeletalDescriptorWrap->ReleaseSkeletalUBO(buffer);
 		}
 		animator->SetBuffers({});
+	}
+
+	void IHCDescriptorManager::AllocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver)
+	{
+		// check if already allocate descriptors for animator
+		if (!ikSolver->GetDescriptorSets().empty())
+		{
+			assert("Duplicated ikSolver");
+		}
+		// allocate MAX_FRAMES_IN_FLIGHT descriptorsets for 1 animator
+		std::vector<VkDescriptorSet> descriptorSetsForIK;
+		std::vector<IHCBuffer*> skeletalUBOsForIK;
+
+		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			auto targetDescriptorSet = skeletalDescriptorWrap->AllocateDescriptorSet();
+			auto targetBuffer = skeletalDescriptorWrap->GetAvailableSkeletalUBO();
+			auto bufferInfo = targetBuffer->GetDescriptorInfo();
+			skeletalDescriptorWrap->BindBuffer(0, &bufferInfo);
+			skeletalDescriptorWrap->Overwrite(targetDescriptorSet);
+			descriptorSetsForIK.push_back(targetDescriptorSet);
+			skeletalUBOsForIK.push_back(targetBuffer);
+		}
+		ikSolver->SetDescriptorSets(descriptorSetsForIK);
+		ikSolver->SetBuffers(skeletalUBOsForIK);
+	}
+	void IHCDescriptorManager::DeallocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver)
+	{
+		// All submitted commands that refer to sampler must have completed execution
+		vkDeviceWaitIdle(ihcDevice.GetDevice());
+
+		const std::vector<VkDescriptorSet>& IKDescriptorSets = ikSolver->GetDescriptorSets();
+		if (IKDescriptorSets.empty())
+		{
+			assert("Clearing a skeletal descriptor sets were not allocated, shouldnt be here ");
+		}
+		// Push back each descriptor set to the available pool 
+		for (VkDescriptorSet descriptor : IKDescriptorSets)
+		{
+			skeletalDescriptorWrap->FreeDescriptorSet(descriptor);
+		}
+		ikSolver->SetDescriptorSets({});
+
+		const std::vector<IHCBuffer*>& animatorBuffers = ikSolver->GetBuffers();
+		if (animatorBuffers.empty())
+		{
+			assert("Clearing a skeletal buffers were not allocated, shouldnt be here ");
+		}
+		// Push back each buffer  to the available pool 
+		for (IHCBuffer* buffer : animatorBuffers)
+		{
+			skeletalDescriptorWrap->ReleaseSkeletalUBO(buffer);
+		}
+		ikSolver->SetBuffers({});
+
 	}
 }

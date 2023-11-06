@@ -22,6 +22,7 @@
 #include "../../Core/Scene/Components/TextureComponent.h"
 #include "../../Core/Scene/Components/ModelComponent.h"
 #include "../../Core/Scene/Components/AnimatorComponent.h"
+#include "../../Core/Scene/Components/IKComponent.h"
 #include "../../Core/Scene/Components/PipelineComponent.h"
 #include "../../Core/Scene/Components/LineRendererComponent.h"
 
@@ -532,6 +533,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         // Has animation
         VkDescriptorSet_T* skeletalDescriptorSet;
         auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
+        auto ikComponent = gobj->GetComponent<Component::IKComponent>();
         if( animatorComponent!=nullptr && animatorComponent->HasAnimation())
         {
             // Update the animation
@@ -557,6 +559,31 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
             auto buffersforwriting = animatorComponent->GetBuffers()[frameInfo.frameIndex];
         	buffersforwriting->WriteToBuffer(&subo);
         	buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
+        }
+        else if (ikComponent != nullptr) // Has IK
+        {
+            ikComponent->Update();
+            // Link to shader
+            skeletalDescriptorSet = ikComponent->GetDescriptorSets()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                skeletalPipelineLayout,
+                2,
+                1,
+                &skeletalDescriptorSet,
+                0,
+                nullptr
+            );
+            // Write to buffer shader points to
+            subo.hasAnimation = true; // refactor in the future -> has skeletal
+            const auto& boneMatrices = ikComponent->GetFinalBoneMatrices();
+            size_t copySize = std::min(boneMatrices.size(), static_cast<size_t>(100));
+            memcpy(subo.finalBonesMatrices, boneMatrices.data(), sizeof(glm::mat4) * copySize);
+            auto buffersforwriting = ikComponent->GetBuffers()[frameInfo.frameIndex];
+            buffersforwriting->WriteToBuffer(&subo);
+            buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
         }
         else // No animation
         {
@@ -667,7 +694,8 @@ void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frame
         // Has animation
         VkDescriptorSet_T* skeletalDescriptorSet;
         auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
-        if (animatorComponent != nullptr && animatorComponent->HasAnimation())
+        auto ikComponent = gobj->GetComponent<Component::IKComponent>();
+    	if (animatorComponent != nullptr && animatorComponent->HasAnimation())
         {
             // Draw Debug Bones
             SimplePushConstantData push{};
@@ -684,6 +712,24 @@ void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frame
             );
             animatorComponent->UpdateDebugBoneBuffer(frameInfo);
             animatorComponent->DrawDebugBoneBuffer(frameInfo);
+        }
+        else if (ikComponent != nullptr) // Has IK
+        {
+            // Draw Debug Bones
+            SimplePushConstantData push{};
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                skeletalPipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
+            ikComponent->UpdateDebugBoneBuffer(frameInfo);
+            ikComponent->DrawDebugBoneBuffer(frameInfo);
         }
         else // No animation
         {
