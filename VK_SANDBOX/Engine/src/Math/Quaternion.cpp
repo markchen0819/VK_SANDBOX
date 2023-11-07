@@ -267,5 +267,50 @@ namespace IHCEngine::Math
 		}
 		return *this;
 	}
+
+	Quaternion Quaternion::FromToRotation(const glm::vec3& from, const glm::vec3& to)
+	{
+		// Normalize
+		glm::vec3 normalizedFrom = glm::normalize(from);
+		glm::vec3 normalizedTo = glm::normalize(to);
+
+		// Angle
+		float cosTheta = glm::dot(normalizedFrom, normalizedTo);
+		glm::vec3 rotationAxis;
+
+		// cosTheta is near 1, facing the same direction
+		// No rotation needed
+		if (cosTheta > 1.0f - FLT_EPSILON) 
+		{
+			return Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+		}
+
+		// cosTheta is near -1, facing opposite directions
+		if (cosTheta < -1.0f + FLT_EPSILON)
+		{
+			// We need to find a vector orthogonal to the from vector 
+			// and use as a rotation axis
+			// Try x-axis
+			rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), normalizedFrom);
+			if (glm::length(rotationAxis) < FLT_EPSILON) 
+			{   // parallel, use y-axis
+				rotationAxis = glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), normalizedFrom);
+			}
+			rotationAxis = glm::normalize(rotationAxis);
+			// axis-angle rotation <a,x,y,z> can be represented by unit quat
+			// q = [cos(a/2) , sin(a/2) <x,y,z>]
+			// Rotate 180 degrees around the orthogonal axis -> [0, 1 * <x,y,z>]
+			return Quaternion(0.0f, rotationAxis.x, rotationAxis.y, rotationAxis.z);
+		}
+
+		// Calculate directly
+		rotationAxis = glm::cross(normalizedFrom, normalizedTo);
+		// Quaternion requires half-angle
+		// acos returns the angle in radians of cos
+		float angle = glm::acos(cosTheta) / 2.0f;
+		glm::vec3 imaginary = glm::normalize(rotationAxis) * glm::sin(angle);
+
+		return Quaternion(glm::cos(angle), imaginary.x, imaginary.y, imaginary.z);
+	}
 }
 

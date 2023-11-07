@@ -25,7 +25,7 @@ namespace IHCEngine::Graphics
         void ConvertVQSGlobalToLocal(SkeletalNodeData* node);
         void Solve_FABRIK(glm::vec3 target);
         void Solve_CCD(glm::vec3 target);
-
+        void FixEEChildrens(SkeletalNodeData* node);
         void Update();
 
 
@@ -50,6 +50,8 @@ namespace IHCEngine::Graphics
         float EPSILON_DISTANCE_TO_TARGET = 0.1;
         float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.1;
         std::vector<SkeletalNodeData*> joints;
+        std::vector<Math::Quaternion> initialRotations;
+        std::vector<glm::vec3> initialDirections;
         std::vector<float> distances;
         float totalDistance = 0;
 

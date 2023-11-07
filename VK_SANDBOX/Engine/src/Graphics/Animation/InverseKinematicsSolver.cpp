@@ -62,20 +62,27 @@ namespace IHCEngine::Graphics
 
 	void InverseKinematicsSolver::SetJoints(std::vector<SkeletalNodeData*>& initialJoints)
 	{
-		// from root to E.E.
+		// From root to E.E.
 		joints = initialJoints;
         totalDistance = 0;
+		distances.clear();
+		initialRotations.clear();
+		initialDirections.clear();
 
 		for (size_t i = 1; i < joints.size(); i++) 
 		{
+			// Direction
+			glm::vec3 direction = glm::normalize(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
+			initialDirections.push_back(direction);
+
+			// Distance
             float distance = glm::length(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
 			distances.push_back(distance);
             totalDistance += distance;
-		}
 
-		// E.E to root
-		//std::reverse(distances.begin(),distances.end());
-		//std::reverse(joints.begin(), joints.end());
+			// Rotation
+			initialRotations.push_back(joints[i]->globalVQS.GetRotation());
+		}
 	}
 
 	void InverseKinematicsSolver::Solve_FABRIK(glm::vec3 target)
@@ -95,12 +102,12 @@ namespace IHCEngine::Graphics
         // Can reach
         int iteration = 0;
         float distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
-		std::vector<glm::vec3> pointsForCalculation;
 		glm::vec3 rootPos = joints.front()->globalVQS.GetTranslate();
+
         while (iteration < MAX_ITERATIONS && distanceFromEEtoTargetPos > EPSILON_DISTANCE_TO_TARGET)
         {
 
-			// Backward
+			// Backward reaching (E.E. to root)
 			joints.back()->globalVQS.SetTranslate(target);
 			for (int i = joints.size() - 2; i >= 0; --i) 
 			{
@@ -111,11 +118,9 @@ namespace IHCEngine::Graphics
 				joints[i]->globalVQS.SetTranslate(pointA);
 			}
 
-			// Keep root in place
+			// Forward reaching  (root to E.E.)
 			joints.front()->globalVQS.SetTranslate(rootPos);
-
-			// Forward
-			for (size_t i = 1; i < joints.size(); i++)
+			for (size_t i = 1; i < joints.size(); i++) 
 			{
 				glm::vec3 pointA = joints[i - 1]->globalVQS.GetTranslate();
 				glm::vec3 dir = glm::normalize(joints[i]->globalVQS.GetTranslate() - pointA);
@@ -123,42 +128,36 @@ namespace IHCEngine::Graphics
 				joints[i]->globalVQS.SetTranslate(pointB);
 			}
 
+			// Fix orientation
+			for (int i = 0; i < joints.size() - 1; ++i)
+			{
+				glm::vec3 newDir;
+				if (i != joints.size() - 2)
+				{
+					// Direction from current joint to the next joint
+					newDir = glm::normalize(joints[i + 1]->globalVQS.GetTranslate() - joints[i]->globalVQS.GetTranslate());
+				}
+				else 
+				{
+					// Direction from E.E. to target
+					newDir = glm::normalize(target - joints[i]->globalVQS.GetTranslate());
+				}
 
+				glm::vec3 initialDir = initialDirections[i];
 
-   //         // Backward reaching (E.E. to root)
-			//pointsForCalculation.push_back(target);
-   //         for (int i = joints.size() - 2; i >= 0; --i)
-   //         {
-   //             glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
-   //             glm::vec3 pointB = joints[i+1]->globalVQS.GetTranslate();
-			//	glm::vec3 pointC = pointsForCalculation[joints.size() - 2 - i];
-   //             const float distanceAB = distances[i];
-   //             glm::vec3 dirAC = glm::normalize(pointA - pointC);
-			//	glm::vec3 target = pointB + dirAC * distanceAB;
-			//	pointsForCalculation.push_back(target);
-   //         }
+				// Calculate rotation from initialDir to the new direction
+				Math::Quaternion newRotation = Math::Quaternion::FromToRotation(initialDir, newDir);
 
-			//joints.front()->globalVQS.SetTranslate(rootPos);
-			//std::reverse(pointsForCalculation.begin(), pointsForCalculation.end());
-   //         // Forward reaching  (root to E.E.)
-   //         for (size_t i = 1; i < joints.size(); i++) 
-   //         {
-   //             glm::vec3 pointA = joints[i-1]->globalVQS.GetTranslate();
-   //             glm::vec3 pointB = pointsForCalculation[i];
-			//	glm::vec3 pointC = joints[i]->globalVQS.GetTranslate();
-   //             const float distanceAC = distances[i-1];
-   //             glm::vec3 dirBA = glm::normalize(pointB - pointA);
-			//	glm::vec3 target = pointA + dirBA * distanceAC;
-			//	joints[i]->globalVQS.SetTranslate(target); // .SetTranslate(glm::vec3(-100, 100, 50));
-   //         }
-			////test
-			////joints.back()->globalVQS.SetTranslate(glm::vec3(100, 100, 2));
-   //         // Keep getting closer target
-			//auto test2 = joints.back()->globalVQS.GetTranslate();
-			//auto test = glm::length(joints.back()->globalVQS.GetTranslate() - target);
-            distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
-			pointsForCalculation.clear();
-            iteration++;
+				// Combine with initial local rotation
+				Math::Quaternion finalRotation = newRotation * initialRotations[i];
+
+				// Apply the new rotation
+				joints[i]->globalVQS.SetRotation(finalRotation);
+			}
+
+			// Continue looping
+			distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
+			iteration++;
         }
 
 	}
@@ -222,6 +221,20 @@ namespace IHCEngine::Graphics
 		//}
 	}
 
+	void InverseKinematicsSolver::FixEEChildrens(SkeletalNodeData* node)
+	{
+		// If E.E set to forearm, fingers are not moved
+		// this moves the finger
+
+		Math::VQS endEffectorGlobalVQS = node->globalVQS;
+
+		for (size_t i = 0; i < node->children.size(); ++i)
+		{
+			node->children[i]->globalVQS = endEffectorGlobalVQS * node->children[i]->localVQS;
+			FixEEChildrens(node->children[i].get());
+		}
+	}
+
 	// Apply after solving IK transforms
 	void InverseKinematicsSolver::Update()
 	{
@@ -238,9 +251,11 @@ namespace IHCEngine::Graphics
 		model = m;
 		AllocateDebugBoneBuffer();
 
-		auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
-		auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
-		//auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
+		//auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
+		//auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
+
+		auto testEE = model->GetNodeByName("mixamorig:RightHand");
+		auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
 		auto testPath = model->GetPathFromRootToEE(testEE, testRoot);
 		
 		ConvertVQSLocalToGlobal(&model->GetRootNodeOfHierarhcy());
@@ -248,6 +263,7 @@ namespace IHCEngine::Graphics
 		float scale=0.05;// welp localVQS fucked by global scale
 		// -84 152 -2.5
 		Solve_FABRIK(glm::vec3(-100, 100, 100));
+		FixEEChildrens(testEE);
 		ConvertVQSGlobalToLocal(&model->GetRootNodeOfHierarhcy());
 	}
 

@@ -39,6 +39,7 @@ namespace IHCEngine::Math
 		static Quaternion Inverse(Quaternion const& q);
 		static Quaternion Unit(Quaternion const& q);
 		Quaternion Normalize();
+		static Quaternion FromToRotation(const glm::vec3& from, const glm::vec3& to); // Creates a rotation which rotates from fromDirection to toDirection
 
 		// matrix transformations 
 		glm::mat4 GetMatrixOnLeftForMul() const;    //  matrix * rhs.vector = this * q
