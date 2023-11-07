@@ -21,6 +21,16 @@ void IHCEngine::Component::IKComponent::SetModel(Graphics::Model* m)
 	IKSolver.SetModel(m);
 }
 
+void IHCEngine::Component::IKComponent::SetRootAndEE(std::string root, std::string EE)
+{
+	IKSolver.SetRootAndEE(root, EE);
+}
+
+void IHCEngine::Component::IKComponent::SetTarget(glm::vec3 target)
+{
+	IKSolver.SetTarget(target);
+}
+
 std::vector<glm::mat4>& IHCEngine::Component::IKComponent::GetFinalBoneMatrices()
 {
 	return IKSolver.GetFinalBoneMatrices();

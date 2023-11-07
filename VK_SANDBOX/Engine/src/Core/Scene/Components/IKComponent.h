@@ -18,6 +18,9 @@ namespace IHCEngine::Component
 
 		void Update();
 		void SetModel(Graphics::Model* m);
+		void SetRootAndEE(std::string root, std::string EE);
+		void SetTarget(glm::vec3 target);
+
 		std::vector<glm::mat4>& GetFinalBoneMatrices();
 
 

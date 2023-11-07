@@ -19,13 +19,19 @@ namespace IHCEngine::Graphics
         // IK functionality
 
         void SetModel(Model* m);
+        void SetRootAndEE(std::string root, std::string EE);
+        void SetTarget(glm::vec3 target);
+
         void SetJoints(std::vector<SkeletalNodeData*>& initialJoints);
         void SetEndEffector(std::string name);
+
+
         void ConvertVQSLocalToGlobal(SkeletalNodeData* node);
         void ConvertVQSGlobalToLocal(SkeletalNodeData* node);
         void Solve_FABRIK(glm::vec3 target);
         void Solve_CCD(glm::vec3 target);
         void FixEEChildrens(SkeletalNodeData* node);
+
         void Update();
 
 
@@ -54,6 +60,10 @@ namespace IHCEngine::Graphics
         std::vector<glm::vec3> initialDirections;
         std::vector<float> distances;
         float totalDistance = 0;
+
+        SkeletalNodeData* root;
+        SkeletalNodeData* endEffector;
+        glm::vec3 target;
 
         Model* model = nullptr;
         std::vector<glm::mat4> finalBoneMatrices;

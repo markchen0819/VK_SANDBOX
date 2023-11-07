@@ -240,9 +240,13 @@ namespace IHCEngine::Graphics
 	{
 		debugBoneVertices.clear();
 
-		//Solve;
-		//Testing
+		// Solve
+		//target = glm::vec3(-100, 100, 100);
+		Solve_FABRIK(target);// glm::vec3(-100, 100, 100)); // -84 152 -2.5
+		FixEEChildrens(endEffector);
+		ConvertVQSGlobalToLocal(&model->GetRootNodeOfHierarhcy());
 
+		// Update finalBoneMatrices
 		calculateBoneTransformVQS(&model->GetRootNodeOfHierarhcy(), Math::VQS());
 	}
 
@@ -250,21 +254,22 @@ namespace IHCEngine::Graphics
 	{
 		model = m;
 		AllocateDebugBoneBuffer();
-
-		//auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
-		//auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
-
-		auto testEE = model->GetNodeByName("mixamorig:RightHand");
-		auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
-		auto testPath = model->GetPathFromRootToEE(testEE, testRoot);
-		
 		ConvertVQSLocalToGlobal(&model->GetRootNodeOfHierarhcy());
-		SetJoints(testPath);
-		float scale=0.05;// welp localVQS fucked by global scale
-		// -84 152 -2.5
-		Solve_FABRIK(glm::vec3(-100, 100, 100));
-		FixEEChildrens(testEE);
-		ConvertVQSGlobalToLocal(&model->GetRootNodeOfHierarhcy());
+	}
+
+	void InverseKinematicsSolver::SetRootAndEE(std::string r, std::string ee)
+	{
+		root = model->GetNodeByName(r);
+		endEffector= model->GetNodeByName(ee);
+		auto path = model->GetPathFromRootToEE(endEffector, root);
+
+		// Calculate globalVQS as IKSolver works in world space
+		SetJoints(path);
+	}
+
+	void InverseKinematicsSolver::SetTarget(glm::vec3 target)
+	{
+		this->target = target;
 	}
 
 	std::vector<glm::mat4>& InverseKinematicsSolver::GetFinalBoneMatrices()

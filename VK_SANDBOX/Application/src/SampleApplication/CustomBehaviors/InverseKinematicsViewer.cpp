@@ -3,6 +3,7 @@
 #include "../../../../Engine/src/Core/Scene/GameObject.h"
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../../../../Engine/src/Core/Scene/Scene.h"
+#include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
@@ -32,12 +33,28 @@ namespace SampleApplication
 	{
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 		movingGobj = sceneManager->GetActiveScene()->GetGameObjectByName("targetGobj");
+        IKGobj = sceneManager->GetActiveScene()->GetGameObjectByName("IKGobj");
+        ikComponent = IKGobj->GetComponent<IHCEngine::Component::IKComponent>();
+
+        //auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
+		//auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
+        //ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHandIndex4_end");
+        ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHand");
+
+        //auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
+		//auto testPath = model->GetPathFromRootToEE(testEE, testRoot);
+		//SetJoints(testPath);
+		//float scale = 0.05;// welp localVQS fucked by global scale
 	}
 
 	void InverseKinematicsViewer::Start() {}
 
 	void InverseKinematicsViewer::Update()
 	{
+        float scale = IKGobj->transform.GetScale().x;
+        glm::vec3 scaledPosition = movingGobj->transform.GetPosition() / glm::vec3(scale, scale, scale);
+        ikComponent->SetTarget(scaledPosition);
+
 		TargetObjectInputs();
 	}
 
@@ -55,22 +72,22 @@ namespace SampleApplication
         auto forward = glm::vec3(0, 0, 1);
 
         // Translate
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_W))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_UP))//GLFW_KEY_W))
         {
             auto p = -1.0f * forward * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_S))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_DOWN))//GLFW_KEY_S))
         {
             auto p = forward * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_A))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_LEFT))//GLFW_KEY_A))
         {
             auto p = -1.0f * right * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_D))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_RIGHT))//GLFW_KEY_D))
         {
             auto p = right * movementSpeed * dt;
             movingGobj->transform.Translate(p);

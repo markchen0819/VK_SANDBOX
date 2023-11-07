@@ -2,6 +2,11 @@
 
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
 
+namespace IHCEngine::Component
+{
+	class IKComponent;
+}
+
 namespace SampleApplication
 {
     class InverseKinematicsViewer : public IHCEngine::Component::CustomBehavior
@@ -24,6 +29,8 @@ namespace SampleApplication
 
         // Target Gobj
         IHCEngine::Core::GameObject* movingGobj = nullptr;
+        IHCEngine::Core::GameObject* IKGobj = nullptr;
+        IHCEngine::Component::IKComponent* ikComponent = nullptr;
         float movementSpeed = 10;
         void TargetObjectInputs();
 
