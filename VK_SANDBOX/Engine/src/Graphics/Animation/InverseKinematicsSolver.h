@@ -16,24 +16,16 @@ namespace IHCEngine::Graphics
         InverseKinematicsSolver();
         ~InverseKinematicsSolver();
 
-        // IK functionality
-
+        //// IK functionality
         void SetModel(Model* m);
         void SetRootAndEE(std::string root, std::string EE);
         void SetTarget(glm::vec3 target);
 
+        // Global/local space
+        void SetGameObjectVQS(Math::VQS vqs);
+
         void SetJoints(std::vector<SkeletalNodeData*>& initialJoints);
-        void SetEndEffector(std::string name);
-
-
-        void ConvertVQSLocalToGlobal(SkeletalNodeData* node);
-        void ConvertVQSGlobalToLocal(SkeletalNodeData* node);
-        void Solve_FABRIK(glm::vec3 target);
-        void Solve_CCD(glm::vec3 target);
-        void FixEEChildrens(SkeletalNodeData* node);
-
         void Update();
-
 
         // Drawing
         std::vector<glm::mat4>& GetFinalBoneMatrices();
@@ -51,30 +43,42 @@ namespace IHCEngine::Graphics
 
     private:
 
-        // IK
-        int MAX_ITERATIONS = 10;
-        float EPSILON_DISTANCE_TO_TARGET = 0.1;
-        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.1;
-        std::vector<SkeletalNodeData*> joints;
-        std::vector<Math::Quaternion> initialRotations;
-        std::vector<glm::vec3> initialDirections;
-        std::vector<float> distances;
-        float totalDistance = 0;
+        //// IK functionality
+        Model* model = nullptr;
 
         SkeletalNodeData* root;
         SkeletalNodeData* endEffector;
+        std::vector<SkeletalNodeData*> joints;
+        std::vector<Math::Quaternion> initialRotations;
+        std::vector<glm::vec3> initialDirections;
+
         glm::vec3 target;
 
-        Model* model = nullptr;
+        // FABRIK calculation
+        int MAX_ITERATIONS = 10;
+        float EPSILON_DISTANCE_TO_TARGET = 0.1;
+        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.1;
+        std::vector<float> distances;
+        float totalDistance = 0;
+        void Solve_FABRIK(glm::vec3 target);
+        void Solve_CCD(glm::vec3 target);
+        void FixEEChildrens(SkeletalNodeData* node);
+
+        // Global/local space
+        Math::VQS gameObjectVQS;
+        void CalculateGlobalVQS(SkeletalNodeData* node);
+        void CalculateLocalVQS(SkeletalNodeData* node);
+
+
+        // Rendering
         std::vector<glm::mat4> finalBoneMatrices;
-        void applyIKResultToBoneTransformVQS();
 
-
+        // Vulkan
         void vulkanResourceSetup();
         void vulkanResourceShutDown();
-        // Vulkan
         std::vector<VkDescriptorSet> descriptorSets;
         std::vector<IHCBuffer*> skeletalBuffers;
+
         // Debug
         std::vector<Vertex> debugBoneVertices;
         std::vector<std::unique_ptr<IHCBuffer>> debugBoneBuffers;

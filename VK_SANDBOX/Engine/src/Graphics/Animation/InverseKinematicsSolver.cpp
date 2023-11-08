@@ -19,72 +19,117 @@ namespace IHCEngine::Graphics
 		vulkanResourceShutDown();
 	}
 
-	void InverseKinematicsSolver::SetEndEffector(std::string name)
+#pragma region Fundamental setup & update
+	void InverseKinematicsSolver::SetModel(Model* m)
 	{
+		model = m;
+		AllocateDebugBoneBuffer();
+	}
+	void InverseKinematicsSolver::SetGameObjectVQS(Math::VQS vqs)
+	{
+		gameObjectVQS = vqs;
+		CalculateGlobalVQS(&model->GetRootNodeOfHierarhcy());
 	}
 
-	void InverseKinematicsSolver::ConvertVQSLocalToGlobal(SkeletalNodeData* node)
+	void InverseKinematicsSolver::Update()
 	{
-		if (node->parent!= nullptr)
+		debugBoneVertices.clear();
+
+		// Solve
+		//target = glm::vec3(-100, 100, 100);
+		Solve_FABRIK(target);// glm::vec3(-100, 100, 100)); // -84 152 -2.5
+		FixEEChildrens(endEffector);
+		CalculateLocalVQS(&model->GetRootNodeOfHierarhcy());
+
+		// Update finalBoneMatrices
+		calculateBoneTransformVQS(&model->GetRootNodeOfHierarhcy(), Math::VQS());
+	}
+#pragma endregion
+
+#pragma region VQS global and local
+
+	void InverseKinematicsSolver::CalculateGlobalVQS(SkeletalNodeData* node)
+	{
+		if (node->parent != nullptr)
 		{
 			const Math::VQS& parentVQS = node->parent->globalVQS;
-
 			node->globalVQS = parentVQS * node->localVQS;
 		}
 		else
 		{
-			node->globalVQS = node->localVQS;
+			// root
+			node->globalVQS = gameObjectVQS * node->localVQS;
 		}
 
 		for (unsigned int i = 0; i < node->children.size(); ++i)
 		{
-			ConvertVQSLocalToGlobal(node->children[i].get());
+			CalculateGlobalVQS(node->children[i].get());
 		}
 	}
 
-	void InverseKinematicsSolver::ConvertVQSGlobalToLocal(SkeletalNodeData* node)
+	void InverseKinematicsSolver::CalculateLocalVQS(SkeletalNodeData* node)
 	{
-		if (node->parent != nullptr) 
+		if (node->parent != nullptr)
 		{
 			Math::VQS inverseParentVQS = node->parent->globalVQS.Inverse();
 			node->localVQS = inverseParentVQS * node->globalVQS;
 		}
-		else 
+		else
 		{
-			node->localVQS = node->globalVQS;
+			// root
+			node->localVQS = gameObjectVQS.Inverse() * node->globalVQS;
 		}
-		for (unsigned int i = 0; i < node->children.size(); ++i) 
+		for (unsigned int i = 0; i < node->children.size(); ++i)
 		{
-			ConvertVQSGlobalToLocal(node->children[i].get());
+			CalculateLocalVQS(node->children[i].get());
 		}
 	}
+#pragma endregion
 
+#pragma region IK Setup
+	// Make sure global VQS is setup first before these steps
+	void InverseKinematicsSolver::SetTarget(glm::vec3 target)
+	{
+		this->target = target;
+	}
+	void InverseKinematicsSolver::SetRootAndEE(std::string r, std::string ee)
+	{
+		root = model->GetNodeByName(r);
+		endEffector = model->GetNodeByName(ee);
+		auto manuipulator = model->GetPathFromRootToEE(endEffector, root);
 
+		SetJoints(manuipulator);
+	}
 	void InverseKinematicsSolver::SetJoints(std::vector<SkeletalNodeData*>& initialJoints)
 	{
+		// Remember to get globalVQS calculated before this step
+		// as IKSolver works in world space
+
 		// From root to E.E.
 		joints = initialJoints;
-        totalDistance = 0;
+		totalDistance = 0;
 		distances.clear();
 		initialRotations.clear();
 		initialDirections.clear();
 
-		for (size_t i = 1; i < joints.size(); i++) 
+		for (size_t i = 1; i < joints.size(); i++)
 		{
 			// Direction
 			glm::vec3 direction = glm::normalize(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
 			initialDirections.push_back(direction);
 
 			// Distance
-            float distance = glm::length(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
+			float distance = glm::length(joints[i]->globalVQS.GetTranslate() - joints[i - 1]->globalVQS.GetTranslate());
 			distances.push_back(distance);
-            totalDistance += distance;
+			totalDistance += distance;
 
 			// Rotation
 			initialRotations.push_back(joints[i]->globalVQS.GetRotation());
 		}
 	}
+#pragma endregion
 
+#pragma region IK Solver Logic
 	void InverseKinematicsSolver::Solve_FABRIK(glm::vec3 target)
 	{
         // Reference
@@ -161,7 +206,6 @@ namespace IHCEngine::Graphics
         }
 
 	}
-
 	void InverseKinematicsSolver::Solve_CCD(glm::vec3 target)
 	{
 		//// Local space to world space
@@ -220,63 +264,43 @@ namespace IHCEngine::Graphics
 		//	}
 		//}
 	}
-
 	void InverseKinematicsSolver::FixEEChildrens(SkeletalNodeData* node)
 	{
-		// If E.E set to forearm, fingers are not moved
-		// this moves the finger
+		if (node == nullptr)
+		{
+			return;
+		}
 
-		Math::VQS endEffectorGlobalVQS = node->globalVQS;
-
+		// Assuming each node's localVQS is already set relative to its parent
+		// and that the parent's globalVQS is correct, calculate this node's globalVQS
+		if (node->parent != nullptr)
+		{ // If there is a parent, we update based on the parent's globalVQS
+			node->globalVQS = node->parent->globalVQS * node->localVQS;
+		}
+		// Recursively update the global transform for all children.
 		for (size_t i = 0; i < node->children.size(); ++i)
 		{
-			node->children[i]->globalVQS = endEffectorGlobalVQS * node->children[i]->localVQS;
 			FixEEChildrens(node->children[i].get());
 		}
+		
+		//// If E.E set to forearm, fingers are not moved
+		//// this moves the finger
+
+		//Math::VQS endEffectorGlobalVQS = node->globalVQS;
+
+		//for (size_t i = 0; i < node->children.size(); ++i)
+		//{
+		//	node->children[i]->globalVQS = endEffectorGlobalVQS * node->children[i]->localVQS;
+		//	FixEEChildrens(node->children[i].get());
+		//}
 	}
+#pragma endregion
 
-	// Apply after solving IK transforms
-	void InverseKinematicsSolver::Update()
-	{
-		debugBoneVertices.clear();
-
-		// Solve
-		//target = glm::vec3(-100, 100, 100);
-		Solve_FABRIK(target);// glm::vec3(-100, 100, 100)); // -84 152 -2.5
-		FixEEChildrens(endEffector);
-		ConvertVQSGlobalToLocal(&model->GetRootNodeOfHierarhcy());
-
-		// Update finalBoneMatrices
-		calculateBoneTransformVQS(&model->GetRootNodeOfHierarhcy(), Math::VQS());
-	}
-
-	void InverseKinematicsSolver::SetModel(Model* m)
-	{
-		model = m;
-		AllocateDebugBoneBuffer();
-		ConvertVQSLocalToGlobal(&model->GetRootNodeOfHierarhcy());
-	}
-
-	void InverseKinematicsSolver::SetRootAndEE(std::string r, std::string ee)
-	{
-		root = model->GetNodeByName(r);
-		endEffector= model->GetNodeByName(ee);
-		auto path = model->GetPathFromRootToEE(endEffector, root);
-
-		// Calculate globalVQS as IKSolver works in world space
-		SetJoints(path);
-	}
-
-	void InverseKinematicsSolver::SetTarget(glm::vec3 target)
-	{
-		this->target = target;
-	}
-
+#pragma region Render IK result
 	std::vector<glm::mat4>& InverseKinematicsSolver::GetFinalBoneMatrices()
 	{
 		return finalBoneMatrices;
 	}
-
 	void InverseKinematicsSolver::calculateBoneTransformVQS(SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		// Starting from root node
@@ -315,6 +339,7 @@ namespace IHCEngine::Graphics
 			calculateBoneTransformVQS(node->children[i].get(), globalVQS);
 		}
 	}
+#pragma endregion
 
 #pragma region Vulkan resources
 	void InverseKinematicsSolver::vulkanResourceSetup()
@@ -376,6 +401,5 @@ namespace IHCEngine::Graphics
 		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
 	}
 #pragma endregion
-
 
 }

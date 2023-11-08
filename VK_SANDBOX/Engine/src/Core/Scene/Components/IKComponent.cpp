@@ -21,6 +21,11 @@ void IHCEngine::Component::IKComponent::SetModel(Graphics::Model* m)
 	IKSolver.SetModel(m);
 }
 
+void IHCEngine::Component::IKComponent::SetGameObjectVQS(Math::VQS vqs)
+{
+	IKSolver.SetGameObjectVQS(vqs);
+}
+
 void IHCEngine::Component::IKComponent::SetRootAndEE(std::string root, std::string EE)
 {
 	IKSolver.SetRootAndEE(root, EE);
