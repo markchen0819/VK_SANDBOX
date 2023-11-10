@@ -47,8 +47,8 @@ namespace SampleApplication
 
         //auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
 		//auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
-        //ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHandIndex4_end");
-        //ikComponent->SetRootAndEE("mixamorig:Spine", "mixamorig:RightHand"); // after constraints
+        ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHandIndex4_end");
+       // ikComponent->SetRootAndEE("mixamorig:Spine", "mixamorig:RightHand"); // after constraints
 		//ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHand");
 
         //auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");

@@ -35,9 +35,10 @@ namespace IHCEngine::Graphics
 	{
 		debugBoneVertices.clear();
 
+		if (joints.size() == 0) return;
+
 		// Solve
-		//target = glm::vec3(-100, 100, 100);
-		Solve_FABRIK(target);// glm::vec3(-100, 100, 100)); // -84 152 -2.5
+		Solve_FABRIK(target);
 		FixEEChildrens(endEffector);
 		CalculateLocalVQS(&model->GetRootNodeOfHierarhcy());
 
@@ -84,6 +85,8 @@ namespace IHCEngine::Graphics
 			CalculateLocalVQS(node->children[i].get());
 		}
 	}
+
+
 #pragma endregion
 
 #pragma region IK Setup
@@ -127,6 +130,16 @@ namespace IHCEngine::Graphics
 			initialRotations.push_back(joints[i]->globalVQS.GetRotation());
 		}
 	}
+
+
+#pragma endregion
+
+#pragma region Joint Constraints
+	//void InverseKinematicsSolver::SetConstraints(std::vector<JointConstraint>& jointConstraints)
+	//{
+	//	this->jointConstraints = jointConstraints;
+	//}
+	
 #pragma endregion
 
 #pragma region IK Solver Logic
@@ -159,8 +172,8 @@ namespace IHCEngine::Graphics
 				glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
 				glm::vec3 pointB = joints[i + 1]->globalVQS.GetTranslate();
 				glm::vec3 dir = glm::normalize(pointA - pointB);
-				pointA = pointB + dir * distances[i];
-				joints[i]->globalVQS.SetTranslate(pointA);
+				pointA = pointB + dir * distances[i]; // no constraints
+				joints[i]->globalVQS.SetTranslate(pointA); // no constraints
 			}
 
 			// Forward reaching  (root to E.E.)
@@ -169,11 +182,11 @@ namespace IHCEngine::Graphics
 			{
 				glm::vec3 pointA = joints[i - 1]->globalVQS.GetTranslate();
 				glm::vec3 dir = glm::normalize(joints[i]->globalVQS.GetTranslate() - pointA);
-				glm::vec3 pointB = pointA + dir * distances[i - 1];
-				joints[i]->globalVQS.SetTranslate(pointB);
+				 glm::vec3 pointB = pointA + dir * distances[i - 1]; // no constraints
+				 joints[i]->globalVQS.SetTranslate(pointB); // no constraints
 			}
 
-			// Fix orientation
+			// Fix orientation 
 			for (int i = 0; i < joints.size() - 1; ++i)
 			{
 				glm::vec3 newDir;
@@ -200,81 +213,29 @@ namespace IHCEngine::Graphics
 				joints[i]->globalVQS.SetRotation(finalRotation);
 			}
 
+			// Apply the entire hierachy
+			PropagateIKResultToEntireHierarchy(joints[0]);
+
 			// Continue looping
 			distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
 			iteration++;
         }
 
 	}
-	void InverseKinematicsSolver::Solve_CCD(glm::vec3 target)
-	{
-		//// Local space to world space
-		//skeleton[1]->MoveAllToWorldSpace();
-
-		//// Get the node before the last one
-		//// Last one is the end effector
-		//SkeletonNode* endEffector = skeleton[skeleton.size() - 1];
-
-		//// End effector position
-		//vec3 Pc = endEffector->globalVQS.translate;
-		//// Target position
-		//vec3 Pd = target->Position();
-
-		//// will be used inside the loop
-		//// Vck = vector from k'th joint to Pc
-		//// Vdk = vector from k'th joint to Pd
-		//vec3 Vck, Vdk;
-		//vec3 PV;
-		//while (glm::distance(Pc, Pd) > EPSILON_DISTANCE_TO_TARGET)
-		//{ 
-		//	PV = Pc;
-		//	for (unsigned int i = skeleton.size() - 2; i > 0; --i) 
-		//	{
-		//		SkeletonNode* currentJoint = skeleton[i];
-		//		vec3 currentJointPosition = currentJoint->globalVQS.translate;
-
-		//		// Set vectors from k'th joint
-		//		Vck = glm::normalize(Pc - currentJointPosition);
-		//		Vdk = glm::normalize(Pd - currentJointPosition);
-
-		//		float cosAngle = glm::dot(Vdk, Vck);
-		//		if (cosAngle < 0.999999f) 
-		//		{    //which mean we rotated a little bit
-		//			// Calculate angle and axis
-		//			float angle = acosf(cosAngle);
-		//			glm::vec3 axis = glm::cross(Vck, Vdk);
-		//			// Unit axis
-		//			axis = glm::normalize(axis);
-		//			// Create the quaternion to rotate the joint
-		//			Quaternion rotator(axis, angle);
-		//			// Update local rotation of the current joint
-		//			Quaternion& originalRotation = currentJoint->localVQS.rotate;
-		//			originalRotation = rotator * originalRotation;
-		//			// Update skeleton's world coordinates starting from this
-		//			currentJoint->MoveAllToWorldSpace();
-
-		//			// Update Pc - end effector is updated when the world space is recalculated
-		//			Pc = endEffector->globalVQS.translate;
-		//		}
-		//	}
-
-		//	if (glm::distance(Pc, PV) < EPSILON_DISTANCE_FOR_END_EFFECTOR)
-		//	{
-		//		return;
-		//	}
-		//}
-	}
 	void InverseKinematicsSolver::FixEEChildrens(SkeletalNodeData* node)
 	{
+		// If E.E set to forearm, fingers are not moved
+        // this moves the finger
+
 		if (node == nullptr)
 		{
 			return;
 		}
-
 		// Assuming each node's localVQS is already set relative to its parent
 		// and that the parent's globalVQS is correct, calculate this node's globalVQS
 		if (node->parent != nullptr)
-		{ // If there is a parent, we update based on the parent's globalVQS
+		{
+			// If there is a parent, we update based on the parent's globalVQS
 			node->globalVQS = node->parent->globalVQS * node->localVQS;
 		}
 		// Recursively update the global transform for all children.
@@ -282,17 +243,6 @@ namespace IHCEngine::Graphics
 		{
 			FixEEChildrens(node->children[i].get());
 		}
-		
-		//// If E.E set to forearm, fingers are not moved
-		//// this moves the finger
-
-		//Math::VQS endEffectorGlobalVQS = node->globalVQS;
-
-		//for (size_t i = 0; i < node->children.size(); ++i)
-		//{
-		//	node->children[i]->globalVQS = endEffectorGlobalVQS * node->children[i]->localVQS;
-		//	FixEEChildrens(node->children[i].get());
-		//}
 	}
 #pragma endregion
 
@@ -399,6 +349,33 @@ namespace IHCEngine::Graphics
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
 		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
+	}
+
+	void InverseKinematicsSolver::PropagateIKResultToEntireHierarchy(SkeletalNodeData* node)
+	{
+		bool isPartOfManipulator = false;
+		for (size_t i = 0; i < joints.size(); ++i)
+		{
+			if (node == joints[i])
+			{
+				isPartOfManipulator = true;
+				break;
+			}
+		}
+
+		if(isPartOfManipulator)
+		{
+			// We don't update it as this is our result
+			// just applying result to unaffected ones
+		}
+		else
+		{
+			node->globalVQS = node->parent->globalVQS * node->localVQS;
+		}
+		for (size_t i = 0; i < node->children.size(); ++i)
+		{
+			PropagateIKResultToEntireHierarchy(node->children[i].get());
+		}
 	}
 #pragma endregion
 

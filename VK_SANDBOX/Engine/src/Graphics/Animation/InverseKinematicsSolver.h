@@ -5,6 +5,7 @@
 namespace IHCEngine::Graphics
 {
 	struct SkeletalNodeData;
+    struct JointConstraint;
 	class IHCBuffer;
 	struct FrameInfo;
 	class Model;
@@ -25,6 +26,7 @@ namespace IHCEngine::Graphics
         void SetGameObjectVQS(Math::VQS vqs);
 
         void SetJoints(std::vector<SkeletalNodeData*>& initialJoints);
+        void SetConstraints(std::vector<JointConstraint>& jointConstraints);
         void Update();
 
         // Drawing
@@ -43,6 +45,7 @@ namespace IHCEngine::Graphics
 
     private:
 
+        void PropagateIKResultToEntireHierarchy(SkeletalNodeData* node);
         //// IK functionality
         Model* model = nullptr;
 
@@ -57,7 +60,7 @@ namespace IHCEngine::Graphics
         // FABRIK calculation
         int MAX_ITERATIONS = 10;
         float EPSILON_DISTANCE_TO_TARGET = 0.1;
-        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.1;
+        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.2;
         std::vector<float> distances;
         float totalDistance = 0;
         void Solve_FABRIK(glm::vec3 target);
@@ -69,6 +72,7 @@ namespace IHCEngine::Graphics
         void CalculateGlobalVQS(SkeletalNodeData* node);
         void CalculateLocalVQS(SkeletalNodeData* node);
 
+        // Joint Constraints
 
         // Rendering
         std::vector<glm::mat4> finalBoneMatrices;
