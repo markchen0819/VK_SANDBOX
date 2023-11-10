@@ -35,11 +35,11 @@ namespace IHCEngine::Graphics
 	{
 		debugBoneVertices.clear();
 
-		if (joints.size() == 0) return;
+		if (joints.size() == 0) return; // No IKChain set
 
 		// Solve
 		Solve_FABRIK(target);
-		FixEEChildrens(endEffector);
+
 		CalculateLocalVQS(&model->GetRootNodeOfHierarhcy());
 
 		// Update finalBoneMatrices
@@ -101,9 +101,9 @@ namespace IHCEngine::Graphics
 		endEffector = model->GetNodeByName(ee);
 		auto manuipulator = model->GetPathFromRootToEE(endEffector, root);
 
-		SetJoints(manuipulator);
+		setJoints(manuipulator);
 	}
-	void InverseKinematicsSolver::SetJoints(std::vector<SkeletalNodeData*>& initialJoints)
+	void InverseKinematicsSolver::setJoints(std::vector<SkeletalNodeData*>& initialJoints)
 	{
 		// Remember to get globalVQS calculated before this step
 		// as IKSolver works in world space
@@ -148,23 +148,19 @@ namespace IHCEngine::Graphics
         // Reference
         // https://youtu.be/UNoX65PRehA?si=qRPyM7tonfIDzYfX
 
-        // Cannot reach, too far away
+        // Cannot reach, too far away -> adjust target to be reachable on the tangent
         float distanceFromRootToTarget = glm::length(target - joints[0]->globalVQS.GetTranslate());
         if(distanceFromRootToTarget > totalDistance)
         {
             glm::vec3 dir = glm::normalize(target - joints[0]->globalVQS.GetTranslate());
             target = joints[0]->globalVQS.GetTranslate() + dir * totalDistance;
-            // straight line
         }
-
         // Can reach
         int iteration = 0;
         float distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
 		glm::vec3 rootPos = joints.front()->globalVQS.GetTranslate();
-
         while (iteration < MAX_ITERATIONS && distanceFromEEtoTargetPos > EPSILON_DISTANCE_TO_TARGET)
         {
-
 			// Backward reaching (E.E. to root)
 			joints.back()->globalVQS.SetTranslate(target);
 			for (int i = joints.size() - 2; i >= 0; --i) 
@@ -172,8 +168,8 @@ namespace IHCEngine::Graphics
 				glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
 				glm::vec3 pointB = joints[i + 1]->globalVQS.GetTranslate();
 				glm::vec3 dir = glm::normalize(pointA - pointB);
-				pointA = pointB + dir * distances[i]; // no constraints
-				joints[i]->globalVQS.SetTranslate(pointA); // no constraints
+				pointA = pointB + dir * distances[i]; 
+				joints[i]->globalVQS.SetTranslate(pointA); 
 			}
 
 			// Forward reaching  (root to E.E.)
@@ -182,8 +178,8 @@ namespace IHCEngine::Graphics
 			{
 				glm::vec3 pointA = joints[i - 1]->globalVQS.GetTranslate();
 				glm::vec3 dir = glm::normalize(joints[i]->globalVQS.GetTranslate() - pointA);
-				 glm::vec3 pointB = pointA + dir * distances[i - 1]; // no constraints
-				 joints[i]->globalVQS.SetTranslate(pointB); // no constraints
+				 glm::vec3 pointB = pointA + dir * distances[i - 1]; 
+				 joints[i]->globalVQS.SetTranslate(pointB); 
 			}
 
 			// Fix orientation 
@@ -200,29 +196,26 @@ namespace IHCEngine::Graphics
 					// Direction from E.E. to target
 					newDir = glm::normalize(target - joints[i]->globalVQS.GetTranslate());
 				}
-
 				glm::vec3 initialDir = initialDirections[i];
-
-				// Calculate rotation from initialDir to the new direction
+				// Calculate rotation from initialDir to the new direction (in global space)
 				Math::Quaternion newRotation = Math::Quaternion::FromToRotation(initialDir, newDir);
-
-				// Combine with initial local rotation
+				// Combine with initial rotation
 				Math::Quaternion finalRotation = newRotation * initialRotations[i];
-
 				// Apply the new rotation
 				joints[i]->globalVQS.SetRotation(finalRotation);
 			}
 
-			// Apply the entire hierachy
-			PropagateIKResultToEntireHierarchy(joints[0]);
+			// Propagate hierarchy affected by IKChain root
+			propagateIKResultToAffectedHierarchy(joints[0]);
 
 			// Continue looping
 			distanceFromEEtoTargetPos = glm::length(joints.back()->globalVQS.GetTranslate() - target);
 			iteration++;
         }
-
+		// Propagate hierarchy affected by IKChain E.E.
+		propagateEEHierarchy(endEffector);
 	}
-	void InverseKinematicsSolver::FixEEChildrens(SkeletalNodeData* node)
+	void InverseKinematicsSolver::propagateEEHierarchy(SkeletalNodeData* node)
 	{
 		// If E.E set to forearm, fingers are not moved
         // this moves the finger
@@ -241,7 +234,7 @@ namespace IHCEngine::Graphics
 		// Recursively update the global transform for all children.
 		for (size_t i = 0; i < node->children.size(); ++i)
 		{
-			FixEEChildrens(node->children[i].get());
+			propagateEEHierarchy(node->children[i].get());
 		}
 	}
 #pragma endregion
@@ -351,7 +344,7 @@ namespace IHCEngine::Graphics
 		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
 	}
 
-	void InverseKinematicsSolver::PropagateIKResultToEntireHierarchy(SkeletalNodeData* node)
+	void InverseKinematicsSolver::propagateIKResultToAffectedHierarchy(SkeletalNodeData* node)
 	{
 		bool isPartOfManipulator = false;
 		for (size_t i = 0; i < joints.size(); ++i)
@@ -374,7 +367,7 @@ namespace IHCEngine::Graphics
 		}
 		for (size_t i = 0; i < node->children.size(); ++i)
 		{
-			PropagateIKResultToEntireHierarchy(node->children[i].get());
+			propagateIKResultToAffectedHierarchy(node->children[i].get());
 		}
 	}
 #pragma endregion

@@ -43,18 +43,8 @@ namespace SampleApplication
         auto gobjVQS = IHCEngine::Math::VQS(pos, rot, scale.x);
         ikComponent->SetGameObjectVQS(gobjVQS);
 
-
-
-        //auto testEE = model->GetNodeByName("mixamorig:RightHandIndex4_end");
-		//auto testRoot = model->GetNodeByName("mixamorig:RightForeArm");
+        //ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHand");
         ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHandIndex4_end");
-       // ikComponent->SetRootAndEE("mixamorig:Spine", "mixamorig:RightHand"); // after constraints
-		//ikComponent->SetRootAndEE("mixamorig:RightShoulder", "mixamorig:RightHand");
-
-        //auto testRoot = model->GetNodeByName("mixamorig:RightShoulder");
-		//auto testPath = model->GetPathFromRootToEE(testEE, testRoot);
-		//SetJoints(testPath);
-		//float scale = 0.05;// welp localVQS fucked by global scale
 	}
 
 	void InverseKinematicsViewer::Start() {}
@@ -69,9 +59,6 @@ namespace SampleApplication
 
 
         ikComponent->SetTarget(movingGobj->transform.GetPosition());
-        //glm::vec3 scaledPosition = movingGobj->transform.GetPosition() / glm::vec3(scale, scale, scale);
-        //ikComponent->SetTarget(scaledPosition);
-
 		TargetObjectInputs();
 	}
 
