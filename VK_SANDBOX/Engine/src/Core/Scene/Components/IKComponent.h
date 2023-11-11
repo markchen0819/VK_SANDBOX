@@ -23,8 +23,9 @@ namespace IHCEngine::Component
 		void SetRootAndEE(std::string root, std::string EE);
 		void SetTarget(glm::vec3 target);
 
-		std::vector<glm::mat4>& GetFinalBoneMatrices();
+		float GetTotalDistance() const;
 
+		std::vector<glm::mat4>& GetFinalBoneMatrices();
 
 		// Vulkan
 		std::vector<VkDescriptorSet>& GetDescriptorSets();

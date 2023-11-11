@@ -3,6 +3,8 @@
 #include "../../Locator/GraphicsManagerLocator.h"
 #include "../../Engine/src/Graphics/VKWraps/IHCBuffer.h"
 #include "../../Engine/src/Graphics/VKWraps/IHCDevice.h"
+#include "../../Engine/src/Graphics/Animation/Animation.h"
+
 
 IHCEngine::Component::AnimatorComponent::AnimatorComponent()
 	:Component(ComponentType::Animator)
@@ -72,6 +74,12 @@ std::vector<VkDescriptorSet>& IHCEngine::Component::AnimatorComponent::GetDescri
 std::vector<IHCEngine::Graphics::IHCBuffer*>& IHCEngine::Component::AnimatorComponent::GetBuffers()
 {
 	return animator.GetBuffers();
+}
+
+void IHCEngine::Component::AnimatorComponent::OverwriteAnimationLocalVQStoModelLocalVQS()
+{
+	auto& root = animator.GetCurrentAnimation()->GetRootNodeOfHierarhcy();
+	animator.OverwriteAnimationLocalVQStoModelLocalVQS(&root);
 }
 
 void IHCEngine::Component::AnimatorComponent::AllocateDebugBoneBuffer()

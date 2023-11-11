@@ -18,6 +18,8 @@ namespace IHCEngine::Graphics
 
         void Update();
 
+        float GetTotalDistance() const { return totalDistance; }
+
         //// IK functionality
         void SetModel(Model* m);
 

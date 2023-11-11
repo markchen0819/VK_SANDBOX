@@ -36,6 +36,11 @@ void IHCEngine::Component::IKComponent::SetTarget(glm::vec3 target)
 	IKSolver.SetTarget(target);
 }
 
+float IHCEngine::Component::IKComponent::GetTotalDistance() const
+{
+	return IKSolver.GetTotalDistance();
+}
+
 std::vector<glm::mat4>& IHCEngine::Component::IKComponent::GetFinalBoneMatrices()
 {
 	return IKSolver.GetFinalBoneMatrices();

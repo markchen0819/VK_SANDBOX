@@ -32,13 +32,10 @@ void SampleApplication::InverseKinematicsScene::Load()
 	// IK
 	auto IKModel = graphicsAssetCreator.CreateModel("IKModel",
 		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
-		//"Application/assets/Models/IKModel/IK.fbx");
+	auto WalkAnimation = graphicsAssetCreator.CreateAnimation(
+		"WalkAnimation", "Application/assets/Animations/Standard Walk.fbx",
+		IKModel);
 	createTargetObjectMesh();
-	//// Animation
-	//auto CrouchAnimation = graphicsAssetCreator.CreateAnimation(
-	//	"CrouchAnimation", "Application/assets/Animations/Crouch To Stand.fbx",
-	//	Ch44Model);
-
 
 	// viking Room
 	auto roomTexture =
@@ -58,13 +55,8 @@ void SampleApplication::InverseKinematicsScene::UnLoad()
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	// IK
-
 	graphicsAssetCreator.DestroyModel("IKModel");
-	graphicsAssetCreator.DestroyMesh("targetObjectMesh");
-	//graphicsAssetCreator.DestroyAnimation("BD19Animation");
-	//graphicsAssetCreator.DestroyAnimation("BDEAnimation");
-
-
+	graphicsAssetCreator.DestroyAnimation("WalkAnimation");
 
 	// viking Room
 	graphicsAssetCreator.DestroyTexture("roomTexture");
@@ -104,23 +96,23 @@ void SampleApplication::InverseKinematicsScene::Init()
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
 
-	////// Skeletal Animation ////
-	//// Ch44
+	//// IK
+	// IKGobj
 	IHCEngine::Core::GameObject& IKGobj = AddGameObject("IKGobj");
 	IKGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
 	pipelinecomponent = IKGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = IKGobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("IKModel"));
+
 	auto ikcomponent = IKGobj.AddComponent<IHCEngine::Component::IKComponent>();
 	ikcomponent->SetModel(assetManager->GetModelRepository().GetAsset("IKModel"));
-	//animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	//auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
-	//auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
 
-	//animationViewer->AddAnimationGobjs(&ch44Gobj);
-	//animationViewer->AddAnimationSlots1(ani1);
-	//animationViewer->AddAnimationSlots2(ani2);
+	animatorcomponent = IKGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
+	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
+	animatorcomponent->StopAnimation();
+
+	// targetGobj
 	IHCEngine::Core::GameObject& targetGobj = AddGameObject("targetGobj");
 	targetGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	targetGobj.transform.SetScale(glm::vec3(1, 1, 1));

@@ -534,7 +534,9 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         VkDescriptorSet_T* skeletalDescriptorSet;
         auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
         auto ikComponent = gobj->GetComponent<Component::IKComponent>();
-        if( animatorComponent!=nullptr && animatorComponent->HasAnimation())
+        if( animatorComponent!=nullptr &&
+            animatorComponent->IsActive() &&
+            animatorComponent->HasAnimation())
         {
             // Update the animation
             animatorComponent->UpdateAnimation(frameInfo.frameTime);
@@ -560,7 +562,7 @@ void IHCEngine::Graphics::RenderSystem::renderSkeletalAnimationPipeline(IHCEngin
         	buffersforwriting->WriteToBuffer(&subo);
         	buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
         }
-        else if (ikComponent != nullptr) // Has IK
+        else if (ikComponent != nullptr && ikComponent->IsActive()) // Has IK
         {
             ikComponent->Update();
             // Link to shader
@@ -695,7 +697,9 @@ void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frame
         VkDescriptorSet_T* skeletalDescriptorSet;
         auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
         auto ikComponent = gobj->GetComponent<Component::IKComponent>();
-    	if (animatorComponent != nullptr && animatorComponent->HasAnimation())
+    	if (animatorComponent != nullptr &&
+            animatorComponent->IsActive() &&
+            animatorComponent->HasAnimation())
         {
             // Draw Debug Bones
             SimplePushConstantData push{};
@@ -713,7 +717,7 @@ void IHCEngine::Graphics::RenderSystem::renderDebugBonePipeline(FrameInfo& frame
             animatorComponent->UpdateDebugBoneBuffer(frameInfo);
             animatorComponent->DrawDebugBoneBuffer(frameInfo);
         }
-        else if (ikComponent != nullptr) // Has IK
+        else if (ikComponent != nullptr && ikComponent->IsActive()) // Has IK
         {
             // Draw Debug Bones
             SimplePushConstantData push{};

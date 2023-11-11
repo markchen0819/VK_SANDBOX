@@ -338,7 +338,23 @@ namespace IHCEngine::Graphics
 	}
 #pragma endregion
 
+	void Animator::OverwriteAnimationLocalVQStoModelLocalVQS(SkeletalNodeData* node)
+	{
+		const std::string& nodeName = node->name;
+		BoneAnimation* boneAnimation = currentAnimation->FindBone(nodeName);
+		if (boneAnimation)
+		{
+			node->localVQS = boneAnimation->GetLocalTransformVQS();
+		}
+		for (int i = 0; i < node->childrenCount; i++)
+		{
+			OverwriteAnimationLocalVQStoModelLocalVQS(node->children[i].get());
+		}
+	}
 #pragma region Getters & Setters
+
+
+
 	void Animator::SetAnimation(Animation* animation)
 	{
 		currentAnimation = animation;

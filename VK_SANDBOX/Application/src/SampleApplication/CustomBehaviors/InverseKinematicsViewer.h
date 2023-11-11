@@ -4,6 +4,11 @@
 
 namespace IHCEngine::Component
 {
+	class AnimatorComponent;
+}
+
+namespace IHCEngine::Component
+{
 	class IKComponent;
 }
 
@@ -29,9 +34,14 @@ namespace SampleApplication
 
         // Target Gobj
         IHCEngine::Core::GameObject* movingGobj = nullptr;
+        // IKGobj
         IHCEngine::Core::GameObject* IKGobj = nullptr;
         IHCEngine::Component::IKComponent* ikComponent = nullptr;
+        IHCEngine::Component::AnimatorComponent* animatorComponent = nullptr;
         float movementSpeed = 10;
+
+        bool trigger = false;
+
         void TargetObjectInputs();
 
     };
