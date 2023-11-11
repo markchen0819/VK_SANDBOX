@@ -19,6 +19,9 @@ namespace IHCEngine::Graphics
         void Update();
 
         float GetTotalDistance() const { return totalDistance; }
+        const SkeletalNodeData* GetRoot() const { return root; }
+        const SkeletalNodeData* GetEndEffector() const{ return endEffector; }
+
 
         //// IK functionality
         void SetModel(Model* m);

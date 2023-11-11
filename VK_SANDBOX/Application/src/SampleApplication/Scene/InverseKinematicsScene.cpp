@@ -16,6 +16,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
 
 // Custom Behaviors
+#include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../CustomBehaviors/InverseKinematicsViewer.h"
 #include "../CustomBehaviors/ImguiContext_InverseKinematicsViewer.h"
 
@@ -36,6 +37,7 @@ void SampleApplication::InverseKinematicsScene::Load()
 		"WalkAnimation", "Application/assets/Animations/Standard Walk.fbx",
 		IKModel);
 	createTargetObjectMesh();
+	createControlPointMesh();
 
 	// viking Room
 	auto roomTexture =
@@ -57,6 +59,8 @@ void SampleApplication::InverseKinematicsScene::UnLoad()
 	// IK
 	graphicsAssetCreator.DestroyModel("IKModel");
 	graphicsAssetCreator.DestroyAnimation("WalkAnimation");
+	graphicsAssetCreator.DestroyMesh("targetObjectMesh");
+	graphicsAssetCreator.DestroyMesh("controlPointModel");
 
 	// viking Room
 	graphicsAssetCreator.DestroyTexture("roomTexture");
@@ -82,8 +86,10 @@ void SampleApplication::InverseKinematicsScene::Init()
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<InverseKinematicsViewer>();
+	camera.AddComponent<IHCEngine::Component::LineRendererComponent>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_InverseKinematicsViewer>();
 	camera.AddComponent<SampleApplication::CameraController>();
+
 	
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
@@ -172,6 +178,33 @@ void SampleApplication::InverseKinematicsScene::Init()
 void SampleApplication::InverseKinematicsScene::Reset()
 {
 
+}
+
+void SampleApplication::InverseKinematicsScene::createControlPointMesh()
+{
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	IHCEngine::Graphics::IHCMesh::Builder controlPointBuilder;
+	controlPointBuilder.vertices =
+	{
+		{ {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{ 0.5f,  0.5f,  0.5f} , {0.0f, 1.0f, 0.0f}}
+	};
+	controlPointBuilder.indices =
+	{
+		0, 1, 2,    1, 3, 2,  // Left face
+		4, 6, 5,    5, 6, 7,  // Right face
+		0, 2, 4,    2, 6, 4,  // Bottom face
+		1, 5, 3,    3, 5, 7,  // Top face
+		0, 4, 1,    1, 4, 5,  // Front face
+		2, 3, 6,    3, 7, 6   // Back face
+	};
+	graphicsAssetCreator.CreateMesh("controlPointModel", controlPointBuilder);
 }
 
 void SampleApplication::InverseKinematicsScene::createTargetObjectMesh()

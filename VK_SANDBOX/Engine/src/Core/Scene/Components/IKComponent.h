@@ -24,6 +24,8 @@ namespace IHCEngine::Component
 		void SetTarget(glm::vec3 target);
 
 		float GetTotalDistance() const;
+		const Graphics::SkeletalNodeData* GetRoot() const;
+		const Graphics::SkeletalNodeData* GetEndEffector() const;
 
 		std::vector<glm::mat4>& GetFinalBoneMatrices();
 

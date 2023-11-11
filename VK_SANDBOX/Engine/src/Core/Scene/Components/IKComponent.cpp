@@ -41,6 +41,16 @@ float IHCEngine::Component::IKComponent::GetTotalDistance() const
 	return IKSolver.GetTotalDistance();
 }
 
+const IHCEngine::Graphics::SkeletalNodeData* IHCEngine::Component::IKComponent::GetRoot() const
+{
+	return IKSolver.GetRoot();
+}
+
+const IHCEngine::Graphics::SkeletalNodeData* IHCEngine::Component::IKComponent::GetEndEffector() const
+{
+	return IKSolver.GetEndEffector();
+}
+
 std::vector<glm::mat4>& IHCEngine::Component::IKComponent::GetFinalBoneMatrices()
 {
 	return IKSolver.GetFinalBoneMatrices();
