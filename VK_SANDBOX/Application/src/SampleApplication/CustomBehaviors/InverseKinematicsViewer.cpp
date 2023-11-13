@@ -14,6 +14,7 @@
 #include "../../../../Engine/src/Core/Time/Time.h"
 #include "../../../../Engine/src/Core/Locator/AppWindowLocator.h"
 #include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
+#include "../../../../Engine/src/Graphics/Camera.h"
 
 namespace IHCEngine::Component
 {
@@ -33,14 +34,26 @@ namespace SampleApplication
 	{
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
+        // AnimationViewerInput
         auto cameraGobj = sceneManager->GetActiveScene()->GetGameObjectByName("camera");
         lineRenderer = cameraGobj->GetComponent<IHCEngine::Component::LineRendererComponent>();
 
+        camera = &(this->gameObject->GetScene()->GetCamera());
+        camera->transform.Rotate(glm::vec3(-20, 0, 0));
+        camera->transform.SetPosition(glm::vec3(0.0f, 15.0f, 20.0f));
+        glm::vec3 cameraPosWithoutY = camera->transform.GetPosition();
+        angleRespectToCenterPoint = 90;
+        cameraPosWithoutY.y = 0;
+        distanceToCenterPoint = length(centerPoint - cameraPosWithoutY);
+        camera->LookAt(glm::vec3(0, 5, 0));
+       
+
+        // Target Gobj
 		movingGobj = sceneManager->GetActiveScene()->GetGameObjectByName("targetGobj");
         movingGobj->transform.SetScale(glm::vec3(0.5, 0.5, 0.5));
         movingGobj->transform.SetPosition(glm::vec3(-1, 10, 3));
 
-
+        // IK Gobj
         IKGobj = sceneManager->GetActiveScene()->GetGameObjectByName("IKGobj");
 
         animatorComponent = IKGobj->GetComponent<IHCEngine::Component::AnimatorComponent>();
@@ -64,6 +77,8 @@ namespace SampleApplication
 
 	void InverseKinematicsViewer::Update()
 	{
+        HandleAnimationViewerInput();
+
         if(mode=="IK_Animation")
         {
             IK_Animation();
@@ -93,22 +108,22 @@ namespace SampleApplication
         auto forward = glm::vec3(0, 0, 1);
 
         // Translate
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_UP))//GLFW_KEY_W))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_W)) //GLFW_KEY_UP))
         {
             auto p = -1.0f * forward * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_DOWN))//GLFW_KEY_S))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_S)) //GLFW_KEY_DOWN))//
         {
             auto p = forward * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_LEFT))//GLFW_KEY_A))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_A)) //GLFW_KEY_LEFT))//
         {
             auto p = -1.0f * right * movementSpeed * dt;
             movingGobj->transform.Translate(p);
         }
-        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_RIGHT))//GLFW_KEY_D))
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_D)) //GLFW_KEY_RIGHT))//
         {
             auto p = right * movementSpeed * dt;
             movingGobj->transform.Translate(p);
@@ -250,6 +265,92 @@ namespace SampleApplication
         ikComponent->SetGameObjectVQS(gobjVQS);
 
         ikComponent->SetTarget(targetPos);
+    }
+
+    void InverseKinematicsViewer::HandleAnimationViewerInput()
+    {
+        float dt = IHCEngine::Core::Time::GetDeltaTime();
+        auto cameraUp = camera->transform.GetUp(); //camera->GetUp();
+        auto cameraRight = camera->transform.GetRight(); //camera->GetRight();
+        auto cameraForward = camera->transform.GetForward();// camera->GetForward();
+
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_0)) // rotate right around target
+        {
+            angleRespectToCenterPoint += angleSpeed * dt;
+            glm::vec3 cameraPos = camera->transform.GetPosition();
+            glm::vec3 newPos;
+            newPos.x = centerPoint.x + distanceToCenterPoint * cos(glm::radians(angleRespectToCenterPoint));
+            newPos.y = cameraPos.y;  // Y remains the same as we're not moving vertically
+            newPos.z = centerPoint.z + distanceToCenterPoint * sin(glm::radians(angleRespectToCenterPoint));
+            camera->transform.SetWorldPosition(newPos);
+            camera->LookAt(glm::vec3(0, 5, 0));
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_DECIMAL))// rotate left around target
+        {
+            angleRespectToCenterPoint -= angleSpeed * dt;
+            glm::vec3 cameraPos = camera->transform.GetPosition();
+            glm::vec3 newPos;
+            newPos.x = centerPoint.x + distanceToCenterPoint * cos(glm::radians(angleRespectToCenterPoint));
+            newPos.y = cameraPos.y;  // Y remains the same as we're not moving vertically
+            newPos.z = centerPoint.z + distanceToCenterPoint * sin(glm::radians(angleRespectToCenterPoint));
+            camera->transform.SetWorldPosition(newPos);
+            camera->LookAt(glm::vec3(0, 5, 0));
+        }
+        if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_KP_5)) // reset
+        {
+            angleRespectToCenterPoint = 90;
+            glm::vec3 cameraPos = camera->transform.GetPosition();
+            glm::vec3 newPos;
+            newPos.x = centerPoint.x + distanceToCenterPoint * cos(glm::radians(angleRespectToCenterPoint));
+            newPos.y = cameraPos.y;  // Y remains the same as we're not moving vertically
+            newPos.z = centerPoint.z + distanceToCenterPoint * sin(glm::radians(angleRespectToCenterPoint));
+            camera->transform.SetWorldPosition(newPos);
+            camera->LookAt(glm::vec3(0, 5, 0));
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_4)) // left
+        {
+            auto p = -cameraRight * movementSpeed * dt;
+            camera->transform.Translate(p);
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_6)) // right
+        {
+            auto p = cameraRight * movementSpeed * dt;
+            camera->transform.Translate(p);
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_8)) // up
+        {
+            auto p = cameraUp * movementSpeed * dt;
+            camera->transform.Translate(p);
+            auto cameraX = camera->transform.GetPosition().x;
+            camera->LookAt(glm::vec3(cameraX, 5, 0));
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_2)) // down
+        {
+            auto p = -cameraUp * movementSpeed * dt;
+            camera->transform.Translate(p);
+            auto cameraX = camera->transform.GetPosition().x;
+            camera->LookAt(glm::vec3(cameraX, 5, 0));
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_ADD)) // zoom in
+        {
+            float newFov = camera->GetFOV() - 1 * zoomSpeed;
+            camera->SetFOV(newFov);
+        }
+        if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_KP_SUBTRACT)) // zoom in
+        {
+            float newFov = camera->GetFOV() + 1 * zoomSpeed;
+            camera->SetFOV(newFov);
+        }
+        if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_B))
+        {
+            // bone drawing on/off.
+            IHCEngine::Graphics::RenderSystem::debugBonesEnabled = !IHCEngine::Graphics::RenderSystem::debugBonesEnabled;
+        }
+        if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_M))
+        {
+            // mesh drawing on/off.
+            IHCEngine::Graphics::RenderSystem::animationMeshEnabled = !IHCEngine::Graphics::RenderSystem::animationMeshEnabled;
+        }
     }
 
 #pragma region Imgui

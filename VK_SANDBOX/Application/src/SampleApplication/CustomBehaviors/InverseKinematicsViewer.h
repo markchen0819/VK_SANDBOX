@@ -10,6 +10,7 @@ namespace IHCEngine::Component
 namespace IHCEngine::Graphics
 {
 	struct SkeletalNodeData;
+    class Camera;
 }
 
 namespace IHCEngine::Component
@@ -65,6 +66,17 @@ namespace SampleApplication
         void TargetObjectInputs();
         void IK_Animation();
         void IK_RealTime();
+
+
+        // AnimationViewerInput
+        IHCEngine::Graphics::Camera* camera = nullptr;
+        glm::vec3 centerPoint = glm::vec3(0.0);
+        float angleRespectToCenterPoint;
+        float distanceToCenterPoint;
+        float angleSpeed = 50.0;
+        //float movementSpeed = 10;
+        float zoomSpeed = 0.03f;
+        void HandleAnimationViewerInput();
 
     };
 }

@@ -77,6 +77,53 @@ namespace IHCEngine::Component
             }
         }
 
+        ImGui::Text("-----------------------");
+        ImGui::Text("-- Key Interface --");
+
+        ImGui::Text("' W ':");
+        ImGui::Text("Move target object on global -z axis");
+        ImGui::Text("' S ':");
+        ImGui::Text("Move target object on global z axis");
+        ImGui::Text("' A ':");
+        ImGui::Text("Move target object on global -x axis");
+        ImGui::Text("' D ':");
+        ImGui::Text("Move target object on global x axis");
+        ImGui::Text("' E ':");
+        ImGui::Text("Move target object on global y axis");
+        ImGui::Text("' Q ':");
+        ImGui::Text("Move target object on global -y axis");
+
+        if (selectedMode == 1) //IK_Realtime
+        {
+
+        }
+        else
+        {
+            ImGui::Text("' SPACE ':");
+            ImGui::Text("If target object far away, move along the path");
+            ImGui::Text("If target object close enough, do IK animation");
+        }
+
+        ImGui::Text("-----------------------");
+        if (ImGui::TreeNode("Other Interface"))
+        {
+            ImGui::Text("' 0 ': Rotate camera left about camera center");
+            ImGui::Text("' . ': Rotate camera right about camera center");
+            ImGui::Text("' 5 ': Reset camera to default position");
+            ImGui::Text("' 4 ': Move camera AND camera center along the camera's left vector");
+            ImGui::Text("' 6 ': Move camera AND camera center along the camera's right vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 8 ': Move camera but NOT center along the camera's up vector");
+            ImGui::Text("' 2 ': Move camera but NOT center along the camera's down vector");
+            ImGui::Text("' + ': Zoom camera in towards camera center");
+            ImGui::Text("' - ': Zoom camera out from camera center");
+            ImGui::Text("' B ': Toggle the bone drawing on/off");
+            ImGui::Text("' M ': Toggle the mesh drawing on/off");
+            ImGui::TreePop();
+        }
+        ImGui::Text("-----------------------");
+
+
 
         //if (ImGui::BeginCombo("##Root", ikChain[selectedRoot]))
         //{

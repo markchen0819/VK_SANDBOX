@@ -88,7 +88,7 @@ void SampleApplication::InverseKinematicsScene::Init()
 	camera.AddComponent<InverseKinematicsViewer>();
 	camera.AddComponent<IHCEngine::Component::LineRendererComponent>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_InverseKinematicsViewer>();
-	camera.AddComponent<SampleApplication::CameraController>();
+	//camera.AddComponent<SampleApplication::CameraController>();
 
 	
 	//////////////////////////////////////////////////////////////////
