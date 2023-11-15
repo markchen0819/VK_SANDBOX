@@ -44,9 +44,8 @@ namespace SampleApplication
         glm::vec3 cameraPosWithoutY = camera->transform.GetPosition();
         angleRespectToCenterPoint = 90;
         cameraPosWithoutY.y = 0;
-        distanceToCenterPoint = length(centerPoint - cameraPosWithoutY);
+        distanceToCenterPoint = glm::length(centerPoint - cameraPosWithoutY);
         camera->LookAt(glm::vec3(0, 5, 0));
-       
 
         // Target Gobj
 		movingGobj = sceneManager->GetActiveScene()->GetGameObjectByName("targetGobj");
@@ -160,10 +159,9 @@ namespace SampleApplication
         auto targetPos = movingGobj->transform.GetPosition();
         auto ikPosXZ = glm::vec3(ikPos.x, 0, ikPos.z);
         auto targetPosXZ = glm::vec3(targetPos.x, 0, targetPos.z);
-        float distanceToDoIK = ikComponent->GetTotalDistance() - 0.05;
-
+        float distanceBetweenIKGobjAndTarget = glm::length(targetPosXZ - ikPosXZ) -3.0;
         // Walk Along Path
-        if (glm::distance(ikPosXZ, targetPosXZ) > distanceToDoIK)
+        if (passedTime < totalWalkTime && distanceBetweenIKGobjAndTarget > 1.0)
         {
             if (animatorComponent->IsActive() == false)
             {
@@ -171,54 +169,41 @@ namespace SampleApplication
                 ikComponent->SetActive(false);
                 animatorComponent->PlayAnimation();
 
-                // Orientation
-                glm::vec3 lookAtPos = glm::normalize(targetPosXZ - ikPosXZ);
-                glm::vec3 globalUpVector = glm::vec3(0.0, 1.0, 0.0);
-                glm::vec3 W = lookAtPos;
-                glm::vec3 U = glm::cross(globalUpVector, W);
-                glm::vec3 V = glm::cross(W, U);
-                // Create a rotation matrix using the Frenet frame vectors (W, U, V)
-                glm::mat4 rotationMatrix = glm::mat4(
-                    U.x, U.y, U.z, 0.0f,
-                    V.x, V.y, V.z, 0.0f,
-                    W.x, W.y, W.z, 0.0f,
-                    0.0f, 0.0f, 0.0f, 1.0f
-                );
-                // Extract to angles (in degrees) to feed into Transform class
-                glm::vec3 rotation = glm::degrees(glm::eulerAngles(glm::quat_cast(rotationMatrix)));
-                IKGobj->transform.SetRotation(rotation);
+                // Set Path
+                passedTime = 0;
+                prevFrameDistance = 0;
 
-                //Path
-                std::vector<glm::vec3> points;
-                glm::vec3 destOffset = distanceToDoIK * -lookAtPos;
-                points.push_back(ikPosXZ);
-                points.push_back(targetPosXZ + destOffset);
-                lineRenderer->SetPoints(points);
-                for (auto pt : debugControlPoints)
-                {
-                    pt->Destroy();
-                }
-                debugControlPoints.clear();
-                auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-                auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
-                for (int i = 0; i < points.size(); ++i)
-                {
-                    std::string id = "debugControlPoint_" + std::to_string(i);
-                    IHCEngine::Core::GameObject& point = sceneManager->GetActiveScene()->AddGameObject(id);
-                    point.AddComponent<IHCEngine::Component::PipelineComponent>();
-                    auto meshcomponent = point.AddComponent<IHCEngine::Component::MeshComponent>();
-                    meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
-                    auto texturecomponent = point.AddComponent<IHCEngine::Component::TextureComponent>();
-                    texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
-                    point.transform.SetPosition(points[i]);
-                    point.transform.SetScale(glm::vec3(0.2, 0.2, 0.2));
-                    debugControlPoints.push_back(&point);
-                }
+                glm::vec3 direction = glm::normalize(targetPosXZ - ikPosXZ);
+                float distanceBetweenIKGobjAndTargetWithOffset = distanceBetweenIKGobjAndTarget - 1.0;
+                data.clear();
+                data.push_back(ikPosXZ);
+                data.push_back(ikPosXZ + direction * (distanceBetweenIKGobjAndTargetWithOffset) * glm::vec3(1.0 / 3, 1.0 / 3, 1.0 / 3));
+                data.push_back(ikPosXZ + direction * (distanceBetweenIKGobjAndTargetWithOffset) * glm::vec3(2.0 / 3, 2.0 / 3, 2.0 / 3));
+                data.push_back(ikPosXZ + direction * (distanceBetweenIKGobjAndTargetWithOffset) * glm::vec3(3.0 / 3, 3.0 / 3, 3.0 / 3));
+
+                spaceCurve.SetControlPoints(data);
+                lineRenderer->SetPoints(spaceCurve.GetPointsForRendering());
+                createDebugControlPoints();
+
+                totalWalkTime = distanceBetweenIKGobjAndTarget / ikGameObjectMovementSpeed;
+                easeInTiming = totalWalkTime * 0.3;
+                easeOutTiming = totalWalkTime * 0.7;
+                speedControl.SetTimings(easeInTiming, easeOutTiming, totalWalkTime);
             }
-            glm::vec3 direction = glm::normalize(targetPosXZ - ikPosXZ);
-            ikPos += direction * movementSpeed * dt;
-            IKGobj->transform.SetPosition(ikPos);
+            // Walk
+            passedTime += dt;
+            float passedDistance = speedControl.GetDistance(passedTime);
+            glm::vec3 moveToPos = spaceCurve.GetPositionOnCurve(passedDistance);
+            currentSpeed = (passedDistance - prevFrameDistance) / dt;
+            prevFrameDistance = passedDistance;
+            IKGobj->transform.SetPosition(moveToPos);
 
+            // Animator speed
+            float n = paceControl.GetAnimatorSpeedModifier("WalkAnimation", currentSpeed, 1, totalWalkTime);
+            animatorComponent->SetSpeed(n); // This is animation cycle speed
+            // Orientation
+            glm::vec3 rotation = orientationControl.GetRotation(spaceCurve, passedDistance);
+            IKGobj->transform.SetRotation(rotation);
         }
         else // IK Animation
         {
@@ -238,17 +223,19 @@ namespace SampleApplication
                 eePositionAtKeyframeStart = ee->globalVQS.GetTranslate();
                 currentTime += dt;
             }
-            if (currentTime < totalTime)
+            if (currentTime < totalAnimationTime)
             {
-                glm::vec3 interpolatedTarget = glm::mix(eePositionAtKeyframeStart, targetPos, currentTime / totalTime);
+                glm::vec3 interpolatedTarget = glm::mix(eePositionAtKeyframeStart, targetPos, currentTime / totalAnimationTime);
                 ikComponent->SetTarget(interpolatedTarget);
                 currentTime += dt;
             }
-            else if (currentTime >= totalTime)
+            else if (currentTime >= totalAnimationTime)
             {
                 currentTime = 0;
                 ikComponent->SetTarget(targetPos);
                 trigger = false;
+
+                passedTime = 0;
             }
         }
     }
@@ -353,6 +340,29 @@ namespace SampleApplication
         }
     }
 
-#pragma region Imgui
-#pragma endregion 
+    void InverseKinematicsViewer::createDebugControlPoints()
+    {
+        for (auto pt : debugControlPoints)
+        {
+            pt->Destroy();
+        }
+        debugControlPoints.clear();
+        // Others
+        auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+        auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
+        for (int i = 0; i < data.size(); ++i)
+        {
+            std::string id = "debugControlPoint_" + std::to_string(controlPointID);
+            IHCEngine::Core::GameObject& point = sceneManager->GetActiveScene()->AddGameObject(id);
+            point.AddComponent<IHCEngine::Component::PipelineComponent>();
+            auto meshcomponent = point.AddComponent<IHCEngine::Component::MeshComponent>();
+            meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
+            auto texturecomponent = point.AddComponent<IHCEngine::Component::TextureComponent>();
+            texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+            point.transform.SetPosition(data[i]);
+            point.transform.SetScale(glm::vec3(0.2, 0.2, 0.2));
+            controlPointID++;
+            debugControlPoints.push_back(&point);
+        }
+    }
 }
