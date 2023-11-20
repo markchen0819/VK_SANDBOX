@@ -109,4 +109,14 @@ namespace IHCEngine::Graphics
     {
         descriptorManager->DeallocateSkeletalDescriptorSetForAnimator(animator);
     }
+
+    //  Skeletal Data for IK (vulkan ubo)
+    void GraphicsAssetCreator::CreateSkeletalData(InverseKinematicsSolver* ikSolver)
+    {
+        descriptorManager->AllocateSkeletalDescriptorSetForIK(ikSolver);
+    }
+    void GraphicsAssetCreator::DestroySkeletalData(InverseKinematicsSolver* ikSolver)
+    {
+        descriptorManager->DeallocateSkeletalDescriptorSetForIK(ikSolver);
+    }
 }

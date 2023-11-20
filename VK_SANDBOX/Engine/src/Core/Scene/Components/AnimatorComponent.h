@@ -31,6 +31,10 @@ namespace IHCEngine::Component
 		std::vector<VkDescriptorSet>& GetDescriptorSets();
 		std::vector<Graphics::IHCBuffer*>& GetBuffers();
 
+
+		// IK
+		void OverwriteAnimationLocalVQStoModelLocalVQS();
+
 		// Debug
 		void AllocateDebugBoneBuffer();
 		void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);

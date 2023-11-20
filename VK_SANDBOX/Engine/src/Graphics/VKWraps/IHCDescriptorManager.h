@@ -7,6 +7,7 @@ namespace IHCEngine::Graphics
 {
     class IHCDevice;
 	class Animator;
+    class InverseKinematicsSolver;
 	class IHCTexture;
 
     // For accessing between shader(pipeline) and resources
@@ -29,7 +30,8 @@ namespace IHCEngine::Graphics
         void DeallocateTextureDescriptorSetForTexture(IHCTexture* texture);
         void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
-
+        void AllocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver);
+        void DeallocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver);
 
 	private:
 

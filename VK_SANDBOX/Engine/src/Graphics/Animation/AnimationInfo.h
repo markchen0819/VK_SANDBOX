@@ -34,14 +34,15 @@ namespace IHCEngine::Graphics
         std::string name;
 
         SkeletalNodeData* parent = nullptr;
-        std::vector<SkeletalNodeData> children;
+        std::vector<std::unique_ptr<SkeletalNodeData>> children;
         int childrenCount;
 
         // Using Matrix
         glm::mat4 transformation_Matrix;
   
 		// Using VQS
-        IHCEngine::Math::VQS transformation_VQS;
+        IHCEngine::Math::VQS localVQS;
+        IHCEngine::Math::VQS globalVQS;
     };
 
     // Represents Inverse bind pose

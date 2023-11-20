@@ -3,6 +3,11 @@
 
 namespace IHCEngine::Graphics
 {
+	class InverseKinematicsSolver;
+}
+
+namespace IHCEngine::Graphics
+{
 	class Animation;
 	class Animator;
 	class IHCDescriptorManager;
@@ -34,6 +39,8 @@ namespace IHCEngine::Graphics
 		void CreateSkeletalData(Animator* animator);
 		void DestroySkeletalData(Animator* animator);
 
+		void CreateSkeletalData(InverseKinematicsSolver* ikSolver);
+		void DestroySkeletalData(InverseKinematicsSolver* ikSolver);
 	private:
 
 		IHCDevice& ihcDevice;

@@ -31,6 +31,9 @@ namespace IHCEngine::Graphics
 		void SetSpeed(float animatorSpeed);
 		float GetSpeed() { return speed; }
 
+		// IK
+		void OverwriteAnimationLocalVQStoModelLocalVQS(SkeletalNodeData* node);
+
 		// Animation
 		void SetAnimation(Animation* animation);
 		Animation* GetCurrentAnimation() { return currentAnimation; }
