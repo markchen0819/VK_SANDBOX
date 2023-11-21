@@ -440,20 +440,19 @@ void IHCEngine::Graphics::RenderSystem::renderWireframePipeline(FrameInfo& frame
         }
         else if (gobj->HasComponent<Component::MeshComponent>())
         {
-
-            //// why is texture still needed?
-            //auto descriptorSet = gobj->GetComponent<Component::TextureComponent>()->GetDescriptorSets()[frameInfo.frameIndex];
-            //vkCmdBindDescriptorSets
-            //(
-            //    frameInfo.commandBuffer,
-            //    VK_PIPELINE_BIND_POINT_GRAPHICS,
-            //    defaultGraphicsPipelineLayout,
-            //    1,
-            //    1,
-            //    &descriptorSet,
-            //    0,
-            //    nullptr
-            //);
+            // use dummy to prevent vulkan errors
+            auto descriptorSet = gobj->GetComponent<Component::TextureComponent>()->GetDescriptorSets()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                defaultGraphicsPipelineLayout,
+                1,
+                1,
+                &descriptorSet,
+                0,
+                nullptr
+            );
             // use dummy to prevent vulkan errors
             auto skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
             vkCmdBindDescriptorSets

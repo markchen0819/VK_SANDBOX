@@ -200,6 +200,7 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\IKComponent.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -223,6 +224,7 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\LineRendererComponent.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.cpp" />
     <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
@@ -288,6 +290,7 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\IKComponent.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />
@@ -313,6 +316,7 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\LineRendererComponent.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h" />
     <ClInclude Include="Engine\src\Math\Path\SpeedControl.h" />
+    <ClInclude Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
