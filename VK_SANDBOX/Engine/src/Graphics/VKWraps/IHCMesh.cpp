@@ -92,6 +92,7 @@ std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::IHCMesh::Crea
 
 void IHCEngine::Graphics::IHCMesh::UpdateVertices()
 {
+    vkDeviceWaitIdle(ihcDevice.GetDevice());
     createVertexBuffers(this->GetVertices());
 }
 

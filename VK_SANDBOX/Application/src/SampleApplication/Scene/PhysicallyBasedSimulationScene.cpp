@@ -12,6 +12,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/ImguiContext_PhysicallyBasedSimulationViewer.h"
+#include "../CustomBehaviors/PhysicallyBasedSimulationViewer.h"
 
 
 SampleApplication::PhysicallyBasedSimulationScene::PhysicallyBasedSimulationScene()
@@ -60,6 +61,7 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
+	camera.AddComponent<PhysicallyBasedSimulationViewer>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_PhysicallyBasedSimulationViewer>();
 
 	//////////////////////////////////////////////////////////////////
@@ -130,9 +132,9 @@ void SampleApplication::PhysicallyBasedSimulationScene::createClothMeshAndLoadCl
 	auto clothTexture = graphicsAssetCreator.CreateTexture("clothTexture", "Application/assets/Textures/clothTexture.png");
 
 	IHCEngine::Graphics::IHCMesh::Builder clothBuilder;
-	int gridWidth = 100; 
-	int gridHeight = 100; 
-	float clothSpacing = 0.1f; 
+	int gridWidth = 10; 
+	int gridHeight = 10;
+	float clothSpacing = 0.5f; 
 
 	// Calculate the offset to center the grid
 	float xOffset = (gridWidth - 1) * clothSpacing / 2.0f;

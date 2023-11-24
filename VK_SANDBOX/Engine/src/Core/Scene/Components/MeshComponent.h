@@ -16,6 +16,8 @@ namespace IHCEngine::Component
 		~MeshComponent()=default;
 
 		void SetMesh(Graphics::IHCMesh* mesh);
+		IHCEngine::Graphics::IHCMesh* GetMesh() const { return mesh; }
+
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);
 
