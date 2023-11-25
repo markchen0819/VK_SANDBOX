@@ -25,6 +25,13 @@ void SampleApplication::PhysicallyBasedSimulationScene::Load()
 	// Create Graphics resource using GraphicsAssetCreator
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
+	// viking Room
+	auto sphereTexture =
+		graphicsAssetCreator.CreateTexture("sphereTexture",
+			"Application/assets/Models/Sphere/sphereTexture.jpg");
+	auto sphereMesh =
+		graphicsAssetCreator.CreateMesh("sphereMesh",
+			"Application/assets/Models/Sphere/sphere.obj");
 
 	createClothMeshAndLoadClothTexture();
 	// x y z axis
@@ -40,6 +47,9 @@ void SampleApplication::PhysicallyBasedSimulationScene::UnLoad()
 
 	graphicsAssetCreator.DestroyMesh("clothMesh");
 	graphicsAssetCreator.DestroyTexture("clothTexture");
+	graphicsAssetCreator.DestroyMesh("sphereMesh");
+	graphicsAssetCreator.DestroyTexture("sphereTexture");
+
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -82,6 +92,14 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("clothTexture"));
 	clothGobj.transform.SetPosition(glm::vec3(0, 10, 0));
 	clothGobj.transform.SetRotation(glm::vec3(0, 180, 0));
+
+	IHCEngine::Core::GameObject& sphereGobj = AddGameObject("sphere");
+	sphereGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
+	meshcomponent = sphereGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
+	texturecomponent = sphereGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("sphereTexture"));
+	sphereGobj.transform.SetPosition(glm::vec3(0, 3, 0));
 
 	///////////////////////////
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
@@ -145,7 +163,8 @@ void SampleApplication::PhysicallyBasedSimulationScene::createClothMeshAndLoadCl
 		for (int x = 0; x < gridWidth; ++x) 
 		{
 			Vertex vertex;
-			vertex.position = glm::vec3(x * clothSpacing - xOffset, y * clothSpacing - yOffset, 0);
+			vertex.position = glm::vec3(x * clothSpacing - xOffset, 0, y * clothSpacing - yOffset);
+			//vertex.position = glm::vec3(x * clothSpacing - xOffset, y * clothSpacing - yOffset, 0);
 			vertex.uv = glm::vec2(float(x) / (gridWidth - 1), float(y) / (gridHeight - 1)); // UV coordinates
 			vertex.normal = glm::vec3(0, 1, 0);  // up
 			vertex.color = glm::vec3(1.0f); // blue color, modify as needed

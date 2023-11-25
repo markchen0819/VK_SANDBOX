@@ -34,10 +34,10 @@ namespace IHCEngine::Physics
 
 	private:
 
-		IntegrationMethod integrationMethod = IntegrationMethod::Verlet;
+		IntegrationMethod integrationMethod = IntegrationMethod::RungeKutta4;// Verlet;// RungeKutta4;// RungeKutta2;// Verlet;
 		Graphics::IHCMesh* mesh;
 		std::vector<Particle> particles;
-		std::vector<Spring> springs;
+		std::vector<std::unique_ptr<Spring>> springs;
 		glm::vec3 gravity;
 	};
 }

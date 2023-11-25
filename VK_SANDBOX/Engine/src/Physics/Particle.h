@@ -14,6 +14,10 @@ namespace IHCEngine::Physics
 
 		void SetPinned(bool pinned);
 
+		bool IsPinned() const { return isPinned; }
+
+		int GetID() { return id; }
+
 		glm::vec3 GetPosition() const { return position; }
 
 		glm::vec3 GetVelocity() const { return velocity; }

@@ -9,7 +9,7 @@
 namespace IHCEngine::Physics
 {
 	PhysicsSolver::PhysicsSolver()
-		: gravity(glm::vec3(0.0f, -0.0981f, 0.0f))
+		: gravity(glm::vec3(0.0f, -0.981f, 0.0f))
 	{
 
 	}
@@ -39,8 +39,6 @@ namespace IHCEngine::Physics
 	{
 		float gridHeight = dimension;
 		float gridWidth = dimension;
-		//float damping = 15;// verlet
-		//float damping = 0.9; //euler
 
 		for (int y = 0; y < gridHeight; ++y)
 		{
@@ -50,32 +48,50 @@ namespace IHCEngine::Physics
 
 				// Create springs for direct connections (Elastic)
 				if (x < dimension - 1)  // To the right
-				{ 
-					springs.emplace_back(Spring(& particles[current], &particles[current + 1], kElastic, damping));
+				{
+					auto spring = std::make_unique<Spring>("Elastic", &particles[current], &particles[current + 1], kElastic, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + 1].AddConnectedSpring(springs.back().get());
 				}
 				if (y < dimension - 1) // Below
-				{ 
-					springs.emplace_back(Spring(&particles[current], &particles[current + gridWidth], kElastic, damping));
+				{
+					auto spring = std::make_unique<Spring>("Elastic", &particles[current], &particles[current + gridWidth], kElastic, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + gridWidth].AddConnectedSpring(springs.back().get());
 				}
 
 				// Create springs for bending connections (Bend)
 				if (x < gridWidth - 2) // Two to the right
 				{
-					springs.emplace_back(Spring(&particles[current], &particles[current + 2], kBend, damping));
+					auto spring = std::make_unique<Spring>("Bend", &particles[current], &particles[current + 2], kBend, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + 2].AddConnectedSpring(springs.back().get());
 				}
 				if (y < gridHeight - 2) // Two below
 				{
-					springs.emplace_back(Spring(&particles[current], &particles[current + 2 * gridWidth], kBend, damping));
+					auto spring = std::make_unique<Spring>("Bend", &particles[current], &particles[current + 2 * gridWidth], kBend, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + 2 * gridWidth].AddConnectedSpring(springs.back().get());
 				}
 
 				// Create springs for diagonal connections (Shear)
 				if (x < gridWidth - 1 && y < gridHeight - 1) // Diagonal right and below
 				{ 
-					springs.emplace_back(Spring(&particles[current], &particles[current + gridWidth + 1], kShear, damping));
+					auto spring = std::make_unique<Spring>("Shear", &particles[current], &particles[current + gridWidth + 1], kShear, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + gridWidth + 1].AddConnectedSpring(springs.back().get());
 				}
 				if (x > 0 && y < gridHeight - 1)  // Diagonal left and below
 				{ 
-					springs.emplace_back(Spring(&particles[current], &particles[current + gridWidth - 1], kShear, damping));
+					auto spring = std::make_unique<Spring>("Shear", &particles[current], &particles[current + gridWidth - 1], kShear, damping);
+					springs.emplace_back(std::move(spring));
+					particles[current].AddConnectedSpring(springs.back().get());
+					particles[current + gridWidth - 1].AddConnectedSpring(springs.back().get());
 				}
 			}
 		}
@@ -90,34 +106,9 @@ namespace IHCEngine::Physics
 	void PhysicsSolver::Update()
 	{
 
-		//// Define the wind force direction and magnitude
-		//glm::vec2 baseWindDirection = glm::vec2(1.0f, 0.0f); // Wind blowing along the x-axis in 2D
-		//float windMagnitude = 1.0f; // Adjust the magnitude to simulate stronger or weaker wind
-
-		//// Randomness factors for variability in strength and direction
-		//float windVariabilityStrength = 1.5f;
-		//float windVariabilityDirection = 100.0f; // Determines how much the wind direction can change
-
-		//// Calculate the random wind strength
-		//float windStrength = windMagnitude * (1.0f + windVariabilityStrength * ((rand() / (float)RAND_MAX) - 0.5f));
-
-		//// Calculate the random wind direction change in radians
-		//float windDirectionChangeRadians = windVariabilityDirection * ((rand() / (float)RAND_MAX) - 0.5f) * 2 * glm::pi<float>();
-
-		//// Rotate the base wind direction by the random angle
-		//glm::vec2 randomWindDirection = glm::vec2(
-		//	baseWindDirection.x * cos(windDirectionChangeRadians) - baseWindDirection.y * sin(windDirectionChangeRadians),
-		//	baseWindDirection.x * sin(windDirectionChangeRadians) + baseWindDirection.y * cos(windDirectionChangeRadians)
-		//);
-
-		//// Normalize the final wind direction and convert to 3D
-		//glm::vec3 windDirection = glm::normalize(glm::vec3(randomWindDirection, 0.0f));
-
-		//// Calculate the final wind force vector
-		//glm::vec3 windForce = windStrength * windDirection;
-
 		float dt = IHCEngine::Core::Time::GetDeltaTime();
-		// Compute external forces 
+
+		// External Forces
 		for (auto& p : particles) 
 		{
 			glm::vec3 totalExternalForces = gravity * p.GetMass(); // Gravity
@@ -125,10 +116,10 @@ namespace IHCEngine::Physics
 			p.ApplyForce(gravity * p.GetMass());
 		}
 
-
-		for (auto& s : springs) 
+		// Internal Forces
+		for (auto& spring : springs) 
 		{
-			s.ApplyInternalForce(dt);
+			spring->ApplyForce(dt);
 		}
 
 		// Step 3: Integrate to get new positions and velocities

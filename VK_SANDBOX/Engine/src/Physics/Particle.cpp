@@ -19,11 +19,16 @@ namespace IHCEngine::Physics
 		force += f;
 	}
 
-
     void Particle::SetPinned(bool pinned)
     {
         isPinned = pinned;
     }
+
+    void Particle::AddConnectedSpring(Spring* spring)
+    {
+        connectedSprings.emplace_back(spring);
+    }
+
 
     void Particle::EulerIntegrate(float deltaTime)
     {
@@ -49,24 +54,28 @@ namespace IHCEngine::Physics
     void Particle::RungeKutta2Integrate(float deltaTime)
 	{
         // Initial state
-        glm::vec3 initialAcceleration = force / mass;
-        glm::vec3 initialVelocity = velocity;
+        glm::vec3 k1v = force / mass * deltaTime;
+        glm::vec3 k1x = velocity * deltaTime;
 
         // Estimate midpoint
-        glm::vec3 midpointVelocity = velocity + 0.5f * deltaTime * initialAcceleration;
-        glm::vec3 midpointPosition = position + 0.5f * deltaTime * initialVelocity;
+        glm::vec3 midpointVelocity = velocity + k1v * 0.5f;
+        glm::vec3 midpointPosition = position + k1x * 0.5f;
         glm::vec3 midpointForces = calculateForces(midpointPosition, midpointVelocity);
         glm::vec3 midpointAcceleration = midpointForces / mass;
 
         // Update velocity and position using midpoint acceleration
-        velocity += deltaTime * midpointAcceleration;
-        position += deltaTime * midpointVelocity;
+        velocity += midpointAcceleration * deltaTime;
+        position += midpointVelocity * deltaTime;
 
         force = glm::vec3(0.0f);
     }
 
-    void Particle::RungeKutta4Integrate(float deltaTime)
+    void Particle::RungeKutta4Integrate(float deltaTime) // https://www.youtube.com/watch?v=1YZnic1Ug9g
 	{
+        // k_NUM_v is delta_velocity
+        //            = acceleration * delta_time
+        //            = estimate changes in velocity over the timestep
+
         // k1 is based on the initial state
         glm::vec3 k1v = force / mass * deltaTime;
         glm::vec3 k1x = velocity * deltaTime;
@@ -89,32 +98,30 @@ namespace IHCEngine::Physics
         glm::vec3 k4v = endPointForcesForK4 / mass * deltaTime;
         glm::vec3 k4x = endPointVelocityForK4 * deltaTime;
 
-        // Combine k values to update the velocity and position
+        // Weighted average, combine k values to update the velocity and position
         velocity += (k1v + 2.0f * k2v + 2.0f * k3v + k4v) / 6.0f;
         position += (k1x + 2.0f * k2x + 2.0f * k3x + k4x) / 6.0f;
 
         force = glm::vec3(0.0f);
     }
 
-    void Particle::AddConnectedSpring(Spring* spring)
-    {
-        connectedSprings.emplace_back(spring);
-    }
 
     glm::vec3 Particle::calculateForces(const glm::vec3& pos, const glm::vec3& vel)
     {
         glm::vec3 totalForces = glm::vec3(0.0f);
 
-        // Add gravity force
+        if(isPinned)
+        {
+            return totalForces;
+        }
+        // Add gravity
         totalForces += gravity * mass;
 
-        // Add forces from springs
+        // Add internal forces from springs
         for (const auto& spring : connectedSprings) 
         {
-            //Particle* otherParticle = spring.GetOtherParticle(this);
-            //glm::vec3 otherPos = otherParticle->GetPosition();
-            //glm::vec3 springForce = /* Calculate spring force based on pos and otherPos */;
-            //totalForces += springForce;
+            glm::vec3 springForce = spring->GetForceAppliedToParticle(this, pos, vel);
+            totalForces += springForce;
         }
 
         //// Check for and respond to collisions

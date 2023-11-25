@@ -9,18 +9,23 @@ namespace IHCEngine::Physics
 	{
 	public:
 
-		Spring(Particle* particle1, Particle* particle2, float k, float d);
+		Spring(const std::string& springType, Particle* particle1, Particle* particle2, float k, float d);
 
-		void ApplyInternalForce(float deltaTime);
+		glm::vec3 GetForceAppliedToParticle(Particle* targetParticle, const glm::vec3& pos, const glm::vec3& vel);
+
+		void ApplyForce(float deltaTime);
 
 	private:
 
+		std::string springType;
 		Particle* p1;
 		Particle* p2;
-		float baseLength;
-		float stiffness;
-		float damping;
 
+		float baseLength;
+		float stiffness; // k
+		float damping;   // d
+
+		glm::vec3 calculateForce();
 	};
 
 }

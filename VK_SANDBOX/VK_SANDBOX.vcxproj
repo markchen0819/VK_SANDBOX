@@ -225,6 +225,10 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.cpp" />
     <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.cpp" />
+    <ClCompile Include="Engine\src\Physics\PhysicsSolver.cpp" />
+    <ClCompile Include="Engine\src\Physics\Particle.cpp" />
+    <ClCompile Include="Engine\src\Physics\Spring.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
@@ -317,6 +321,10 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\MotionAlongPathViewer.h" />
     <ClInclude Include="Engine\src\Math\Path\SpeedControl.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.h" />
+    <ClInclude Include="Engine\src\Physics\PhysicsSolver.h" />
+    <ClInclude Include="Engine\src\Physics\Particle.h" />
+    <ClInclude Include="Engine\src\Physics\Spring.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
