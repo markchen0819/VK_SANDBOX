@@ -105,6 +105,7 @@ IHCEngine::Graphics::IHCMesh::IHCMesh(IHCDevice& device, const IHCMesh::Builder&
 
 IHCEngine::Graphics::IHCMesh::~IHCMesh()
 {
+    vkDeviceWaitIdle(ihcDevice.GetDevice());
 	// destory buffer free memory
 }
 

@@ -15,18 +15,19 @@ IHCEngine::Core::Time::Time()
 
 void IHCEngine::Core::Time::Reset()
 {
-	instance->totalTime = 0;
-	instance->frameTimeCounter = 0;
-	
-	instance->totalFixedTime = 0;
-
-	instance->timeScale = 1.0f;
-	instance->frameCount = 0;
-	instance->averageFps = 0.0;
-
 	instance->startTime = std::chrono::high_resolution_clock::now();
 	instance->previousTime = std::chrono::high_resolution_clock::now();
+
+	instance->frameTimeCounter = 0;
+
+	instance->frameCount = 0;
+	instance->timeScale = 1.0f;
+	instance->totalTime = 0;
+	instance->totalFixedTime = 0;
+	instance->averageFps = 0.0;
 	instance->shouldExecuteUpdate = false;
+	instance->unscaledDeltaTime = 0.0f;
+	instance->deltaTime = 0.0f;
 }
 
 void IHCEngine::Core::Time::Update()
@@ -39,12 +40,12 @@ void IHCEngine::Core::Time::Update()
 	instance->totalTime += instance->unscaledDeltaTime;
 	instance->frameTimeCounter += instance->unscaledDeltaTime;
 
-	if (instance->frameTimeCounter <= instance->minFrameTime)
+	if (instance->frameTimeCounter <= instance->minFrameTime) // lock frame rate
 	{
-		return; // framerate control
+		return; 
 	}
 
-	// window interrupt fix
+	// window interrupt fix (not count up too much)
 	if(instance->frameTimeCounter > instance->maxFrameTime)
 	{
 		instance->frameTimeCounter = instance->maxFrameTime;
