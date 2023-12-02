@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../../Engine/src/Physics/PhysicsSolver.h"
+#include "../../../../Engine/src/Physics/SoftBody.h"
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
 
 namespace IHCEngine::Component
@@ -13,8 +13,8 @@ namespace SampleApplication
     class PhysicallyBasedSimulationViewer : public IHCEngine::Component::CustomBehavior
     {
     public:
-        PhysicallyBasedSimulationViewer();
-        ~PhysicallyBasedSimulationViewer();
+        PhysicallyBasedSimulationViewer() = default;
+        ~PhysicallyBasedSimulationViewer() = default;
 
         void Awake() override;
         void Start() override;
@@ -26,6 +26,20 @@ namespace SampleApplication
 
     private:
 
-        IHCEngine::Physics::PhysicsSolver physicsSolver;
+        // Wait for frame rate to stable after scene change
+        float startIntegrateTime = 3.0;
+        float accumulatedTime = 0;
+
+        // Cloth
+        IHCEngine::Physics::SoftBody cloth;
+
+        //Sphere
+        IHCEngine::Core::GameObject* sphereGobj = nullptr;
+        float movementSpeed = 5;
+        void sphereControl();
+
+
+
+
     };
 }

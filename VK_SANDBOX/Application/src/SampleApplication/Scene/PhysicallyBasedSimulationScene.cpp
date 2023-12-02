@@ -90,8 +90,10 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("clothMesh"));
 	texturecomponent = clothGobj.AddComponent<IHCEngine::Component::TextureComponent>();
 	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("clothTexture"));
-	clothGobj.transform.SetPosition(glm::vec3(0, 10, 0));
-	clothGobj.transform.SetRotation(glm::vec3(0, 180, 0));
+	clothGobj.transform.SetPosition(glm::vec3(0, 0, 0));
+	// Create clothGobj vertices in global space, set as origin
+	//clothGobj.transform.SetPosition(glm::vec3(0, 10, 0));
+	//clothGobj.transform.SetRotation(glm::vec3(0, 180, 0));
 
 	IHCEngine::Core::GameObject& sphereGobj = AddGameObject("sphere");
 	sphereGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
@@ -150,9 +152,9 @@ void SampleApplication::PhysicallyBasedSimulationScene::createClothMeshAndLoadCl
 	auto clothTexture = graphicsAssetCreator.CreateTexture("clothTexture", "Application/assets/Textures/clothTexture.png");
 
 	IHCEngine::Graphics::IHCMesh::Builder clothBuilder;
-	int gridWidth = 10; 
-	int gridHeight = 10;
-	float clothSpacing = 0.5f; 
+	int gridWidth = 35; 
+	int gridHeight = 35;
+	float clothSpacing = 0.1f; 
 
 	// Calculate the offset to center the grid
 	float xOffset = (gridWidth - 1) * clothSpacing / 2.0f;
@@ -163,7 +165,7 @@ void SampleApplication::PhysicallyBasedSimulationScene::createClothMeshAndLoadCl
 		for (int x = 0; x < gridWidth; ++x) 
 		{
 			Vertex vertex;
-			vertex.position = glm::vec3(x * clothSpacing - xOffset, 0, y * clothSpacing - yOffset);
+			vertex.position = glm::vec3(x * clothSpacing - xOffset, 10, y * clothSpacing - yOffset);
 			//vertex.position = glm::vec3(x * clothSpacing - xOffset, y * clothSpacing - yOffset, 0);
 			vertex.uv = glm::vec2(float(x) / (gridWidth - 1), float(y) / (gridHeight - 1)); // UV coordinates
 			vertex.normal = glm::vec3(0, 1, 0);  // up

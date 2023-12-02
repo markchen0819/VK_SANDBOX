@@ -1,34 +1,30 @@
 #include "PhysicallyBasedSimulationViewer.h"
 
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../Engine/src/Input/Input.h"
+#include "../../../../Engine/src/Core/Time/Time.h"
 
 namespace SampleApplication
 {
-	PhysicallyBasedSimulationViewer::PhysicallyBasedSimulationViewer()
-	{
-	}
-
-	PhysicallyBasedSimulationViewer::~PhysicallyBasedSimulationViewer()
-	{
-	}
-
 	void PhysicallyBasedSimulationViewer::Awake()
 	{
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
-		// AnimationViewerInput
+		// Cloth setup
 		auto clothGobj = sceneManager->GetActiveScene()->GetGameObjectByName("cloth");
 		auto meshComponent = clothGobj->GetComponent<IHCEngine::Component::MeshComponent>();
+		//cloth.SetTargetMesh(10, 10, meshComponent);
+		cloth.SetTargetMesh(35, 35, meshComponent);
+		cloth.SetupParticles();
 
-		physicsSolver.SetTargetMesh(meshComponent);
-		physicsSolver.SetupParticles();
-		physicsSolver.SetPinnedParticles(99, true);
-		physicsSolver.SetPinnedParticles(90, true);
-		//physicsSolver.SetPinnedParticles(8, true);
-		//physicsSolver.SetPinnedParticles(6, true);
-		int dimension = 10;
-		//physicsSolver.SetupSprings(dimension, 10,3,20, 0.9); //euler
-		physicsSolver.SetupSprings(dimension, 30, 15, 30, 0.5); // verlet
+		cloth.SetPinnedParticles(1224, true);
+		cloth.SetPinnedParticles(1190, true);
+
+		//cloth.SetupSprings(100, 100, 100, 5);
+		cloth.SetupSprings(8, 8, 8, 0.2);
+		//cloth.SetupSprings(100, 100, 100, 0.2);
+		sphereGobj = sceneManager->GetActiveScene()->GetGameObjectByName("sphere");
+
 	}
 
 	void PhysicallyBasedSimulationViewer::Start()
@@ -38,7 +34,16 @@ namespace SampleApplication
 
 	void PhysicallyBasedSimulationViewer::Update()
 	{
-		physicsSolver.Update();
+		float dt = IHCEngine::Core::Time::GetDeltaTime();
+		accumulatedTime += dt;
+		if (startIntegrateTime > accumulatedTime) return;
+
+		sphereControl();
+
+
+		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.2);
+
+		cloth.Update();
 	}
 
 	void PhysicallyBasedSimulationViewer::FixedUpdate()
@@ -56,5 +61,43 @@ namespace SampleApplication
 
 	}
 
+	void PhysicallyBasedSimulationViewer::sphereControl()
+	{
+		float dt = IHCEngine::Core::Time::GetDeltaTime();
+		auto up = glm::vec3(0, 1, 0);
+		auto right = glm::vec3(1, 0, 0);
+		auto forward = glm::vec3(0, 0, 1);
 
+		// Translate
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_UP))
+		{
+			auto p = -1.0f * forward * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_DOWN))//
+		{
+			auto p = forward * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_LEFT))//
+		{
+			auto p = -1.0f * right * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_RIGHT))//
+		{
+			auto p = right * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_E))
+		{
+			auto p = up * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_Q))
+		{
+			auto p = -1.0f * up * movementSpeed * dt;
+			sphereGobj->transform.Translate(p);
+		}
+	}
 }

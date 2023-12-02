@@ -225,7 +225,7 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\src\Physics\PhysicsSolver.cpp">
+    <ClCompile Include="Engine\src\Physics\SoftBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Physics\Particle.cpp">
@@ -512,7 +512,7 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\src\Physics\PhysicsSolver.h">
+    <ClInclude Include="Engine\src\Physics\SoftBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Physics\Particle.h">
