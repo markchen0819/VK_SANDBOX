@@ -84,7 +84,7 @@ void IHCEngine::Graphics::RenderSystem::createCustomPipelineLayoutsAndPipelines(
     wireframePipelineConfig.pipelineLayout = wireframePipelineLayout; // use default
     wireframePipelineConfig.rasterizer.polygonMode = VK_POLYGON_MODE_LINE; // This is the crucial line for wireframe mode.
     wireframePipelineConfig.rasterizer.lineWidth = 1.0f; // You can adjust this as needed
-    wireframePipelineConfig.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // Or whatever culling mode you prefer
+    wireframePipelineConfig.rasterizer.cullMode = VK_CULL_MODE_NONE; // Or whatever culling mode you prefer
 
 	wireframePipeline = createCustomPipeline(wireframePipelineConfig,
         "Engine/assets/shaders/skeletalvert.spv",

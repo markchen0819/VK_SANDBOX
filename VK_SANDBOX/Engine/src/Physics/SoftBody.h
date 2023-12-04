@@ -26,6 +26,8 @@ namespace IHCEngine::Physics
 		SoftBody() = default;
 		~SoftBody() = default;
 
+		void Update();
+
 		// Set in order
 		void SetTargetMesh(int width, int height, Component::MeshComponent* meshComponent); // Assume providing a NxN mesh
 		void SetupParticles();
@@ -34,13 +36,12 @@ namespace IHCEngine::Physics
 
 		//
 		void SetSphere(glm::vec3 pos, float radius);
-		void ApplyForce(const glm::vec3& force);
-		void Update();
+	
 
 	private:
 
 		// Cloth
-		IntegrationMethod integrationMethod = IntegrationMethod::RungeKutta4;// Verlet;// RungeKutta4;// RungeKutta2;// Verlet;
+		IntegrationMethod integrationMethod = IntegrationMethod::Verlet;// Verlet;// RungeKutta4;// RungeKutta2;// Verlet;
 		Graphics::IHCMesh* mesh;
 		int width = 0;
 		int height = 0;

@@ -13,16 +13,13 @@ namespace SampleApplication
 		// Cloth setup
 		auto clothGobj = sceneManager->GetActiveScene()->GetGameObjectByName("cloth");
 		auto meshComponent = clothGobj->GetComponent<IHCEngine::Component::MeshComponent>();
-		//cloth.SetTargetMesh(10, 10, meshComponent);
+
 		cloth.SetTargetMesh(35, 35, meshComponent);
 		cloth.SetupParticles();
-
 		cloth.SetPinnedParticles(1224, true);
 		cloth.SetPinnedParticles(1190, true);
+		cloth.SetupSprings(10, 5, 10,0.9);
 
-		//cloth.SetupSprings(100, 100, 100, 5);
-		cloth.SetupSprings(8, 8, 8, 0.2);
-		//cloth.SetupSprings(100, 100, 100, 0.2);
 		sphereGobj = sceneManager->GetActiveScene()->GetGameObjectByName("sphere");
 
 	}
@@ -38,12 +35,18 @@ namespace SampleApplication
 		accumulatedTime += dt;
 		if (startIntegrateTime > accumulatedTime) return;
 
+
 		sphereControl();
 
 
 		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.2);
 
 		cloth.Update();
+
+		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_SPACE))
+		{
+			cloth.SetPinnedParticles(1224, false);
+		}
 	}
 
 	void PhysicallyBasedSimulationViewer::FixedUpdate()

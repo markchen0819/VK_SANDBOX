@@ -21,7 +21,7 @@ namespace IHCEngine::Physics
 		int id = 0;
 		for(auto& v : vertices)
 		{
-			particles.push_back(Particle(id, v.position, 0.05, gravity));
+			particles.push_back(Particle(id, v.position, 0.5));
 			++id;
 		}
 	}
@@ -39,51 +39,36 @@ namespace IHCEngine::Physics
 				{
 					auto spring = std::make_unique<Spring>(SpringType::ELASTIC, &particles[current], &particles[current + 1], kElastic, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + 1].AddConnectedSpring(springs.back().get());
 				}
 				if (y < height - 1) // Below
 				{
 					auto spring = std::make_unique<Spring>(SpringType::ELASTIC, &particles[current], &particles[current + width], kElastic, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + width].AddConnectedSpring(springs.back().get());
 				}
-
 				// Create springs for bending connections (Bend)
 				if (x < width - 2) // Two to the right
 				{
 					auto spring = std::make_unique<Spring>(SpringType::BEND, &particles[current], &particles[current + 2], kBend, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + 2].AddConnectedSpring(springs.back().get());
 				}
 				if (y < height - 2) // Two below
 				{
 					auto spring = std::make_unique<Spring>(SpringType::BEND, &particles[current], &particles[current + 2 * width], kBend, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + 2 * width].AddConnectedSpring(springs.back().get());
 				}
-
 				// Create springs for diagonal connections (Shear)
 				if (x < width - 1 && y < height - 1) // Diagonal right and below
 				{ 
 					auto spring = std::make_unique<Spring>(SpringType::SHEAR, &particles[current], &particles[current + width + 1], kShear, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + width + 1].AddConnectedSpring(springs.back().get());
 				}
 				if (x > 0 && y < height - 1)  // Diagonal left and below
 				{ 
 					auto spring = std::make_unique<Spring>(SpringType::SHEAR, &particles[current], &particles[current + width - 1], kShear, damping);
 					springs.emplace_back(std::move(spring));
-					particles[current].AddConnectedSpring(springs.back().get());
-					particles[current + width - 1].AddConnectedSpring(springs.back().get());
 				}
 			}
 		}
-
 	}
 
 	void SoftBody::SetPinnedParticles(int id, bool isPinned)
@@ -91,32 +76,9 @@ namespace IHCEngine::Physics
 		particles[id].SetPinned(isPinned);
 	}
 
-	void SoftBody::SetSphere(glm::vec3 pos, float radius)
-	{
-		sphereCenterPosition = pos;
-		sphereRadius = radius;
-	}
-
-	void SoftBody::ApplyForce(const glm::vec3& force)
-	{
-		for (auto& p : particles)
-		{
-			p.ApplyForce(force);
-		}
-	}
-
 	void SoftBody::Update()
 	{
 		float dt = IHCEngine::Core::Time::GetDeltaTime();
-
-		//// External Forces
-		//for (auto& p : particles) 
-		//{
-		//	glm::vec3 totalExternalForces = gravity * p.GetMass(); // Gravity
-		//	//totalExternalForces += windForce;
-		//	p.ApplyForce(gravity * p.GetMass());
-
-		//}
 
 		// Internal Forces
 		for (auto& spring : springs) 
@@ -124,8 +86,7 @@ namespace IHCEngine::Physics
 			spring->ApplyForce(dt);
 		}
 
-		// Step 3: Integrate to get new positions and velocities
-	
+		// Integrate to get new positions and velocities
 		for (auto& p : particles)
 		{
 			switch (integrationMethod)
@@ -144,24 +105,15 @@ namespace IHCEngine::Physics
 			}
 		}
 
-		//// Step 3: Handle collisions and constraints
-		///
+		// Handle collisions and constraints
 		for (auto& spring : springs)
 		{
-			if (spring->GetSpringType() != SpringType::BEND)
-			{
-				spring->ApplyStretchConstraint();
-			}
+			spring->ApplyStretchConstraint();
 		}
+
 		for (auto& p : particles)
 		{
 			fixPositionFromCollision(p);
-
-			//float energyThreshold = 0.007;
-			//if (glm::length(p.GetVelocity()) < energyThreshold)
-			//{
-			//	p.SetVelocity(glm::vec3(0));
-			//}
 		}
 
 
@@ -172,6 +124,15 @@ namespace IHCEngine::Physics
 			vertices[i].position = particles[i].GetPosition();
 		}
 		mesh->UpdateVertices();
+	}
+
+
+
+	// to do extract
+	void SoftBody::SetSphere(glm::vec3 pos, float radius)
+	{
+		sphereCenterPosition = pos;
+		sphereRadius = radius;
 	}
 
 	void SoftBody::fixPositionFromCollision(Particle& particle)

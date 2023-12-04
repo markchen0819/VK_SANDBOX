@@ -19,8 +19,6 @@ namespace IHCEngine::Physics
 
 		Spring(const SpringType& springType, Particle* particle1, Particle* particle2, float stiffness, float damping);
 
-		glm::vec3 GetForceAppliedToParticle(Particle* targetParticle, const glm::vec3& pos, const glm::vec3& vel);
-
 		SpringType& GetSpringType() { return springType; }
 
 		void ApplyForce(float deltaTime);
@@ -36,8 +34,6 @@ namespace IHCEngine::Physics
 		float baseLength;
 		float stiffness; // k
 		float damping;   // d
-
-		glm::vec3 calculateForce();
 	};
 
 }
