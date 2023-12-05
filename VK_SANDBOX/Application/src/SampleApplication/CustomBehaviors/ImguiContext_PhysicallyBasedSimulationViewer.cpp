@@ -74,9 +74,10 @@ namespace IHCEngine::Component
         }
 
 
-        ImGui::Text("Wind direction is ");
-        ImGui::Text("from sphere position to cloth center");
-        if (ImGui::SliderFloat("WindStrength", &windstrength, 0.0f, 5.0f))
+        ImGui::Text("Wind direction: ");
+        ImGui::Text("From sphere position to cloth center");
+        ImGui::Text("WindStrength: ");
+        if (ImGui::SliderFloat("##WindStrength", &windstrength, 0.0f, 5.0f))
         {
             viewer->SetWindStrength(windstrength);
         }
@@ -95,9 +96,9 @@ namespace IHCEngine::Component
         ImGui::Text("' D ':");
         ImGui::Text("Move sphere on global x axis");
         ImGui::Text("' E ':");
-        ImGui::Text("Move sphere object on global y axis");
+        ImGui::Text("Move sphere on global y axis");
         ImGui::Text("' Q ':");
-        ImGui::Text("Move sphere object on global -y axis");
+        ImGui::Text("Move sphere on global -y axis");
 
         ImGui::Text("-----------------------");
 
