@@ -24,7 +24,9 @@ namespace IHCEngine::Component
         bool isP3Pinned = true;
         bool isP4Pinned = true;
 
-        float windstrength = 0.0;
+        float windStrength = 2.5;
+
+        bool enableWind = false;
     };
 }
 

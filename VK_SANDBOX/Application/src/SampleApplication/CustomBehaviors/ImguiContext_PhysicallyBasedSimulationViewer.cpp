@@ -73,13 +73,18 @@ namespace IHCEngine::Component
             viewer->SetPinned(4);
         }
 
-
-        ImGui::Text("Wind direction: ");
-        ImGui::Text("From sphere position to cloth center");
-        ImGui::Text("WindStrength: ");
-        if (ImGui::SliderFloat("##WindStrength", &windstrength, 0.0f, 5.0f))
+        ImGui::Checkbox("enabledWind", &enableWind);
+        if (enableWind)
         {
-            viewer->SetWindStrength(windstrength);
+            ImGui::Text("Wind direction: ");
+            ImGui::Text("From sphere position to cloth center");
+            ImGui::Text("WindStrength: ");
+            ImGui::SliderFloat("##WindStrength", &windStrength, 0.0f, 5.0f);
+            viewer->SetWindStrength(windStrength);
+        }
+        else
+        {
+            viewer->SetWindStrength(0.0);
         }
 
         ImGui::Text("-----------------------");

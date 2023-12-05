@@ -184,11 +184,18 @@ namespace IHCEngine::Physics
 			}
 		}
 
-		// Handle constraints and ollisions
-		for (auto& spring : springs)
+		// Handle constraints and collisions
+		int iterations = 3;
+		// more iterations for more correct constraint
+		// but performance heavy and potential fps degrade
+		for(int i=0; i< iterations; ++i)
 		{
-			spring->ApplyStretchConstraint();
+			for (auto& spring : springs)
+			{
+				spring->ApplyStretchConstraint();
+			}
 		}
+
 		CheckCollisionFromSphere(sphereCenterPosition, sphereRadius);
 
 		// Render
