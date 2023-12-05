@@ -10,18 +10,27 @@ namespace SampleApplication
 	{
 		auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
 
+
+
+		gravityAcceleration = glm::vec3(0.0f, -9.81, 0.0f);
+		windForce = glm::vec3(0, 1, 1);
+
 		// Cloth setup
 		auto clothGobj = sceneManager->GetActiveScene()->GetGameObjectByName("cloth");
 		auto meshComponent = clothGobj->GetComponent<IHCEngine::Component::MeshComponent>();
 
 		cloth.SetTargetMesh(35, 35, meshComponent);
 		cloth.SetupParticles();
+
+		cloth.SetPinnedParticles(0, true);
+		cloth.SetPinnedParticles(34, true);
 		cloth.SetPinnedParticles(1224, true);
 		cloth.SetPinnedParticles(1190, true);
+
 		cloth.SetupSprings(10, 5, 10,0.9);
 
 		sphereGobj = sceneManager->GetActiveScene()->GetGameObjectByName("sphere");
-
+		sphereGobj->transform.SetPosition(glm::vec3(0, 7, 0));
 	}
 
 	void PhysicallyBasedSimulationViewer::Start()
@@ -35,18 +44,17 @@ namespace SampleApplication
 		accumulatedTime += dt;
 		if (startIntegrateTime > accumulatedTime) return;
 
-
+		// Sphere
 		sphereControl();
 
-
-		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.2);
-
+		// Cloth
+		cloth.ApplyAcceleration(gravityAcceleration);
+		glm::vec3 windDirection = glm::normalize(cloth.GetCenter() - sphereGobj->transform.GetPosition());
+		windForce = windDirection * windStrength;
+		cloth.ApplyForceOnFace(windForce);
+		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.1);
 		cloth.Update();
 
-		if (IHCEngine::Core::Input::IsKeyHeld(GLFW_KEY_SPACE))
-		{
-			cloth.SetPinnedParticles(1224, false);
-		}
 	}
 
 	void PhysicallyBasedSimulationViewer::FixedUpdate()
@@ -62,6 +70,30 @@ namespace SampleApplication
 	void PhysicallyBasedSimulationViewer::OnDisable()
 	{
 
+	}
+
+	void PhysicallyBasedSimulationViewer::SetPinned(int pinID)
+	{
+		if (pinID == 1)
+		{
+			isP1Pinned = !isP1Pinned;
+			cloth.SetPinnedParticles(0, isP1Pinned);
+		}
+		if (pinID == 2)
+		{
+			isP2Pinned = !isP2Pinned;
+			cloth.SetPinnedParticles(34, isP2Pinned);
+		}
+		if (pinID == 3)
+		{
+			isP3Pinned = !isP3Pinned;
+			cloth.SetPinnedParticles(1224, isP3Pinned);
+		}
+		if (pinID == 4)
+		{
+			isP4Pinned = !isP4Pinned;
+			cloth.SetPinnedParticles(1190, isP4Pinned);
+		}
 	}
 
 	void PhysicallyBasedSimulationViewer::sphereControl()

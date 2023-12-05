@@ -23,6 +23,15 @@ namespace SampleApplication
         void OnEnable() override;
         void OnDisable() override;
 
+        // Imgui
+        void SetPinned(int pinID);
+        bool IsP1Pinned() const { return isP1Pinned; }
+        bool IsP2Pinned() const { return isP2Pinned; }
+        bool IsP3Pinned() const { return isP3Pinned; }
+        bool IsP4Pinned() const { return isP4Pinned; }
+        bool HasStartedSimulating() { return (accumulatedTime > startIntegrateTime); }
+        void SetWindStrength(float f) { windStrength = f; }
+        IHCEngine::Physics::SoftBody& GetCloth() { return cloth; }
 
     private:
 
@@ -32,14 +41,19 @@ namespace SampleApplication
 
         // Cloth
         IHCEngine::Physics::SoftBody cloth;
+        glm::vec3 gravityAcceleration = glm::vec3(0.0f, -9.81, 0.0f);
+        glm::vec3 windForce = glm::vec3(0);
+        float windStrength = 0.0f;
 
         //Sphere
         IHCEngine::Core::GameObject* sphereGobj = nullptr;
         float movementSpeed = 5;
         void sphereControl();
 
-
-
-
+        // Imgui
+        bool isP1Pinned = true;
+        bool isP2Pinned = true;
+        bool isP3Pinned = true;
+        bool isP4Pinned = true;
     };
 }

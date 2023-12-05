@@ -20,6 +20,7 @@ namespace IHCEngine::Physics
 
 		// Force
 		void ApplyForce(const glm::vec3& force);
+		void ApplyAcceleration(const glm::vec3& acc);
 
 		// Calculate acceleration/ velocity/ position
 		void EulerIntegrate(float deltaTime);

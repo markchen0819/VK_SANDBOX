@@ -16,6 +16,11 @@ namespace IHCEngine::Physics
 		force += f;
 	}
 
+    void Particle::ApplyAcceleration(const glm::vec3& acceleration)
+    {
+        force += mass * acceleration;
+    }
+
     glm::vec3 Particle::computeVelocity(float deltaTime)
     {
         return velocity + acceleration * deltaTime;
@@ -23,19 +28,6 @@ namespace IHCEngine::Physics
 
     glm::vec3 Particle::computeAcceleration(float deltaTime, glm::vec3 const& velocity)
     {
-        glm::vec3 gravityForce(0.0f, -9.81 * mass, 0.0f);
-        force += gravityForce;
-
-        //// Parameters for wind strength range
-        //float minWindStrength = -10.0f; // minimum strength
-        //float maxWindStrength = -30.0f; // maximum strength
-        //// Random number generator
-        //float randRatio = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
-        //float windStrength = minWindStrength + randRatio * (maxWindStrength - minWindStrength);
-        //// Create wind force with the same direction as gravity but with random strength
-        //glm::vec3 windForce(0.0f, 0.0, -windStrength * mass);
-        //force += windForce;
-
         return force / mass;
     }
 
@@ -81,7 +73,6 @@ namespace IHCEngine::Physics
         newPosition = position + k2dp; 
         newVelocity = velocity + k2dv; 
 
-        acceleration = (newVelocity - velocity) / deltaTime;
         position = newPosition;
         velocity = newVelocity;
 
@@ -100,19 +91,16 @@ namespace IHCEngine::Physics
         glm::vec3 newVelocity;
 
         glm::vec3 k1dp = computeVelocity(0) * deltaTime;
-        glm::vec3 k2dp = computeVelocity(0.5 * deltaTime) * deltaTime;
-        glm::vec3 k3dp = computeVelocity(0.5 * deltaTime) * deltaTime;
-        glm::vec3 k4dp = computeVelocity(deltaTime) * deltaTime;
-
         glm::vec3 k1dv = computeAcceleration(0, velocity) * deltaTime;
-        glm::vec3 k2dv= computeAcceleration(0.5 * deltaTime, velocity + 0.5f * k1dv) * deltaTime;
+        glm::vec3 k2dp = computeVelocity(0.5 * deltaTime) * deltaTime;
+        glm::vec3 k2dv = computeAcceleration(0.5 * deltaTime, velocity + 0.5f * k1dv) * deltaTime;
+        glm::vec3 k3dp = computeVelocity(0.5 * deltaTime) * deltaTime;
         glm::vec3 k3dv = computeAcceleration(0.5 * deltaTime, velocity + 0.5f * k2dv) * deltaTime;
+        glm::vec3 k4dp = computeVelocity(deltaTime) * deltaTime;
         glm::vec3 k4dv = computeAcceleration(deltaTime, this->velocity + k3dv) * deltaTime;
 
         newPosition = this->position + (1.0f / 6.0f) * (k1dp + 2.0f * k2dp + 2.0f * k3dp + k4dp);
         newVelocity = this->velocity + (1.0f / 6.0f) * (k1dv + 2.0f * k2dv + 2.0f * k3dv + k4dv);
-
-        acceleration = (newVelocity - velocity) / deltaTime;
 
         position = newPosition;
         velocity = newVelocity;

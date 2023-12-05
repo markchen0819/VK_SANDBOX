@@ -76,6 +76,85 @@ namespace IHCEngine::Physics
 		particles[id].SetPinned(isPinned);
 	}
 
+	glm::vec3 SoftBody::GetCenter()
+	{
+		size_t middleIndex = particles.size() / 2;
+		return particles[middleIndex].GetPosition();
+	}
+
+	void SoftBody::ApplyForce(const glm::vec3& force)
+	{
+		for(auto& p : particles)
+		{
+			p.ApplyForce(force);
+		}
+	}
+
+	void SoftBody::ApplyAcceleration(const glm::vec3& acc)
+	{
+		for (auto& p : particles)
+		{
+			p.ApplyAcceleration(acc);
+		}
+	}
+
+	void SoftBody::ApplyForceOnFace(const glm::vec3& force)
+	{
+		for (int y = 0; y < height-1; ++y)
+		{
+			for (int x = 0; x < width-1; ++x)
+			{
+				auto& p1 = particles[y * width + x];
+				auto& p2 = particles[(y + 1) * width + x];
+				auto& p3 = particles[y * width + (x + 1)];
+				auto& p4 = particles[(y + 1) * width + (x + 1)];
+
+				// First Triangle of Square
+				glm::vec3 v1 = p2.GetPosition() - p1.GetPosition();
+				glm::vec3 v2 = p3.GetPosition() - p1.GetPosition();
+				glm::vec3 normal = glm::normalize(glm::cross(v1,v2));
+				glm::vec3 f = normal * glm::dot(normal, force);
+				p1.ApplyForce(f);
+				p2.ApplyForce(f);
+				p3.ApplyForce(f);
+
+				// Second Triangle of Square
+				v1 = p4.GetPosition() - p3.GetPosition();
+				v2 = p4.GetPosition() - p2.GetPosition();
+				normal = glm::normalize(glm::cross(v1, v2));
+				f = normal * glm::dot(normal, force);
+				p4.ApplyForce(f);
+				p3.ApplyForce(f);
+				p2.ApplyForce(f);
+			}
+		}
+	}
+
+	void SoftBody::CheckCollisionFromSphere(glm::vec3 sphereCenter, float radius)
+	{
+		for (auto& p : particles)
+		{
+			if(p.IsPinned())
+			{
+				continue;
+			}
+			auto vec = p.GetPosition() - sphereCenter;
+			float distanceToSphereCenter = glm::length(vec);
+
+			if (distanceToSphereCenter < radius)
+			{
+				glm::vec3 correctionVector = (radius - distanceToSphereCenter) * glm::normalize(vec);
+				p.SetPosition(p.GetPosition() + correctionVector);
+			}
+		}
+	}
+
+	void SoftBody::SetSphere(glm::vec3 pos, float radius)
+	{
+		sphereCenterPosition = pos;
+		sphereRadius = radius;
+	}
+
 	void SoftBody::Update()
 	{
 		float dt = IHCEngine::Core::Time::GetDeltaTime();
@@ -105,17 +184,12 @@ namespace IHCEngine::Physics
 			}
 		}
 
-		// Handle collisions and constraints
+		// Handle constraints and ollisions
 		for (auto& spring : springs)
 		{
 			spring->ApplyStretchConstraint();
 		}
-
-		for (auto& p : particles)
-		{
-			fixPositionFromCollision(p);
-		}
-
+		CheckCollisionFromSphere(sphereCenterPosition, sphereRadius);
 
 		// Render
 		auto& vertices = mesh->GetVertices();
@@ -126,37 +200,8 @@ namespace IHCEngine::Physics
 		mesh->UpdateVertices();
 	}
 
-
-
-	// to do extract
-	void SoftBody::SetSphere(glm::vec3 pos, float radius)
+	void SoftBody::SetIntegrationMethod(IntegrationMethod method)
 	{
-		sphereCenterPosition = pos;
-		sphereRadius = radius;
-	}
-
-	void SoftBody::fixPositionFromCollision(Particle& particle)
-	{
-		glm::vec3 vec = particle.GetPosition() - sphereCenterPosition;
-		float distanceToSphereCenter = glm::length(vec);
-
-		if(distanceToSphereCenter < sphereRadius) // Collide
-		{
-			// Move point out of the sphere
-			glm::vec3 displacementToSurface = (sphereRadius - distanceToSphereCenter) * glm::normalize(vec);
-			particle.SetPosition(particle.GetPosition() + displacementToSurface);
-
-
-			// Bounce back velocity with restitution
-			float cor = 0.8f; // Coefficient of restitution, adjust as needed (0 = perfect inelastic, 1 = perfect elastic)
-			glm::vec3 normal = glm::normalize(vec);
-			glm::vec3 velocityTowardsSphere = glm::dot(particle.GetVelocity(), normal) * normal;
-			glm::vec3 reflectedVelocity = particle.GetVelocity() - (1.0f + cor) * velocityTowardsSphere;
-			particle.SetVelocity(reflectedVelocity);
-
-			//glm::vec3 velocityTowardsSphere = glm::dot(particle.GetVelocity(), vec) * vec;
-			//glm::vec3 reflectedVelocity = particle.GetVelocity() - glm::vec3(1.01, 1.01, 1.01) * velocityTowardsSphere;
-			//particle.SetVelocity(glm::vec3(0,0,0));
-		}
+		integrationMethod = method;
 	}
 }
