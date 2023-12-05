@@ -3,6 +3,11 @@
 #include "../../../../Engine/src/Physics/SoftBody.h"
 #include "../../Engine/src/Core/Scene/Components/CustomBehavior/CustomBehavior.h"
 
+namespace IHCEngine::Graphics
+{
+	class Camera;
+}
+
 namespace IHCEngine::Component
 {
 	class MeshComponent;
@@ -47,8 +52,18 @@ namespace SampleApplication
 
         //Sphere
         IHCEngine::Core::GameObject* sphereGobj = nullptr;
-        float movementSpeed = 5;
+        float sphereMovementSpeed = 5;
         void sphereControl();
+
+        // AnimationViewerInput
+        IHCEngine::Graphics::Camera* camera = nullptr;
+        glm::vec3 centerPoint = glm::vec3(0.0);
+        float angleRespectToCenterPoint;
+        float distanceToCenterPoint;
+        float angleSpeed = 50.0;
+        float movementSpeed = 10;
+        float zoomSpeed = 0.03f;
+        void HandleAnimationViewerInput();
 
         // Imgui
         bool isP1Pinned = true;

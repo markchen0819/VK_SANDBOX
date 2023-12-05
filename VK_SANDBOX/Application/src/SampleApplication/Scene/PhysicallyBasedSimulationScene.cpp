@@ -70,7 +70,7 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	IHCEngine::Core::Time::LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	camera.AddComponent<SampleApplication::CameraController>();
+	//camera.AddComponent<SampleApplication::CameraController>();
 	camera.AddComponent<PhysicallyBasedSimulationViewer>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_PhysicallyBasedSimulationViewer>();
 
