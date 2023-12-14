@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "../../../../Engine/src/Core/Scene/Components/ImguiContextComponent.h"
 
 namespace IHCEngine::Component

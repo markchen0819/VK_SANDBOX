@@ -92,7 +92,26 @@ std::unique_ptr<IHCEngine::Graphics::IHCMesh> IHCEngine::Graphics::IHCMesh::Crea
 
 void IHCEngine::Graphics::IHCMesh::UpdateVertices()
 {
-    createVertexBuffers(this->GetVertices());
+    vkDeviceWaitIdle(ihcDevice.GetDevice());
+
+    // old
+	//createVertexBuffers(this->GetVertices());
+
+    // new
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+    uint32_t vertexSize = sizeof(vertices[0]);
+    IHCBuffer stagingBuffer
+    {
+        ihcDevice,
+        vertexSize,
+        vertexCount,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    };
+    stagingBuffer.Map();
+    stagingBuffer.WriteToBuffer((void*)vertices.data());
+    stagingBuffer.Unmap(); //also handled automatically in destructor
+    ihcDevice.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 }
 
 IHCEngine::Graphics::IHCMesh::IHCMesh(IHCDevice& device, const IHCMesh::Builder& builder) 
@@ -104,6 +123,7 @@ IHCEngine::Graphics::IHCMesh::IHCMesh(IHCDevice& device, const IHCMesh::Builder&
 
 IHCEngine::Graphics::IHCMesh::~IHCMesh()
 {
+    vkDeviceWaitIdle(ihcDevice.GetDevice());
 	// destory buffer free memory
 }
 

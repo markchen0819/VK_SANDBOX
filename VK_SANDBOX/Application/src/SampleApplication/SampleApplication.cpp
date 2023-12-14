@@ -3,6 +3,7 @@
 #include "../../../Engine/src/Input/Input.h"
 #include "../../Engine/src/Core/Locator/SceneManagerLocator.h"
 
+#include "Scene/PhysicallyBasedSimulationScene.h"
 #include "Scene/InverseKinematicsScene.h"
 #include "Scene/MotionAlongPathScene.h"
 #include "Scene/SkeletalAnimationScene.h"
@@ -19,7 +20,8 @@ void SampleApplication::SampleApplication::Init()
 	sceneManager->AddScene<SkeletalAnimationScene>();
 	sceneManager->AddScene<MotionAlongPathScene>();
 	sceneManager->AddScene<InverseKinematicsScene>();
-	sceneManager->SetNextSceneToLoad(2);
+	sceneManager->AddScene<PhysicallyBasedSimulationScene>();
+	sceneManager->SetNextSceneToLoad(3);
 }
 
 void SampleApplication::SampleApplication::Update()
@@ -48,6 +50,13 @@ void SampleApplication::SampleApplication::Update()
 		std::cout << "==========    Loading Scene 3   ========" << std::endl;
 		std::cout << "=========================================" << std::endl;
 		sceneManager->SetNextSceneToLoad(2);
+	}
+	if (IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_F4))
+	{
+		std::cout << "=========================================" << std::endl;
+		std::cout << "==========    Loading Scene 4   ========" << std::endl;
+		std::cout << "=========================================" << std::endl;
+		sceneManager->SetNextSceneToLoad(3);
 	}
 }
 

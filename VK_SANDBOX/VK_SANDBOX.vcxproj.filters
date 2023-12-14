@@ -219,6 +219,24 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\IKComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Physics\SoftBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Physics\Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Physics\Spring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -486,6 +504,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\Components\IKComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Physics\SoftBody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Physics\Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Physics\Spring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
