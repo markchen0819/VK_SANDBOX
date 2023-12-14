@@ -237,6 +237,21 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -522,6 +537,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

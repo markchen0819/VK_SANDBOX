@@ -1,0 +1,163 @@
+#include "../../../pch.h"
+#include "DebugBonePipeline.h"
+
+#include "../../VKWraps/VKHelpers.h"
+#include "../../VKWraps/IHCDevice.h"
+#include "../../VKWraps/IHCPipeline.h"
+#include "../../VKWraps/IHCDescriptorManager.h"
+
+
+#include "../../../Core/Scene/Components/PipelineComponent.h"
+#include "../../../Core/Scene/Components/ModelComponent.h"
+#include "../../../Core/Scene/Components/AnimatorComponent.h"
+#include "../../../Core/Scene/Components/IKComponent.h"
+#include "../../../Core/Scene/GameObject.h"
+
+
+namespace IHCEngine::Graphics
+{
+    DebugBonePipeline::DebugBonePipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
+        : ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+    {
+        createLayout();
+        createPipeline();
+    }
+
+    DebugBonePipeline::~DebugBonePipeline()
+    {
+        destroyPipeline();
+    }
+
+    void DebugBonePipeline::Render(FrameInfo& frameInfo)
+    {
+        // Bind Pipeline 
+        pipeline->Bind(frameInfo.commandBuffer);
+        // global Descriptor Sets (Camera)
+        vkCmdBindDescriptorSets
+        (
+            frameInfo.commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipelineLayout,
+            0,
+            1,
+            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+            ->GetDescriptorSets()[frameInfo.frameIndex],
+            0,
+            nullptr
+        );
+        // For each game object
+        for (auto& g : frameInfo.gameObjects)
+        {
+            IHCEngine::Core::GameObject* gobj = g.second;
+            if (gobj->IsActive() == false) continue;
+            // Only render the ones specifying this pipeline
+            auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
+            if (pipelineComponent == nullptr ||
+                pipelineComponent->GetPipelineType() !=
+                Component::PipelineType::SKELETAL) continue;
+
+            // SkeletalAnimationPipeline Requires a model
+            if (!gobj->HasComponent<Component::ModelComponent>()) continue;
+
+            // Has animation
+            VkDescriptorSet_T* skeletalDescriptorSet;
+            auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
+            auto ikComponent = gobj->GetComponent<Component::IKComponent>();
+            if (animatorComponent != nullptr &&
+                animatorComponent->IsActive() &&
+                animatorComponent->HasAnimation())
+            {
+                // Draw Debug Bones
+                SimplePushConstantData push{};
+                push.modelMatrix = gobj->transform.GetModelMatrix();
+                push.normalMatrix = glm::mat4(1);
+                vkCmdPushConstants
+                (
+                    frameInfo.commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    0,
+                    sizeof(SimplePushConstantData),
+                    &push
+                );
+                animatorComponent->UpdateDebugBoneBuffer(frameInfo);
+                animatorComponent->DrawDebugBoneBuffer(frameInfo);
+            }
+            else if (ikComponent != nullptr && ikComponent->IsActive()) // Has IK
+            {
+                // Draw Debug Bones
+                SimplePushConstantData push{};
+                push.modelMatrix = gobj->transform.GetModelMatrix();
+                push.normalMatrix = glm::mat4(1);
+                vkCmdPushConstants
+                (
+                    frameInfo.commandBuffer,
+                    pipelineLayout,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    0,
+                    sizeof(SimplePushConstantData),
+                    &push
+                );
+                ikComponent->UpdateDebugBoneBuffer(frameInfo);
+                ikComponent->DrawDebugBoneBuffer(frameInfo);
+            }
+            else // No animation
+            {
+
+            }
+        }
+    }
+
+    void DebugBonePipeline::createLayout()
+    {
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts
+        {
+            descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
+        };
+
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(SimplePushConstantData);
+
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
+        if (vkCreatePipelineLayout(ihcDevice.GetDevice(),
+            &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create pipeline layout!");
+        }
+    }
+
+    void DebugBonePipeline::createPipeline()
+    {
+        PipelineConfigInfo debugBonePipelineConfig{};
+        IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(debugBonePipelineConfig, ihcDevice);
+        debugBonePipelineConfig.renderPass = renderPass;
+        debugBonePipelineConfig.pipelineLayout = pipelineLayout;
+        debugBonePipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        debugBonePipelineConfig.rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+        debugBonePipelineConfig.rasterizer.lineWidth = 1.0f;
+        debugBonePipelineConfig.depthStencil.depthTestEnable = VK_FALSE;
+        debugBonePipelineConfig.depthStencil.depthWriteEnable = VK_FALSE;
+
+        pipeline = std::make_unique<IHCEngine::Graphics::IHCPipeline>
+            (
+                ihcDevice,
+                "Engine/assets/shaders/debugbonevert.spv",
+                "Engine/assets/shaders/debugbonefrag.spv",
+                debugBonePipelineConfig
+            );
+    }
+
+    void DebugBonePipeline::destroyPipeline()
+    {
+        vkDestroyPipelineLayout(ihcDevice.GetDevice(), pipelineLayout, nullptr);
+    }
+
+}

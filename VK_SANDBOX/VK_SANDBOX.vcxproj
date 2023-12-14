@@ -153,6 +153,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\AnimationConfig.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\AnimatorComponent.cpp" />
@@ -229,9 +231,14 @@
     <ClCompile Include="Engine\src\Physics\Particle.cpp" />
     <ClCompile Include="Engine\src\Physics\Spring.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h" />
     <ClInclude Include="Engine\src\Core\Locator\ImGuiManagerLocator.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\AnimationConfig.h" />
@@ -325,6 +332,9 @@
     <ClInclude Include="Engine\src\Physics\Particle.h" />
     <ClInclude Include="Engine\src\Physics\Spring.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />
