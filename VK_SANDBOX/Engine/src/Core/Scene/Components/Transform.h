@@ -90,6 +90,7 @@ namespace IHCEngine::Component
 		bool isDirty = false;
 		void setDirty() { isDirty = true; }
 
+		void Attach() override;
 		void Remove() override;
 	};
 }

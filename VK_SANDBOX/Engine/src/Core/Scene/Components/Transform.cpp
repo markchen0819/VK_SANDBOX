@@ -406,6 +406,10 @@ void IHCEngine::Component::Transform::Propagate()
 
 #pragma endregion
 
+void IHCEngine::Component::Transform::Attach()
+{
+}
+
 void IHCEngine::Component::Transform::Remove()
 {
 }

@@ -25,6 +25,10 @@ IHCEngine::Graphics::MaterialData IHCEngine::Component::ModelComponent::GetMater
 	return model->GetMaterialForMesh(key);
 }
 
+void IHCEngine::Component::ModelComponent::Attach()
+{
+}
+
 void IHCEngine::Component::ModelComponent::Remove()
 {
 

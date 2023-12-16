@@ -16,12 +16,13 @@
 #include "../../../Core/Scene/Components/MeshComponent.h"
 #include "../../../Core/Scene/Components/AnimatorComponent.h"
 #include "../../../Core/Scene/GameObject.h"
+#include "../../../Core/Time/Time.h"
 #include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
 
 namespace IHCEngine::Graphics
 {
     WireframePipeline::WireframePipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
-        : ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+        : CustomPipelineBase(device, renderPass, descriptorManager)
     {
         createLayout();
         createPipeline();
@@ -44,7 +45,7 @@ namespace IHCEngine::Graphics
             pipelineLayout,
             0,
             1,
-            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSets()[frameInfo.frameIndex],
+            &descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSets()[frameInfo.frameIndex],
             0,
             nullptr
         );
@@ -61,7 +62,8 @@ namespace IHCEngine::Graphics
                 if (animatorComponent == nullptr || animatorComponent->HasAnimation())
                 {
                     // Update the animation
-                    animatorComponent->UpdateAnimation(frameInfo.frameTime);
+                    float dt = IHCEngine::Core::Time::GetDeltaTime();
+                    animatorComponent->UpdateAnimation(dt);
                     // Link to shader
                     skeletalDescriptorSet = animatorComponent->GetDescriptorSets()[frameInfo.frameIndex];
                     vkCmdBindDescriptorSets

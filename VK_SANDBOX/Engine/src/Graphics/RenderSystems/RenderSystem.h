@@ -1,10 +1,16 @@
 #pragma once
 
+#include "Pipelines/PipelineType.h"
 #include "Pipelines/DefaultPipeline.h"
 #include "Pipelines/LineRendererPipeline.h"
 #include "Pipelines/DebugBonePipeline.h"
 #include "Pipelines/SkeletalAnimationPipeline.h"
 #include "Pipelines/WireframePipeline.h"
+
+namespace IHCEngine::Core
+{
+	class GameObject;
+}
 
 namespace IHCEngine::Graphics
 {
@@ -29,6 +35,9 @@ namespace IHCEngine::Graphics
         RenderSystem &operator=(const RenderSystem&) = delete;
 
         void RenderGameObjects(FrameInfo& frameInfo);
+
+        void AddGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType);
+        void RemoveGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType);
 
         inline static bool wireframeEnabled = false;
         inline static bool debugBonesEnabled = true;

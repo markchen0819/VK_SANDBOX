@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp" />
@@ -237,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\BlendTree.h" />
@@ -261,6 +263,7 @@
     <ClInclude Include="Engine\src\Core\Asset\AssetRepository.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Camera.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\Component.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\PipelineType.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\IHCDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCDevice.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\IHCPipeline.h" />

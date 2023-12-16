@@ -13,7 +13,7 @@
 namespace IHCEngine::Graphics
 {
 	LineRendererPipeline::LineRendererPipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
-		: ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+        : CustomPipelineBase(device, renderPass, descriptorManager)
 	{
 		createLayout();
         createPipeline();
@@ -36,22 +36,17 @@ namespace IHCEngine::Graphics
             pipelineLayout,
             0,
             1,
-            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+            &descriptorManager->GetGlobalDescriptorWrap()
             ->GetDescriptorSets()[frameInfo.frameIndex],
             0,
             nullptr
         );
         // For each game object
-        for (auto& g : frameInfo.gameObjects)
+        for (auto& gobj: gameObjects)
         {
-            IHCEngine::Core::GameObject* gobj = g.second;
             if (gobj->IsActive() == false) continue;
-            // Only render the ones specifying this pipeline
 
-
-            if (!gobj->HasComponent<Component::LineRendererComponent>()) continue;
             auto lineRendererComponent = gobj->GetComponent<Component::LineRendererComponent>();
-
             SimplePushConstantData push{};
             push.modelMatrix = gobj->transform.GetModelMatrix();
             push.normalMatrix = glm::mat4(1);

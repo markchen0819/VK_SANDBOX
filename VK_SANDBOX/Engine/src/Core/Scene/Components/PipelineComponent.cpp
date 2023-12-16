@@ -7,6 +7,10 @@ IHCEngine::Component::PipelineComponent::PipelineComponent()
 }
 
 
+void IHCEngine::Component::PipelineComponent::Attach()
+{
+}
+
 void IHCEngine::Component::PipelineComponent::Remove()
 {
 

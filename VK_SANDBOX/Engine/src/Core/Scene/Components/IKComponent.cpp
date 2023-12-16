@@ -81,6 +81,10 @@ void IHCEngine::Component::IKComponent::DrawDebugBoneBuffer(Graphics::FrameInfo&
 	IKSolver.DrawDebugBoneBuffer(frameInfo);
 }
 
+void IHCEngine::Component::IKComponent::Attach()
+{
+}
+
 void IHCEngine::Component::IKComponent::Remove()
 {
 

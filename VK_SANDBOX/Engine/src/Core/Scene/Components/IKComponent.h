@@ -41,6 +41,7 @@ namespace IHCEngine::Component
 
 		IHCEngine::Graphics::InverseKinematicsSolver IKSolver;
 
+		void Attach() override;
 		void Remove() override;
 	};
 }

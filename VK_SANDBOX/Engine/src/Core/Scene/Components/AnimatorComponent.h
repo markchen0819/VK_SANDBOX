@@ -45,6 +45,7 @@ namespace IHCEngine::Component
 
 		IHCEngine::Graphics::Animator animator;
 
+		void Attach() override;
 		void Remove() override;
 	};
 }

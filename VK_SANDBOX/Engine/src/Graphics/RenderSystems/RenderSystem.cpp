@@ -43,3 +43,43 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
         }
     }
 }
+
+void IHCEngine::Graphics::RenderSystem::AddGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType)
+{
+    switch(pipelineType)
+    {
+    case PipelineType::DEFAULT:
+        defaultPipeline->AddGameObjectToRender(gobj);
+        break;
+    case PipelineType::WIREFRAME:
+        break;
+    case PipelineType::SKELETAL:
+        break;
+    case PipelineType::DEBUGBONE:
+        break;
+    case PipelineType::LINERENDERER:
+        lineRendererPipeline->AddGameObjectToRender(gobj);
+        break;
+
+    }
+}
+
+void IHCEngine::Graphics::RenderSystem::RemoveGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType)
+{
+    switch (pipelineType)
+    {
+    case PipelineType::DEFAULT:
+        defaultPipeline->RemoveGameObjectToRender(gobj);
+        break;
+    case PipelineType::WIREFRAME:
+        break;
+    case PipelineType::SKELETAL:
+        break;
+    case PipelineType::DEBUGBONE:
+        break;
+    case PipelineType::LINERENDERER:
+        lineRendererPipeline->RemoveGameObjectToRender(gobj);
+        break;
+
+    }
+}

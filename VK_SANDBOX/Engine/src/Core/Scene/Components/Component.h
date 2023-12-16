@@ -49,6 +49,8 @@ namespace IHCEngine::Component
 		IHCEngine::Core::GameObject* gameObject;
 
 		friend class Core::GameObject;
+
+		virtual void Attach() = 0;   // Add from locator if used
 		virtual void Remove() = 0; // Remove from locator if used
 	};
 

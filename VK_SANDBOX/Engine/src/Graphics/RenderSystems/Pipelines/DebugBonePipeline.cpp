@@ -40,7 +40,7 @@ namespace IHCEngine::Graphics
             pipelineLayout,
             0,
             1,
-            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+            &descriptorManager->GetGlobalDescriptorWrap()
             ->GetDescriptorSets()[frameInfo.frameIndex],
             0,
             nullptr

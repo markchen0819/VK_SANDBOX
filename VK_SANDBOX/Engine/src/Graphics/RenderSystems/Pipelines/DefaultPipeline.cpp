@@ -16,7 +16,7 @@
 namespace IHCEngine::Graphics
 {
     DefaultPipeline::DefaultPipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
-        : ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+        : CustomPipelineBase(device, renderPass, descriptorManager)
     {
         createLayout();
         createPipeline();
@@ -41,7 +41,7 @@ namespace IHCEngine::Graphics
             pipelineLayout,
             0,
             1,
-            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+            &descriptorManager->GetGlobalDescriptorWrap()
             ->GetDescriptorSets()[frameInfo.frameIndex],
             0,
             nullptr
@@ -49,20 +49,16 @@ namespace IHCEngine::Graphics
         // Update Global Push Constants
         // Common case:  Global time value, Viewport Information
         // Our case: None
-        // For each game object
-        for (auto& g : frameInfo.gameObjects)
+        for (auto& gobj : gameObjects)
         {
-            IHCEngine::Core::GameObject* gobj = g.second;
-            if (gobj->IsActive() == false) continue;
-            // Only render the ones specifying this pipeline
-            auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
-            if (pipelineComponent == nullptr ||
-                pipelineComponent->GetPipelineType() !=
-                Component::PipelineType::DEFAULT) continue;
 
-            // Has mesh & texture (model in a different pipeline)
+            if (gobj->IsActive() == false) continue;
             if (!gobj->HasComponent<Component::MeshComponent>()) continue;
-            if (!gobj->HasComponent<Component::TextureComponent>()) continue;
+            if (!gobj->HasComponent<Component::TextureComponent>())
+            {
+                assert(true, "Missing Texture Componenent");
+                continue;
+            }
 
             // Bind Local Descriptor Set
             // Common case: Material Textures (Texture, NormalMap, AO), Material Properties, Transform Matrices for Skinned Animations

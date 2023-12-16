@@ -23,6 +23,7 @@ namespace IHCEngine::Component
 	private:
 
 		PipelineType pipelineType = PipelineType::DEFAULT;
+		void Attach() override;
 		void Remove() override;
 	};
 }

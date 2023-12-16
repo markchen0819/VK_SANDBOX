@@ -13,7 +13,7 @@ namespace IHCEngine::Component
 	{
 	public:
 		MeshComponent();
-		~MeshComponent()=default;
+		~MeshComponent() = default;
 
 		void SetMesh(Graphics::IHCMesh* mesh);
 		IHCEngine::Graphics::IHCMesh* GetMesh() const { return mesh; }
@@ -24,6 +24,7 @@ namespace IHCEngine::Component
 	private:
 
 		IHCEngine::Graphics::IHCMesh* mesh = nullptr;
+		void Attach() override;
 		void Remove() override;
 	};
 }

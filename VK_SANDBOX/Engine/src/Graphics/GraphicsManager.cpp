@@ -83,9 +83,7 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         FrameInfo frameInfo
         {
             frameIndex,
-            IHCEngine::Core::Time::GetDeltaTime(),
             commandBuffer,
-        	descriptorManager.get(),
             gameObjects
         };
 

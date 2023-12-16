@@ -16,12 +16,13 @@
 #include "../../../Core/Scene/Components/IKComponent.h"
 #include "../../../Core/Scene/Components/AnimatorComponent.h"
 #include "../../../Core/Scene/GameObject.h"
+#include "../../../Core/Time/Time.h"
 #include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
 
 namespace IHCEngine::Graphics
 {
     SkeletalAnimationPipeline::SkeletalAnimationPipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
-        : ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+        : CustomPipelineBase(device, renderPass, descriptorManager)
     {
         createLayout();
         createPipeline();
@@ -34,6 +35,7 @@ namespace IHCEngine::Graphics
 
     void SkeletalAnimationPipeline::Render(FrameInfo& frameInfo)
     {
+
         // Bind Pipeline 
         pipeline->Bind(frameInfo.commandBuffer);
         SkeletalUniformBufferObject subo;
@@ -45,7 +47,7 @@ namespace IHCEngine::Graphics
             pipelineLayout,
             0,
             1,
-            &frameInfo.descriptorManager->GetGlobalDescriptorWrap()
+            &descriptorManager->GetGlobalDescriptorWrap()
             ->GetDescriptorSets()[frameInfo.frameIndex],
             0,
             nullptr
@@ -73,7 +75,8 @@ namespace IHCEngine::Graphics
                 animatorComponent->HasAnimation())
             {
                 // Update the animation
-                animatorComponent->UpdateAnimation(frameInfo.frameTime);
+                float dt = IHCEngine::Core::Time::GetDeltaTime();
+                animatorComponent->UpdateAnimation(dt);
                 // Link to shader
                 skeletalDescriptorSet = animatorComponent->GetDescriptorSets()[frameInfo.frameIndex];
                 vkCmdBindDescriptorSets

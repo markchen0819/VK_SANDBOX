@@ -252,6 +252,9 @@
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -552,6 +555,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\PipelineType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

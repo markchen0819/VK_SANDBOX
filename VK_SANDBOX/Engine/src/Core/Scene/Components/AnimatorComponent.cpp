@@ -98,6 +98,10 @@ void IHCEngine::Component::AnimatorComponent::DrawDebugBoneBuffer(Graphics::Fram
 	animator.DrawDebugBoneBuffer(frameInfo);
 }
 
+void IHCEngine::Component::AnimatorComponent::Attach()
+{
+}
+
 void IHCEngine::Component::AnimatorComponent::Remove()
 {
 

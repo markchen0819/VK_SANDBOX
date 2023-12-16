@@ -12,7 +12,6 @@ namespace IHCEngine::Component
 	class LineRendererComponent : public Component
 	{
 	public:
-
 		LineRendererComponent();
 		~LineRendererComponent();
 
@@ -25,9 +24,9 @@ namespace IHCEngine::Component
 
 		// vulkan
 		std::vector<std::unique_ptr<Graphics::IHCBuffer>> pointsBuffers;
-
 		void allocateBuffer();
 
+		void Attach() override;
 		void Remove() override;
 	};
 }
