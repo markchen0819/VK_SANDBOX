@@ -12,6 +12,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../CustomBehaviors/AnimationViewer.h"
 #include "../CustomBehaviors/ImguiContext_AnimationViewer.h"
 
@@ -131,6 +132,7 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
 	//// Skeletal Animation ////
 	// Ch44
@@ -143,6 +145,10 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	auto ani1 = assetManager->GetAnimationRepository().GetAsset("CrouchAnimation");
 	auto ani2 = assetManager->GetAnimationRepository().GetAsset("JumpAttackAnimation");
+	animatorcomponent->SetAnimation(ani1);
+	debugbonecomponent = ch44Gobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
+
 
 	animationViewer->AddAnimationGobjs(&ch44Gobj);
 	animationViewer->AddAnimationSlots1(ani1);
@@ -157,6 +163,10 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	animatorcomponent = ch03Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	ani1 = assetManager->GetAnimationRepository().GetAsset("IdleAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("HipHopAnimation");
+	animatorcomponent->SetAnimation(ani1);
+	debugbonecomponent = ch03Gobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
+
 
 	animationViewer->AddAnimationGobjs(&ch03Gobj);
 	animationViewer->AddAnimationSlots1(ani1);
@@ -171,6 +181,9 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	animatorcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	ani1 = assetManager->GetAnimationRepository().GetAsset("ClappingAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("SaluteAnimation");
+	animatorcomponent->SetAnimation(ani1);
+	debugbonecomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
 
 	animationViewer->AddAnimationGobjs(&CastleGuardGobj);
 	animationViewer->AddAnimationSlots1(ani1);
@@ -185,6 +198,9 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	animatorcomponent = MutantGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	ani1 = assetManager->GetAnimationRepository().GetAsset("BDEAnimation");
 	ani2 = assetManager->GetAnimationRepository().GetAsset("BD19Animation");
+	animatorcomponent->SetAnimation(ani1);
+	debugbonecomponent = MutantGobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
 
 	animationViewer->AddAnimationGobjs(&MutantGobj);
 	animationViewer->AddAnimationSlots1(ani1);

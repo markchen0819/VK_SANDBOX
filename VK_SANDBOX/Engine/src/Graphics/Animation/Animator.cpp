@@ -32,8 +32,6 @@ namespace IHCEngine::Graphics
 		auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 		graphicsAssetCreator.CreateSkeletalData(this);
 
-		// debug
-		debugBoneBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 	}
 
 	Animator::~Animator()
@@ -193,10 +191,7 @@ namespace IHCEngine::Graphics
 			calculateBoneTransformVQS(node->children[i].get(), globalVQS);
 		}
 	}
-
-
-	void Animator::calculateBoneTransformMatrix(BlendTree* blendTree, const SkeletalNodeData* node,
-		glm::mat4 parentTransform)
+	void Animator::calculateBoneTransformMatrix(BlendTree* blendTree, const SkeletalNodeData* node, glm::mat4 parentTransform)
 	{
 		Animation* animationA = blendTree->GetAnimationA();
 		Animation* animationB = blendTree->GetAnimationB();
@@ -278,7 +273,6 @@ namespace IHCEngine::Graphics
 		}
 
 	}
-
 	void Animator::calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentVQS)
 	{
 		Animation* animationA = blendTree->GetAnimationA();
@@ -353,20 +347,18 @@ namespace IHCEngine::Graphics
 	}
 #pragma region Getters & Setters
 
-
-
 	void Animator::SetAnimation(Animation* animation)
 	{
 		currentAnimation = animation;
 		currentTime = 0.0f;
-		AllocateDebugBoneBuffer();
+		CreateBindPoseDebugBoneVertices();
 	}
 
 	void Animator::SetBlendTree(BlendTree* blendtree)
 	{
 		blendTree = blendtree;
 		currentTime = 0.0f;
-		AllocateDebugBoneBuffer();
+		CreateBindPoseDebugBoneVertices();
 	}
 
 	void Animator::PlayAnimation()
@@ -392,19 +384,19 @@ namespace IHCEngine::Graphics
 	}
 #pragma endregion
 
-#pragma region Debug
-	void Animator::AllocateDebugBoneBuffer()
+	void Animator::CreateBindPoseDebugBoneVertices()
 	{
-		if(animationType==AnimationType::SINGLE_ANIMATION)
+		// Calculate first animation frame to get all bone vertices
+		currentTime = 0;
+		debugBoneVertices.clear();
+
+		if (animationType == AnimationType::SINGLE_ANIMATION)
 		{
 			if (currentAnimation == nullptr)
 			{
 				std::cerr << "No animation assigned to animator" << std::endl;
 				assert(false);
 			}
-			// Calculate first animation frame to get all bone vertices
-			currentTime = 0;
-			debugBoneVertices.clear();
 			if (AnimationConfig::calculateBonesWithVQS)
 			{
 				calculateBoneTransformVQS(&currentAnimation->GetRootNodeOfHierarhcy(), Math::VQS());
@@ -421,9 +413,6 @@ namespace IHCEngine::Graphics
 				std::cerr << "No blendtree assigned to animator" << std::endl;
 				assert(false);
 			}
-			// Calculate first animation frame to get all bone vertices
-			currentTime = 0;
-			debugBoneVertices.clear();
 			auto animation = blendTree->GetAnimationA();
 			if (AnimationConfig::calculateBonesWithVQS)
 			{
@@ -434,40 +423,6 @@ namespace IHCEngine::Graphics
 				calculateBoneTransformMatrix(&animation->GetRootNodeOfHierarhcy(), glm::mat4(1.0f));
 			}
 		}
-
-		// Allocate Buffer
-		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-		std::vector<Vertex>& bonevertices = debugBoneVertices;
-		auto vertexCount = static_cast<uint32_t>(bonevertices.size());
-		uint32_t vertexSize = sizeof(bonevertices[0]);
-
-		vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
-
-		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; ++i)
-		{
-			debugBoneBuffers[i] = std::make_unique<Graphics::IHCBuffer>(
-				*graphicsManager->GetIHCDevice(),
-				vertexSize,
-				vertexCount,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-			);
-			debugBoneBuffers[i]->Map();
-		}
 	}
-	void Animator::UpdateDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		debugBoneBuffers[frameInfo.frameIndex]->WriteToBuffer((void*)debugBoneVertices.data());
-		debugBoneBuffers[frameInfo.frameIndex]->Flush();
-	}
-	void Animator::DrawDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		VkBuffer buffers[] = { debugBoneBuffers[frameInfo.frameIndex]->GetBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
-	}
-#pragma endregion
-
 
 }

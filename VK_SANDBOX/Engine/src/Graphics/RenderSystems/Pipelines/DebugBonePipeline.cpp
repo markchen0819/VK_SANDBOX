@@ -10,6 +10,7 @@
 #include "../../../Core/Scene/Components/PipelineComponent.h"
 #include "../../../Core/Scene/Components/ModelComponent.h"
 #include "../../../Core/Scene/Components/AnimatorComponent.h"
+#include "../../../Core/Scene/Components/DebugBoneComponent.h"
 #include "../../../Core/Scene/Components/IKComponent.h"
 #include "../../../Core/Scene/GameObject.h"
 
@@ -17,7 +18,7 @@
 namespace IHCEngine::Graphics
 {
     DebugBonePipeline::DebugBonePipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager)
-        : ihcDevice(device), renderPass(renderPass), descriptorManager(descriptorManager)
+        : CustomPipelineBase(device, renderPass, descriptorManager)
     {
         createLayout();
         createPipeline();
@@ -45,29 +46,22 @@ namespace IHCEngine::Graphics
             0,
             nullptr
         );
-        // For each game object
-        for (auto& g : frameInfo.gameObjects)
-        {
-            IHCEngine::Core::GameObject* gobj = g.second;
-            if (gobj->IsActive() == false) continue;
-            // Only render the ones specifying this pipeline
-            auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
-            if (pipelineComponent == nullptr ||
-                pipelineComponent->GetPipelineType() !=
-                Component::PipelineType::SKELETAL) continue;
 
-            // SkeletalAnimationPipeline Requires a model
+        for (auto& gobj : gameObjects)
+        {
+            if (gobj->IsActive() == false) continue;
             if (!gobj->HasComponent<Component::ModelComponent>()) continue;
 
-            // Has animation
+            // Has AnimatorComponent or IKComponent
+        	// then we can Draw Debug Bones
+            auto debugBoneComponent = gobj->GetComponent<Component::DebugBoneComponent>();
             VkDescriptorSet_T* skeletalDescriptorSet;
             auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
             auto ikComponent = gobj->GetComponent<Component::IKComponent>();
-            if (animatorComponent != nullptr &&
-                animatorComponent->IsActive() &&
-                animatorComponent->HasAnimation())
+
+            // Has AnimatorComponent
+            if (animatorComponent != nullptr && animatorComponent->IsActive() && animatorComponent->HasAnimation())
             {
-                // Draw Debug Bones
                 SimplePushConstantData push{};
                 push.modelMatrix = gobj->transform.GetModelMatrix();
                 push.normalMatrix = glm::mat4(1);
@@ -80,10 +74,13 @@ namespace IHCEngine::Graphics
                     sizeof(SimplePushConstantData),
                     &push
                 );
-                animatorComponent->UpdateDebugBoneBuffer(frameInfo);
-                animatorComponent->DrawDebugBoneBuffer(frameInfo);
+
+                auto& vertices = animatorComponent->GetDebugBoneVertices();
+                debugBoneComponent->UpdateDebugBoneBuffer(vertices, frameInfo);
+                debugBoneComponent->DrawDebugBoneBuffer(vertices, frameInfo);
             }
-            else if (ikComponent != nullptr && ikComponent->IsActive()) // Has IK
+            // Has IKComponent
+            else if (ikComponent != nullptr && ikComponent->IsActive()) 
             {
                 // Draw Debug Bones
                 SimplePushConstantData push{};

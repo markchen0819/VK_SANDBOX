@@ -16,6 +16,7 @@ namespace IHCEngine::Component
 		Texture,
 		Model,
 		Animator,
+		DebugBone,
 		CustomBehavior,
 		ImguiContext,
 		LineRenderer,

@@ -56,6 +56,7 @@ void IHCEngine::Graphics::RenderSystem::AddGameObjectToRender(Core::GameObject* 
     case PipelineType::SKELETAL:
         break;
     case PipelineType::DEBUGBONE:
+        debugBonePipeline->AddGameObjectToRender(gobj);
         break;
     case PipelineType::LINERENDERER:
         lineRendererPipeline->AddGameObjectToRender(gobj);
@@ -76,6 +77,7 @@ void IHCEngine::Graphics::RenderSystem::RemoveGameObjectToRender(Core::GameObjec
     case PipelineType::SKELETAL:
         break;
     case PipelineType::DEBUGBONE:
+        debugBonePipeline->RemoveGameObjectToRender(gobj);
         break;
     case PipelineType::LINERENDERER:
         lineRendererPipeline->RemoveGameObjectToRender(gobj);

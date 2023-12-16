@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\DebugBoneComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.cpp" />
@@ -238,6 +239,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\DebugBoneComponent.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DebugBonePipeline.h" />

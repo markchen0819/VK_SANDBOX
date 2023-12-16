@@ -11,6 +11,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/ImguiContext_MotionAlongPathViewer.h"
@@ -106,6 +107,7 @@ void SampleApplication::MotionAlongPathScene::Init()
 	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
 	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Gobj1");
 	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
@@ -114,6 +116,9 @@ void SampleApplication::MotionAlongPathScene::Init()
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
+	debugbonecomponent = ch44Gobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
+
 
 	///////////////////////////
 	// Others

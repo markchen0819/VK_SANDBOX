@@ -82,21 +82,19 @@ void IHCEngine::Component::AnimatorComponent::OverwriteAnimationLocalVQStoModelL
 	animator.OverwriteAnimationLocalVQStoModelLocalVQS(&root);
 }
 
-void IHCEngine::Component::AnimatorComponent::AllocateDebugBoneBuffer()
-{
-	animator.AllocateDebugBoneBuffer();
-}
-
-
-void IHCEngine::Component::AnimatorComponent::UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
-{
-	animator.UpdateDebugBoneBuffer(frameInfo);
-}
-
-void IHCEngine::Component::AnimatorComponent::DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
-{
-	animator.DrawDebugBoneBuffer(frameInfo);
-}
+//void IHCEngine::Component::AnimatorComponent::CreateBindPoseDebugBoneVertices()
+//{
+//	animator.CreateBindPoseDebugBoneVertices();
+//}
+//void IHCEngine::Component::AnimatorComponent::UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
+//{
+//	animator.UpdateDebugBoneBuffer(frameInfo);
+//}
+//
+//void IHCEngine::Component::AnimatorComponent::DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
+//{
+//	animator.DrawDebugBoneBuffer(frameInfo);
+//}
 
 void IHCEngine::Component::AnimatorComponent::Attach()
 {
