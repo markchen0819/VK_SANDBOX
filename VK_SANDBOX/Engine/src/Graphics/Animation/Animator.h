@@ -51,7 +51,6 @@ namespace IHCEngine::Graphics
 		void SetBuffers(std::vector<IHCBuffer*> buffers) { skeletalBuffers = buffers; }
 		std::vector<IHCBuffer*>& GetBuffers() { return skeletalBuffers; }
 
-
 		// Debug
 		std::vector<Vertex>& GetDebugBoneVertices() { return debugBoneVertices; }
 		void CreateBindPoseDebugBoneVertices();
@@ -74,10 +73,10 @@ namespace IHCEngine::Graphics
 		void calculateBoneTransformMatrix(BlendTree* blendTree, const SkeletalNodeData* node, glm::mat4 parentTransform);
 		void calculateBoneTransformVQS(BlendTree* blendTree, const SkeletalNodeData* node, Math::VQS parentTransform);
 
-
 		// Vulkan
 		std::vector<VkDescriptorSet> descriptorSets;
 		std::vector<IHCBuffer*> skeletalBuffers;
+
 		// Debug
 		std::vector<Vertex> debugBoneVertices;
 	};

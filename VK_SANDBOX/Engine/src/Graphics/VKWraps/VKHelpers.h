@@ -179,7 +179,6 @@ namespace IHCEngine::Graphics
     {
         int frameIndex;
         VkCommandBuffer commandBuffer;
-        std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }
 #pragma endregion 

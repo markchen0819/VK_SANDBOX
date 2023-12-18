@@ -18,7 +18,12 @@ namespace IHCEngine::Graphics
 
 	void CustomPipelineBase::AddGameObjectToRender(Core::GameObject* gobj)
 	{
-		gameObjects.push_back(gobj);
+		// Check if gobj is already in the gameObjects vector
+		auto it = std::find(gameObjects.begin(), gameObjects.end(), gobj);
+		if (it == gameObjects.end()) 
+		{
+			gameObjects.push_back(gobj);
+		}
 	}
 
 	void CustomPipelineBase::RemoveGameObjectToRender(Core::GameObject* gobj)
@@ -30,7 +35,7 @@ namespace IHCEngine::Graphics
 		}
 		else
 		{
-			std::cerr << "Removing object doesn't exist" << std::endl;
+			//std::cerr << "Removing object doesn't exist" << std::endl;
 		}
 	}
 }

@@ -41,10 +41,10 @@ namespace IHCEngine::Graphics
         std::vector<VkDescriptorSet>& GetDescriptorSets() { return descriptorSets; }
         void SetBuffers(std::vector<IHCBuffer*> buffers) { skeletalBuffers = buffers; }
         std::vector<IHCBuffer*>& GetBuffers() { return skeletalBuffers; }
+
         // Debug
-        void AllocateDebugBoneBuffer();
-        void UpdateDebugBoneBuffer(FrameInfo& frameInfo);
-        void DrawDebugBoneBuffer(FrameInfo& frameInfo);
+        std::vector<Vertex>& GetDebugBoneVertices() { return debugBoneVertices; }
+        void CreateBindPoseDebugBoneVertices();
 
     private:
 

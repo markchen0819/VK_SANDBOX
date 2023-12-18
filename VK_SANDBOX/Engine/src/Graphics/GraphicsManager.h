@@ -40,7 +40,7 @@ namespace IHCEngine::Graphics
         GraphicsManager& operator=(const  GraphicsManager&) = delete;
 
         void Init();
-        void Update(IHCEngine::Core::Scene* scene);  
+        void Update();  
         void Shutdown();
 
         // Helper for asset creation

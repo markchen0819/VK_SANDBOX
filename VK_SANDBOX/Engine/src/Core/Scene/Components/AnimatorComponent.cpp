@@ -1,8 +1,9 @@
 #include "../../../pch.h"
 #include "AnimatorComponent.h"
+
 #include "../../Locator/GraphicsManagerLocator.h"
+#include "../../../Graphics/RenderSystems/RenderSystem.h"
 #include "../../Engine/src/Graphics/VKWraps/IHCBuffer.h"
-#include "../../Engine/src/Graphics/VKWraps/IHCDevice.h"
 #include "../../Engine/src/Graphics/Animation/Animation.h"
 
 
@@ -82,25 +83,12 @@ void IHCEngine::Component::AnimatorComponent::OverwriteAnimationLocalVQStoModelL
 	animator.OverwriteAnimationLocalVQStoModelLocalVQS(&root);
 }
 
-//void IHCEngine::Component::AnimatorComponent::CreateBindPoseDebugBoneVertices()
-//{
-//	animator.CreateBindPoseDebugBoneVertices();
-//}
-//void IHCEngine::Component::AnimatorComponent::UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
-//{
-//	animator.UpdateDebugBoneBuffer(frameInfo);
-//}
-//
-//void IHCEngine::Component::AnimatorComponent::DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
-//{
-//	animator.DrawDebugBoneBuffer(frameInfo);
-//}
-
 void IHCEngine::Component::AnimatorComponent::Attach()
 {
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().AddGameObjectToRender(this->gameObject, Graphics::PipelineType::SKELETAL);
 }
 
 void IHCEngine::Component::AnimatorComponent::Remove()
 {
-
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().RemoveGameObjectToRender(this->gameObject, Graphics::PipelineType::SKELETAL);
 }

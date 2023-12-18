@@ -17,14 +17,14 @@
 //#include "VKWraps/IHCMesh.h"
 #include "RenderSystems/RenderSystem.h" 
 // Scene
+#include "../Core/Locator/SceneManagerLocator.h"
 #include "../Core/Scene/Scene.h"
 // Imgui
 #include <imgui_impl_vulkan.h>
 // Model
 #include "GraphicsAssetCreator.h"
-#include "Animation/Model.h"
+
 #include "VKWraps/DescriptorWraps/GlobalDescriptorWrap.h"
-#include "../Input/Input.h"
 
 
 IHCEngine::Graphics::GraphicsManager::GraphicsManager(std::unique_ptr<Window::AppWindow>& w)
@@ -69,13 +69,12 @@ void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
             descriptorManager.get()
         );
 }
-void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
+void IHCEngine::Graphics::GraphicsManager::Update()
 {
     // Fixes window interrupt
     IHCEngine::Core::Time::Update();
     
     // Render
-    std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects = scene->GetGameObjectsMap();
     if (auto commandBuffer = renderer->BeginFrame())
     {
         int frameIndex = renderer->GetFrameIndex();
@@ -84,14 +83,14 @@ void IHCEngine::Graphics::GraphicsManager::Update(IHCEngine::Core::Scene* scene)
         {
             frameIndex,
             commandBuffer,
-            gameObjects
         };
 
         // Vulkan uses a right-handed coordinate system by default.
 		// Y points down
 		// Z points out of screen
         GlobalUniformBufferObject ubo{};
-        auto camera = scene->GetCamera();
+        auto activeScene = Core::SceneManagerLocator::GetSceneManager()->GetActiveScene();
+        auto camera = activeScene->GetCamera();
         camera.SetAspectRatio(renderer->GetAspectRatio());
         ubo.viewMatrix = camera.GetViewMatrix();
         ubo.projectionMatrix = camera.GetProjectionMatrix();

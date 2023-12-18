@@ -25,23 +25,15 @@ void IHCEngine::Graphics::RenderSystem::RenderGameObjects(FrameInfo& frameInfo)
     if (wireframeEnabled)
     {
         wireframePipeline->Render(frameInfo);
-        if (debugBonesEnabled)
-        {
-            debugBonePipeline->Render(frameInfo);
-        }
     }
     else
     {
         defaultPipeline->Render(frameInfo);
-
         skeletalAnimationPipeline->Render(frameInfo);
-
-        lineRendererPipeline->Render(frameInfo);
-        if(debugBonesEnabled)
-        {
-            debugBonePipeline->Render(frameInfo);
-        }
     }
+
+    lineRendererPipeline->Render(frameInfo);
+    debugBonePipeline->Render(frameInfo);
 }
 
 void IHCEngine::Graphics::RenderSystem::AddGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType)
@@ -52,8 +44,10 @@ void IHCEngine::Graphics::RenderSystem::AddGameObjectToRender(Core::GameObject* 
         defaultPipeline->AddGameObjectToRender(gobj);
         break;
     case PipelineType::WIREFRAME:
+        // No need to add, wireframe get all gobjs in the scene
         break;
     case PipelineType::SKELETAL:
+        skeletalAnimationPipeline->AddGameObjectToRender(gobj);
         break;
     case PipelineType::DEBUGBONE:
         debugBonePipeline->AddGameObjectToRender(gobj);
@@ -73,8 +67,10 @@ void IHCEngine::Graphics::RenderSystem::RemoveGameObjectToRender(Core::GameObjec
         defaultPipeline->RemoveGameObjectToRender(gobj);
         break;
     case PipelineType::WIREFRAME:
+        // No need to remove, wireframe get all gobjs in the scene
         break;
     case PipelineType::SKELETAL:
+        skeletalAnimationPipeline->RemoveGameObjectToRender(gobj);
         break;
     case PipelineType::DEBUGBONE:
         debugBonePipeline->RemoveGameObjectToRender(gobj);

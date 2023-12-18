@@ -1,6 +1,8 @@
 #include "../../../pch.h"
 #include "DebugBonePipeline.h"
 
+#include "../RenderSystem.h"
+#include "../../../Core/Locator/GraphicsManagerLocator.h"
 #include "../../VKWraps/VKHelpers.h"
 #include "../../VKWraps/IHCDevice.h"
 #include "../../VKWraps/IHCPipeline.h"
@@ -31,6 +33,8 @@ namespace IHCEngine::Graphics
 
     void DebugBonePipeline::Render(FrameInfo& frameInfo)
     {
+        if (!Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().debugBonesEnabled) return;
+
         // Bind Pipeline 
         pipeline->Bind(frameInfo.commandBuffer);
         // global Descriptor Sets (Camera)
@@ -55,7 +59,6 @@ namespace IHCEngine::Graphics
             // Has AnimatorComponent or IKComponent
         	// then we can Draw Debug Bones
             auto debugBoneComponent = gobj->GetComponent<Component::DebugBoneComponent>();
-            VkDescriptorSet_T* skeletalDescriptorSet;
             auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
             auto ikComponent = gobj->GetComponent<Component::IKComponent>();
 
@@ -95,8 +98,9 @@ namespace IHCEngine::Graphics
                     sizeof(SimplePushConstantData),
                     &push
                 );
-                ikComponent->UpdateDebugBoneBuffer(frameInfo);
-                ikComponent->DrawDebugBoneBuffer(frameInfo);
+                auto& vertices = ikComponent->GetDebugBoneVertices();
+                debugBoneComponent->UpdateDebugBoneBuffer(vertices, frameInfo);
+                debugBoneComponent->DrawDebugBoneBuffer(vertices, frameInfo);
             }
             else // No animation
             {

@@ -37,10 +37,6 @@ namespace IHCEngine::Component
 
 		// Debug
 		std::vector<Vertex>& GetDebugBoneVertices() { return animator.GetDebugBoneVertices(); }
-		//void CreateBindPoseDebugBoneVertices();
-		//void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-		//void DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-
 
 	private:
 

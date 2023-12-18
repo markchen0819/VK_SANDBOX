@@ -24,8 +24,8 @@ namespace IHCEngine::Core
 		virtual void Reset() = 0;
 
 		std::string GetName() { return sceneName; }
-		std::map<unsigned int, GameObject*> GetGameObjectsMap();
-
+		//std::map<unsigned int, GameObject*> GetGameObjectsMap();
+		std::map<unsigned int, std::unique_ptr<GameObject>>& GetGameObjectsMap() { return gameObjectsMap; }
 		// GameObject helper functions
 		GameObject& AddGameObject(const std::string& name);
 		void RemoveGameObject(GameObject& gameObject);

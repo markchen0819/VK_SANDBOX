@@ -29,15 +29,15 @@ void IHCEngine::Core::Scene::Shutdown()
 	RemoveAllGameObject();
 }
 
-std::map<unsigned int, IHCEngine::Core::GameObject*> IHCEngine::Core::Scene::GetGameObjectsMap()
-{
-	std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
-	for (const auto& [key, value] : gameObjectsMap)
-	{
-		gameObjects[key] = value.get();
-	}
-	return gameObjects;
-}
+//std::map<unsigned int, IHCEngine::Core::GameObject*> IHCEngine::Core::Scene::GetGameObjectsMap()
+//{
+//	std::map<unsigned int, IHCEngine::Core::GameObject*> gameObjects;
+//	for (const auto& [key, value] : gameObjectsMap)
+//	{
+//		gameObjects[key] = value.get();
+//	}
+//	return gameObjects;
+//}
 
 IHCEngine::Core::GameObject& IHCEngine::Core::Scene::AddGameObject(const std::string& name)
 {

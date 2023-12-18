@@ -35,10 +35,8 @@ namespace IHCEngine::Graphics
 
     void SkeletalAnimationPipeline::Render(FrameInfo& frameInfo)
     {
-
         // Bind Pipeline 
         pipeline->Bind(frameInfo.commandBuffer);
-        SkeletalUniformBufferObject subo;
         // global Descriptor Sets (Camera)
         vkCmdBindDescriptorSets
         (
@@ -52,31 +50,25 @@ namespace IHCEngine::Graphics
             0,
             nullptr
         );
-        // For each game object
-        for (auto& g : frameInfo.gameObjects)
+        for (auto& gobj : gameObjects)
         {
-            IHCEngine::Core::GameObject* gobj = g.second;
             if (gobj->IsActive() == false) continue;
-            // Only render the ones specifying this pipeline
-            auto pipelineComponent = gobj->GetComponent<Component::PipelineComponent>();
-            if (pipelineComponent == nullptr ||
-                pipelineComponent->GetPipelineType() !=
-                Component::PipelineType::SKELETAL) continue;
-
-            // SkeletalAnimationPipeline Requires a model
             if (!gobj->HasComponent<Component::ModelComponent>()) continue;
 
-            // Has animation
+
+            // Has AnimatorComponent or IKComponent
+            // then animated meshes
             VkDescriptorSet_T* skeletalDescriptorSet;
+            SkeletalUniformBufferObject subo;
             auto animatorComponent = gobj->GetComponent<Component::AnimatorComponent>();
             auto ikComponent = gobj->GetComponent<Component::IKComponent>();
-            if (animatorComponent != nullptr &&
-                animatorComponent->IsActive() &&
-                animatorComponent->HasAnimation())
+
+            if (animatorComponent != nullptr && animatorComponent->IsActive() && animatorComponent->HasAnimation())
             {
-                // Update the animation
+                // Update animation bone matrices
                 float dt = IHCEngine::Core::Time::GetDeltaTime();
                 animatorComponent->UpdateAnimation(dt);
+
                 // Link to shader
                 skeletalDescriptorSet = animatorComponent->GetDescriptorSets()[frameInfo.frameIndex];
                 vkCmdBindDescriptorSets
@@ -99,9 +91,12 @@ namespace IHCEngine::Graphics
                 buffersforwriting->WriteToBuffer(&subo);
                 buffersforwriting->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
             }
-            else if (ikComponent != nullptr && ikComponent->IsActive()) // Has IK
+            // Has IKComponent
+            else if (ikComponent != nullptr && ikComponent->IsActive()) 
             {
+                // Update IK bone matrices
                 ikComponent->Update();
+
                 // Link to shader
                 skeletalDescriptorSet = ikComponent->GetDescriptorSets()[frameInfo.frameIndex];
                 vkCmdBindDescriptorSets
@@ -126,7 +121,7 @@ namespace IHCEngine::Graphics
             }
             else // No animation
             {
-                // use dummy to prevent vulkan errors
+                // Use dummy to prevent vulkan errors
                 skeletalDescriptorSet = descriptorManager->GetSkeletalDescriptorWrap()->GetDummySkeletalDescriptorSet();
                 vkCmdBindDescriptorSets
                 (
@@ -149,9 +144,22 @@ namespace IHCEngine::Graphics
                 buffersforwriting->WriteToBuffer(&subo);
                 buffersforwriting->Flush();
             }
+
             // Bind and Draw the Model meshes
             auto gobjModel = gobj->GetComponent<Component::ModelComponent>();
             auto modelMeshes = gobjModel->GetMeshes();
+            SimplePushConstantData push{};
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
             for (const auto& mesh : modelMeshes)
             {
                 MaterialData materialDataForMesh = gobjModel->GetMaterialForMesh(mesh.first);
@@ -159,13 +167,11 @@ namespace IHCEngine::Graphics
                 VkDescriptorSet_T* descriptorSet;
                 if (materialDataForMesh.diffuseMaps.size() == 0) // no texture, only color
                 {
-                    // descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()["plainTexture"][frameInfo.frameIndex];
                 }
                 else
                 {
                     descriptorSet = materialDataForMesh.diffuseMaps[0]->GetDescriptorSets()[frameInfo.frameIndex];
                     std::string textureID = materialDataForMesh.diffuseMaps[0]->GetName();
-                    //descriptorSet = frameInfo.descriptorManager->GetTextureToDescriptorSetsMap()[textureID][frameInfo.frameIndex];
                 }
                 vkCmdBindDescriptorSets
                 (
@@ -178,18 +184,7 @@ namespace IHCEngine::Graphics
                     0,
                     nullptr
                 );
-                SimplePushConstantData push{};
-                push.modelMatrix = gobj->transform.GetModelMatrix();
-                push.normalMatrix = glm::mat4(1);
-                vkCmdPushConstants
-                (
-                    frameInfo.commandBuffer,
-                    pipelineLayout,
-                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                    0,
-                    sizeof(SimplePushConstantData),
-                    &push
-                );
+
                 // Bind Mesh and draw
                 if (IHCEngine::Graphics::RenderSystem::animationMeshEnabled)
                 {

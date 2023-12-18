@@ -23,7 +23,7 @@ namespace IHCEngine::Graphics
 	void InverseKinematicsSolver::SetModel(Model* m)
 	{
 		model = m;
-		AllocateDebugBoneBuffer();
+		CreateBindPoseDebugBoneVertices();
 	}
 	void InverseKinematicsSolver::SetGameObjectVQS(Math::VQS vqs)
 	{
@@ -103,6 +103,9 @@ namespace IHCEngine::Graphics
 
 		setJoints(manuipulator);
 	}
+
+
+
 	void InverseKinematicsSolver::setJoints(std::vector<SkeletalNodeData*>& initialJoints)
 	{
 		// Remember to get globalVQS calculated before this step
@@ -305,44 +308,12 @@ namespace IHCEngine::Graphics
 		auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 		graphicsAssetCreator.DestroySkeletalData(this);
 	}
-	void InverseKinematicsSolver::AllocateDebugBoneBuffer()
+
+	void InverseKinematicsSolver::CreateBindPoseDebugBoneVertices()
 	{
 		calculateBoneTransformVQS(&model->GetRootNodeOfHierarhcy(), Math::VQS());
-
-		// Allocate Buffer
-		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
-		std::vector<Vertex>& bonevertices = debugBoneVertices;
-		auto vertexCount = static_cast<uint32_t>(bonevertices.size());
-		uint32_t vertexSize = sizeof(bonevertices[0]);
-
-		vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
-
-		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; ++i)
-		{
-			debugBoneBuffers[i] = std::make_unique<Graphics::IHCBuffer>(
-				*graphicsManager->GetIHCDevice(),
-				vertexSize,
-				vertexCount,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-			);
-			debugBoneBuffers[i]->Map();
-		}
 	}
 
-	void InverseKinematicsSolver::UpdateDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		debugBoneBuffers[frameInfo.frameIndex]->WriteToBuffer((void*)debugBoneVertices.data());
-		debugBoneBuffers[frameInfo.frameIndex]->Flush();
-	}
-
-	void InverseKinematicsSolver::DrawDebugBoneBuffer(FrameInfo& frameInfo)
-	{
-		VkBuffer buffers[] = { debugBoneBuffers[frameInfo.frameIndex]->GetBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
-	}
 
 	void InverseKinematicsSolver::propagateIKResultToAffectedHierarchy(SkeletalNodeData* node)
 	{

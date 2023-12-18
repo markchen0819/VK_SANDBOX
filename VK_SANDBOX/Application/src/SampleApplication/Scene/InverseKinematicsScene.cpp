@@ -12,8 +12,10 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
+
 
 // Custom Behaviors
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
@@ -101,6 +103,7 @@ void SampleApplication::InverseKinematicsScene::Init()
 	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
 	//// IK
 	// IKGobj
@@ -117,6 +120,8 @@ void SampleApplication::InverseKinematicsScene::Init()
 	animatorcomponent = IKGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
 	animatorcomponent->StopAnimation();
+	debugbonecomponent = IKGobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
 
 	// targetGobj
 	IHCEngine::Core::GameObject& targetGobj = AddGameObject("targetGobj");
