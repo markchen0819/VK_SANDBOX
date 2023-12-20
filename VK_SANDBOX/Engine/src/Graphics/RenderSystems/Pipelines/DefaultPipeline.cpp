@@ -6,8 +6,6 @@
 #include "../../VKWraps/IHCPipeline.h"
 #include "../../VKWraps/IHCDescriptorManager.h"
 
-
-#include "../../../Core/Scene/Components/PipelineComponent.h"
 #include "../../../Core/Scene/Components/MeshComponent.h"
 #include "../../../Core/Scene/Components/TextureComponent.h"
 #include "../../../Core/Scene/GameObject.h"

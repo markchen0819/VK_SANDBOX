@@ -7,7 +7,6 @@
 #include "../../../../Engine/src/Core/Scene/Scene.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
@@ -318,7 +317,6 @@ namespace SampleApplication
 		{
 			std::string id = "debugControlPoint_" + std::to_string(controlPointID);
 			IHCEngine::Core::GameObject& point = sceneManager->GetActiveScene()->AddGameObject(id);
-			point.AddComponent<IHCEngine::Component::PipelineComponent>();
 			auto meshcomponent = point.AddComponent<IHCEngine::Component::MeshComponent>();
 			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
 			auto texturecomponent = point.AddComponent<IHCEngine::Component::TextureComponent>();

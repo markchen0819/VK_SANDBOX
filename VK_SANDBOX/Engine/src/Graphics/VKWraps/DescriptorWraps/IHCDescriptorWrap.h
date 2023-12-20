@@ -40,7 +40,7 @@ namespace IHCEngine::Graphics
         // Binds the resource to descriptor
         void BindBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
         void BindImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
-		void Overwrite(VkDescriptorSet& set);
+		void OverwriteBindings(VkDescriptorSet& set);
 
 
         VkDescriptorPool GetPool() const;

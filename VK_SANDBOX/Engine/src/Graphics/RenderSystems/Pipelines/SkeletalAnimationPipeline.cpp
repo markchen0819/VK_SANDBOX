@@ -11,7 +11,6 @@
 #include "../../VKWraps/IHCMesh.h"
 #include "../../VKWraps/IHCTexture.h"
 
-#include "../../../Core/Scene/Components/PipelineComponent.h"
 #include "../../../Core/Scene/Components/ModelComponent.h"
 #include "../../../Core/Scene/Components/IKComponent.h"
 #include "../../../Core/Scene/Components/AnimatorComponent.h"

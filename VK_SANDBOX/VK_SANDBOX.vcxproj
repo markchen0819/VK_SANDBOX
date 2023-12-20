@@ -216,7 +216,6 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\MeshComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\TextureComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ModelComponent.cpp" />
-    <ClCompile Include="Engine\src\Core\Scene\Components\PipelineComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\Animation\BoneAnimation.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.cpp" />
@@ -320,7 +319,6 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\MeshComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\TextureComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ModelComponent.h" />
-    <ClInclude Include="Engine\src\Core\Scene\Components\PipelineComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Animation\BoneAnimation.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\TextureDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\SkeletalDescriptorWrap.h" />

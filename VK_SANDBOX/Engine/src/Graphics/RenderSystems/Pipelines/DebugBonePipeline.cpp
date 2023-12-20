@@ -9,7 +9,6 @@
 #include "../../VKWraps/IHCDescriptorManager.h"
 
 
-#include "../../../Core/Scene/Components/PipelineComponent.h"
 #include "../../../Core/Scene/Components/ModelComponent.h"
 #include "../../../Core/Scene/Components/AnimatorComponent.h"
 #include "../../../Core/Scene/Components/DebugBoneComponent.h"

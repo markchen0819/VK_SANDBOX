@@ -77,7 +77,7 @@ namespace IHCEngine::Graphics
 		dummySkeletalDescriptorSet = AllocateDescriptorSet();
 		auto bufferInfo = dummySkeletalUBO->GetDescriptorInfo();
 		BindBuffer(0, &bufferInfo);
-		Overwrite(dummySkeletalDescriptorSet);
+		OverwriteBindings(dummySkeletalDescriptorSet);
 	}
 
 	IHCBuffer* SkeletalDescriptorWrap::GetAvailableSkeletalUBO()

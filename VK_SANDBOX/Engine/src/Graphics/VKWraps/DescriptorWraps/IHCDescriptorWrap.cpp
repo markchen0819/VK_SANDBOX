@@ -157,7 +157,7 @@ namespace IHCEngine::Graphics
 
 		writes.push_back(write);
 	}
-	void IHCDescriptorWrap::Overwrite(VkDescriptorSet& set)
+	void IHCDescriptorWrap::OverwriteBindings(VkDescriptorSet& set)
 	{
 		for (auto& write : writes)
 		{

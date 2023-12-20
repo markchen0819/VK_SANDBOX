@@ -63,7 +63,7 @@ namespace IHCEngine::Graphics
 			auto targetBuffer = globalUBOs[i]->GetDescriptorInfo();
 			
 			BindBuffer(0, &targetBuffer);
-			Overwrite(targetSet);
+			OverwriteBindings(targetSet);
 		}
 	}
 }

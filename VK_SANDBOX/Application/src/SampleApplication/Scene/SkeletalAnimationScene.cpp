@@ -11,7 +11,6 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../CustomBehaviors/AnimationViewer.h"
 #include "../CustomBehaviors/ImguiContext_AnimationViewer.h"
@@ -129,7 +128,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
 	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
@@ -138,8 +136,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	// Ch44
 	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Model");
 	ch44Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
@@ -156,8 +152,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 
 	IHCEngine::Core::GameObject& ch03Gobj = AddGameObject("Ch03Model");
 	ch03Gobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = ch03Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = ch03Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch03Model"));
 	animatorcomponent = ch03Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
@@ -174,8 +168,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 
 	IHCEngine::Core::GameObject& CastleGuardGobj = AddGameObject("CastleGuardGobj");
 	CastleGuardGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("CastleGuardModel"));
 	animatorcomponent = CastleGuardGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
@@ -191,8 +183,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 
 	IHCEngine::Core::GameObject& MutantGobj = AddGameObject("MutantGobj");
 	MutantGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = MutantGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = MutantGobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("MutantModel"));
 	animatorcomponent = MutantGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
@@ -210,7 +200,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	///////////////////////////
 	// Others
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
-	room.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
 	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -220,7 +209,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
-	x_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));
 	texturecomponent = x_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -228,7 +216,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
 
 	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
-	y_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = y_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("y_axisModel"));
 	texturecomponent = y_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -237,7 +224,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
 
 	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
-	z_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = z_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("z_axisModel"));
 	texturecomponent = z_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -246,7 +232,6 @@ void SampleApplication::SkeletalAnimationScene::Init()
 	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
 
 	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
-	grid.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = grid.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("gridModel"));
 	texturecomponent = grid.AddComponent<IHCEngine::Component::TextureComponent>();
