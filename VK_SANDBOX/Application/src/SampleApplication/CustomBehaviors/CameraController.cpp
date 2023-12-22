@@ -89,8 +89,8 @@ void SampleApplication::CameraController::HandleEditorInput()
     {
         glfwGetCursorPos(window, &mouseX, &mouseY);
 
-        float mouseDeltaX = rotationSpeed * (mouseX - lastX) * dt; //glm::radians((mouseX - lastX) * dt);
-        float mouseDeltaY = rotationSpeed * (mouseY - lastY) * dt; // glm::radians((mouseY - lastY) * dt);
+        float mouseDeltaX = rotationSpeed * static_cast<float>(mouseX - lastX) * dt; //glm::radians((mouseX - lastX) * dt);
+        float mouseDeltaY = rotationSpeed * static_cast<float>(mouseY - lastY) * dt; // glm::radians((mouseY - lastY) * dt);
 
         yaw += mouseDeltaX;
         pitch += mouseDeltaY;

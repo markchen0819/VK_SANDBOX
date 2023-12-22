@@ -157,13 +157,13 @@ namespace IHCEngine::Graphics
 
 		writes.push_back(write);
 	}
-	void IHCDescriptorWrap::Overwrite(VkDescriptorSet& set)
+	void IHCDescriptorWrap::OverwriteBindings(VkDescriptorSet& set)
 	{
 		for (auto& write : writes)
 		{
 			write.dstSet = set;
 		}
-		vkUpdateDescriptorSets(ihcDevice.GetDevice(), writes.size(), writes.data(), 0, nullptr);
+		vkUpdateDescriptorSets(ihcDevice.GetDevice(), static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 		writes.clear();
 	}
 #pragma endregion

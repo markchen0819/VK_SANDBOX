@@ -65,7 +65,7 @@ namespace IHCEngine::Graphics
 			// else if() add other types....
 
 			textureDescriptorWrap->BindImage(binding, &imageInfo);
-			textureDescriptorWrap->Overwrite(targetDesciptorSet);
+			textureDescriptorWrap->OverwriteBindings(targetDesciptorSet);
 
 			descriptorSetsForTexture.push_back(targetDesciptorSet);
 		}
@@ -106,7 +106,7 @@ namespace IHCEngine::Graphics
 			auto targetBuffer = skeletalDescriptorWrap->GetAvailableSkeletalUBO();
 			auto bufferInfo = targetBuffer->GetDescriptorInfo();
 			skeletalDescriptorWrap->BindBuffer(0, &bufferInfo);
-			skeletalDescriptorWrap->Overwrite(targetDescriptorSet);
+			skeletalDescriptorWrap->OverwriteBindings(targetDescriptorSet);
 			descriptorSetsForAnimator.push_back(targetDescriptorSet);
 			skeletalUBOsForAnimator.push_back(targetBuffer);
 		}
@@ -160,7 +160,7 @@ namespace IHCEngine::Graphics
 			auto targetBuffer = skeletalDescriptorWrap->GetAvailableSkeletalUBO();
 			auto bufferInfo = targetBuffer->GetDescriptorInfo();
 			skeletalDescriptorWrap->BindBuffer(0, &bufferInfo);
-			skeletalDescriptorWrap->Overwrite(targetDescriptorSet);
+			skeletalDescriptorWrap->OverwriteBindings(targetDescriptorSet);
 			descriptorSetsForIK.push_back(targetDescriptorSet);
 			skeletalUBOsForIK.push_back(targetBuffer);
 		}

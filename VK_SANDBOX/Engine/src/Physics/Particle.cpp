@@ -67,8 +67,8 @@ namespace IHCEngine::Physics
         glm::vec3 newVelocity;
         glm::vec3 k1dv = computeAcceleration(0, velocity) * deltaTime;
         glm::vec3 midpointVelocity = velocity + 0.5f * k1dv;
-        glm::vec3 k2dp = computeVelocity(0.5 * deltaTime) * deltaTime;
-        glm::vec3 k2dv = computeAcceleration(0.5 * deltaTime, midpointVelocity) * deltaTime;
+        glm::vec3 k2dp = computeVelocity(0.5f * deltaTime) * deltaTime;
+        glm::vec3 k2dv = computeAcceleration(0.5f * deltaTime, midpointVelocity) * deltaTime;
         // Use the midpoint values to calculate the new position and velocity
         newPosition = position + k2dp; 
         newVelocity = velocity + k2dv; 
@@ -76,7 +76,7 @@ namespace IHCEngine::Physics
         position = newPosition;
         velocity = newVelocity;
 
-        force = glm::vec3(0.0);
+        force = glm::vec3(0.0f);
     }
 
     void Particle::RungeKutta4Integrate(float deltaTime)
@@ -92,10 +92,10 @@ namespace IHCEngine::Physics
 
         glm::vec3 k1dp = computeVelocity(0) * deltaTime;
         glm::vec3 k1dv = computeAcceleration(0, velocity) * deltaTime;
-        glm::vec3 k2dp = computeVelocity(0.5 * deltaTime) * deltaTime;
-        glm::vec3 k2dv = computeAcceleration(0.5 * deltaTime, velocity + 0.5f * k1dv) * deltaTime;
-        glm::vec3 k3dp = computeVelocity(0.5 * deltaTime) * deltaTime;
-        glm::vec3 k3dv = computeAcceleration(0.5 * deltaTime, velocity + 0.5f * k2dv) * deltaTime;
+        glm::vec3 k2dp = computeVelocity(0.5f * deltaTime) * deltaTime;
+        glm::vec3 k2dv = computeAcceleration(0.5f * deltaTime, velocity + 0.5f * k1dv) * deltaTime;
+        glm::vec3 k3dp = computeVelocity(0.5f * deltaTime) * deltaTime;
+        glm::vec3 k3dv = computeAcceleration(0.5f * deltaTime, velocity + 0.5f * k2dv) * deltaTime;
         glm::vec3 k4dp = computeVelocity(deltaTime) * deltaTime;
         glm::vec3 k4dv = computeAcceleration(deltaTime, this->velocity + k3dv) * deltaTime;
 

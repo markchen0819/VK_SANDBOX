@@ -41,10 +41,10 @@ namespace IHCEngine::Graphics
         std::vector<VkDescriptorSet>& GetDescriptorSets() { return descriptorSets; }
         void SetBuffers(std::vector<IHCBuffer*> buffers) { skeletalBuffers = buffers; }
         std::vector<IHCBuffer*>& GetBuffers() { return skeletalBuffers; }
+
         // Debug
-        void AllocateDebugBoneBuffer();
-        void UpdateDebugBoneBuffer(FrameInfo& frameInfo);
-        void DrawDebugBoneBuffer(FrameInfo& frameInfo);
+        std::vector<Vertex>& GetDebugBoneVertices() { return debugBoneVertices; }
+        void CreateBindPoseDebugBoneVertices();
 
     private:
 
@@ -62,8 +62,8 @@ namespace IHCEngine::Graphics
 
         // FABRIK calculation
         int MAX_ITERATIONS = 10;
-        float EPSILON_DISTANCE_TO_TARGET = 0.1;
-        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.2;
+        float EPSILON_DISTANCE_TO_TARGET = 0.1f;
+        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.2f;
         std::vector<float> distances;
         float totalDistance = 0;
 

@@ -6,7 +6,8 @@ IHCEngine::Core::SceneManager::~SceneManager() = default;
 
 void IHCEngine::Core::SceneManager::Update()
 {
-	assert(activeScene != nullptr, "Scene Manager active scene is null on update");
+	// Scene Manager active scene is null on update
+	assert(activeScene != nullptr);
 	activeScene->Update();
 }
 void IHCEngine::Core::SceneManager::Shutdown()
@@ -23,7 +24,8 @@ IHCEngine::Core::Scene* IHCEngine::Core::SceneManager::GetSceneAt(int pos)
 {
 	if (scenesMap.find(pos) == scenesMap.end())
 	{
-		assert("Scene Manager does not contain scene at index {0}", id);
+		//"Scene Manager does not contain scene at index {0}", id
+		assert(true);
 	}
 	return scenesMap[pos].get();
 }
@@ -37,14 +39,15 @@ IHCEngine::Core::Scene* IHCEngine::Core::SceneManager::GetSceneByName(const std:
 		}
 	}
 	std::string tmp = "Scene Manager does not contain a scene with the name: " + name;
-	assert(tmp.c_str());
+	assert(true);
 	return nullptr; 
 }
 void IHCEngine::Core::SceneManager::SetNextSceneToLoad(int sceneIndex)
 {
 	if (scenesMap.find(sceneIndex) == scenesMap.end())
 	{
-		assert("Scene Manager does not contain scene at index {0}", sceneIndex);
+		// "Scene Manager does not contain scene at index {0}", sceneIndex;
+		assert(true);
 	}
 	nextSceneToLoad = sceneIndex;
 }
@@ -58,7 +61,8 @@ void IHCEngine::Core::SceneManager::SetNextSceneToLoad(const std::string& sceneN
 			break;
 		}
 	}
-	assert("Scene Manager does not contain scene with name {0}", sceneName);
+	// "Scene Manager does not contain scene with name {0}", sceneName
+	assert(true);
 }
 bool IHCEngine::Core::SceneManager::ShouldLoadNextScene()
 {

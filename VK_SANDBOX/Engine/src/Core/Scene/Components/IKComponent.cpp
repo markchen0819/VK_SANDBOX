@@ -2,8 +2,8 @@
 #include "IKComponent.h"
 
 #include "../../Locator/GraphicsManagerLocator.h"
+#include "../../../Graphics/RenderSystems/RenderSystem.h"
 #include "../../Engine/src/Graphics/VKWraps/IHCBuffer.h"
-#include "../../Engine/src/Graphics/VKWraps/IHCDevice.h"
 
 IHCEngine::Component::IKComponent::IKComponent()
 	:Component(ComponentType::InverseKinematics)
@@ -66,22 +66,17 @@ std::vector<IHCEngine::Graphics::IHCBuffer*>& IHCEngine::Component::IKComponent:
 	return IKSolver.GetBuffers();
 }
 
-void IHCEngine::Component::IKComponent::AllocateDebugBoneBuffer()
+std::vector<Vertex>& IHCEngine::Component::IKComponent::GetDebugBoneVertices()
 {
-	IKSolver.AllocateDebugBoneBuffer();
+	return IKSolver.GetDebugBoneVertices();
 }
 
-void IHCEngine::Component::IKComponent::UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
+void IHCEngine::Component::IKComponent::Attach()
 {
-	IKSolver.UpdateDebugBoneBuffer(frameInfo);
-}
-
-void IHCEngine::Component::IKComponent::DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo)
-{
-	IKSolver.DrawDebugBoneBuffer(frameInfo);
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().AddGameObjectToRender(this->gameObject, Graphics::PipelineType::SKELETAL);
 }
 
 void IHCEngine::Component::IKComponent::Remove()
 {
-
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().RemoveGameObjectToRender(this->gameObject, Graphics::PipelineType::SKELETAL);
 }

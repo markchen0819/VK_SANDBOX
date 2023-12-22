@@ -7,7 +7,6 @@
 #include "../../../../Engine/src/Core/Scene/Scene.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
@@ -55,8 +54,8 @@ namespace SampleApplication
 		auto runAnimation = assetManager->GetAnimationRepository().GetAsset("RunAnimation");
 		blendTree.SetAnimationA(walkAnimation);
 		blendTree.SetAnimationB(runAnimation);
-		upperBoundSpeed = 0.14;
-		lowerBoundSpeed = 0.06;
+		upperBoundSpeed = 0.14f;
+		lowerBoundSpeed = 0.06f;
 		blendTree.SetUpperBoundSpeed(upperBoundSpeed);
 		blendTree.SetLowerBoundSpeed(lowerBoundSpeed);
 		movingGobj = sceneManager->GetActiveScene()->GetGameObjectByName("Ch44Gobj1");
@@ -238,11 +237,11 @@ namespace SampleApplication
 			data.push_back(glm::vec3(-10, 1, 0));
 			data.push_back(glm::vec3(0, 1, 10));
 
-			easeInTiming = 2.0;
-			easeOutTiming = 6.0;
-			totalTime = 8;
-			upperBoundSpeed = 0.14;
-			lowerBoundSpeed = 0.06;
+			easeInTiming = 2.0f;
+			easeOutTiming = 6.0f;
+			totalTime = 8.0f;
+			upperBoundSpeed = 0.14f;
+			lowerBoundSpeed = 0.06f;
 		}
 		else if (dataSetIndex==1) // Curvy path with up downs
 		{		
@@ -258,11 +257,11 @@ namespace SampleApplication
 			data.push_back(glm::vec3(-5, 1, 15));
 			data.push_back(glm::vec3(0, 0.5, 10));
 
-			easeInTiming = 10.0;
-			easeOutTiming = 13.0;
-			totalTime = 20;
-			upperBoundSpeed = 0.071;
-			lowerBoundSpeed = 0.04;
+			easeInTiming = 10.0f;
+			easeOutTiming = 13.0f;
+			totalTime = 20.0f;
+			upperBoundSpeed = 0.071f;
+			lowerBoundSpeed = 0.04f;
 		}
 		else if(dataSetIndex==2) // Detailed Circular
 		{
@@ -276,11 +275,11 @@ namespace SampleApplication
 			data.push_back(glm::vec3(-7.071, 1, 7.071));
 			data.push_back(glm::vec3(0, 1, 10));
 
-			easeInTiming = 1.5;
-			easeOutTiming = 4.5;
-			totalTime = 6;
-			upperBoundSpeed = 0.20;
-			lowerBoundSpeed = 0.08;
+			easeInTiming = 1.5f;
+			easeOutTiming = 4.5f;
+			totalTime = 6.0f;
+			upperBoundSpeed = 0.20f;
+			lowerBoundSpeed = 0.08f;
 		}
 
 		speedControl.SetTimings(easeInTiming, easeOutTiming, totalTime); //ease in out
@@ -318,7 +317,6 @@ namespace SampleApplication
 		{
 			std::string id = "debugControlPoint_" + std::to_string(controlPointID);
 			IHCEngine::Core::GameObject& point = sceneManager->GetActiveScene()->AddGameObject(id);
-			point.AddComponent<IHCEngine::Component::PipelineComponent>();
 			auto meshcomponent = point.AddComponent<IHCEngine::Component::MeshComponent>();
 			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
 			auto texturecomponent = point.AddComponent<IHCEngine::Component::TextureComponent>();

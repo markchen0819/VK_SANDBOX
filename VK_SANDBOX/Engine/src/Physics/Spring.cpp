@@ -31,7 +31,7 @@ namespace IHCEngine::Physics
 			else 
 			{
 				// limits the maximum compression to 10 % less than the restLength
-				deltaLength = std::max<float>(stretchedLength - baseLength, (0.9 * baseLength) - baseLength);
+				deltaLength = std::max<float>(stretchedLength - baseLength, (0.9f * baseLength) - baseLength);
 			}
 
 			springForce = stiffness * forceDirection * (deltaLength);

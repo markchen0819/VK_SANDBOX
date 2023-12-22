@@ -17,8 +17,8 @@ IHCEngine::Graphics::Animation::Animation(const std::string animationPath, Model
     const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
     assert(scene && scene->mRootNode);
     aiAnimation* animation = scene->mAnimations[0];
-    duration = animation->mDuration;
-    ticksPerSecond = animation->mTicksPerSecond;
+    duration = static_cast<float>(animation->mDuration);
+    ticksPerSecond = static_cast<int>(animation->mTicksPerSecond);
     std::cout << "============" << std::endl;
     std::cout << "Loading Animation:" << animationPath << std::endl;
     std::cout << "duration:" << duration << std::endl;
@@ -34,7 +34,7 @@ void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiA
     auto& skinningInfoMap = model->GetSkinningInfoMap();  // getting skinningInfoMap from Model class
     int& boneCount = model->GetBoneCount();               // getting the boneCounter from Model class
 
-	for (int i = 0; i < aiAnim->mNumChannels; i++) // For each animation channels
+	for (int i = 0; i < static_cast<int>(aiAnim->mNumChannels); i++) // For each animation channels
     {
         aiNodeAnim* channel = aiAnim->mChannels[i]; 
         std::string boneName = channel->mNodeName.data;
@@ -51,7 +51,7 @@ void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiA
         for (int positionIndex = 0; positionIndex < numPositions; ++positionIndex)
         {
             aiVector3D aiPosition = channel->mPositionKeys[positionIndex].mValue;
-            float timeStamp = channel->mPositionKeys[positionIndex].mTime;
+            float timeStamp = static_cast<float>(channel->mPositionKeys[positionIndex].mTime);
             KeyPosition data;
             data.position = AssimpGLMHelpers::GetGLMVec3(aiPosition);
             data.timeStamp = timeStamp;
@@ -60,7 +60,7 @@ void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiA
         for (int rotationIndex = 0; rotationIndex < numRotations; ++rotationIndex)
         {
             aiQuaternion aiOrientation = channel->mRotationKeys[rotationIndex].mValue;
-            float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
+            float timeStamp = static_cast<float>(channel->mRotationKeys[rotationIndex].mTime);
             KeyRotation data;
             data.orientation = AssimpGLMHelpers::GetGLMQuat(aiOrientation);
             data.timeStamp = timeStamp;
@@ -69,7 +69,7 @@ void IHCEngine::Graphics::Animation::extractAnimationData(const aiAnimation* aiA
         for (int keyIndex = 0; keyIndex < numScales; ++keyIndex)
         {
             aiVector3D scale = channel->mScalingKeys[keyIndex].mValue;
-            float timeStamp = channel->mScalingKeys[keyIndex].mTime;
+            float timeStamp = static_cast<float>(channel->mScalingKeys[keyIndex].mTime);
             KeyScale data;
             data.scale = AssimpGLMHelpers::GetGLMVec3(scale);
             data.timeStamp = timeStamp;

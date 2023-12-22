@@ -40,11 +40,14 @@ namespace IHCEngine::Graphics
         GraphicsManager& operator=(const  GraphicsManager&) = delete;
 
         void Init();
-        void Update(IHCEngine::Core::Scene* scene);  
+        void Update();  
         void Shutdown();
 
         // Helper for asset creation
         GraphicsAssetCreator& GetGraphicsAssetCreator() { return *graphicsAssetCreator; }
+        RenderSystem& GetRenderSystem() { return *basicRenderSystem; }
+
+
 
     	// Helper for ImGui
         bool usingIMGUI = true;

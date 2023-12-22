@@ -10,6 +10,10 @@ IHCEngine::Component::ImguiContextComponent::ImguiContextComponent()
 }
 
 
+void IHCEngine::Component::ImguiContextComponent::Attach()
+{
+}
+
 void IHCEngine::Component::ImguiContextComponent::Remove()
 {
 	Core::ImGuiManagerLocator::GetImGuiManager()->RemoveImguiContextComponent(this);

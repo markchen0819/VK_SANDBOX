@@ -24,12 +24,13 @@ struct ArcLengthTable
 	// Run-time access table
 	float GetUParameterFromTable(float arclength)
 	{
-		assert(!table.empty(), "Empty ArcLengthTable");
+		// Empty ArcLengthTable
+		assert(!table.empty());
+		// Invalid arclength input
+		assert(!(arclength <= 0.0f));
+		assert(!(arclength > table.back().arcLength));
 
-		assert(!(arclength <= 0.0f), "Invalid arclength input");
-		assert(!(arclength > table.back().arcLength), "Invalid arclength input");
-
-		int index = BinarySearchArcLength(0, table.size() - 1, arclength, table);
+		int index = BinarySearchArcLength(0, static_cast<int>(table.size() - 1), arclength, table);
 		index -= 1;
 		if(table[index].arcLength == arclength || (index == table.size() - 1))
 		{
@@ -48,12 +49,13 @@ struct ArcLengthTable
 	}
 	float GetArcLengthFromTable(float u)
 	{
-		assert(!table.empty(), "Empty ArcLengthTable");
+		// Empty ArcLengthTable
+		assert(!table.empty());
+		// Invalid u input
+		assert(!(u <= 0.0f));
+		assert(!(u > table.back().u));
 
-		assert(!(u <= 0.0f), "Invalid u input");
-		assert(!(u > table.back().u), "Invalid u input");
-
-		int index = BinarySearchUParameter(0, table.size() - 1, u, table);
+		int index = BinarySearchUParameter(0, static_cast<int>(table.size() - 1), u, table);
 		index -= 1;
 		if (table[index].u == u || (index == table.size() - 1))
 		{
@@ -72,12 +74,13 @@ struct ArcLengthTable
 	}
 	float GetUParameterFromNormalizedTable(float arclength)
 	{
-		assert(!normalizedTable.empty(), "Empty ArcLengthTable");
+		// Empty ArcLengthTable
+		assert(!normalizedTable.empty());
+		// Invalid arclength input
+		assert(!(arclength <= 0.0f));
+		assert(!(arclength > normalizedTable.back().arcLength));
 
-		assert(!(arclength <= 0.0f), "Invalid arclength input");
-		assert(!(arclength > normalizedTable.back().arcLength), "Invalid arclength input");
-
-		int index = BinarySearchArcLength(0, normalizedTable.size() - 1, arclength, normalizedTable);
+		int index = BinarySearchArcLength(0, static_cast<int>(normalizedTable.size() - 1), arclength, normalizedTable);
 		index -= 1;
 		if (normalizedTable[index].arcLength == arclength || (index == normalizedTable.size() - 1))
 		{
@@ -96,12 +99,13 @@ struct ArcLengthTable
 	}
 	float GetArcLengthFromNormalizedTable(float u)
 	{
-		assert(!normalizedTable.empty(), "Empty ArcLengthTable");
+		// Empty ArcLengthTable
+		assert(!normalizedTable.empty());
+		// Invalid u input
+		assert(!(u <= 0.0f));
+		assert(!(u > normalizedTable.back().u));
 
-		assert(!(u <= 0.0f), "Invalid u input");
-		assert(!(u > normalizedTable.back().u), "Invalid u input");
-
-		int index = BinarySearchUParameter(0, normalizedTable.size() - 1, u, normalizedTable);
+		int index = BinarySearchUParameter(0, static_cast<int>(normalizedTable.size() - 1), u, normalizedTable);
 		index -= 1;
 		if (normalizedTable[index].u == u || (index == normalizedTable.size() - 1))
 		{
@@ -212,14 +216,15 @@ struct ArcLengthTable
 	std::vector<float> accumulatedSubCurveRatio;
 	int GetSubCurveIndex(float normalizedU)
 	{
-		assert(normalizedU >= 0.0f && normalizedU <= 1.0f, "normalizedU must be between 0.0 and 1.0");
+		// normalizedU must be between 0.0 and 1.0
+		assert(normalizedU >= 0.0f && normalizedU <= 1.0f);
 
 		// Binary search to find the first element not less than normalizedU
 		auto lower = std::lower_bound(accumulatedSubCurveRatio.begin(), accumulatedSubCurveRatio.end(), normalizedU);
 		if (lower != accumulatedSubCurveRatio.end())
 		{
 			// On the boundary, belongs to higher curve
-			int subCurveIndex = std::distance(accumulatedSubCurveRatio.begin(), lower);
+			int subCurveIndex = static_cast<int>(std::distance(accumulatedSubCurveRatio.begin(), lower));
 			// Not the first subCurve
 			if (subCurveIndex > 0)
 			{
@@ -227,7 +232,7 @@ struct ArcLengthTable
 			}
 			return subCurveIndex;
 		}
-		return accumulatedSubCurveRatio.size() - 1;
+		return static_cast<int>(accumulatedSubCurveRatio.size() - 1);
 	}
 	float GetLocalUParameter(float normalizedU, int targetSubCurveIndex)
 	{

@@ -83,7 +83,7 @@ namespace IHCEngine::Core
 		int frameCount{0};
 
 		// fix for window interruption
-		float maxFrameTime = 0.2; //250 ms
+		float maxFrameTime = 0.2f; //250 ms
 
 	};
 }

@@ -19,6 +19,10 @@ std::vector<VkDescriptorSet>& IHCEngine::Component::TextureComponent::GetDescrip
 }
 
 
+void IHCEngine::Component::TextureComponent::Attach()
+{
+}
+
 void IHCEngine::Component::TextureComponent::Remove()
 {
 

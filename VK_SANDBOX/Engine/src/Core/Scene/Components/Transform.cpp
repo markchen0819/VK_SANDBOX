@@ -357,7 +357,7 @@ bool IHCEngine::Component::Transform::IsChildOf(Transform* parent)
 }
 int IHCEngine::Component::Transform::GetChildCount()
 {
-	return children.size();
+	return static_cast<int>(children.size());
 }
 
 void IHCEngine::Component::Transform::Propagate()
@@ -405,6 +405,10 @@ void IHCEngine::Component::Transform::Propagate()
 
 
 #pragma endregion
+
+void IHCEngine::Component::Transform::Attach()
+{
+}
 
 void IHCEngine::Component::Transform::Remove()
 {

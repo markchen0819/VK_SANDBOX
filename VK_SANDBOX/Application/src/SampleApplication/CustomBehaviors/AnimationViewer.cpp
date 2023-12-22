@@ -119,14 +119,14 @@ void SampleApplication::AnimationViewer::HandleModelInput()
     {
         auto ac = animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>();
         float speed = ac->GetSpeed();
-        speed += 0.15;
+        speed += 0.15f;
         ac->SetSpeed(speed);
     }
     if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_KP_DIVIDE))
     {
         auto ac = animationGobjs[modelIndex]->GetComponent<IHCEngine::Component::AnimatorComponent>();
         float speed = ac->GetSpeed();
-        speed -= 0.15;
+        speed -= 0.15f;
         ac->SetSpeed(speed);
     }
 }

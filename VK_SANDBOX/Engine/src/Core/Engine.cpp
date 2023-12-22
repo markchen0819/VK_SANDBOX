@@ -110,7 +110,7 @@ void IHCEngine::Core::Engine::Update()
 			imguiManager->NewFrame();
 			customBehaviorManager->Update();
 			sceneManager->Update();
-			graphicsManager->Update(sceneManager->GetActiveScene());
+			graphicsManager->Update();
 			Input::Update();
 			glfwPollEvents();
 		}

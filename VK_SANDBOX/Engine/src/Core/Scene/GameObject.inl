@@ -29,6 +29,7 @@ namespace IHCEngine::Core
 		
 		std::unique_ptr<Component::Component> component = std::make_unique<T>();
 		component->SetOwner(this);
+		component->Attach();
 
 		// Custom Components we give raw ptrs for access
 		Component::CustomBehavior* customBehavior = dynamic_cast<Component::CustomBehavior*>(component.get());

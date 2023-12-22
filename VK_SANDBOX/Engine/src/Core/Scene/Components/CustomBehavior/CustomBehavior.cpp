@@ -7,6 +7,10 @@ bool IHCEngine::Component::CustomBehavior::IsActive()
 	return gameObject->IsActive() && this->isActive;
 }
 
+void IHCEngine::Component::CustomBehavior::Attach()
+{
+}
+
 void IHCEngine::Component::CustomBehavior::Remove()
 {
 }

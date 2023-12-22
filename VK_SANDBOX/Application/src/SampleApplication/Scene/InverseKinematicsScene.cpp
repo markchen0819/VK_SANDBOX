@@ -12,8 +12,9 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
+
 
 // Custom Behaviors
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
@@ -98,16 +99,14 @@ void SampleApplication::InverseKinematicsScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
 	//// IK
 	// IKGobj
 	IHCEngine::Core::GameObject& IKGobj = AddGameObject("IKGobj");
 	IKGobj.transform.SetScale(glm::vec3(0.05, 0.05, 0.05));
-	pipelinecomponent = IKGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = IKGobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("IKModel"));
 
@@ -117,10 +116,11 @@ void SampleApplication::InverseKinematicsScene::Init()
 	animatorcomponent = IKGobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
 	animatorcomponent->StopAnimation();
+	debugbonecomponent = IKGobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
 
 	// targetGobj
 	IHCEngine::Core::GameObject& targetGobj = AddGameObject("targetGobj");
-	targetGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	targetGobj.transform.SetScale(glm::vec3(1, 1, 1));
 	meshcomponent = targetGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("targetObjectMesh"));
@@ -131,7 +131,6 @@ void SampleApplication::InverseKinematicsScene::Init()
 	///////////////////////////
 	// Others
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
-	room.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
 	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -141,7 +140,6 @@ void SampleApplication::InverseKinematicsScene::Init()
 	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
-	x_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));
 	texturecomponent = x_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -149,7 +147,6 @@ void SampleApplication::InverseKinematicsScene::Init()
 	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
 
 	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
-	y_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = y_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("y_axisModel"));
 	texturecomponent = y_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -158,7 +155,6 @@ void SampleApplication::InverseKinematicsScene::Init()
 	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
 
 	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
-	z_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = z_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("z_axisModel"));
 	texturecomponent = z_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -167,7 +163,6 @@ void SampleApplication::InverseKinematicsScene::Init()
 	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
 
 	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
-	grid.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = grid.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("gridModel"));
 	texturecomponent = grid.AddComponent<IHCEngine::Component::TextureComponent>();

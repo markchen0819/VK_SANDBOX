@@ -10,7 +10,6 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/ImguiContext_PhysicallyBasedSimulationViewer.h"
 #include "../CustomBehaviors/PhysicallyBasedSimulationViewer.h"
 
@@ -81,11 +80,9 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 
 	IHCEngine::Core::GameObject& clothGobj = AddGameObject("cloth");
-	clothGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = clothGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("clothMesh"));
 	texturecomponent = clothGobj.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -96,7 +93,6 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	//clothGobj.transform.SetRotation(glm::vec3(0, 180, 0));
 
 	IHCEngine::Core::GameObject& sphereGobj = AddGameObject("sphere");
-	sphereGobj.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = sphereGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
 	texturecomponent = sphereGobj.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -105,7 +101,6 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 
 	///////////////////////////
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
-	x_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));
 	texturecomponent = x_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -113,7 +108,6 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
 
 	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
-	y_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = y_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("y_axisModel"));
 	texturecomponent = y_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -122,7 +116,6 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
 
 	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
-	z_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = z_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("z_axisModel"));
 	texturecomponent = z_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -131,7 +124,6 @@ void SampleApplication::PhysicallyBasedSimulationScene::Init()
 	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
 
 	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
-	grid.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = grid.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("gridModel"));
 	texturecomponent = grid.AddComponent<IHCEngine::Component::TextureComponent>();

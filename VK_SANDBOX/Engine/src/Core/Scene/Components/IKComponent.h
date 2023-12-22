@@ -33,14 +33,13 @@ namespace IHCEngine::Component
 		std::vector<VkDescriptorSet>& GetDescriptorSets();
 		std::vector<Graphics::IHCBuffer*>& GetBuffers();
 		// Debug
-		void AllocateDebugBoneBuffer();
-		void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-		void DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
+		std::vector<Vertex>& GetDebugBoneVertices();
 
 	private:
 
 		IHCEngine::Graphics::InverseKinematicsSolver IKSolver;
 
+		void Attach() override;
 		void Remove() override;
 	};
 }

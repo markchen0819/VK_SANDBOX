@@ -25,6 +25,7 @@ namespace IHCEngine::Component
 	private:
 
 		IHCEngine::Graphics::Model* model = nullptr;
+		void Attach() override;
 		void Remove() override;
 	};
 }

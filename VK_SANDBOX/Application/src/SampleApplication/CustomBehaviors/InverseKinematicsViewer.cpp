@@ -6,7 +6,6 @@
 #include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../../../../Engine/src/Core/Locator/AssetManagerLocator.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
@@ -159,7 +158,7 @@ namespace SampleApplication
         auto targetPos = movingGobj->transform.GetPosition();
         auto ikPosXZ = glm::vec3(ikPos.x, 0, ikPos.z);
         auto targetPosXZ = glm::vec3(targetPos.x, 0, targetPos.z);
-        float distanceBetweenIKGobjAndTarget = glm::length(targetPosXZ - ikPosXZ) -3.0;
+        float distanceBetweenIKGobjAndTarget = static_cast<float>(glm::length(targetPosXZ - ikPosXZ) - 3.0f);
         // Walk Along Path
         if (passedTime < totalWalkTime && distanceBetweenIKGobjAndTarget > 1.0)
         {
@@ -174,7 +173,7 @@ namespace SampleApplication
                 prevFrameDistance = 0;
 
                 glm::vec3 direction = glm::normalize(targetPosXZ - ikPosXZ);
-                float distanceBetweenIKGobjAndTargetWithOffset = distanceBetweenIKGobjAndTarget - 1.0;
+                float distanceBetweenIKGobjAndTargetWithOffset = distanceBetweenIKGobjAndTarget - 1.0f;
                 data.clear();
                 data.push_back(ikPosXZ);
                 data.push_back(ikPosXZ + direction * (distanceBetweenIKGobjAndTargetWithOffset) * glm::vec3(1.0 / 3, 1.0 / 3, 1.0 / 3));
@@ -186,8 +185,8 @@ namespace SampleApplication
                 createDebugControlPoints();
 
                 totalWalkTime = distanceBetweenIKGobjAndTarget / ikGameObjectMovementSpeed;
-                easeInTiming = totalWalkTime * 0.3;
-                easeOutTiming = totalWalkTime * 0.7;
+                easeInTiming = totalWalkTime * 0.3f;
+                easeOutTiming = totalWalkTime * 0.7f;
                 speedControl.SetTimings(easeInTiming, easeOutTiming, totalWalkTime);
             }
             // Walk
@@ -354,7 +353,6 @@ namespace SampleApplication
         {
             std::string id = "debugControlPoint_" + std::to_string(controlPointID);
             IHCEngine::Core::GameObject& point = sceneManager->GetActiveScene()->AddGameObject(id);
-            point.AddComponent<IHCEngine::Component::PipelineComponent>();
             auto meshcomponent = point.AddComponent<IHCEngine::Component::MeshComponent>();
             meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("controlPointModel"));
             auto texturecomponent = point.AddComponent<IHCEngine::Component::TextureComponent>();

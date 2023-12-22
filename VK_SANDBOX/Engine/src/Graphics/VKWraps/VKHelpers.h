@@ -178,10 +178,7 @@ namespace IHCEngine::Graphics
     struct FrameInfo
     {
         int frameIndex;
-        float frameTime;
         VkCommandBuffer commandBuffer;
-        IHCDescriptorManager* descriptorManager;
-        std::map<unsigned int, IHCEngine::Core::GameObject*>& gameObjects;
     };
 }
 #pragma endregion 

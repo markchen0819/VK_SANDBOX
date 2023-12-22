@@ -35,7 +35,7 @@ namespace SampleApplication
 		cloth.SetPinnedParticles(34, true);
 		cloth.SetPinnedParticles(1224, true);
 		cloth.SetPinnedParticles(1190, true);
-		cloth.SetupSprings(10, 5, 10,0.9);
+		cloth.SetupSprings(10, 5, 10,0.9f);
 		// Sphere
 		sphereGobj = sceneManager->GetActiveScene()->GetGameObjectByName("sphere");
 		sphereGobj->transform.SetPosition(glm::vec3(0, 7, 0));
@@ -59,7 +59,7 @@ namespace SampleApplication
 		glm::vec3 windDirection = glm::normalize(cloth.GetCenter() - sphereGobj->transform.GetPosition());
 		windForce = windDirection * windStrength;
 		cloth.ApplyForceOnFace(windForce);
-		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.1);
+		cloth.SetSphere(sphereGobj->transform.GetPosition(), 1.1f);
 		cloth.Update();
 
 	}

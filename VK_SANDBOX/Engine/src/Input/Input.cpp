@@ -162,14 +162,14 @@ namespace IHCEngine::Core
 
 	void Input::MousePositionCallback(double xPosition, double yPosition)
 	{
-		instance->mousePosition.x = xPosition;
-		instance->mousePosition.y = yPosition;
+		instance->mousePosition.x = static_cast<float>(xPosition);
+		instance->mousePosition.y = static_cast<float>(yPosition);
 	}
 
 	void Input::MouseScrollCallback(double xOffset, double yOffset)
 	{
-		instance->scrollDelta.x = xOffset;
-		instance->scrollDelta.y = yOffset;
+		instance->scrollDelta.x = static_cast<float>(xOffset);
+		instance->scrollDelta.y = static_cast<float>(yOffset);
 	}
 
 	InputAction Input::GlfwInputActionToInputAction(int glfwKeyAction)

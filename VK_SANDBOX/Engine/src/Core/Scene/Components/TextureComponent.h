@@ -20,6 +20,7 @@ namespace IHCEngine::Component
 	private:
 
 		IHCEngine::Graphics::IHCTexture* texture = nullptr;
+		void Attach() override;
 		void Remove() override;
 	};
 }

@@ -13,6 +13,8 @@ namespace IHCEngine::Component
 		virtual void UpdateContext() = 0;
 
 	private:
+
+		void Attach() override;
 		void Remove() override;
 	};
 }

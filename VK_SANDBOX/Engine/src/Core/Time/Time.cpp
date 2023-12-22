@@ -15,9 +15,6 @@ IHCEngine::Core::Time::Time()
 
 void IHCEngine::Core::Time::Reset()
 {
-	instance->startTime = std::chrono::high_resolution_clock::now();
-	instance->previousTime = std::chrono::high_resolution_clock::now();
-
 	instance->frameTimeCounter = 0;
 
 	instance->frameCount = 0;
@@ -28,6 +25,9 @@ void IHCEngine::Core::Time::Reset()
 	instance->shouldExecuteUpdate = false;
 	instance->unscaledDeltaTime = 0.0f;
 	instance->deltaTime = 0.0f;
+
+	instance->startTime = std::chrono::high_resolution_clock::now();
+	instance->previousTime = std::chrono::high_resolution_clock::now();
 }
 
 void IHCEngine::Core::Time::Update()
@@ -56,7 +56,7 @@ void IHCEngine::Core::Time::Update()
 	instance->calculatedFps = 1.0f / instance->frameTimeCounter;
 	instance->shouldExecuteUpdate = true;
 	instance->frameCount++;
-	instance->averageFps = instance->frameCount / elapsedTime;
+	instance->averageFps = static_cast<float>(instance->frameCount) / static_cast<float>(elapsedTime);
 
 	if (instance->minFrameTime == 0.0f)
 	{

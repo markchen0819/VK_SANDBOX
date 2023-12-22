@@ -282,7 +282,7 @@ std::vector<IHCEngine::Graphics::IHCTexture*> IHCEngine::Graphics::Model::loadTe
 void IHCEngine::Graphics::Model::extractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
 {
     // Check all bones for the mesh vertices
-    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    for (int boneIndex = 0; boneIndex < static_cast<int>(mesh->mNumBones); ++boneIndex)
     {
         int boneID = -1;
         // Find bone that influence this vertex from our map or add new bone

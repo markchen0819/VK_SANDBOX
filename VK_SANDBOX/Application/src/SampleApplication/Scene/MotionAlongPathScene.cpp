@@ -11,8 +11,8 @@
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/PipelineComponent.h"
 #include "../CustomBehaviors/ImguiContext_MotionAlongPathViewer.h"
 #include "../CustomBehaviors/MotionAlongPathViewer.h"
 
@@ -103,22 +103,22 @@ void SampleApplication::MotionAlongPathScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-	IHCEngine::Component::PipelineComponent* pipelinecomponent = nullptr;
 	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
 	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
+	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
 	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Gobj1");
-	pipelinecomponent = ch44Gobj.AddComponent<IHCEngine::Component::PipelineComponent>();
-	pipelinecomponent->SetPipelineType(IHCEngine::Component::PipelineType::SKELETAL);
 	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
 	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
 	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
 	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
+	debugbonecomponent = ch44Gobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
+	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
+
 
 	///////////////////////////
 	// Others
 	IHCEngine::Core::GameObject& room = AddGameObject("room");
-	room.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
 	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -128,7 +128,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
-	x_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));
 	texturecomponent = x_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -136,7 +135,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	x_axis.transform.SetPosition(glm::vec3(1, 0, 0));
 
 	IHCEngine::Core::GameObject& y_axis = AddGameObject("y_axis");
-	y_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = y_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("y_axisModel"));
 	texturecomponent = y_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -145,7 +143,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	y_axis.transform.SetPosition(glm::vec3(0, 1, 0));
 
 	IHCEngine::Core::GameObject& z_axis = AddGameObject("z_axis");
-	z_axis.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = z_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("z_axisModel"));
 	texturecomponent = z_axis.AddComponent<IHCEngine::Component::TextureComponent>();
@@ -154,7 +151,6 @@ void SampleApplication::MotionAlongPathScene::Init()
 	z_axis.transform.SetPosition(glm::vec3(0, 0, 1));
 
 	IHCEngine::Core::GameObject& grid = AddGameObject("grid");
-	grid.AddComponent<IHCEngine::Component::PipelineComponent>();
 	meshcomponent = grid.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("gridModel"));
 	texturecomponent = grid.AddComponent<IHCEngine::Component::TextureComponent>();

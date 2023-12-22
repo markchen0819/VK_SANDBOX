@@ -36,15 +36,13 @@ namespace IHCEngine::Component
 		void OverwriteAnimationLocalVQStoModelLocalVQS();
 
 		// Debug
-		void AllocateDebugBoneBuffer();
-		void UpdateDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-		void DrawDebugBoneBuffer(Graphics::FrameInfo& frameInfo);
-
+		std::vector<Vertex>& GetDebugBoneVertices() { return animator.GetDebugBoneVertices(); }
 
 	private:
 
 		IHCEngine::Graphics::Animator animator;
 
+		void Attach() override;
 		void Remove() override;
 	};
 }
