@@ -46,6 +46,7 @@ namespace IHCEngine::Graphics
 				return index;
 		}
 		assert(0);
+		return -1;
 	}
 	int BoneAnimation::GetRotationIndex(float animationTime)
 	{
@@ -55,6 +56,7 @@ namespace IHCEngine::Graphics
 				return index;
 		}
 		assert(0);
+		return -1;
 	}
 	int BoneAnimation::GetScaleIndex(float animationTime)
 	{
@@ -64,6 +66,7 @@ namespace IHCEngine::Graphics
 				return index;
 		}
 		assert(0);
+		return -1;
 	}
 	float BoneAnimation::getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
 	{

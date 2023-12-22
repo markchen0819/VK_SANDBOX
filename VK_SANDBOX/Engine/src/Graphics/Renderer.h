@@ -44,7 +44,7 @@ namespace IHCEngine::Graphics
         void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
         //Imgui
-        uint32_t GetSwapChainImageCount() { return ihcSwapChain->GetImageCount(); }
+        uint32_t GetSwapChainImageCount() { return static_cast<uint32_t>(ihcSwapChain->GetImageCount()); }
 
     private:
         void createCommandBuffers();

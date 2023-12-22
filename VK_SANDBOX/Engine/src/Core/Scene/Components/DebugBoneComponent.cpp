@@ -17,7 +17,8 @@ namespace IHCEngine::Component
 
 	void DebugBoneComponent::AllocateDebugBoneBuffer(std::vector<Vertex>& debugBoneVertices)
 	{
-		assert(debugBoneVertices.size() != 0, "Bind Pose debug vertices wasn't created, check if animation is set on the animator");
+		// Bind Pose debug vertices wasn't created, check if animation is set on the animator
+		assert(debugBoneVertices.size() != 0);
 
 		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 		std::vector<Vertex>& bonevertices = debugBoneVertices;
@@ -50,7 +51,7 @@ namespace IHCEngine::Component
 		VkBuffer buffers[] = { debugBoneBuffers[frameInfo.frameIndex]->GetBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-		vkCmdDraw(frameInfo.commandBuffer, debugBoneVertices.size(), 1, 0, 0);
+		vkCmdDraw(frameInfo.commandBuffer, static_cast<uint32_t>(debugBoneVertices.size()), 1, 0, 0);
 	}
 
 	void DebugBoneComponent::Attach()

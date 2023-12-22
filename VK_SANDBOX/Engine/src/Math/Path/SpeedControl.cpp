@@ -18,8 +18,10 @@ namespace IHCEngine::Math
 
 	float SpeedControl::GetDistance(float accumulatedTime)
 	{
-		assert(!totalTime == 0.0, "Timings not set");
-		assert(!(accumulatedTime < 0), "Passing inpossible accumulatedTime");
+		// Timings not set
+		assert(!totalTime == 0.0f);
+		// Passing inpossible accumulatedTime
+		assert(!(accumulatedTime < 0));
 
 		if(accumulatedTime > totalTime)
 		{
@@ -41,7 +43,8 @@ namespace IHCEngine::Math
 			return S3(timeToFeedIn);
 		}
 
-		assert(false, "SpeedControl::GetDistance impossible");
+		// SpeedControl::GetDistance impossible
+		return -1.0f;
 	}
 
 	float SpeedControl::S1(float t)

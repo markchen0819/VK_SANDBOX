@@ -62,8 +62,8 @@ namespace IHCEngine::Graphics
 
         // FABRIK calculation
         int MAX_ITERATIONS = 10;
-        float EPSILON_DISTANCE_TO_TARGET = 0.1;
-        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.2;
+        float EPSILON_DISTANCE_TO_TARGET = 0.1f;
+        float EPSILON_DISTANCE_FOR_END_EFFECTOR = 0.2f;
         std::vector<float> distances;
         float totalDistance = 0;
 

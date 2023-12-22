@@ -166,7 +166,7 @@ namespace IHCEngine::Graphics
         {
 			// Backward reaching (E.E. to root)
 			joints.back()->globalVQS.SetTranslate(target);
-			for (int i = joints.size() - 2; i >= 0; --i) 
+			for (int i = static_cast<int>(joints.size() - 2); i >= 0; --i) 
 			{
 				glm::vec3 pointA = joints[i]->globalVQS.GetTranslate();
 				glm::vec3 pointB = joints[i + 1]->globalVQS.GetTranslate();

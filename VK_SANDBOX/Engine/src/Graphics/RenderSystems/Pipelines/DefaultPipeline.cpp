@@ -54,7 +54,8 @@ namespace IHCEngine::Graphics
             if (!gobj->HasComponent<Component::MeshComponent>()) continue;
             if (!gobj->HasComponent<Component::TextureComponent>())
             {
-                assert(true, "Missing Texture Componenent");
+                // Missing Texture Componenent
+                assert(true);
                 continue;
             }
 

@@ -30,7 +30,7 @@ namespace IHCEngine::Component
 		VkBuffer buffers[] = { pointsBuffers[frameInfo.frameIndex]->GetBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, buffers, offsets);
-		vkCmdDraw(frameInfo.commandBuffer, points.size(), 1, 0, 0);
+		vkCmdDraw(frameInfo.commandBuffer, static_cast<uint32_t>(points.size()), 1, 0, 0);
 	}
 
 	void LineRendererComponent::SetPoints(std::vector<glm::vec3> points)

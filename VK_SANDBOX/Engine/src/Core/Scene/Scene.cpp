@@ -54,7 +54,8 @@ void IHCEngine::Core::Scene::RemoveGameObject(GameObject& gameObject)
 
     if (gameObjectsMap.find(id) == gameObjectsMap.end())
     {
-        assert("Trying to remove game object with id {0} that is not in the scene", id);
+		// Trying to remove game object with id {0} that is not in the scene
+        assert(true);
     }
     gameObjectsMap.erase(id);
 	HierachyChanged();
@@ -109,7 +110,7 @@ std::vector<IHCEngine::Core::GameObject*>& IHCEngine::Core::Scene::GetRootGameOb
 				rootGameObjects.push_back(pair.second.get());
 			}
 		}
-		hasHierachyChanged == false;
+		hasHierachyChanged = false;
 	}
 	return rootGameObjects;
 }

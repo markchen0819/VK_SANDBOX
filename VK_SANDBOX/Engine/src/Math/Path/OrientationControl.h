@@ -13,17 +13,17 @@ namespace IHCEngine::Math
 		glm::vec3 GetRotation(SpaceCurve& spaceCurve, float passedDistance)
 		{
 			// Close to end of the path, just look at tangent direction
-			if (passedDistance >= 0.97) 
+			if (passedDistance >= 0.97f) 
 			{
-				passedDistance = 0.97;
+				passedDistance = 0.97f;
 			}
 
 			// Caculate forward position on the curve
 
 			glm::vec3 lookAtPos =
-					( spaceCurve.GetPositionOnCurve(passedDistance + 0.01)
-					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.02)
-					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.03)) / 3.0f;
+					( spaceCurve.GetPositionOnCurve(passedDistance + 0.01f)
+					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.02f)
+					+ spaceCurve.GetPositionOnCurve(passedDistance + 0.03f)) / 3.0f;
 
 			glm::vec3 W = glm::normalize((lookAtPos - spaceCurve.GetPositionOnCurve(passedDistance)));
 			glm::vec3 U = glm::cross(globalUpVector, W);

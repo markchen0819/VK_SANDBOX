@@ -17,7 +17,7 @@ namespace IHCEngine::Graphics
 		Animation(const std::string animationPath, Model* model);
 		~Animation() = default;
 
-		float GetTicksPerSecond() { return ticksPerSecond; }
+		float GetTicksPerSecond() { return static_cast<float>(ticksPerSecond); }
 		float GetDuration() { return duration; }
 
 		// For animator, to calculate boneAnimations

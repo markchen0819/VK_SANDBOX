@@ -163,7 +163,7 @@ namespace IHCEngine::Graphics
 		{
 			write.dstSet = set;
 		}
-		vkUpdateDescriptorSets(ihcDevice.GetDevice(), writes.size(), writes.data(), 0, nullptr);
+		vkUpdateDescriptorSets(ihcDevice.GetDevice(), static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 		writes.clear();
 	}
 #pragma endregion

@@ -19,7 +19,7 @@ namespace IHCEngine::Core
 				std::cerr << "Can't add type " << typeid(T).name() << " to Scene Manager" << std::endl;
 				assert(false);
 			}
-			scenesMap[scenesMap.size()] = std::make_unique<T>();
+			scenesMap[static_cast<int>(scenesMap.size())] = std::make_unique<T>();
 		}
 
 		void Update();

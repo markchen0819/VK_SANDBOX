@@ -132,9 +132,9 @@ namespace IHCEngine::Math
 	void SubCurve::generatePointsForRendering()
 	{
 		pointsForRendering.clear();
-		float offset = 1.0 / density;
-		float u = 0.0;
-		while(u <= 1.0)
+		float offset = 1.0f / density;
+		float u = 0.0f;
+		while(u <= 1.0f)
 		{
 			glm::vec3 point = computeBezier(u);
 			pointsForRendering.push_back(point);

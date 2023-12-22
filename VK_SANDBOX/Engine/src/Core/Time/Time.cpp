@@ -56,7 +56,7 @@ void IHCEngine::Core::Time::Update()
 	instance->calculatedFps = 1.0f / instance->frameTimeCounter;
 	instance->shouldExecuteUpdate = true;
 	instance->frameCount++;
-	instance->averageFps = instance->frameCount / elapsedTime;
+	instance->averageFps = static_cast<float>(instance->frameCount) / static_cast<float>(elapsedTime);
 
 	if (instance->minFrameTime == 0.0f)
 	{
