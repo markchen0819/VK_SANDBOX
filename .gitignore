@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# assets
+VK_SANDBOX/Application/assets/
+
 # Other Metadata-y Stuff
 .vs/
 x64/
@@ -45,3 +48,4 @@ x64/
 *.lastbuildstate
 *.recipe
 *.fbx
+
