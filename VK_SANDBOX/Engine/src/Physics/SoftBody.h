@@ -1,5 +1,5 @@
 #pragma once
-#include "Particle.h"
+#include "SoftBodyParticle.h"
 #include "Spring.h"
 
 #include "../Core/Scene/Components/MeshComponent.h"
@@ -56,7 +56,7 @@ namespace IHCEngine::Physics
 		int width = 0;
 		int height = 0;
 
-		std::vector<Particle> particles;
+		std::vector<SoftBodyParticle> particles;
 		std::vector<std::unique_ptr<Spring>> springs;
 
 		// Sphere

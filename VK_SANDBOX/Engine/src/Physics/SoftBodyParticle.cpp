@@ -1,37 +1,37 @@
 #include "../pch.h"
-#include "Particle.h"
+#include "SoftBodyParticle.h"
 
 #include <random>
 namespace IHCEngine::Physics
 {
-    Particle::Particle(int id, const glm::vec3& position, float mass)
+    SoftBodyParticle::SoftBodyParticle(int id, const glm::vec3& position, float mass)
 	: id(id), position(position), mass(mass),
 	  velocity(0.0f), acceleration(0.0f), force(0.0f)
 	{
 
 	}
 
-    void Particle::ApplyForce(const glm::vec3& f)
+    void SoftBodyParticle::ApplyForce(const glm::vec3& f)
 	{
 		force += f;
 	}
 
-    void Particle::ApplyAcceleration(const glm::vec3& acceleration)
+    void SoftBodyParticle::ApplyAcceleration(const glm::vec3& acceleration)
     {
         force += mass * acceleration;
     }
 
-    glm::vec3 Particle::computeVelocity(float deltaTime)
+    glm::vec3 SoftBodyParticle::computeVelocity(float deltaTime)
     {
         return velocity + acceleration * deltaTime;
     }
 
-    glm::vec3 Particle::computeAcceleration(float deltaTime, glm::vec3 const& velocity)
+    glm::vec3 SoftBodyParticle::computeAcceleration(float deltaTime, glm::vec3 const& velocity)
     {
         return force / mass;
     }
 
-    void Particle::EulerIntegrate(float deltaTime)
+    void SoftBodyParticle::EulerIntegrate(float deltaTime)
     {
         if (isPinned) return;
 
@@ -42,7 +42,7 @@ namespace IHCEngine::Physics
         force = glm::vec3(0.0f);
     }
 
-    void Particle::VerletIntegrate(float deltaTime)
+    void SoftBodyParticle::VerletIntegrate(float deltaTime)
     {
         if (isPinned) return;
 
@@ -59,7 +59,7 @@ namespace IHCEngine::Physics
         force = glm::vec3(0.0f);
     }
 
-    void Particle::RungeKutta2Integrate(float deltaTime)
+    void SoftBodyParticle::RungeKutta2Integrate(float deltaTime)
 	{
         if (isPinned) return;
 
@@ -79,7 +79,7 @@ namespace IHCEngine::Physics
         force = glm::vec3(0.0f);
     }
 
-    void Particle::RungeKutta4Integrate(float deltaTime)
+    void SoftBodyParticle::RungeKutta4Integrate(float deltaTime)
 	{
         if (isPinned) return;
 

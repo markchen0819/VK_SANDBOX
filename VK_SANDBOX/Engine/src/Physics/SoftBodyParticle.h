@@ -2,11 +2,11 @@
 
 namespace IHCEngine::Physics
 {
-	class Particle
+	class SoftBodyParticle
 	{
 	public:
 
-		Particle(int id, const glm::vec3& position, float mass);
+		SoftBodyParticle(int id, const glm::vec3& position, float mass);
 
 		int GetID() { return id; }
 		void SetPinned(bool p) { isPinned = p; }

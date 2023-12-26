@@ -21,7 +21,7 @@ namespace IHCEngine::Physics
 		int id = 0;
 		for(auto& v : vertices)
 		{
-			particles.push_back(Particle(id, v.position, 0.5));
+			particles.push_back(SoftBodyParticle(id, v.position, 0.5));
 			++id;
 		}
 	}

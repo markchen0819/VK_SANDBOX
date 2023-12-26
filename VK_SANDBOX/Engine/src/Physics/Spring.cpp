@@ -3,7 +3,7 @@
 
 namespace IHCEngine::Physics
 {
-	Spring::Spring(const SpringType& springType, Particle* particle1, Particle* particle2, float stiffness, float damping)
+	Spring::Spring(const SpringType& springType, SoftBodyParticle* particle1, SoftBodyParticle* particle2, float stiffness, float damping)
 		: springType(springType), p1(particle1), p2(particle2), stiffness(stiffness), damping(damping)
 	{
 		baseLength = glm::length(p2->GetPosition() - p1->GetPosition());

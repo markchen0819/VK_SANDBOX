@@ -1,9 +1,9 @@
 #pragma once
-#include "Particle.h"
+#include "SoftBodyParticle.h"
 
 namespace IHCEngine::Physics
 {
-	class Particle;
+	class SoftBodyParticle;
 
 	enum class SpringType
 	{
@@ -17,7 +17,7 @@ namespace IHCEngine::Physics
 	{
 	public:
 
-		Spring(const SpringType& springType, Particle* particle1, Particle* particle2, float stiffness, float damping);
+		Spring(const SpringType& springType, SoftBodyParticle* particle1, SoftBodyParticle* particle2, float stiffness, float damping);
 
 		SpringType& GetSpringType() { return springType; }
 
@@ -28,8 +28,8 @@ namespace IHCEngine::Physics
 	private:
 
 		SpringType springType = SpringType::DEFAULT;
-		Particle* p1 = nullptr;
-		Particle* p2 = nullptr;
+		SoftBodyParticle* p1 = nullptr;
+		SoftBodyParticle* p2 = nullptr;
 
 		float baseLength;
 		float stiffness; // k
