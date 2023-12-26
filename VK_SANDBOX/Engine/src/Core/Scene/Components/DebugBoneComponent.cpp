@@ -18,7 +18,7 @@ namespace IHCEngine::Component
 	void DebugBoneComponent::AllocateDebugBoneBuffer(std::vector<Vertex>& debugBoneVertices)
 	{
 		// Bind Pose debug vertices wasn't created, check if animation is set on the animator
-		assert(debugBoneVertices.size() != 0);
+		// assert(debugBoneVertices.size() != 0);
 
 		auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 		std::vector<Vertex>& bonevertices = debugBoneVertices;
