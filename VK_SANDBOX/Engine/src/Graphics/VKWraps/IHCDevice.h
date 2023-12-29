@@ -96,6 +96,7 @@ namespace IHCEngine::Graphics
         // logical
         VkDevice device;
         VkQueue graphicsQueue;
+        VkQueue computeQueue;
         VkQueue presentQueue;
         // Commandpool
         VkCommandPool commandPool;

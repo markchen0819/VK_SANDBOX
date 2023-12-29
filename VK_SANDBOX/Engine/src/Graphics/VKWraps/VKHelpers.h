@@ -45,7 +45,7 @@ struct SwapChainSupportDetails
 // extend other purpose queues here
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily; // rendering
+    std::optional<uint32_t> graphicsFamily; // rendering // + compute
     std::optional<uint32_t> presentFamily;  // flush to screen
 
     bool isComplete() // finish finding all ids that we want

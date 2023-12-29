@@ -281,7 +281,12 @@ QueueFamilyIndices IHCEngine::Graphics::IHCDevice::findQueueFamilies(VkPhysicalD
     int i = 0;
     for (const auto& queueFamily : queueFamilies)
     {
-        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        // Find queue that can do both graphics and compute operations
+        // asynchronous compute queue requires advanced synchronization
+        // skip for now
+
+        if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+         && (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT))
         {
             indices.graphicsFamily = i;
         }
@@ -412,6 +417,7 @@ void IHCEngine::Graphics::IHCDevice::createLogicalDevice()
 
     // Get handles to the queues
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &computeQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 // swapchain helpers

@@ -153,6 +153,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeParticleDescriptorWrap.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeParticlePipeline.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\DebugBoneComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.cpp" />
@@ -229,15 +232,22 @@
     <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.cpp" />
     <ClCompile Include="Engine\src\Physics\SoftBody.cpp" />
-    <ClCompile Include="Engine\src\Physics\Particle.cpp" />
+    <ClCompile Include="Engine\src\Physics\SoftBodyParticle.cpp" />
     <ClCompile Include="Engine\src\Physics\Spring.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\Scene\ParticleSystemScene.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\ParticleSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\Particle\ComputeParticleUniformBufferObject.h" />
+    <ClInclude Include="Engine\src\Graphics\Particle\Particle.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeParticleDescriptorWrap.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeParticlePipeline.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\DebugBoneComponent.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\Base\CustomPipelineBase.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\DefaultPipeline.h" />
@@ -332,12 +342,14 @@
     <ClInclude Include="Engine\src\Math\Path\SpeedControl.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.h" />
     <ClInclude Include="Engine\src\Physics\SoftBody.h" />
-    <ClInclude Include="Engine\src\Physics\Particle.h" />
+    <ClInclude Include="Engine\src\Physics\SoftBodyParticle.h" />
     <ClInclude Include="Engine\src\Physics\Spring.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\PhysicallyBasedSimulationViewer.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\LineRendererPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\SkeletalAnimationPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\WireframePipeline.h" />
+    <ClInclude Include="Application\src\SampleApplication\Scene\ParticleSystemScene.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\ParticleSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\assets\shaders\compile.bat" />

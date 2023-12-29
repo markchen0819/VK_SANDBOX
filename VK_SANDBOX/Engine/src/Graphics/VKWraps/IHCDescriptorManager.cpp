@@ -21,6 +21,9 @@ namespace IHCEngine::Graphics
 		globalDescriptorWrap->Setup();
 		textureDescriptorWrap->Setup();
 		skeletalDescriptorWrap->Setup();
+
+		computeParticleDescriptorWrap = std::make_unique<ComputeParticleDescriptorWrap>(ihcDevice);
+		computeParticleDescriptorWrap->Setup();
 	}
 
 	std::vector<VkDescriptorSetLayout> IHCDescriptorManager::GetDefaultDescriptorSetLayoutsForBasicRenderSystem()
@@ -142,7 +145,6 @@ namespace IHCEngine::Graphics
 		}
 		animator->SetBuffers({});
 	}
-
 	void IHCDescriptorManager::AllocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver)
 	{
 		// check if already allocate descriptors for animator

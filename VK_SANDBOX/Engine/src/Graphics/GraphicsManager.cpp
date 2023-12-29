@@ -15,7 +15,8 @@
 #include "VKWraps/IHCDescriptorManager.h"
 #include "Renderer.h"
 //#include "VKWraps/IHCMesh.h"
-#include "RenderSystems/RenderSystem.h" 
+#include "RenderSystems/RenderSystem.h"
+#include "RenderSystems/ParticleSystem.h" 
 // Scene
 #include "../Core/Locator/SceneManagerLocator.h"
 #include "../Core/Scene/Scene.h"
@@ -39,11 +40,7 @@ IHCEngine::Graphics::GraphicsManager::~GraphicsManager()
 void IHCEngine::Graphics::GraphicsManager::Init()
 {
     initVulkan();
-    setupBasicRenderSystem();
-    // Create Other RenderSystems 
-    ////// Create ParticleSystem //////
-    ////// Create RayTracingSystem //////
-    ////// Create SimulationSystem //////
+    setupRenderSystems();
 }
 void IHCEngine::Graphics::GraphicsManager::initVulkan()
 {
@@ -59,10 +56,16 @@ void IHCEngine::Graphics::GraphicsManager::initVulkan()
     // Create Graphics Asset Creator
     graphicsAssetCreator = std::make_unique<IHCEngine::Graphics::GraphicsAssetCreator>(*ihcDevice, descriptorManager.get());
 }
-void IHCEngine::Graphics::GraphicsManager::setupBasicRenderSystem()
+void IHCEngine::Graphics::GraphicsManager::setupRenderSystems()
 {
     // Use above to create pipeline layout, also create the pipeline afterwards
     basicRenderSystem = std::make_unique<IHCEngine::Graphics::RenderSystem>
+        (
+            *ihcDevice,
+            renderer->GetSwapChainRenderPass(),
+            descriptorManager.get()
+        );
+    particleSystem = std::make_unique<IHCEngine::Graphics::ParticleSystem>
         (
             *ihcDevice,
             renderer->GetSwapChainRenderPass(),
@@ -101,12 +104,12 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         descriptorManager->GetGlobalDescriptorWrap()->GetGlobalUBOs()[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 
 
         renderer->BeginSwapChainRenderPass(commandBuffer);
-        //// System Render order here matters ////
 
+        //// System Render order here matters ////
         basicRenderSystem->RenderGameObjects(frameInfo);
-        //pointLightSystem.render(frameInfo);
-        
+        particleSystem->RenderGameObjects(frameInfo);
         //////////////////////////////////////////
+
         if (usingIMGUI)
         {
             ImGui::Render();  // Rendering UI

@@ -1,18 +1,17 @@
 #pragma once
-#include <stack>
 #include "VKWraps/VKHelpers.h"
-#include "VKWraps/IHCMesh.h"
 
-// Forward declaration
 namespace IHCEngine::Window
 {
     class AppWindow;
 }
+
 namespace IHCEngine::Core
 {
     class Time;
     class Scene;
 }
+
 namespace IHCEngine::Graphics
 {
 	class GraphicsAssetCreator;
@@ -24,7 +23,9 @@ namespace IHCEngine::Graphics
     class IHCTexture;
     class IHCMesh;
     class RenderSystem; // contains IHCPipeline
+    class ParticleSystem;
 }
+
 struct ImGui_ImplVulkan_InitInfo;
 
 namespace IHCEngine::Graphics
@@ -47,8 +48,6 @@ namespace IHCEngine::Graphics
         GraphicsAssetCreator& GetGraphicsAssetCreator() { return *graphicsAssetCreator; }
         RenderSystem& GetRenderSystem() { return *basicRenderSystem; }
 
-
-
     	// Helper for ImGui
         bool usingIMGUI = true;
         VkRenderPass GetRenderPass();
@@ -60,7 +59,7 @@ namespace IHCEngine::Graphics
     private:
 
         void initVulkan();
-        void setupBasicRenderSystem();
+        void setupRenderSystems();
         Window::AppWindow& appWindow;
 
         //// order of declarations matter for vulkan cleanup ////
@@ -69,9 +68,9 @@ namespace IHCEngine::Graphics
         std::unique_ptr<IHCEngine::Graphics::IHCDescriptorManager> descriptorManager;
         std::unique_ptr<IHCEngine::Graphics::GraphicsAssetCreator> graphicsAssetCreator;
 
-        // rendersystems
+        // render systems
         std::unique_ptr<IHCEngine::Graphics::RenderSystem> basicRenderSystem; 
-        // std::unique_ptr<IHCEngine::Graphics::RenderSystem> particleSystem;
+        std::unique_ptr<IHCEngine::Graphics::ParticleSystem> particleSystem;
         // std::unique_ptr<IHCEngine::Graphics::RenderSystem> rayTracingSystem;
         // std::unique_ptr<IHCEngine::Graphics::RenderSystem> simulationSystem;
 
@@ -85,7 +84,7 @@ namespace IHCEngine::Graphics
 // 1. Initialize the Vulkan Context
 // 2. Window and Presentation Setup (Swapchain)
 // 
-// setupBasicRenderSystem()
+// setupRenderSystems()
 // 1. DescriptorManager set up for pipeline creations in rendersystems
 // 2. Rendering Setup (RenderSystems (Pipelines)
 //

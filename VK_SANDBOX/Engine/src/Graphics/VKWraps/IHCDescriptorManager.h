@@ -1,4 +1,5 @@
 #pragma once
+#include "DescriptorWraps/ComputeParticleDescriptorWrap.h"
 #include "DescriptorWraps/GlobalDescriptorWrap.h"
 #include "DescriptorWraps/TextureDescriptorWrap.h"
 #include "DescriptorWraps/SkeletalDescriptorWrap.h"
@@ -18,10 +19,13 @@ namespace IHCEngine::Graphics
         IHCDescriptorManager(IHCDevice& ihcDevice);
         ~IHCDescriptorManager()=default;
 
-        // For rendersystem
+        // For render system
         GlobalDescriptorWrap* GetGlobalDescriptorWrap() const { return globalDescriptorWrap.get(); }
         TextureDescriptorWrap* GetTextureDescriptorWrap() const { return textureDescriptorWrap.get(); }
         SkeletalDescriptorWrap* GetSkeletalDescriptorWrap() const { return skeletalDescriptorWrap.get(); }
+
+        // For particle system
+		ComputeParticleDescriptorWrap* GetComputeParticleDescriptorWrap() const { return computeParticleDescriptorWrap.get(); }
 
         // Get Layouts for pipeline creation
         std::vector<VkDescriptorSetLayout> GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
@@ -39,7 +43,7 @@ namespace IHCEngine::Graphics
         std::unique_ptr<GlobalDescriptorWrap> globalDescriptorWrap = nullptr;
         std::unique_ptr<TextureDescriptorWrap> textureDescriptorWrap = nullptr;
         std::unique_ptr<SkeletalDescriptorWrap> skeletalDescriptorWrap = nullptr;
-
+        std::unique_ptr<ComputeParticleDescriptorWrap> computeParticleDescriptorWrap = nullptr;
 	};
 }
 

@@ -20,7 +20,8 @@ namespace IHCEngine::Component
 		CustomBehavior,
 		ImguiContext,
 		LineRenderer,
-		InverseKinematics
+		InverseKinematics,
+		ComputeParticle
 		// add more component types as needed
 	};
 
