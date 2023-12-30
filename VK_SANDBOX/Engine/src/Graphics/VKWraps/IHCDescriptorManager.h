@@ -4,6 +4,11 @@
 #include "DescriptorWraps/TextureDescriptorWrap.h"
 #include "DescriptorWraps/SkeletalDescriptorWrap.h"
 
+namespace IHCEngine::Component
+{
+	class ComputeParticleComponent;
+}
+
 namespace IHCEngine::Graphics
 {
     class IHCDevice;
@@ -32,10 +37,14 @@ namespace IHCEngine::Graphics
 
         void AllocateTextureDescriptorSetForTexture(IHCTexture* texture);
         void DeallocateTextureDescriptorSetForTexture(IHCTexture* texture);
+
         void AllocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void DeallocateSkeletalDescriptorSetForAnimator(Animator* animator);
         void AllocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver);
         void DeallocateSkeletalDescriptorSetForIK(InverseKinematicsSolver* ikSolver);
+
+        void AllocateComputeParticleDescriptorSet(Component::ComputeParticleComponent* computeParticle);
+        void DeallocateComputeParticleDescriptorSet(Component::ComputeParticleComponent* computeParticle);
 
 	private:
 

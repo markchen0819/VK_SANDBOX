@@ -11,6 +11,7 @@ IHCEngine::Graphics::ParticleSystem::ParticleSystem(IHCDevice& device, VkRenderP
     vkrenderpass{ renderPass },
     descriptorManager{ descriptorManager }
 {
+    computeParticlePipeline = std::make_unique<ComputeParticlePipeline>(ihcDevice, vkrenderpass, descriptorManager);
     //defaultPipeline = std::make_unique<DefaultPipeline>(ihcDevice, vkrenderpass, descriptorManager);
     //wireframePipeline = std::make_unique<WireframePipeline>(ihcDevice, vkrenderpass, descriptorManager);
     //skeletalAnimationPipeline = std::make_unique<SkeletalAnimationPipeline>(ihcDevice, vkrenderpass, descriptorManager);

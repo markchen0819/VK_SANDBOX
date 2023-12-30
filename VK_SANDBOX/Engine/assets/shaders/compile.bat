@@ -6,6 +6,9 @@
 %~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe debugBoneShader.frag -o debugbonefrag.spv
 %~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe lineRendererShader.vert -o linerenderervert.spv
 %~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe lineRendererShader.frag -o linerendererfrag.spv
+%~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe renderParticleShader.vert -o renderparticlevert.spv
+%~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe renderParticleShader.frag -o renderparticlefrag.spv
+%~dp0\..\..\..\Libraries\VulkanSDK\1.3.243.0\Bin\glslc.exe computeParticleShader.comp -o computeparticlecomp.spv
 pause
 
 

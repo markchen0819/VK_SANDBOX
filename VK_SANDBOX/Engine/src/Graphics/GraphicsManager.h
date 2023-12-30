@@ -47,7 +47,7 @@ namespace IHCEngine::Graphics
         // Helper for asset creation
         GraphicsAssetCreator& GetGraphicsAssetCreator() { return *graphicsAssetCreator; }
         RenderSystem& GetRenderSystem() { return *basicRenderSystem; }
-
+  
     	// Helper for ImGui
         bool usingIMGUI = true;
         VkRenderPass GetRenderPass();

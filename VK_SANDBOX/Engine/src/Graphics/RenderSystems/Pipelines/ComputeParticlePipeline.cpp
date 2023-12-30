@@ -92,10 +92,8 @@ namespace IHCEngine::Graphics
     }
     void ComputeParticlePipeline::createGraphicsPipeline()
     {
-        // Different parts
-        // TO:DO change shader!!!!!!!!!
-        auto vertShaderCode = readFile("shaders/vert.spv");
-        auto fragShaderCode = readFile("shaders/frag.spv");
+        auto vertShaderCode = readFile("Engine/assets/shaders/renderparticlevert.spv");
+        auto fragShaderCode = readFile("Engine/assets/shaders/renderparticlefrag.spv");
 
         auto bindingDescription = Particle::getBindingDescription();
         auto attributeDescriptions = Particle::getAttributeDescriptions();
@@ -129,7 +127,7 @@ namespace IHCEngine::Graphics
         pipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST; 
         pipelineConfig.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; 
         pipelineConfig.multisampling.sampleShadingEnable = VK_FALSE;
-        pipelineConfig.multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        pipelineConfig.multisampling.rasterizationSamples = ihcDevice.GetMsaaSamples(); //VK_SAMPLE_COUNT_1_BIT;
         pipelineConfig.colorBlendAttachment.blendEnable = VK_TRUE;
         pipelineConfig.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
@@ -143,6 +141,7 @@ namespace IHCEngine::Graphics
         pipelineInfo.pRasterizationState = &pipelineConfig.rasterizer;
         pipelineInfo.pMultisampleState = &pipelineConfig.multisampling;
         pipelineInfo.pColorBlendState = &pipelineConfig.colorBlending;
+        pipelineInfo.pDepthStencilState = &pipelineConfig.depthStencil;
         pipelineInfo.pDynamicState = &pipelineConfig.dynamicStateInfo;
         pipelineInfo.layout = graphicsPipelineLayout;
         pipelineInfo.renderPass = renderPass;
@@ -161,7 +160,7 @@ namespace IHCEngine::Graphics
 
     void ComputeParticlePipeline::createComputePipeline()
     {
-        auto computeShaderCode = readFile("shaders/comp.spv");
+        auto computeShaderCode = readFile("Engine/assets/shaders/computeparticlecomp.spv");
 
         VkShaderModule computeShaderModule = createShaderModule(computeShaderCode);
 

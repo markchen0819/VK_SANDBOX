@@ -74,7 +74,6 @@ namespace IHCEngine::Graphics
         assetManager->GetModelRepository().AddAsset(assetName, std::move(model));
         return rawPtr;
     }
-
     void GraphicsAssetCreator::DestroyModel(std::string assetName)
     {
         // No descriptor for model
@@ -82,6 +81,7 @@ namespace IHCEngine::Graphics
         assetManager->GetModelRepository().RemoveAsset(assetName);
     }
 
+    // Animation
     Animation* GraphicsAssetCreator::CreateAnimation(std::string assetName, std::string path, Model* model)
     {
         auto animation = std::make_unique<IHCEngine::Graphics::Animation>(
@@ -92,7 +92,6 @@ namespace IHCEngine::Graphics
         assetManager->GetAnimationRepository().AddAsset(assetName, std::move(animation));
         return rawPtr;
     }
-
     void GraphicsAssetCreator::DestroyAnimation(std::string assetName)
     {
         // No descriptor for animation
@@ -100,7 +99,7 @@ namespace IHCEngine::Graphics
         assetManager->GetAnimationRepository().RemoveAsset(assetName);
     }
 
-    // Skeletal Data for Animator (vulkan ubo)
+    // Skeletal Data (Animator)
     void GraphicsAssetCreator::CreateSkeletalData(Animator* animator)
     {
         descriptorManager->AllocateSkeletalDescriptorSetForAnimator(animator);
@@ -110,7 +109,7 @@ namespace IHCEngine::Graphics
         descriptorManager->DeallocateSkeletalDescriptorSetForAnimator(animator);
     }
 
-    //  Skeletal Data for IK (vulkan ubo)
+    // Skeletal Data (IK)
     void GraphicsAssetCreator::CreateSkeletalData(InverseKinematicsSolver* ikSolver)
     {
         descriptorManager->AllocateSkeletalDescriptorSetForIK(ikSolver);
@@ -118,5 +117,15 @@ namespace IHCEngine::Graphics
     void GraphicsAssetCreator::DestroySkeletalData(InverseKinematicsSolver* ikSolver)
     {
         descriptorManager->DeallocateSkeletalDescriptorSetForIK(ikSolver);
+    }
+
+    // Particle Data
+    void GraphicsAssetCreator::CreateParticleData(Component::ComputeParticleComponent* computeParticle)
+    {
+        descriptorManager->AllocateComputeParticleDescriptorSet(computeParticle);
+    }
+    void GraphicsAssetCreator::DestroyParticleData(Component::ComputeParticleComponent* computeParticle)
+    {
+        descriptorManager->DeallocateComputeParticleDescriptorSet(computeParticle);
     }
 }

@@ -1,6 +1,11 @@
 #pragma once
 #include "VKWraps/IHCMesh.h"
 
+namespace IHCEngine::Component
+{
+	class ComputeParticleComponent;
+}
+
 namespace IHCEngine::Graphics
 {
 	class InverseKinematicsSolver;
@@ -15,6 +20,10 @@ namespace IHCEngine::Graphics
 	class IHCMesh;
 	class Model;
 
+	// Functionality:
+	// 
+	// Create/Destory the graphics Asset (Texture/ Mesh)
+	// Allocate/Dealloc descriptors/ uniform buffers
 
 	class GraphicsAssetCreator
 	{
@@ -41,6 +50,11 @@ namespace IHCEngine::Graphics
 
 		void CreateSkeletalData(InverseKinematicsSolver* ikSolver);
 		void DestroySkeletalData(InverseKinematicsSolver* ikSolver);
+
+		void CreateParticleData(Component::ComputeParticleComponent* computeParticle);
+		void DestroyParticleData(Component::ComputeParticleComponent* computeParticle);
+
+
 	private:
 
 		IHCDevice& ihcDevice;

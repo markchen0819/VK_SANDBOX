@@ -9,6 +9,12 @@
 #include "../CustomBehaviors/CameraController.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
+#include "../../../../Engine/src/Core/Scene/Components/ComputeParticleComponent.h"
+
+namespace IHCEngine::Component
+{
+	class ModelComponent;
+}
 
 SampleApplication::ParticleSystemScene::ParticleSystemScene()
 	: Scene("ParticleSystemScene")
@@ -58,6 +64,14 @@ void SampleApplication::ParticleSystemScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
+
+
+	// Ch44
+	IHCEngine::Core::GameObject& particleGobj = AddGameObject("particleGobj");
+	particleGobj.AddComponent<IHCEngine::Component::ComputeParticleComponent>();
+
+
+
 
 	///////////////////////////
 	// Others

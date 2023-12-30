@@ -15,28 +15,41 @@ namespace IHCEngine::Component
 		ComputeParticleComponent();
 		~ComputeParticleComponent() = default;
 
-		//// Vulkan
-		//void SetDescriptorSets(std::vector<VkDescriptorSet> set) { descriptorSets = set; }
-		//std::vector<VkDescriptorSet>& GetDescriptorSets() { return descriptorSets; }
-		//void SetBuffers(std::vector<Graphics::IHCBuffer*> buffers) { computeParticleUniformBuffers = buffers; }
-		//std::vector<Graphics::IHCBuffer*>& GetBuffers() { return computeParticleUniformBuffers; }
+		const int GetMaxParticleCount() { return maxParticleCount; }
 
+		// Vulkan
+		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
+		std::vector<VkDescriptorSet>& GetDescriptorSets() { return computeDescriptorSets; }
+
+		void SetUniformBuffers(std::vector<Graphics::IHCBuffer*> buffers) { computeParticleUniformBuffers = buffers; }
+		std::vector<Graphics::IHCBuffer*>& GetUnformBuffers() { return computeParticleUniformBuffers; }
+
+		std::vector<Graphics::IHCBuffer*> GetSSBO()
+		{
+			std::vector<Graphics::IHCBuffer*> rawPointerVector;
+			rawPointerVector.reserve(shaderStorageBuffers.size());
+			for (const auto& uniquePtr : shaderStorageBuffers) 
+			{
+				rawPointerVector.push_back(uniquePtr.get());
+			}
+			return rawPointerVector;
+		}
 
 	private:
 
 		std::vector<Graphics::Particle> particles;
-		int PARTICLE_COUNT = 65536;// particle component contains how many particle
+		int maxParticleCount = 65536;// particle component contains how many particle
+
 		void initParticles();
 
 		// Vulkan
-		std::vector<VkDescriptorSet> computeDescriptorSets;
-		std::vector<VkDescriptorSet> descriptorSets;
-		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> computeParticleUniformBuffers;
-		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> shaderStorageBuffers;
+		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> shaderStorageBuffers; // created in component
+		std::vector<Graphics::IHCBuffer*> computeParticleUniformBuffers; // retrieved from descriptor wrap
+		std::vector<VkDescriptorSet> computeDescriptorSets; // retrieved from descriptor wrap
+	
 		void createVulkanResources();
 		void createShaderStorageBuffers();
-		void createUniformBuffers();
-		void createComputeDescriptorSets();
+		void destroyVulkanResources();
 
 		void Attach() override;
 		void Remove() override;

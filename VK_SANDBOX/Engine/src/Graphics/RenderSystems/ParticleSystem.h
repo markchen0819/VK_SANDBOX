@@ -1,11 +1,7 @@
 #pragma once
+#include "Pipelines/ComputeParticlePipeline.h"
 
-//#include "Pipelines/PipelineType.h"
-//#include "Pipelines/DefaultPipeline.h"
-//#include "Pipelines/LineRendererPipeline.h"
-//#include "Pipelines/DebugBonePipeline.h"
-//#include "Pipelines/SkeletalAnimationPipeline.h"
-//#include "Pipelines/WireframePipeline.h"
+
 //
 //namespace IHCEngine::Core
 //{
@@ -45,6 +41,7 @@ namespace IHCEngine::Graphics
         VkRenderPass vkrenderpass;
         IHCDescriptorManager* descriptorManager = nullptr;
 
+        std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline; // basic shading
         //std::unique_ptr<IHCEngine::Graphics::DefaultPipeline> defaultPipeline; // basic shading
         ////// Other pipelines ////
         //std::unique_ptr <IHCEngine::Graphics::WireframePipeline> wireframePipeline;
