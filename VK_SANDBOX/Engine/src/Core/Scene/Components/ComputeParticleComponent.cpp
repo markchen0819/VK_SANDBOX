@@ -7,7 +7,7 @@
 #include "../../../Graphics/VKWraps/IHCDevice.h"
 #include "../../../Graphics/Particle/ComputeParticleUniformBufferObject.h"
 #include "../../../Graphics/Particle/Particle.h"
-
+#include "../../../Core/Time/Time.h"
 
 #include <random>
 
@@ -15,6 +15,31 @@ IHCEngine::Component::ComputeParticleComponent::ComputeParticleComponent()
 	:Component(ComponentType::ComputeParticle)
 {
 	initParticles();
+}
+
+void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo& frameInfo)
+{
+	float dt = IHCEngine::Core::Time::GetDeltaTime();
+	lastFrameTime += dt;
+
+
+	Graphics::ComputeParticleUniformBufferObject ubo{};
+	ubo.deltaTime = lastFrameTime * 2.0f;
+
+	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
+	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+
+
+	// Dispatch
+	vkCmdDispatch(frameInfo.commandBuffer, particleCount / 256, 1, 1);
+}
+
+void IHCEngine::Component::ComputeParticleComponent::Draw(Graphics::FrameInfo& frameInfo)
+{
+	VkBuffer shaderStorageBuffers[] = { GetSSBO()[frameInfo.frameIndex]->GetBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, shaderStorageBuffers, offsets);
+	vkCmdDraw(frameInfo.commandBuffer, particleCount, 1, 0, 0);
 }
 
 void IHCEngine::Component::ComputeParticleComponent::initParticles()
@@ -101,9 +126,11 @@ void IHCEngine::Component::ComputeParticleComponent::createShaderStorageBuffers(
 void IHCEngine::Component::ComputeParticleComponent::Attach()
 {
 	createVulkanResources();
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().AddGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPATRICLE);
 }
 
 void IHCEngine::Component::ComputeParticleComponent::Remove()
 {
 	destroyVulkanResources();
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().RemoveGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPATRICLE);
 }

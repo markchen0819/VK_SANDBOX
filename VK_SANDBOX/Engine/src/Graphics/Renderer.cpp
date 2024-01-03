@@ -8,11 +8,13 @@ IHCEngine::Graphics::Renderer::Renderer(Window::AppWindow& window, IHCDevice& de
 {
 	recreateSwapChain();
 	createCommandBuffers();
+    createComputeCommandBuffers();
 }
 
 IHCEngine::Graphics::Renderer::~Renderer()
 {
 	freeCommandBuffers();
+    freeComputeCommandBuffers();
 }
 
 #pragma region Recreate SwapChain (window size change, also affects pipeline)
@@ -67,10 +69,34 @@ void IHCEngine::Graphics::Renderer::createCommandBuffers()
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
+
+void IHCEngine::Graphics::Renderer::createComputeCommandBuffers()
+{
+    computeCommandBuffers.resize(IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = ihcDevice.GetCommandPool();
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)computeCommandBuffers.size();
+
+    if (vkAllocateCommandBuffers(ihcDevice.GetDevice(), &allocInfo,
+        computeCommandBuffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to allocate compute command buffers!");
+    }
+}
+
 void IHCEngine::Graphics::Renderer::freeCommandBuffers()
 {
     vkFreeCommandBuffers(ihcDevice.GetDevice(), ihcDevice.GetCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
+}
+
+void IHCEngine::Graphics::Renderer::freeComputeCommandBuffers()
+{
+    vkFreeCommandBuffers(ihcDevice.GetDevice(), ihcDevice.GetCommandPool(), static_cast<uint32_t>(computeCommandBuffers.size()), computeCommandBuffers.data());
+    computeCommandBuffers.clear();
 }
 #pragma endregion
 
@@ -150,6 +176,7 @@ void IHCEngine::Graphics::Renderer::EndSwapChainRenderPass(VkCommandBuffer comma
     assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     vkCmdEndRenderPass(commandBuffer);
 }
+
 void IHCEngine::Graphics::Renderer::EndFrame() 
 {
     assert(isFrameInProgress && "Can't call endFrame while frame is not in progress");
@@ -160,6 +187,7 @@ void IHCEngine::Graphics::Renderer::EndFrame()
     {
         throw std::runtime_error("failed to record command buffer!");
     }
+
     //Step 7: Submit Commands
     auto result = ihcSwapChain->SubmitCommandBuffers(&commandBuffer, &currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || appWindow.IsWindowResized())
@@ -177,3 +205,31 @@ void IHCEngine::Graphics::Renderer::EndFrame()
 }
 #pragma endregion
 
+
+VkCommandBuffer IHCEngine::Graphics::Renderer::BeginComputeCommands()
+{
+    // CPU wait
+    ihcSwapChain->WaitForNextComputeFrame();
+
+    // Record
+    auto computeCommandBuffer = GetCurrentComputeCommandBuffer();
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    if (vkBeginCommandBuffer(computeCommandBuffer, &beginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
+    return computeCommandBuffer;
+}
+void IHCEngine::Graphics::Renderer::EndComputeCommands()
+{
+    // Stop Recording
+    auto computeCommandBuffer = GetCurrentComputeCommandBuffer();
+    if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to record compute command buffer!");
+    }
+    // Submit
+   ihcSwapChain->SubmitComputeCommandBuffers(&computeCommandBuffer);
+
+}

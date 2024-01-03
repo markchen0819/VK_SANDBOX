@@ -36,6 +36,14 @@ namespace IHCEngine::Graphics
             assert(isFrameInProgress && "Cannot get command buffer when frame not in progress");
             return commandBuffers[currentFrameIndex];
         }
+        int GetComputeFrameIndex() const
+        {
+            return currentFrameIndex;
+        }
+        VkCommandBuffer GetCurrentComputeCommandBuffer() const
+        {
+            return computeCommandBuffers[currentFrameIndex];
+        }
 
         // Record Commands functions (ex: Draw Frame )
         VkCommandBuffer BeginFrame();
@@ -43,12 +51,18 @@ namespace IHCEngine::Graphics
         void BeginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
+        // Compute Commands
+        VkCommandBuffer BeginComputeCommands();
+        void EndComputeCommands();
+
         //Imgui
         uint32_t GetSwapChainImageCount() { return static_cast<uint32_t>(ihcSwapChain->GetImageCount()); }
 
     private:
         void createCommandBuffers();
+        void createComputeCommandBuffers();
         void freeCommandBuffers();
+        void freeComputeCommandBuffers();
         void recreateSwapChain();
 
         Window::AppWindow& appWindow;
@@ -68,6 +82,9 @@ namespace IHCEngine::Graphics
         // https://registry.khronos.org/vulkan/specs/1.1-extensions/html/chap8.html#renderpass-compatibility
 
         glm::vec3 clearColorValues{0.0, 0.7, 1.0};
+
+        // Compute
+        std::vector<VkCommandBuffer> computeCommandBuffers;
 
         // Count breakdown
         // 

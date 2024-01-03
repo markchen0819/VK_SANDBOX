@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "../../../Graphics/Particle/Particle.h"
+#include "../../../Graphics/VKWraps/VKHelpers.h"
 
 namespace IHCEngine::Graphics
 {
@@ -16,14 +17,16 @@ namespace IHCEngine::Component
 		~ComputeParticleComponent() = default;
 
 		const int GetMaxParticleCount() { return maxParticleCount; }
+		const int GetParticleCount() { return particleCount; }
+
+		void Compute(Graphics::FrameInfo& frameInfo);
+		void Draw(Graphics::FrameInfo& frameInfo);
 
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
 		std::vector<VkDescriptorSet>& GetDescriptorSets() { return computeDescriptorSets; }
-
 		void SetUniformBuffers(std::vector<Graphics::IHCBuffer*> buffers) { computeParticleUniformBuffers = buffers; }
 		std::vector<Graphics::IHCBuffer*>& GetUnformBuffers() { return computeParticleUniformBuffers; }
-
 		std::vector<Graphics::IHCBuffer*> GetSSBO()
 		{
 			std::vector<Graphics::IHCBuffer*> rawPointerVector;
@@ -39,6 +42,8 @@ namespace IHCEngine::Component
 
 		std::vector<Graphics::Particle> particles;
 		int maxParticleCount = 65536;// particle component contains how many particle
+		int particleCount = 65536;
+		float lastFrameTime = 0.0f;
 
 		void initParticles();
 

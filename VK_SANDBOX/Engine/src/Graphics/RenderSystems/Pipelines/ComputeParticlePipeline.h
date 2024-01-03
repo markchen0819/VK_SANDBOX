@@ -9,6 +9,7 @@ namespace IHCEngine::Graphics
 		ComputeParticlePipeline(IHCDevice& device, VkRenderPass renderPass, const IHCDescriptorManager* descriptorManager);
 		~ComputeParticlePipeline() override;
 
+		void Compute(FrameInfo& frameInfo);
 		void Render(FrameInfo& frameInfo) override;
 
 	private:

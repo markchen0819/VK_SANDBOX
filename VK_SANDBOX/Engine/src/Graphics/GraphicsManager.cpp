@@ -76,12 +76,23 @@ void IHCEngine::Graphics::GraphicsManager::Update()
 {
     // Fixes window interrupt
     IHCEngine::Core::Time::Update();
-    
+
+    // Compute
+    auto computeCommandBuffer = renderer->BeginComputeCommands();
+    int computeFrameIndex = renderer->GetComputeFrameIndex();
+    FrameInfo computeFrameInfo
+    {
+        computeFrameIndex,
+        computeCommandBuffer,
+    };
+    particleSystem->Compute(computeFrameInfo);
+    renderer->EndComputeCommands();
+
     // Render
     if (auto commandBuffer = renderer->BeginFrame())
     {
         int frameIndex = renderer->GetFrameIndex();
-        
+
         FrameInfo frameInfo
         {
             frameIndex,

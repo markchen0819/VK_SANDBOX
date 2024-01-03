@@ -37,6 +37,9 @@ namespace IHCEngine::Graphics
 		//  DrawFrame (Submission of Command Buffers to Queue)
 		VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 		VkResult AcquireNextImage(uint32_t* imageIndex);
+		// ComputeFrame
+		void SubmitComputeCommandBuffers(const VkCommandBuffer* buffers);
+		void WaitForNextComputeFrame();
 
 		// Recreation checking
 		bool CompareSwapFormats(const IHCSwapChain& swapChain) const 
@@ -44,6 +47,8 @@ namespace IHCEngine::Graphics
 			return swapChain.swapChainDepthFormat == swapChainDepthFormat 
 				&& swapChain.swapChainImageFormat == swapChainImageFormat;
 		}
+
+
 
 	private:
 		//// functions
@@ -56,6 +61,7 @@ namespace IHCEngine::Graphics
 		void createDepthResources();
 		void createFramebuffers();
 		void createSyncObjects();
+		void createComputeSyncObjects();
 
 		//// Helper functions
 	    // swapchain
@@ -107,5 +113,10 @@ namespace IHCEngine::Graphics
 		std::vector<VkFence> inFlightFences;
 		std::vector<VkFence> imagesInFlight;
 		size_t currentFrame = 0;
+
+		// Compute
+		std::vector<VkSemaphore> computeFinishedSemaphores;
+		std::vector<VkFence> computeInFlightFences;
+
 	};
 }

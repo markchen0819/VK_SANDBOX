@@ -32,6 +32,11 @@ IHCEngine::Graphics::IHCSwapChain::~IHCSwapChain()
         vkDestroySemaphore(device.GetDevice(), imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(device.GetDevice(), inFlightFences[i], nullptr);
     }
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroySemaphore(device.GetDevice(), computeFinishedSemaphores[i], nullptr);
+        vkDestroyFence(device.GetDevice(), computeInFlightFences[i], nullptr);
+    }
 }
 
 void IHCEngine::Graphics::IHCSwapChain::cleanupSwapChain()
@@ -82,6 +87,7 @@ void IHCEngine::Graphics::IHCSwapChain::init()
     createFramebuffers(); // Creates a framebuffer for each image in the swap chain
     //The framebuffer will contain all the color, depth and stencil buffer images that shaders write to when we render a frame.
     createSyncObjects(); // Coordinate order of operations between multiple command buffers, to ensure that things happen in the right order.
+    createComputeSyncObjects();
 }
 
 #pragma region Create swapchain (Setup a multi-buffering system)
@@ -366,6 +372,7 @@ VkFormat IHCEngine::Graphics::IHCSwapChain::findDepthFormat()
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
     );
 }
+
 #pragma endregion
 
 #pragma region Create RenderPass (sequence of steps rendering graphics)
@@ -544,14 +551,34 @@ void IHCEngine::Graphics::IHCSwapChain::createSyncObjects()
             || vkCreateFence(device.GetDevice(), &fenceInfo,
                 nullptr, &inFlightFences[i]) != VK_SUCCESS) // Creating a fence for GPU to signal and CPU to wait.
         {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
+            throw std::runtime_error("failed to create  graphics synchronization objects for a frame!");
+        }
+    }
+}
+
+void IHCEngine::Graphics::IHCSwapChain::createComputeSyncObjects()
+{
+    computeFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    computeInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        if (vkCreateSemaphore(device.GetDevice(), &semaphoreInfo, nullptr, &computeFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(device.GetDevice(), &fenceInfo, nullptr, &computeInFlightFences[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create compute synchronization objects for a frame!");
         }
     }
 }
 #pragma endregion
 
 #pragma region DrawFrame, submitting CommandBuffers (using syncObjects)
-VkResult IHCEngine::Graphics::IHCSwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex)
+VkResult IHCEngine::Graphics::IHCSwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex) // Graphics submission
 {
     // Check if an Image is Still in Flight, Wait for the Image to be Free, Mark the Image as in Use by the Current Frame:
     if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
@@ -578,10 +605,17 @@ VkResult IHCEngine::Graphics::IHCSwapChain::SubmitCommandBuffers(const VkCommand
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
+    // Graphics only
+    //VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+    //VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	//submitInfo.waitSemaphoreCount = 1;
+
+    // Graphics + compute
+    VkSemaphore waitSemaphores[] = { computeFinishedSemaphores[currentFrame], imageAvailableSemaphores[currentFrame] };
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.waitSemaphoreCount = 2;
+
+	submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = buffers; // &commandBuffers[currentFrame];
@@ -642,6 +676,37 @@ VkResult IHCEngine::Graphics::IHCSwapChain::AcquireNextImage(uint32_t* imageInde
         VK_NULL_HANDLE,
         imageIndex);
     return result;
+}
+
+void IHCEngine::Graphics::IHCSwapChain::SubmitComputeCommandBuffers(const VkCommandBuffer* buffers)     // Compute submission
+{
+    // moved out side
+    //updateUniformBuffer(currentFrame); // data update, split 
+    //   recordComputeCommandBuffer(buffers[currentFrame]);
+       // vkResetCommandBuffer(buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0); // seems no need
+
+    // Synchronization before submitting the compute command buffer
+    vkWaitForFences(device.GetDevice(), 1, &computeInFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(device.GetDevice(), 1, &computeInFlightFences[currentFrame]);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = buffers; // &computeCommandBuffers[currentFrame];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &computeFinishedSemaphores[currentFrame];
+
+    if (vkQueueSubmit(device.GetComputeQueue(), 1, &submitInfo,
+        computeInFlightFences[currentFrame]) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to submit compute command buffer!");
+    };
+
+}
+void IHCEngine::Graphics::IHCSwapChain::WaitForNextComputeFrame()
+{
+    vkWaitForFences(device.GetDevice(), 1, &computeInFlightFences[currentFrame],
+        VK_TRUE, std::numeric_limits<uint64_t>::max());
 }
 #pragma endregion
 

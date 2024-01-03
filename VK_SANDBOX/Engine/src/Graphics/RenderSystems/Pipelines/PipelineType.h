@@ -8,6 +8,7 @@ namespace IHCEngine::Graphics
 		SKELETAL,
 		DEBUGBONE,
 		LINERENDERER,
+		COMPUTEPATRICLE,
 	};
 
 }

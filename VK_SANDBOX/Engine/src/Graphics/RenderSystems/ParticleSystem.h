@@ -1,13 +1,7 @@
 #pragma once
 #include "Pipelines/ComputeParticlePipeline.h"
+#include "Pipelines/PipelineType.h"
 
-
-//
-//namespace IHCEngine::Core
-//{
-//    class GameObject;
-//}
-//
 namespace IHCEngine::Graphics
 {
     class IHCDescriptorManager;
@@ -30,10 +24,11 @@ namespace IHCEngine::Graphics
         ParticleSystem(const ParticleSystem&) = delete;
         ParticleSystem& operator=(const ParticleSystem&) = delete;
 
+        void Compute(FrameInfo& frameInfo);
         void RenderGameObjects(FrameInfo& frameInfo);
 
-        //void AddGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType);
-        //void RemoveGameObjectToRender(Core::GameObject* gobj, PipelineType pipelineType);
+        void AddGameObject(Core::GameObject* gobj, PipelineType pipelineType);
+        void RemoveGameObject(Core::GameObject* gobj, PipelineType pipelineType);
 
     private:
 
@@ -41,13 +36,9 @@ namespace IHCEngine::Graphics
         VkRenderPass vkrenderpass;
         IHCDescriptorManager* descriptorManager = nullptr;
 
-        std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline; // basic shading
-        //std::unique_ptr<IHCEngine::Graphics::DefaultPipeline> defaultPipeline; // basic shading
-        ////// Other pipelines ////
-        //std::unique_ptr <IHCEngine::Graphics::WireframePipeline> wireframePipeline;
-        //std::unique_ptr <IHCEngine::Graphics::SkeletalAnimationPipeline> skeletalAnimationPipeline;
-        //std::unique_ptr <IHCEngine::Graphics::DebugBonePipeline> debugBonePipeline;
-        //std::unique_ptr <IHCEngine::Graphics::LineRendererPipeline> lineRendererPipeline;
+        std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline;
+        // compute & graphics pipeline
+
     };
 
 }

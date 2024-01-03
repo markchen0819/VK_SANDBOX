@@ -1,4 +1,5 @@
 #pragma once
+#include "RenderSystems/ParticleSystem.h"
 #include "VKWraps/VKHelpers.h"
 
 namespace IHCEngine::Window
@@ -47,7 +48,8 @@ namespace IHCEngine::Graphics
         // Helper for asset creation
         GraphicsAssetCreator& GetGraphicsAssetCreator() { return *graphicsAssetCreator; }
         RenderSystem& GetRenderSystem() { return *basicRenderSystem; }
-  
+        ParticleSystem& GetParticleSystem() { return *particleSystem; }
+
     	// Helper for ImGui
         bool usingIMGUI = true;
         VkRenderPass GetRenderPass();

@@ -1,15 +1,14 @@
 #include "../../../pch.h"
 #include "ComputeParticlePipeline.h"
 
-//#include "../../VKWraps/VKHelpers.h"
-#include "../../VKWraps/IHCDescriptorManager.h"
+#include "../../VKWraps/VKHelpers.h"
 #include "../../VKWraps/IHCDevice.h"
-//#include "../../VKWraps/IHCPipeline.h"
-//#include "../../VKWraps/IHCDescriptorManager.h"
-//
-//#include "../../../Core/Scene/Components/MeshComponent.h"
-//#include "../../../Core/Scene/Components/TextureComponent.h"
-//#include "../../../Core/Scene/GameObject.h"
+#include "../../VKWraps/IHCBuffer.h"
+#include "../../VKWraps/IHCDescriptorManager.h"
+
+#include "../../../Core/Scene/Components/ComputeParticleComponent.h"
+#include "../../../Core/Scene/GameObject.h"
+#include "../../Particle/ComputeParticleUniformBufferObject.h"
 #include "../../Particle/Particle.h"
 
 namespace IHCEngine::Graphics
@@ -26,9 +25,54 @@ namespace IHCEngine::Graphics
         destroyPipeline();
     }
 
+    void ComputeParticlePipeline::Compute(FrameInfo& frameInfo)
+    {
+        // Bind Pipeline
+        vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline);
+
+        for (auto& gobj : gameObjects)
+        {
+            if (gobj->IsActive() == false) continue;
+            auto component = gobj->GetComponent<Component::ComputeParticleComponent>();
+
+            // Local Descriptors
+            auto descriptorSet = component->GetDescriptorSets()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_COMPUTE,
+                computePipelineLayout,
+                0,
+                1,
+                &descriptorSet,
+                0,
+                nullptr
+            );
+
+            // Compute & Dispatch
+            component->Compute(frameInfo);
+
+        }
+    }
+
     void ComputeParticlePipeline::Render(FrameInfo& frameInfo)
     {
 
+    	// Bind Pipeline
+        vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        // Global Descriptors
+		// .....
+		//
+        // For each game object
+        for (auto& gobj : gameObjects)
+        {
+            if (gobj->IsActive() == false) continue;
+            auto component = gobj->GetComponent<Component::ComputeParticleComponent>();
+
+            // Draw
+            component->Draw(frameInfo);
+        }
     }
 
     void ComputeParticlePipeline::createLayout()

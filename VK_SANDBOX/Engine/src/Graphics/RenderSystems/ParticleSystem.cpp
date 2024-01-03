@@ -20,19 +20,35 @@ IHCEngine::Graphics::ParticleSystem::ParticleSystem(IHCDevice& device, VkRenderP
 }
 
 
+void IHCEngine::Graphics::ParticleSystem::Compute(FrameInfo& frameInfo)
+{
+    computeParticlePipeline->Compute(frameInfo);
+}
+
 void IHCEngine::Graphics::ParticleSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
-    //if (wireframeEnabled)
-    //{
-    //    wireframePipeline->Render(frameInfo);
-    //}
-    //else
-    //{
-    //    defaultPipeline->Render(frameInfo);
-    //    skeletalAnimationPipeline->Render(frameInfo);
-    //}
+    computeParticlePipeline->Render(frameInfo);
+}
 
-    //lineRendererPipeline->Render(frameInfo);
-    //debugBonePipeline->Render(frameInfo);
+void IHCEngine::Graphics::ParticleSystem::AddGameObject(Core::GameObject* gobj, PipelineType pipelineType)
+{
+    switch (pipelineType)
+    {
+    case PipelineType::COMPUTEPATRICLE:
+        computeParticlePipeline->AddGameObjectToRender(gobj); // & compute
+        break;
+
+    }
+}
+
+void IHCEngine::Graphics::ParticleSystem::RemoveGameObject(Core::GameObject* gobj, PipelineType pipelineType)
+{
+    switch (pipelineType)
+    {
+    case PipelineType::COMPUTEPATRICLE:
+        computeParticlePipeline->RemoveGameObjectToRender(gobj); // & compute
+        break;
+
+    }
 }
 

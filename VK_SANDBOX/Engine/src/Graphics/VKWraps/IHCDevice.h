@@ -23,6 +23,7 @@ namespace IHCEngine::Graphics
         VkSurfaceKHR GetSurface() { return surface; }
         VkDevice GetDevice() { return device; }
         VkQueue GetGraphicsQueue() { return graphicsQueue; }
+        VkQueue GetComputeQueue() { return computeQueue; }
         VkQueue GetPresentQueue() { return presentQueue; };
         QueueFamilyIndices FindPhysicalQueueFamilies(); 
         uint32_t GetGraphicsQueueIndex(); // imgui
