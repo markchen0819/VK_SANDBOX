@@ -3,8 +3,8 @@ namespace IHCEngine::Graphics
 {
     struct Particle
 	{
-        glm::vec2 position;
-        glm::vec2 velocity;
+        glm::vec4 position;
+        glm::vec4 velocity;
         glm::vec4 color;
 
         static VkVertexInputBindingDescription getBindingDescription()
@@ -24,7 +24,7 @@ namespace IHCEngine::Graphics
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
             attributeDescriptions[0].offset = offsetof(Particle, position);
 
             attributeDescriptions[1].binding = 0;

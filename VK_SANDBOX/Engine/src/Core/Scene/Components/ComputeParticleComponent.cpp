@@ -2,6 +2,7 @@
 #include "ComputeParticleComponent.h"
 
 #include "../../Locator/GraphicsManagerLocator.h"
+#include "../../Locator/SceneManagerLocator.h"
 #include "../../../Graphics/VKWraps/IHCSwapChain.h"
 #include "../../../Graphics/VKWraps/IHCBuffer.h"
 #include "../../../Graphics/VKWraps/IHCDevice.h"
@@ -14,7 +15,7 @@
 IHCEngine::Component::ComputeParticleComponent::ComputeParticleComponent()
 	:Component(ComponentType::ComputeParticle)
 {
-	initParticles();
+
 }
 
 void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo& frameInfo)
@@ -22,13 +23,10 @@ void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo
 	float dt = IHCEngine::Core::Time::GetDeltaTime();
 	lastFrameTime += dt;
 
-
 	Graphics::ComputeParticleUniformBufferObject ubo{};
 	ubo.deltaTime = lastFrameTime * 2.0f;
-
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-
 
 	// Dispatch
 	vkCmdDispatch(frameInfo.commandBuffer, particleCount / 256, 1, 1);
@@ -59,8 +57,9 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 		float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
 		float x = r * cos(theta) * HEIGHT / WIDTH;
 		float y = r * sin(theta);
-		particle.position = glm::vec2(x, y);
-		particle.velocity = glm::normalize(glm::vec2(x, y)) * 0.00025f;
+
+		particle.position = glm::vec4 (x, y,0, 0);
+		particle.velocity = glm::vec4(glm::normalize(glm::vec2(x, y)) * 0.00025f, 0, 0);
 		particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
 	}
 }
@@ -125,6 +124,7 @@ void IHCEngine::Component::ComputeParticleComponent::createShaderStorageBuffers(
 
 void IHCEngine::Component::ComputeParticleComponent::Attach()
 {
+	initParticles();
 	createVulkanResources();
 	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().AddGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPATRICLE);
 }

@@ -57,19 +57,30 @@ namespace IHCEngine::Graphics
 
     void ComputeParticlePipeline::Render(FrameInfo& frameInfo)
     {
-
     	// Bind Pipeline
         vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
         // Global Descriptors
-		// .....
-		//
+        //
+        //
         // For each game object
         for (auto& gobj : gameObjects)
         {
             if (gobj->IsActive() == false) continue;
             auto component = gobj->GetComponent<Component::ComputeParticleComponent>();
 
+            // Local Descriptors
+            SimplePushConstantData push{};
+            push.modelMatrix = gobj->transform.GetModelMatrix();
+            push.normalMatrix = glm::mat4(1);
+            vkCmdPushConstants
+            (
+                frameInfo.commandBuffer,
+                graphicsPipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+            );
             // Draw
             component->Draw(frameInfo);
         }
@@ -101,12 +112,22 @@ namespace IHCEngine::Graphics
         // Graphics pipeline relies on a compute pipeline for processing resources
         // only used for rendering
 
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts
+        {
+            descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
+        };
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0; // not using separate ranges
+        pushConstantRange.size = sizeof(SimplePushConstantData);
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
         pipelineLayoutInfo.pSetLayouts = nullptr;
-        // pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-        // pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
         if (vkCreatePipelineLayout(ihcDevice.GetDevice(),
             &pipelineLayoutInfo, nullptr, &graphicsPipelineLayout) != VK_SUCCESS)

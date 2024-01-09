@@ -69,7 +69,7 @@ void SampleApplication::ParticleSystemScene::Init()
 	// Ch44
 	IHCEngine::Core::GameObject& particleGobj = AddGameObject("particleGobj");
 	particleGobj.AddComponent<IHCEngine::Component::ComputeParticleComponent>();
-
+	particleGobj.transform.SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 
 
 
