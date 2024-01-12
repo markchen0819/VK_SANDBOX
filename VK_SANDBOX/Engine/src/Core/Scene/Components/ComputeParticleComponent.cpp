@@ -34,10 +34,11 @@ void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo
 
 void IHCEngine::Component::ComputeParticleComponent::Draw(Graphics::FrameInfo& frameInfo)
 {
-	VkBuffer shaderStorageBuffers[] = { GetSSBO()[frameInfo.frameIndex]->GetBuffer() };
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, shaderStorageBuffers, offsets);
-	vkCmdDraw(frameInfo.commandBuffer, particleCount, 1, 0, 0);
+	// Draw Point
+	//VkBuffer shaderStorageBuffers[] = { GetSSBO()[frameInfo.frameIndex]->GetBuffer() };
+	//VkDeviceSize offsets[] = { 0 };
+	//vkCmdBindVertexBuffers(frameInfo.commandBuffer, 0, 1, shaderStorageBuffers, offsets);
+	//vkCmdDraw(frameInfo.commandBuffer, particleCount, 1, 0, 0);
 }
 
 void IHCEngine::Component::ComputeParticleComponent::initParticles()
@@ -59,6 +60,8 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 		float y = r * sin(theta);
 
 		particle.position = glm::vec4 (x, y,0, 0);
+		particle.rotation = glm::vec4(1, 0, 0, 0);
+		particle.scale = glm::vec4(0.01, 0.01, 0.01, 0);
 		particle.velocity = glm::vec4(glm::normalize(glm::vec2(x, y)) * 0.00025f, 0, 0);
 		particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
 	}

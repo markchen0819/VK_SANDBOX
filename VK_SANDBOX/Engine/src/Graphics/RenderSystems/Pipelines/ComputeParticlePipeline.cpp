@@ -7,6 +7,9 @@
 #include "../../VKWraps/IHCDescriptorManager.h"
 
 #include "../../../Core/Scene/Components/ComputeParticleComponent.h"
+#include "../../../Core/Scene/Components/MeshComponent.h"
+#include "../../../Core/Scene/Components/TextureComponent.h"
+
 #include "../../../Core/Scene/GameObject.h"
 #include "../../Particle/ComputeParticleUniformBufferObject.h"
 #include "../../Particle/Particle.h"
@@ -59,16 +62,30 @@ namespace IHCEngine::Graphics
     {
     	// Bind Pipeline
         vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-        // Global Descriptors
-        //
-        //
+
+        // Global Descriptor Sets (Camera)
+        vkCmdBindDescriptorSets
+        (
+            frameInfo.commandBuffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            graphicsPipelineLayout,
+            0,
+            1,
+            &descriptorManager->GetGlobalDescriptorWrap()
+            ->GetDescriptorSets()[frameInfo.frameIndex],
+            0,
+            nullptr
+        );
         // For each game object
         for (auto& gobj : gameObjects)
         {
             if (gobj->IsActive() == false) continue;
-            auto component = gobj->GetComponent<Component::ComputeParticleComponent>();
 
-            // Local Descriptors
+            auto computeComponent = gobj->GetComponent<Component::ComputeParticleComponent>();
+            auto meshComponent = gobj->GetComponent<Component::MeshComponent>();
+            auto textureComponent = gobj->GetComponent<Component::TextureComponent>();
+
+
             SimplePushConstantData push{};
             push.modelMatrix = gobj->transform.GetModelMatrix();
             push.normalMatrix = glm::mat4(1);
@@ -81,8 +98,45 @@ namespace IHCEngine::Graphics
                 sizeof(SimplePushConstantData),
                 &push
             );
-            // Draw
-            component->Draw(frameInfo);
+
+            // Local Descriptors Sets
+            auto ssboDescriptorSet = computeComponent->GetDescriptorSets()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                graphicsPipelineLayout,
+                1,
+                1,
+                &ssboDescriptorSet,
+                0,
+                nullptr
+            );
+            auto textureDescriptorSet = textureComponent->GetDescriptorSets()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                graphicsPipelineLayout,
+                2,
+                1,
+                &textureDescriptorSet,
+                0,
+                nullptr
+            );
+
+            // Draw Point
+            //component->Draw(frameInfo);
+
+            // Draw Mesh
+
+            // Accessed thru descriptor sets now
+            //VkBuffer shaderStorageBuffers[] = { computeComponent->GetSSBO()[frameInfo.frameIndex]->GetBuffer() };
+            //VkDeviceSize offsets[] = { 0 };
+
+        	// GPU instancing
+            meshComponent->Bind(frameInfo.commandBuffer);
+            meshComponent->InstanceDraw(frameInfo.commandBuffer, computeComponent->GetMaxParticleCount());
         }
     }
 
@@ -109,13 +163,21 @@ namespace IHCEngine::Graphics
 
     void ComputeParticlePipeline::createGraphicsPipelineLayout()
     {
-        // Graphics pipeline relies on a compute pipeline for processing resources
-        // only used for rendering
+    	// In GLSL, our case
+        // globalDescriptorSetLayout  set 0, Binding0, UNIFORM_BUFFER
+        // computeDescriptorSetLayout set 1, Binding0, UNIFORM_BUFFER
+        // computeDescriptorSetLayout set 1, Binding1, STORAGE_BUFFER
+        // computeDescriptorSetLayout set 1, Binding2, STORAGE_BUFFER
+        // textureDescriptorSetLayout set 2, Binding0, COMBINED_IMAGE_SAMPLER
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts
         {
             descriptorManager->GetGlobalDescriptorWrap()->GetDescriptorSetLayout(),
+        	descriptorManager->GetComputeParticleDescriptorWrap()->GetDescriptorSetLayout(),
+            descriptorManager->GetTextureDescriptorWrap()->GetDescriptorSetLayout(),
         };
+
+
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0; // not using separate ranges
@@ -160,8 +222,13 @@ namespace IHCEngine::Graphics
         auto vertShaderCode = readFile("Engine/assets/shaders/renderparticlevert.spv");
         auto fragShaderCode = readFile("Engine/assets/shaders/renderparticlefrag.spv");
 
-        auto bindingDescription = Particle::getBindingDescription();
-        auto attributeDescriptions = Particle::getAttributeDescriptions();
+        // Point particles
+        //auto bindingDescription = Particle::getBindingDescription();
+        //auto attributeDescriptions = Particle::getAttributeDescriptions();
+
+    	// Mesh particles
+        auto bindingDescriptions = Vertex::getBindingDescriptions();
+        auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
         // Shader stages
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
@@ -183,13 +250,15 @@ namespace IHCEngine::Graphics
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = 1; //static_cast<uint32_t>(bindingDescriptions.size());
         vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+        vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data(); //&bindingDescription;
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         // PipelineConfig
         PipelineConfigInfo pipelineConfig{};
         IHCEngine::Graphics::IHCPipeline::DefaultPipelineConfigInfo(pipelineConfig, ihcDevice);
-        pipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST; 
+
+        //pipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;   // Point particles
+        pipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;// Mesh particles
         pipelineConfig.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; 
         pipelineConfig.multisampling.sampleShadingEnable = VK_FALSE;
         pipelineConfig.multisampling.rasterizationSamples = ihcDevice.GetMsaaSamples(); //VK_SAMPLE_COUNT_1_BIT;

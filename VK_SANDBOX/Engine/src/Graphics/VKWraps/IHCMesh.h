@@ -37,6 +37,7 @@ namespace IHCEngine::Graphics
 		
         void Bind(VkCommandBuffer commandBuffer);
         void Draw(VkCommandBuffer commandBuffer);
+        void InstanceDraw(VkCommandBuffer commandBuffer, int instanceCount); //GPU instancing
 
         std::vector<Vertex>& GetVertices() { return vertices; } // for bones
 

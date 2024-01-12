@@ -36,6 +36,8 @@ void SampleApplication::ParticleSystemScene::UnLoad()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
+	graphicsAssetCreator.DestroyMesh("cubeMesh");
+
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
 	graphicsAssetCreator.DestroyMesh("x_axisModel");
@@ -70,6 +72,44 @@ void SampleApplication::ParticleSystemScene::Init()
 	IHCEngine::Core::GameObject& particleGobj = AddGameObject("particleGobj");
 	particleGobj.AddComponent<IHCEngine::Component::ComputeParticleComponent>();
 	particleGobj.transform.SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+
+
+	IHCEngine::Graphics::IHCMesh::Builder cubeBuilder;
+	cubeBuilder.vertices = {
+		// Front face
+		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
+		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
+		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
+		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-left
+		// Back face
+		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
+		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
+		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
+		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}  // Top-left
+	};
+	cubeBuilder.indices = {
+		// Front face
+		0, 1, 2,  0, 2, 3,
+		// Right face
+		1, 5, 6,  1, 6, 2,
+		// Back face
+		5, 4, 7,  5, 7, 6,
+		// Left face
+		4, 0, 3,  4, 3, 7,
+		// Top face
+		3, 2, 6,  3, 6, 7,
+		// Bottom face
+		1, 0, 4,  1, 4, 5
+	};
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	auto cubeMesh = graphicsAssetCreator.CreateMesh(
+		"cubeMesh", cubeBuilder);
+
+	meshcomponent = particleGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("cubeMesh"));
+	texturecomponent = particleGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+
 
 
 

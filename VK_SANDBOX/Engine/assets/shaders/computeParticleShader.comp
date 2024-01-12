@@ -1,7 +1,10 @@
 #version 450
 
-struct Particle {
+struct Particle
+{
 	vec4 position;
+    vec4 rotation;
+    vec4 scale;
 	vec4 velocity;
     vec4 color;
 };
@@ -35,14 +38,16 @@ void main()
     Particle particleIn = particlesIn[index];
 
     particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;   // Do NOT do MVP calculations here, or it will we reiterated
+    particlesOut[index].rotation = particleIn.rotation;
+    particlesOut[index].scale = particleIn.scale;
     particlesOut[index].velocity = particleIn.velocity;
-
+    particlesOut[index].color = particleIn.color;
 
     // Flip movement at window border
-    if ((particlesOut[index].position.x <= -1.0) || (particlesOut[index].position.x >= 1.0)) {
+    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2)) {
         particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
     }
-    if ((particlesOut[index].position.y <= -1.0) || (particlesOut[index].position.y >= 1.0)) {
+    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2)) {
         particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
     }
 

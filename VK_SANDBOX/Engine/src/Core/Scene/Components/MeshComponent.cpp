@@ -26,6 +26,11 @@ void IHCEngine::Component::MeshComponent::Draw(VkCommandBuffer commandBuffer)
 	mesh->Draw(commandBuffer);
 }
 
+void IHCEngine::Component::MeshComponent::InstanceDraw(VkCommandBuffer commandBuffer, int instanceCount)
+{
+	mesh->InstanceDraw(commandBuffer, instanceCount);
+}
+
 void IHCEngine::Component::MeshComponent::Attach()
 {
 	Core::GraphicsManagerLocator::GetGraphicsManager()->GetRenderSystem().AddGameObjectToRender(this->gameObject, Graphics::PipelineType::DEFAULT);

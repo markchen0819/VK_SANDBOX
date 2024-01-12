@@ -231,6 +231,18 @@ void IHCEngine::Graphics::IHCMesh::Draw(VkCommandBuffer commandBuffer)
         vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
     }
 }
+
+void IHCEngine::Graphics::IHCMesh::InstanceDraw(VkCommandBuffer commandBuffer, int instanceCount)
+{
+    if (hasIndexBuffer)
+    {
+        vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, 0, 0, 0);
+    }
+    else
+    {
+        vkCmdDraw(commandBuffer, vertexCount, instanceCount, 0, 0);
+    }
+}
 #pragma endregion
 
 

@@ -20,6 +20,7 @@ namespace IHCEngine::Component
 
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);
+		void InstanceDraw(VkCommandBuffer commandBuffer, int instanceCount);
 
 	private:
 

@@ -49,7 +49,7 @@ namespace IHCEngine::Graphics
 		AddLayoutBinding(
 			2,
 			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-			VK_SHADER_STAGE_COMPUTE_BIT,
+			VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT, // need to access for vertex
 			1
 		);
 		CreateLayout();
