@@ -7,19 +7,23 @@ struct Particle
     vec4 scale;
 	vec4 velocity;
     vec4 color;
+    vec4 startPosition;
+	float lifeTime;
+    float remainingLifetime;
 };
 
 layout (binding = 0) uniform ParameterUBO
 {
     float deltaTime;
+    float accumulatedTime;
 } ubo;
 
-layout(std140, binding = 1) readonly buffer ParticleSSBOIn 
+layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
 {
    Particle particlesIn[ ];
 };
 
-layout(std140, binding = 2) buffer ParticleSSBOOut 
+layout(std430, binding = 2) buffer ParticleSSBOOut 
 {
    Particle particlesOut[ ];
 };
@@ -30,6 +34,27 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Thread Count per work group : 256
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
+
+
+vec4 normalizeQuaternion(vec4 q) 
+{
+    float length = sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+    return q / length;
+}
+vec4 angleAxis(float angle, vec3 axis) 
+{
+    vec3 normalizedAxis = normalize(axis);
+    float halfAngle = angle * 0.5;
+    float s = sin(halfAngle);
+    return vec4(normalizedAxis * s, cos(halfAngle));
+}
+vec4 quatMultiply(vec4 q1, vec4 q2) {
+    vec3 imaginary = cross(q1.xyz, q2.xyz) + q1.w * q2.xyz + q2.w * q1.xyz;
+    float real = q1.w * q2.w - dot(q1.xyz, q2.xyz);
+    return vec4(imaginary, real);
+}
+
+
 
 void main() 
 {
@@ -43,12 +68,41 @@ void main()
     particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
 
+    particlesOut[index].startPosition = particleIn.startPosition;
+
+    particlesOut[index].lifeTime = particleIn.lifeTime;
+    particlesOut[index].remainingLifetime = particleIn.remainingLifetime - ubo.deltaTime;
+
+    //// Rotation test
+    // Calculate random rotation
+    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
+    float randomAngle = length(particleIn.velocity.xyz) * ubo.deltaTime; 
+    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
+    // Combine new random rotation with the existing rotation
+    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
+
+    // Life time
+    if ( particlesOut[index].remainingLifetime <= 0.0)
+    {
+        particlesOut[index].position = particleIn.startPosition;
+        particlesOut[index].remainingLifetime = particleIn.lifeTime;
+    }
+
+
+    //// Boundary test
     // Flip movement at window border
-    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2)) {
+    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2))
+    {
         particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
     }
-    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2)) {
+    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2))
+    {
         particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
     }
+    if ((particlesOut[index].position.z <= -1.0 * 2) || (particlesOut[index].position.z >= 1.0 * 2)) 
+    {
+        particlesOut[index].velocity.z = -particlesOut[index].velocity.z;
+    }
+
 
 }

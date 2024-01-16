@@ -4,12 +4,13 @@ namespace IHCEngine::Graphics
     struct Particle
 	{
         glm::vec4 position;
-        glm::vec4 rotation;
+    	glm::vec4 rotation;
         glm::vec4 scale;
         glm::vec4 velocity;
         glm::vec4 color;
-
-
+    	glm::vec4 startPosition;
+		float lifeTime;
+        float remainingLifetime;
 
         // Below is used for Vertex input
         // stop using this since we change from rendering points into mesh

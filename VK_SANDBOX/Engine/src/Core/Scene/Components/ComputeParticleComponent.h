@@ -41,8 +41,8 @@ namespace IHCEngine::Component
 	private:
 
 		std::vector<Graphics::Particle> particles;
-		int maxParticleCount = 65536;// particle component contains how many particle
-		int particleCount = 65536;
+		int maxParticleCount = 256;// 65536 * 4; // 256;//65536;// particle component contains how many particle
+		int particleCount = 256;//  65536 * 4; //256;// 65536;
 		float lastFrameTime = 0.0f;
 
 		void initParticles();

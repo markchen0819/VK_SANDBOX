@@ -24,7 +24,9 @@ void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo
 	lastFrameTime += dt;
 
 	Graphics::ComputeParticleUniformBufferObject ubo{};
-	ubo.deltaTime = lastFrameTime * 2.0f;
+	ubo.deltaTime = dt;
+	ubo.accumulatedTime = lastFrameTime;
+
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 
@@ -58,12 +60,19 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 		float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
 		float x = r * cos(theta) * HEIGHT / WIDTH;
 		float y = r * sin(theta);
+		float z = r * sin(theta) * HEIGHT / WIDTH;
 
-		particle.position = glm::vec4 (x, y,0, 0);
+		//particle.position = glm::vec4 (x, y, z, 0);
+		particle.position = glm::vec4(0, 0, 0, 0);
 		particle.rotation = glm::vec4(1, 0, 0, 0);
-		particle.scale = glm::vec4(0.01, 0.01, 0.01, 0);
-		particle.velocity = glm::vec4(glm::normalize(glm::vec2(x, y)) * 0.00025f, 0, 0);
+		particle.scale = glm::vec4(0.05, 0.05, 0.05, 0);
+		particle.velocity = glm::vec4(glm::normalize(glm::vec3(x, y, z)), 0);
 		particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
+
+		particle.startPosition = glm::vec4(x, y, z, 0);
+
+		particle.lifeTime = 8.0f; // +x * 1000;
+		particle.remainingLifetime = particle.lifeTime;
 	}
 }
 
