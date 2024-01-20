@@ -36,6 +36,57 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Group1 0~255, Group2 256~511...
 
 
+vec3 CalculateFluidVelocityAtPosition(vec3 position)
+{
+    // Your logic to calculate fluid velocity at 'position'
+    // This might involve looking up a velocity field, applying physical equations, etc.
+    // Example:
+    float distanceFromOrigin = length(position);
+    float baseSpeed = 0.0050; // Adjust this value as needed
+    if (distanceFromOrigin < 1.0)
+    {
+        distanceFromOrigin = 1.0;
+    }
+    vec3 velocity = vec3(0, 1, 0) * (baseSpeed / distanceFromOrigin);
+    return velocity;
+
+   // return vec3(0, 0.5, 0); // Placeholder - replace with your actual calculation
+}
+
+// Intergration
+vec3 CalculateVelocityAtPosition(vec3 position, vec3 particleVelocity) 
+{
+    vec3 newVelocity = particleVelocity;
+    // Add fluid dynamics influence
+    newVelocity += CalculateFluidVelocityAtPosition(position); // Addvection
+    // Add gravity influence if enabled
+    // Example: if (useGravity) { newVelocity += vec3(0, -9.81, 0); }
+    // Add more forces here if necessary
+    return newVelocity;
+}
+
+struct RK2Result 
+{
+    vec3 position;
+    vec3 velocity;
+};
+
+RK2Result RK2Integration(vec3 position, vec3 particleVelocity, float deltaTime)
+{
+    vec3 velocityAtInit = CalculateVelocityAtPosition(position, particleVelocity); 
+    vec3 k1 = velocityAtInit * deltaTime;
+    vec3 midpoint = position + 0.5 * k1;
+    vec3 velocityAtMidpoint = CalculateVelocityAtPosition(midpoint, particleVelocity);
+    vec3 k2 = velocityAtMidpoint * deltaTime;
+
+    RK2Result result;
+    result.position = position + k2;
+    result.velocity = velocityAtMidpoint;
+    return result;
+}
+
+
+// Helpers for testing rotation
 vec4 normalizeQuaternion(vec4 q) 
 {
     float length = sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
@@ -62,26 +113,25 @@ void main()
 
     Particle particleIn = particlesIn[index];
 
-    particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;   // Do NOT do MVP calculations here, or it will we reiterated
+     // Do NOT do MVP calculations here, or it will we reiterated
+    //particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;  
     particlesOut[index].rotation = particleIn.rotation;
     particlesOut[index].scale = particleIn.scale;
-    particlesOut[index].velocity = particleIn.velocity;
+    // particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
-
     particlesOut[index].startPosition = particleIn.startPosition;
-
+    particlesOut[index].rotation =particleIn.rotation;
     particlesOut[index].lifeTime = particleIn.lifeTime;
     particlesOut[index].remainingLifetime = particleIn.remainingLifetime - ubo.deltaTime;
 
-    //// Rotation test
-    // Calculate random rotation
-    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
-    float randomAngle = length(particleIn.velocity.xyz) * ubo.deltaTime; 
-    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
-    // Combine new random rotation with the existing rotation
-    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
 
-    // Life time
+
+     RK2Result rk2Result = RK2Integration(particleIn.position.xyz, particleIn.velocity.xyz, ubo.deltaTime);
+
+     particlesOut[index].position = vec4(rk2Result.position.xyz, particleIn.position.w);
+     particlesOut[index].velocity = vec4(rk2Result.velocity.xyz, particleIn.velocity.w);
+
+    // Recycle if life time ended
     if ( particlesOut[index].remainingLifetime <= 0.0)
     {
         particlesOut[index].position = particleIn.startPosition;
@@ -89,20 +139,28 @@ void main()
     }
 
 
-    //// Boundary test
-    // Flip movement at window border
-    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2))
-    {
-        particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
-    }
-    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2))
-    {
-        particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
-    }
-    if ((particlesOut[index].position.z <= -1.0 * 2) || (particlesOut[index].position.z >= 1.0 * 2)) 
-    {
-        particlesOut[index].velocity.z = -particlesOut[index].velocity.z;
-    }
+//    //// Rotation test
+//    // Calculate random rotation
+//    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
+//    float randomAngle = length(particleIn.velocity.xyz) * ubo.deltaTime; 
+//    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
+//    // Combine new random rotation with the existing rotation
+//    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
+//
+//    //// Boundary test
+//    // Flip movement at window border
+//    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2))
+//    {
+//        particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
+//    }
+//    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2))
+//    {
+//        particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
+//    }
+//    if ((particlesOut[index].position.z <= -1.0 * 2) || (particlesOut[index].position.z >= 1.0 * 2)) 
+//    {
+//        particlesOut[index].velocity.z = -particlesOut[index].velocity.z;
+//    }
 
 
 }

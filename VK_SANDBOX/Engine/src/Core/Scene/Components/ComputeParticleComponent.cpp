@@ -66,7 +66,7 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 		particle.position = glm::vec4(0, 0, 0, 0);
 		particle.rotation = glm::vec4(1, 0, 0, 0);
 		particle.scale = glm::vec4(0.05, 0.05, 0.05, 0);
-		particle.velocity = glm::vec4(glm::normalize(glm::vec3(x, y, z)), 0);
+		particle.velocity = glm::vec4(glm::normalize(glm::vec3(x, -2.0, z)), 0);
 		particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
 
 		particle.startPosition = glm::vec4(x, y, z, 0);
