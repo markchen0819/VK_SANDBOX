@@ -26,6 +26,10 @@ void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo
 	Graphics::ComputeParticleUniformBufferObject ubo{};
 	ubo.deltaTime = dt;
 	ubo.accumulatedTime = lastFrameTime;
+	ubo.enableAdvection = enableAdvection;
+	ubo.enablVortex = enableVortex;
+	ubo.kappa = kappa;
+	ubo.tau = tau;
 
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
@@ -47,32 +51,39 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 {
 	particles.resize(maxParticleCount);
 
-	const int HEIGHT = 1280;
-	const int WIDTH = 720;
-
-	//// Initialize particles
+	// Initialize particles
 	std::default_random_engine rndEngine((unsigned)time(nullptr));
-	std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
+	std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
+	std::uniform_real_distribution<float> positionDistribution(-5.0f, 5.0f);
+	std::uniform_real_distribution<float> lifeTimeDist(1.0f, 10.0f); // Distribution for lifetime
 
+
+	//#pragma omp parallel for // break for loop into possible thread
 	for (auto& particle : particles)
 	{
-		float r = 0.25f * sqrt(rndDist(rndEngine));
-		float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
-		float x = r * cos(theta) * HEIGHT / WIDTH;
-		float y = r * sin(theta);
-		float z = r * sin(theta) * HEIGHT / WIDTH;
+		float x = positionDistribution(rndEngine);
+		float y = positionDistribution(rndEngine);
+		float z = positionDistribution(rndEngine);
 
-		//particle.position = glm::vec4 (x, y, z, 0);
-		particle.position = glm::vec4(0, 0, 0, 0);
+		particle.position = glm::vec4 (x, y, z, 0);
 		particle.rotation = glm::vec4(1, 0, 0, 0);
 		particle.scale = glm::vec4(0.05, 0.05, 0.05, 0);
-		particle.velocity = glm::vec4(glm::normalize(glm::vec3(x, -2.0, z)), 0);
-		particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
+		particle.velocity = glm::vec4(0, 0, 0, 0);
 
-		particle.startPosition = glm::vec4(x, y, z, 0);
+		float v1 = 0.1f * positionDistribution(rndEngine);
+		float v2 = 0.1f * positionDistribution(rndEngine);
+		float v3 = 0.1f * positionDistribution(rndEngine);
+		particle.velocity = glm::vec4(v1,v2,v3, 0);
 
-		particle.lifeTime = 8.0f; // +x * 1000;
-		particle.remainingLifetime = particle.lifeTime;
+		particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
+
+		particle.startPosition = particle.position;
+		particle.startRotation = particle.rotation;
+		particle.startScale = particle.scale;
+		particle.startVelocity = particle.velocity;
+
+		particle.lifeTime = 10.0;
+		particle.remainingLifetime = lifeTimeDist(rndEngine); //particle.lifeTime;
 	}
 }
 

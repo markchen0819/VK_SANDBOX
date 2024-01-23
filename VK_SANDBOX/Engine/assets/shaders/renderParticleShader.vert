@@ -7,7 +7,12 @@ struct Particle
     vec4 scale;
 	vec4 velocity;
     vec4 color;
+
     vec4 startPosition;
+    vec4 startRotation;
+    vec4 startScale;
+	vec4 startVelocity;
+
 	float lifeTime;
     float remainingLifetime;
 };
@@ -66,7 +71,8 @@ mat4 createTranslationMatrix(vec3 position)
     matrix[3][2] = position.z;
     return matrix;
 }
-mat4 createScaleMatrix(vec3 scale) {
+mat4 createScaleMatrix(vec3 scale) 
+{
     mat4 matrix = mat4(1.0);
     matrix[0][0] = scale.x;
     matrix[1][1] = scale.y;
@@ -115,7 +121,7 @@ void main()
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
     // Transform the vertex position from local to world
     vec4 worldPosition = modelMatrix * vec4(inPosition.xyz, 1.0);
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * push.modelMatrix * worldPosition ;
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * push.modelMatrix * worldPosition;
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = particles[gl_InstanceIndex].color.xyz;//inColor;

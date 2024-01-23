@@ -10,6 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ComputeParticleComponent.h"
+#include "../CustomBehaviors/ImguiContext_ParticleSystemScene.h"
 
 namespace IHCEngine::Component
 {
@@ -26,6 +27,10 @@ void SampleApplication::ParticleSystemScene::Load()
 	// Create Graphics resource using GraphicsAssetCreator
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
+	auto sphereMesh =
+		graphicsAssetCreator.CreateMesh("sphereMesh",
+			"Application/assets/Models/Sphere/sphere.obj");
+
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
 	// grid
@@ -37,6 +42,7 @@ void SampleApplication::ParticleSystemScene::UnLoad()
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
 	graphicsAssetCreator.DestroyMesh("cubeMesh");
+	graphicsAssetCreator.DestroyMesh("sphereMesh");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -58,6 +64,7 @@ void SampleApplication::ParticleSystemScene::Init()
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
+	camera.AddComponent<IHCEngine::Component::ImguiContext_ParticleSystemScene>();
 
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here

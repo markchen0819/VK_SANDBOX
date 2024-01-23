@@ -22,6 +22,17 @@ namespace IHCEngine::Component
 		void Compute(Graphics::FrameInfo& frameInfo);
 		void Draw(Graphics::FrameInfo& frameInfo);
 
+		// Operations
+		void SetEnableAdvection(const bool b) { enableAdvection = b; }
+		bool GetEnableAdvection() const { return enableAdvection; }
+		void SetEnableVortex(const bool b) { enableVortex = b; }
+		bool GetEnableVortex() const { return enableVortex; }
+
+		void SetRotationRate(const float f) { kappa = f; }
+		float GetRotationRate() const { return kappa; }
+		void SetTightness(const float f) { tau = f; }
+		float GetTightness() const { return tau; }
+
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
 		std::vector<VkDescriptorSet>& GetDescriptorSets() { return computeDescriptorSets; }
@@ -39,11 +50,15 @@ namespace IHCEngine::Component
 		}
 
 	private:
-
 		std::vector<Graphics::Particle> particles;
-		int maxParticleCount = 256;// 65536 * 4; // 256;//65536;// particle component contains how many particle
-		int particleCount = 256;//  65536 * 4; //256;// 65536;
+
+		int maxParticleCount = 65536 * 2; // 256;
+		int particleCount = 65536 * 2; //256;
 		float lastFrameTime = 0.0f;
+		bool enableAdvection = false;
+		bool enableVortex = false;
+		float kappa = 2.0f;  // rotation rate 
+		float tau = 0.5f; //  tightness
 
 		void initParticles();
 

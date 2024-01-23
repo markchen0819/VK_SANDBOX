@@ -7,15 +7,24 @@ struct Particle
     vec4 scale;
 	vec4 velocity;
     vec4 color;
+
     vec4 startPosition;
+    vec4 startRotation;
+    vec4 startScale;
+	vec4 startVelocity;
+
 	float lifeTime;
     float remainingLifetime;
 };
 
-layout (binding = 0) uniform ParameterUBO
+layout (std140, binding = 0) uniform ParameterUBO
 {
-    float deltaTime;
+    float deltaTime; 
     float accumulatedTime;
+    int enableAdvection;
+    int enablVortex; 
+    float kappa;
+    float tau; 
 } ubo;
 
 layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
@@ -36,29 +45,63 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Group1 0~255, Group2 256~511...
 
 
-vec3 CalculateFluidVelocityAtPosition(vec3 position)
+vec3 V0 = vec3(0,0,0);
+vec3 u = vec3(0,1,0);
+vec3 CalculateVortexVelocityAtPosition(vec3 position)
 {
-    // Your logic to calculate fluid velocity at 'position'
-    // This might involve looking up a velocity field, applying physical equations, etc.
-    // Example:
-    float distanceFromOrigin = length(position);
-    float baseSpeed = 0.0050; // Adjust this value as needed
-    if (distanceFromOrigin < 1.0)
-    {
-        distanceFromOrigin = 1.0;
-    }
-    vec3 velocity = vec3(0, 1, 0) * (baseSpeed / distanceFromOrigin);
+    float kappa = ubo.kappa; // rotation rate 
+    float tau  = ubo.tau; //  tightness
+    vec3 x = position - V0; // Translate position relative to the vortex center
+    float distanceSquared = dot(x, x); // Compute squared distance from V0 to the position
+    float projectionSquared = dot(x, u) * dot(x, u); // Compute squared distance of the projection on u
+    float rSquared = abs(distanceSquared - projectionSquared); // Squared orthogonal distance to the axis
+    rSquared = max(rSquared, 1e-6); // Avoid division by zero
+    // Compute the velocity induced by the vortex at the particle's position
+    vec3 velocity = kappa * cross(u, x) / pow(rSquared, tau / 2.0);
     return velocity;
 
-   // return vec3(0, 0.5, 0); // Placeholder - replace with your actual calculation
+}
+
+vec3 flowDirection = vec3 (0, 1, 0);
+vec3 flowCenter = vec3 (0, 1, 0);
+
+vec3 CalculateFluidVelocityAtPosition(vec3 position)
+{
+    flowDirection = normalize(flowDirection);
+    float maxVelocity = 3.0; 
+    float flowWidth = 10.0;
+
+    // (u dot v) v
+    vec3 flowCenterToParticleVector = position - flowCenter;
+    vec3 parallelVec = dot(flowCenterToParticleVector, flowDirection) * flowDirection;
+    vec3 verticalVec = flowCenterToParticleVector - parallelVec;
+    float distanceFromCenter = length(verticalVec);
+    // Normalize distance to be between 0 and 1
+    float normalizedDistance = distanceFromCenter / (0.5 * flowWidth);
+    normalizedDistance = clamp(normalizedDistance, 0.0, 1.0); // Clamp to valid range
+    // Calculate velocity magnitude (higher in the center, lower near the edges)
+    float velocityMagnitude = maxVelocity * (1.0 - normalizedDistance);
+
+    vec3 velocity = velocityMagnitude * flowDirection;
+    return velocity;
+
+    return vec3(0, 0.9, 0); // Placeholder - replace with your actual calculation
 }
 
 // Intergration
 vec3 CalculateVelocityAtPosition(vec3 position, vec3 particleVelocity) 
 {
-    vec3 newVelocity = particleVelocity;
-    // Add fluid dynamics influence
-    newVelocity += CalculateFluidVelocityAtPosition(position); // Addvection
+    vec3 newVelocity = vec3 (0,0,0) + particleVelocity; // Don't carry environment velocity overframe
+
+    if(ubo.enableAdvection == 1)
+    {
+        newVelocity += CalculateFluidVelocityAtPosition(position); // Addvection
+    }
+    if(ubo.enablVortex == 1)
+    {
+        newVelocity += CalculateVortexVelocityAtPosition(position);// Vortex
+    }
+
     // Add gravity influence if enabled
     // Example: if (useGravity) { newVelocity += vec3(0, -9.81, 0); }
     // Add more forces here if necessary
@@ -117,24 +160,28 @@ void main()
     //particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;  
     particlesOut[index].rotation = particleIn.rotation;
     particlesOut[index].scale = particleIn.scale;
-    // particlesOut[index].velocity = particleIn.velocity;
+    particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
     particlesOut[index].startPosition = particleIn.startPosition;
-    particlesOut[index].rotation =particleIn.rotation;
+    particlesOut[index].startRotation = particleIn.startRotation;
+    particlesOut[index].startScale = particleIn.startScale;
+    particlesOut[index].startVelocity = particleIn.startVelocity;
     particlesOut[index].lifeTime = particleIn.lifeTime;
     particlesOut[index].remainingLifetime = particleIn.remainingLifetime - ubo.deltaTime;
 
 
-
+    // Apply environment forces
      RK2Result rk2Result = RK2Integration(particleIn.position.xyz, particleIn.velocity.xyz, ubo.deltaTime);
-
      particlesOut[index].position = vec4(rk2Result.position.xyz, particleIn.position.w);
-     particlesOut[index].velocity = vec4(rk2Result.velocity.xyz, particleIn.velocity.w);
+
 
     // Recycle if life time ended
     if ( particlesOut[index].remainingLifetime <= 0.0)
     {
         particlesOut[index].position = particleIn.startPosition;
+        particlesOut[index].rotation = particleIn.startRotation;
+        particlesOut[index].scale = particleIn.startScale;
+        particlesOut[index].velocity = particleIn.startVelocity;
         particlesOut[index].remainingLifetime = particleIn.lifeTime;
     }
 

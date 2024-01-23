@@ -8,8 +8,13 @@ namespace IHCEngine::Graphics
         glm::vec4 scale;
         glm::vec4 velocity;
         glm::vec4 color;
-    	glm::vec4 startPosition;
-		float lifeTime;
+
+        glm::vec4 startPosition;
+        glm::vec4 startRotation;
+        glm::vec4 startScale;
+        glm::vec4 startVelocity;
+
+        float lifeTime;
         float remainingLifetime;
 
         // Below is used for Vertex input
