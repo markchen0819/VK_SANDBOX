@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <stack>
+#include <queue>
 
 // GLFW & VULKAN
 #define GLFW_INCLUDE_VULKAN

@@ -27,13 +27,16 @@ namespace IHCEngine::Core
 		static float GetTimeScale() { return instance->timeScale; }
 
 		static int GetFrameRate() { return static_cast<int>(instance->calculatedFps); }
-		static int GetAverageFrameRate() { return static_cast<int>(instance->averageFps); }
 		static void UnlockFrameRate() { instance->minFrameTime = 0.0f; }
 		static void LockFrameRate(int maxFrameRate)
 		{
 			instance->minFrameTime = 1.0f / maxFrameRate;
 			instance->frameTimeCounter = 0.0f;
 		}
+
+		static int GetAverageFrameRate() { return static_cast<int>(instance->averageFps); }
+		static void PushFrameTime(float deltaTime);
+		static void CalculateAverageFrameRate();
 
 		static float GetElapsedTime() { return  instance->totalTime; }
 		static int GetFrameCount() { return instance->frameCount; }
@@ -62,6 +65,11 @@ namespace IHCEngine::Core
 		float minFrameTime{0.0};
 		float frameTimeCounter{0}; // adds up to 0 ~ timediff for one frame 
 		bool shouldExecuteUpdate = true;
+
+		// average fps
+		std::queue<float> frameTimes;
+		size_t maxFrameTimesToConsider{20};
+		float frameTimesSum{ 0.0f };
 
 		// calculations
 		std::chrono::time_point<std::chrono::high_resolution_clock> previousTime;

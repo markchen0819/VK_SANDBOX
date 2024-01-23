@@ -33,7 +33,6 @@ void IHCEngine::Core::Time::Reset()
 void IHCEngine::Core::Time::Update()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	double elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - instance->startTime).count() / 1000.0;  // Convert to seconds as a double
 	instance->unscaledDeltaTime = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()- instance->previousTime).count()) * 0.000000001f;
 	
 	instance->previousTime = currentTime;
@@ -56,7 +55,8 @@ void IHCEngine::Core::Time::Update()
 	instance->calculatedFps = 1.0f / instance->frameTimeCounter;
 	instance->shouldExecuteUpdate = true;
 	instance->frameCount++;
-	instance->averageFps = static_cast<float>(instance->frameCount) / static_cast<float>(elapsedTime);
+	PushFrameTime(instance->unscaledDeltaTime);
+	CalculateAverageFrameRate();
 
 	if (instance->minFrameTime == 0.0f)
 	{
@@ -66,6 +66,35 @@ void IHCEngine::Core::Time::Update()
 	{
 		instance->frameTimeCounter = instance->frameTimeCounter - instance->minFrameTime;
 	}
+}
+
+void IHCEngine::Core::Time::PushFrameTime(float deltaTime)
+{
+	instance->frameTimes.push(deltaTime);
+	instance->frameTimesSum += deltaTime;
+
+	// exceeded the size of our window, pop the oldest frame time
+	if (instance->frameTimes.size() > instance->maxFrameTimesToConsider)
+	{
+		instance->frameTimesSum -= instance->frameTimes.front();
+		instance->frameTimes.pop();
+	}
+}
+
+void IHCEngine::Core::Time::CalculateAverageFrameRate() //Smoothed/ Moving Average FPS
+{
+	// Avoid division by zero
+	if (instance->frameTimes.empty())
+	{
+		instance->averageFps = instance->calculatedFps;
+		return;
+	}
+
+	// Average frame time
+	float avgFrameTime = instance->frameTimesSum / instance->frameTimes.size();
+
+	// Return FPS
+	instance->averageFps = 1.0f / avgFrameTime;
 }
 
 bool IHCEngine::Core::Time::ShouldExecuteUpdate()

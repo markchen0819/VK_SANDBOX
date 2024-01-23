@@ -46,7 +46,7 @@ void IHCEngine::Core::Engine::Init()
 	IHCEngine::Core::Input::Init();
 	// Time
 	IHCEngine::Core::Time::Init();
-	Time::LockFrameRate(120);
+	Time::LockFrameRate(144);
 	Time::SetFixedTime(Time::FIXED_UPDATE_TIME_STEP);
 	// Asset
 	assetManager = std::make_unique<AssetManager>();
