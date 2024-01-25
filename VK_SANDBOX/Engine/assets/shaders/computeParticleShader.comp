@@ -22,9 +22,24 @@ layout (std140, binding = 0) uniform ParameterUBO
     float deltaTime; 
     float accumulatedTime;
     int enableAdvection;
+    float flowMaxVelocity;
+
+    float flowWidth;
     int enablVortex; 
     float kappa;
     float tau; 
+
+    int enableGravity;
+	int enableBounce;
+	float groundHeight;
+	float restitution;
+
+    vec4 flowDirection;
+	vec4 flowCenter;
+    vec4 vortexCenter;
+	vec4 vortexAxis;
+    vec4 gravity;
+
 } ubo;
 
 layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
@@ -38,54 +53,66 @@ layout(std430, binding = 2) buffer ParticleSSBOOut
 };
 
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
 // Particle Count: 65536
 // Thread Count per work group : 256
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
 
-
-vec3 V0 = vec3(0,0,0);
-vec3 u = vec3(0,1,0);
 vec3 CalculateVortexVelocityAtPosition(vec3 position)
 {
     float kappa = ubo.kappa; // rotation rate 
     float tau  = ubo.tau; //  tightness
-    vec3 x = position - V0; // Translate position relative to the vortex center
+    vec3 vortexCenter = ubo.vortexCenter.xyz;
+    vec3 vortexAxis = ubo.vortexAxis.xyz;
+
+    vec3 x = position - vortexCenter;  // Translate position relative to the vortex center
     float distanceSquared = dot(x, x); // Compute squared distance from V0 to the position
-    float projectionSquared = dot(x, u) * dot(x, u); // Compute squared distance of the projection on u
+    float projectionSquared = dot(x, vortexAxis) * dot(x, vortexAxis); // Compute squared distance of the projection on u
     float rSquared = abs(distanceSquared - projectionSquared); // Squared orthogonal distance to the axis
     rSquared = max(rSquared, 1e-6); // Avoid division by zero
-    // Compute the velocity induced by the vortex at the particle's position
-    vec3 velocity = kappa * cross(u, x) / pow(rSquared, tau / 2.0);
+    vec3 velocity = kappa * cross(vortexAxis, x) / pow(rSquared, tau / 2.0); // Compute the velocity affected by the vortex at the particle's position
+    
     return velocity;
-
 }
-
-vec3 flowDirection = vec3 (0, 1, 0);
-vec3 flowCenter = vec3 (0, 1, 0);
-
 vec3 CalculateFluidVelocityAtPosition(vec3 position)
 {
-    flowDirection = normalize(flowDirection);
-    float maxVelocity = 3.0; 
-    float flowWidth = 10.0;
+    vec3 flowDirection = normalize(ubo.flowDirection.xyz);
+    float maxVelocity = ubo.flowMaxVelocity;
+    float flowWidth = ubo.flowWidth;
+    vec3 flowCenter = ubo.flowCenter.xyz;
 
     // (u dot v) v
     vec3 flowCenterToParticleVector = position - flowCenter;
     vec3 parallelVec = dot(flowCenterToParticleVector, flowDirection) * flowDirection;
     vec3 verticalVec = flowCenterToParticleVector - parallelVec;
     float distanceFromCenter = length(verticalVec);
-    // Normalize distance to be between 0 and 1
-    float normalizedDistance = distanceFromCenter / (0.5 * flowWidth);
+    float normalizedDistance = distanceFromCenter / (0.5 * flowWidth); // between 0 and 1
     normalizedDistance = clamp(normalizedDistance, 0.0, 1.0); // Clamp to valid range
     // Calculate velocity magnitude (higher in the center, lower near the edges)
     float velocityMagnitude = maxVelocity * (1.0 - normalizedDistance);
-
     vec3 velocity = velocityMagnitude * flowDirection;
-    return velocity;
 
-    return vec3(0, 0.9, 0); // Placeholder - replace with your actual calculation
+    return velocity;
+}
+void CalculateBounceVelocityAtPosition(vec3 position, inout vec4 velocity)
+{
+    // Check for collision with the XZ plane
+    vec3 normalXZ = vec3(0.0, 1.0, 0.0);
+    float groundHeight = ubo.groundHeight;
+    float restitution = ubo.restitution;
+    float friction = 0.0; // No friction
+    if (position.y <= groundHeight)
+    {
+        vec3 velocityNormal = dot(velocity.xyz, normalXZ) * normalXZ;
+        vec3 velocityTangent = velocity.xyz - velocityNormal;
+        velocityNormal *= -restitution;
+        velocityTangent *= 1.0 - friction;
+        velocity = vec4(velocityNormal + velocityTangent, velocity.w);
+    }
+}
+vec3 ApplyGravity()
+{
+    return ubo.gravity.xyz * ubo.deltaTime;
 }
 
 // Intergration
@@ -101,10 +128,6 @@ vec3 CalculateVelocityAtPosition(vec3 position, vec3 particleVelocity)
     {
         newVelocity += CalculateVortexVelocityAtPosition(position);// Vortex
     }
-
-    // Add gravity influence if enabled
-    // Example: if (useGravity) { newVelocity += vec3(0, -9.81, 0); }
-    // Add more forces here if necessary
     return newVelocity;
 }
 
@@ -149,18 +172,17 @@ vec4 quatMultiply(vec4 q1, vec4 q2) {
 }
 
 
-
 void main() 
 {
     uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
 
     Particle particleIn = particlesIn[index];
 
-     // Do NOT do MVP calculations here, or it will we reiterated
+    // Do NOT do MVP calculations here, or it will we reiterated
     //particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;  
     particlesOut[index].rotation = particleIn.rotation;
     particlesOut[index].scale = particleIn.scale;
-    particlesOut[index].velocity = particleIn.velocity;
+    //particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
     particlesOut[index].startPosition = particleIn.startPosition;
     particlesOut[index].startRotation = particleIn.startRotation;
@@ -171,8 +193,19 @@ void main()
 
 
     // Apply environment forces
-     RK2Result rk2Result = RK2Integration(particleIn.position.xyz, particleIn.velocity.xyz, ubo.deltaTime);
-     particlesOut[index].position = vec4(rk2Result.position.xyz, particleIn.position.w);
+    RK2Result rk2Result = RK2Integration(particleIn.position.xyz, particleIn.velocity.xyz, ubo.deltaTime);
+    particlesOut[index].position = vec4(rk2Result.position.xyz, particleIn.position.w);
+
+    vec4 newVelocity = particleIn.velocity;
+    if(ubo.enableGravity == 1)
+    {
+        newVelocity += vec4(ApplyGravity(), 0.0);
+    }
+    if(ubo.enableBounce == 1)
+    {
+         CalculateBounceVelocityAtPosition(particlesOut[index].position.xyz, newVelocity);
+    }
+    particlesOut[index].velocity = newVelocity;
 
 
     // Recycle if life time ended
@@ -185,7 +218,6 @@ void main()
         particlesOut[index].remainingLifetime = particleIn.lifeTime;
     }
 
-
 //    //// Rotation test
 //    // Calculate random rotation
 //    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
@@ -193,21 +225,5 @@ void main()
 //    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
 //    // Combine new random rotation with the existing rotation
 //    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
-//
-//    //// Boundary test
-//    // Flip movement at window border
-//    if ((particlesOut[index].position.x <= -1.0 * 2) || (particlesOut[index].position.x >= 1.0 * 2))
-//    {
-//        particlesOut[index].velocity.x = -particlesOut[index].velocity.x;
-//    }
-//    if ((particlesOut[index].position.y <= -1.0 * 2) || (particlesOut[index].position.y >= 1.0 * 2))
-//    {
-//        particlesOut[index].velocity.y = -particlesOut[index].velocity.y;
-//    }
-//    if ((particlesOut[index].position.z <= -1.0 * 2) || (particlesOut[index].position.z >= 1.0 * 2)) 
-//    {
-//        particlesOut[index].velocity.z = -particlesOut[index].velocity.z;
-//    }
-
 
 }

@@ -23,13 +23,27 @@ void IHCEngine::Component::ComputeParticleComponent::Compute(Graphics::FrameInfo
 	float dt = IHCEngine::Core::Time::GetDeltaTime();
 	lastFrameTime += dt;
 
-	Graphics::ComputeParticleUniformBufferObject ubo{};
 	ubo.deltaTime = dt;
 	ubo.accumulatedTime = lastFrameTime;
+
 	ubo.enableAdvection = enableAdvection;
-	ubo.enablVortex = enableVortex;
+	ubo.flowMaxVelocity = flowMaxVelocity;
+	ubo.flowWidth = flowWidth;
+	ubo.flowCenter = flowCenter;
+	ubo.flowDirection = flowDirection;
+
+	ubo.enableVortex = enableVortex;
 	ubo.kappa = kappa;
 	ubo.tau = tau;
+	ubo.vortexCenter = vortexCenter;
+	ubo.vortexAxis = vortexAxis;
+
+	ubo.enableGravity = enableGravity;
+	ubo.gravity = gravity;
+
+	ubo.enableBounce = enableBounce;
+	ubo.groundHeight = groundHeight;
+	ubo.restitution = restitution;
 
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
@@ -67,7 +81,7 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 
 		particle.position = glm::vec4 (x, y, z, 0);
 		particle.rotation = glm::vec4(1, 0, 0, 0);
-		particle.scale = glm::vec4(0.05, 0.05, 0.05, 0);
+		particle.scale = glm::vec4(0.03, 0.03, 0.03, 0);
 		particle.velocity = glm::vec4(0, 0, 0, 0);
 
 		float v1 = 0.1f * positionDistribution(rndEngine);

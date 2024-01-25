@@ -11,6 +11,8 @@ namespace IHCEngine::Component
     private:
         bool enableAdvection;
         bool enableVortex;
+        bool enableGravity;
+        bool enableBounce;
 
     };
 }
