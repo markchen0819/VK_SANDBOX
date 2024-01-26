@@ -158,6 +158,7 @@ struct GlobalUniformBufferObject
     alignas(16) glm::mat4 viewMatrix;
     alignas(16) glm::mat4 projectionMatrix;
     alignas(16) glm::mat4 inverseViewMatrix{1.f};
+    alignas(16) glm::vec4 cameraPosition;
 };
 
 struct SkeletalUniformBufferObject

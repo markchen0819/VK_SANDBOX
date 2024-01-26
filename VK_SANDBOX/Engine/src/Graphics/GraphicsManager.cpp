@@ -110,6 +110,7 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         ubo.projectionMatrix = camera.GetProjectionMatrix();
         ubo.inverseViewMatrix = camera.GetInverseViewMatrix();
         ubo.projectionMatrix[1][1] *= -1; // Flip the Y-axis for vulkan <-> opengl
+        ubo.cameraPosition = glm::vec4(camera.transform.GetPosition(), 0);
 
         descriptorManager->GetGlobalDescriptorWrap()->GetGlobalUBOs()[frameIndex]->WriteToBuffer(&ubo);
         descriptorManager->GetGlobalDescriptorWrap()->GetGlobalUBOs()[frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT 

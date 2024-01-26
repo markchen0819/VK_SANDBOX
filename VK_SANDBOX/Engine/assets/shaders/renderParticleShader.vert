@@ -30,7 +30,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject
     mat4 viewMatrix;
     mat4 projectionMatrix;
     mat4 inverseView;
-
+    vec4 cameraPosition;
 } ubo;
 
 //layout (set = 1, binding = 0) uniform ParameterUBO
@@ -60,7 +60,9 @@ layout(location = 7) in vec4 inBoneWeights;
 // Output
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
-
+layout(location = 2) out vec3 fragNormal;
+layout(location = 3) out vec3 fragWorldPosition;
+layout(location = 4) out vec3 viewPos;
 
 // Helpers
 mat4 createTranslationMatrix(vec3 position) 
@@ -126,4 +128,14 @@ void main()
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = particles[gl_InstanceIndex].color.xyz;//inColor;
     fragTexCoord = inTexCoord;
+
+
+    // Transform the normal from local to world 
+    // normals need to be transformed by the inverse transpose of the model matrix
+    // to maintain their orientation properly after scaling
+    fragWorldPosition = worldPosition.xyz;
+    vec3 worldNormal = mat3(transpose(inverse(modelMatrix))) * inNormal;
+    fragNormal = worldNormal;
+    viewPos = ubo.cameraPosition.xyz;
+
 }

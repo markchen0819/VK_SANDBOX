@@ -80,33 +80,89 @@ void SampleApplication::ParticleSystemScene::Init()
 	particleGobj.transform.SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 
 
+	//IHCEngine::Graphics::IHCMesh::Builder cubeBuilder;
+	//cubeBuilder.vertices = {
+	//	// Front face
+	//	{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
+	//	{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
+	//	{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
+	//	{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-left
+	//	// Back face
+	//	{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
+	//	{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
+	//	{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
+	//	{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}  // Top-left
+	//};
+	//cubeBuilder.indices = {
+	//	// Front face
+	//	0, 1, 2,  0, 2, 3,
+	//	// Right face
+	//	1, 5, 6,  1, 6, 2,
+	//	// Back face
+	//	5, 4, 7,  5, 7, 6,
+	//	// Left face
+	//	4, 0, 3,  4, 3, 7,
+	//	// Top face
+	//	3, 2, 6,  3, 6, 7,
+	//	// Bottom face
+	//	1, 0, 4,  1, 4, 5
+	//};
+
 	IHCEngine::Graphics::IHCMesh::Builder cubeBuilder;
 	cubeBuilder.vertices = {
 		// Front face
-		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
-		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
-		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
-		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-left
+		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Bottom-left
+		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Bottom-right
+		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Top-right
+		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Top-left
+
+		// Right face
+		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Bottom-left
+		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Bottom-right
+		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Top-right
+		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Top-left
+
 		// Back face
-		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-left
-		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Bottom-right
-		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}, // Top-right
-		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}}  // Top-left
+		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Bottom-left
+		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Bottom-right
+		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Top-right
+		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Top-left
+
+		// Left face
+		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Bottom-left
+		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Bottom-right
+		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Top-right
+		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Top-left
+
+		// Top face
+		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Bottom-left
+		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Bottom-right
+		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Top-right
+		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Top-left
+
+		// Bottom face
+		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Bottom-left
+		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Bottom-right
+		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Top-right
+		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}  // Top-left
 	};
+
 	cubeBuilder.indices = {
 		// Front face
 		0, 1, 2,  0, 2, 3,
 		// Right face
-		1, 5, 6,  1, 6, 2,
+		4, 5, 6,  4, 6, 7,
 		// Back face
-		5, 4, 7,  5, 7, 6,
+		8, 9, 10, 8, 10, 11,
 		// Left face
-		4, 0, 3,  4, 3, 7,
+		12, 13, 14, 12, 14, 15,
 		// Top face
-		3, 2, 6,  3, 6, 7,
+		16, 17, 18, 16, 18, 19,
 		// Bottom face
-		1, 0, 4,  1, 4, 5
+		20, 21, 22, 20, 22, 23
 	};
+
+
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 	auto cubeMesh = graphicsAssetCreator.CreateMesh(
 		"cubeMesh", cubeBuilder);
