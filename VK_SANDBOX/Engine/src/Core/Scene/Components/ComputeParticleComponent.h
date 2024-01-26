@@ -108,13 +108,13 @@ namespace IHCEngine::Component
 
 		bool enableBounce = false;
 		float groundHeight = -4.8f;
-		float restitution = 0.7;
+		float restitution = 0.7f;
 
 		bool enableSpiral = false;
 		bool spiralWithGlobalAxis = true;
 		float spiralRadius = 10.0f;
-		float spiralAngularSpeed = 2;
-		float spiralAxisSpeed = 5;
+		float spiralAngularSpeed = 2.0f;
+		float spiralAxisSpeed = 5.0f;
 
 		void initParticles();
 

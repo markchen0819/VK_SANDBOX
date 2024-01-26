@@ -16,6 +16,7 @@ namespace IHCEngine::Component
         bool enableSpiral;
         bool spiralWithGlobalAxis;
 
+        void Reset();
     };
 }
 

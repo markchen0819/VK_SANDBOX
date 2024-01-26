@@ -15,8 +15,8 @@ namespace IHCEngine::Graphics
 
 		int enableGravity = 0;
 		int enableBounce = 0;
-		float groundHeight = -4.8;
-		float restitution = 0.7;
+		float groundHeight = -4.8f;
+		float restitution = 0.7f;
 
 		int enableSpiral = 0;
 		int spiralWithGlobalAxis = 0;

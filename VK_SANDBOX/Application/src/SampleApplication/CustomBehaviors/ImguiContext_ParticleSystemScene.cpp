@@ -20,6 +20,7 @@ namespace IHCEngine::Component
         ImGui::Text(" WSAD/ Shift/ Control : Move Camera");
         ImGui::Text(" Mouse Right Click Drag: Rotate Camera");
         ImGui::Text(" Mouse Scroll: Zoom In/Out");
+        ImGui::Text(" F5: Full scene Reset");
         ImGui::Text("------------------------");
 
         enableAdvection = computeParticle->GetEnableAdvection();
@@ -186,9 +187,26 @@ namespace IHCEngine::Component
         }
         ImGui::Text("-------------------");
 
-
-        if (ImGui::Button("Example 2: Gravity + Bounce + Advection")) 
+        if (ImGui::Button("Example 1: Advection + Vortex + Gravity + Bounce"))
         {
+            Reset();
+            computeParticle->SetEnableAdvection(true);
+            computeParticle->SetEnableVortex(true);
+            computeParticle->SetEnableGravity(true);
+            computeParticle->SetEnableBounce(true);
+
+            computeParticle->SetFlowDirection(glm::vec4(0.7f, 0.7f, 0, 0));
+            computeParticle->SetFlowMaxVelocity(34.0f);
+            computeParticle->SetFlowWidth(16.0f);
+
+            computeParticle->SetRotationRate(20.0f);
+            computeParticle->SetTightness(1.228f);
+            computeParticle->SetVortexCenter(glm::vec4(0, 0, -15, 0));
+            computeParticle->SetVortexAxis(glm::vec4(0, 1, 0, 0));
+        }
+        if (ImGui::Button("Example 2: Advection + Gravity + Bounce")) 
+        {
+            Reset();
             computeParticle->SetEnableGravity(true);
             computeParticle->SetEnableBounce(true);
             computeParticle->SetEnableAdvection(true);
@@ -197,6 +215,35 @@ namespace IHCEngine::Component
             computeParticle->SetFlowMaxVelocity(9.0f);
             computeParticle->SetFlowWidth(17.0f);
         }
+        if (ImGui::Button("Example 3: Vortex + Spiral"))
+        {
+            Reset();
+            computeParticle->SetEnableVortex(true);
+            computeParticle->SetEnableSpiral(true);
 
+            computeParticle->SetRotationRate(14.615f);
+            computeParticle->SetTightness(1.558f);
+            computeParticle->SetVortexCenter(glm::vec4(6.4f, 6.1f, 24.3f, 0));
+            computeParticle->SetVortexAxis(glm::vec4(0, 0, 1, 0));
+
+            computeParticle->SetSpiralRadius(10.48f);
+            computeParticle->SetSpiralAngularSpeed(1.279f);
+            computeParticle->SetSpiralAxisSpeed(8.077f);
+        }
+
+    }
+
+    void ImguiContext_ParticleSystemScene::Reset()
+    {
+        auto sceneManager = IHCEngine::Core::SceneManagerLocator::GetSceneManager();
+        auto scene = sceneManager->GetActiveScene();
+        auto gobj = scene->GetGameObjectByName("particleGobj");
+        auto computeParticle = gobj->GetComponent<ComputeParticleComponent>();
+
+        computeParticle->SetEnableAdvection(false);
+        computeParticle->SetEnableVortex(false);
+        computeParticle->SetEnableGravity(false);
+        computeParticle->SetEnableBounce(false);
+        computeParticle->SetEnableSpiral(false);
     }
 }

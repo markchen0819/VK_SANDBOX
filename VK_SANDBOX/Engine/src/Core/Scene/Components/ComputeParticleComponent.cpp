@@ -11,6 +11,7 @@
 #include "../../../Core/Time/Time.h"
 
 #include <random>
+#include <omp.h>
 
 IHCEngine::Component::ComputeParticleComponent::ComputeParticleComponent()
 	:Component(ComponentType::ComputeParticle)
@@ -77,11 +78,13 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 	std::uniform_real_distribution<float> positionDistribution(-5.0f, 5.0f);
 	std::uniform_real_distribution<float> lifeTimeDist(1.0f, 10.0f); // Distribution for lifetime
 
-
-	//#pragma omp parallel for // break for loop into possible parallel threads
-	for (int i = 0; i < particles.size(); ++i) 
+	// auto start = std::chrono::high_resolution_clock::now();
+	//#pragma omp parallel for
+	// break for loop into possible parallel threads, doesn't speed up after testing, recheck in future
+	for (int i = 0; i < particles.size(); ++i)
 	{
 		auto& particle = particles[i];
+
 		float x = positionDistribution(rndEngine);
 		float y = positionDistribution(rndEngine);
 		float z = positionDistribution(rndEngine);
@@ -106,45 +109,9 @@ void IHCEngine::Component::ComputeParticleComponent::initParticles()
 		particle.lifeTime = 10.0;
 		particle.remainingLifetime = lifeTimeDist(rndEngine); //particle.lifeTime;
 	}
-
-
-//	// Initialize particles
-//#pragma omp parallel for // break for loop into possible parallel threads
-//	for (int i = 0; i < particles.size(); ++i)
-//	{
-//		// Thread-Local RNGs with more unique seeds
-//		std::random_device rd; // Non-deterministic random device
-//		std::default_random_engine rndEngine(rd() ^ (i + 1) * 10000);
-//		std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
-//		std::uniform_real_distribution<float> positionDistribution(-5.0f, 5.0f);
-//		std::uniform_real_distribution<float> lifeTimeDist(1.0f, 10.0f); // Distribution for lifetime
-//
-//		auto& particle = particles[i];
-//
-//		float x = positionDistribution(rndEngine);
-//		float y = positionDistribution(rndEngine);
-//		float z = positionDistribution(rndEngine);
-//
-//		particle.position = glm::vec4(x, y, z, 0);
-//		particle.rotation = glm::vec4(1, 0, 0, 0);
-//		particle.scale = glm::vec4(0.03, 0.03, 0.03, 0);
-//		particle.velocity = glm::vec4(0, 0, 0, 0);
-//
-//		float v1 = 0.1f * positionDistribution(rndEngine);
-//		float v2 = 0.1f * positionDistribution(rndEngine);
-//		float v3 = 0.1f * positionDistribution(rndEngine);
-//		particle.velocity = glm::vec4(v1, v2, v3, 0);
-//
-//		particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
-//
-//		particle.startPosition = particle.position;
-//		particle.startRotation = particle.rotation;
-//		particle.startScale = particle.scale;
-//		particle.startVelocity = particle.velocity;
-//
-//		particle.lifeTime = 10.0;
-//		particle.remainingLifetime = lifeTimeDist(rndEngine); //particle.lifeTime;
-//	}
+	//auto end = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<double, std::milli> duration = end - start;
+	//std::cout << "Execution time without parallelization: " << duration.count() << " ms\n";
 }
 
 
