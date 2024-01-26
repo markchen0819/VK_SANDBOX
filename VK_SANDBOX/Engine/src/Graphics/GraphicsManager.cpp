@@ -169,4 +169,10 @@ void IHCEngine::Graphics::GraphicsManager::EndSingleTimeImGuiCommandBuffer(VkCom
 {
     ihcDevice->EndSingleTimeCommands(cmdBuffer);
 }
+
 #pragma endregion
+
+void IHCEngine::Graphics::GraphicsManager::SetClearColor(const glm::vec3& color) const
+{
+    renderer->SetClearColor(color);
+}

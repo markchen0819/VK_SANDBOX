@@ -265,11 +265,11 @@ void main()
     }
 
 
-//    //// Rotation test
-//    // Calculate random rotation
-//    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
-//    float randomAngle = length(particleIn.velocity.xyz) * ubo.deltaTime; 
-//    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
-//    // Combine new random rotation with the existing rotation
-//    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
+    //// Rotation test
+    // Calculate random rotation
+    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
+    float randomAngle = length(particleIn.velocity.xyz) * ubo.deltaTime; 
+    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
+    // Combine new random rotation with the existing rotation
+    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
 }

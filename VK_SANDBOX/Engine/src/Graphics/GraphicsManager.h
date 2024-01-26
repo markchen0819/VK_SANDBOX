@@ -58,6 +58,9 @@ namespace IHCEngine::Graphics
         VkCommandBuffer BeginSingleTimeImGuiCommandBuffer();
         void EndSingleTimeImGuiCommandBuffer(VkCommandBuffer cmdBuffer);
 
+        // Helper
+        void SetClearColor(const glm::vec3& color) const;
+
     private:
 
         void initVulkan();

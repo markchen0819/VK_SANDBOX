@@ -35,11 +35,14 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     vec3 specular = specularStrength * spec * lightColor;
 
-     vec3 lighting = (ambient + diffuse) * fragColor.rgb;
+     vec3 lighting = (ambient + diffuse) * lightColor.rgb;
 
 
-    //outColor = vec4(lighting * texColor.rgb, texColor.a);
-    //outColor = vec4(normal * 0.5 + 0.5, 1.0); // Visualize normals
-    outColor = vec4(fragColor * texColor.rgb, texColor.a);
+    //outColor = vec4(lighting * texColor.rgb, texColor.a);  // Lighting
+    //outColor = vec4(normal * 0.5 + 0.5, 1.0);              // Visualize normals
+    //outColor = vec4(lighting * fragColor * texColor.rgb, texColor.a);
+
+    // For fun
+    outColor = vec4( vec3(1.5,1.5,1.5) * (normal * 0.5 + 0.5) * texColor.rgb *  (lighting * 0.5 + 0.5), 1.0); 
 }
 

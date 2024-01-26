@@ -45,6 +45,11 @@ namespace IHCEngine::Graphics
             return computeCommandBuffers[currentFrameIndex];
         }
 
+        void SetClearColor(const glm::vec3& color)
+        {
+            clearColorValues = color;
+        }
+
         // Record Commands functions (ex: Draw Frame )
         VkCommandBuffer BeginFrame();
         void EndFrame();

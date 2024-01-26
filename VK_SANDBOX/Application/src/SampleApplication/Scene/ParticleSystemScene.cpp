@@ -25,7 +25,8 @@ SampleApplication::ParticleSystemScene::ParticleSystemScene()
 void SampleApplication::ParticleSystemScene::Load()
 {
 	// Create Graphics resource using GraphicsAssetCreator
-	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
 	auto sphereMesh =
 		graphicsAssetCreator.CreateMesh("sphereMesh",
@@ -35,11 +36,16 @@ void SampleApplication::ParticleSystemScene::Load()
 	createAxisMeshAndLoadAxisTexture();
 	// grid
 	createGridMeshAndLoadGridTexture();
+
+	graphicsManager->SetClearColor(glm::vec3(0, 0, 0));
 }
 
 void SampleApplication::ParticleSystemScene::UnLoad()
 {
-	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
+
+	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
 
 	graphicsAssetCreator.DestroyMesh("cubeMesh");
 	graphicsAssetCreator.DestroyMesh("sphereMesh");
