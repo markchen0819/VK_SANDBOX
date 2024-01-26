@@ -15,20 +15,29 @@ namespace IHCEngine::Component
         auto gobj = scene->GetGameObjectByName("particleGobj");
         auto computeParticle = gobj->GetComponent<ComputeParticleComponent>();
 
-        ImGui::Text("-------------------");
-        ImGui::Text("Interface");
+        ImGui::Text("------------------------");
+        ImGui::Text(" Interface");
         ImGui::Text(" WSAD/ Shift/ Control : Move Camera");
         ImGui::Text(" Mouse Right Click Drag: Rotate Camera");
-        ImGui::Text("-------------------");
+        ImGui::Text(" Mouse Scroll: Zoom In/Out");
+        ImGui::Text("------------------------");
 
         enableAdvection = computeParticle->GetEnableAdvection();
         enableVortex = computeParticle->GetEnableVortex();
         enableGravity = computeParticle->GetEnableGravity();
         enableBounce = computeParticle->GetEnableBounce();
+        enableSpiral = computeParticle->GetEnableSpiral();
 
         ImGui::Checkbox("enableAdvection", &enableAdvection);
         if (enableAdvection)
         {
+            ImGui::Text("#############");
+            ImGui::Text("Description: ");
+            ImGui::Text("Advection creates a flow");
+            ImGui::Text("The closer to the flow axis runs faster");
+            ImGui::Text("The farther to the flow axis runs slower");
+            ImGui::Text("#############");
+
             computeParticle->SetEnableAdvection(true);
             float flowMaxVelocity = computeParticle->GetFlowMaxVelocity();
             float flowWidth = computeParticle->GetFlowWidth();
@@ -51,10 +60,6 @@ namespace IHCEngine::Component
             ImGui::SliderFloat("##FlowWidth", &flowWidth, 0.0f, 100.0f);
             computeParticle->SetFlowMaxVelocity(flowMaxVelocity);
             computeParticle->SetFlowWidth(flowWidth);
-
-            ImGui::Text("Adevection creates a flow");
-            ImGui::Text("The closer to the flow axis runs faster");
-            ImGui::Text("The farther to the flow axis runs slower");
         }
         else
         {
@@ -64,6 +69,11 @@ namespace IHCEngine::Component
         ImGui::Checkbox("enableVortex", &enableVortex);
         if (enableVortex)
         {
+            ImGui::Text("#############");
+            ImGui::Text("Description: ");
+            ImGui::Text("Kappa controls Vortex rotation speed");
+            ImGui::Text("Tau controls Vortex center strength");
+            ImGui::Text("#############");
             computeParticle->SetEnableVortex(true);
             float kappa = computeParticle->GetRotationRate();
             float tau = computeParticle->GetTightness();
@@ -95,6 +105,10 @@ namespace IHCEngine::Component
         ImGui::Checkbox("enableGravity", &enableGravity);
         if (enableGravity)
         {
+            ImGui::Text("#############");
+            ImGui::Text("Description: ");
+            ImGui::Text("Gravity creates force base on the vec4 direction");
+            ImGui::Text("#############");
             computeParticle->SetEnableGravity(true);
             glm::vec4 gravity = computeParticle->GetGravity();
             ImGui::Text("Gravity");
@@ -111,6 +125,12 @@ namespace IHCEngine::Component
         ImGui::Checkbox("enableBounce", &enableBounce);
         if (enableBounce)
         {
+            ImGui::Text("#############");
+            ImGui::Text("Description: ");
+            ImGui::Text("Bounce happens on the XZ - plane");
+            ImGui::Text("The y-component of velocity will be reversed");
+            ImGui::Text("Energy conservations is based on restitution");
+            ImGui::Text("#############");
             computeParticle->SetEnableBounce(true);
             float restitution = computeParticle->GetRestitution();
             ImGui::Text("Restitution");
@@ -120,6 +140,62 @@ namespace IHCEngine::Component
         else
         {
             computeParticle->SetEnableBounce(false);
+        }
+        ImGui::Text("-------------------");
+        ImGui::Checkbox("enableSpiral", &enableSpiral);
+        if (enableSpiral)
+        {
+            computeParticle->SetEnableSpiral(true);
+
+            ImGui::Text("#############");
+            ImGui::Text("Description: ");
+            ImGui::Text("Creates a spiral along the up vector");
+            ImGui::Text("Global Axis makes particles spiral as a whole");
+            ImGui::Text("Local Axis makes particles self rotate with angular speed (sigma)");
+            ImGui::Text("#############");
+
+            spiralWithGlobalAxis = computeParticle->GetSpiralWithGlobalAxis();
+            ImGui::Checkbox("Spiral With Global Axis", &spiralWithGlobalAxis);
+            if(spiralWithGlobalAxis)
+            {
+                float spiralRadius = computeParticle->GetSpiralRadius();
+                float spiralAngularSpeed = computeParticle->GetSpiralAngularSpeed();
+                float sprialAxisSpeed = computeParticle->GetSpiralAxisSpeed();
+                ImGui::Text("Spiral Radius");
+                ImGui::SliderFloat("##SpiralRadius", &spiralRadius, 0.0f, 20.0f);
+                computeParticle->SetSpiralRadius(spiralRadius);
+                ImGui::Text("Spiral Angular Speed");
+                ImGui::SliderFloat("##SpiralAngularSpeed", &spiralAngularSpeed, -5.0f, 5.0f);
+                computeParticle->SetSpiralAngularSpeed(spiralAngularSpeed);
+                ImGui::Text("Spiral Axis Speed");
+                ImGui::SliderFloat("##SpiralAxisSpeed", &sprialAxisSpeed, -20.0f, 20.0f);
+                computeParticle->SetSpiralAxisSpeed(sprialAxisSpeed);
+            }
+            else
+            {
+                float spiralAngularSpeed = computeParticle->GetSpiralAngularSpeed();
+                ImGui::Text("Spiral Angular Speed (Sigma)");
+                ImGui::SliderFloat("##SpiralAngularSpeed", &spiralAngularSpeed, -20.0f, 20.0f);
+                computeParticle->SetSpiralAngularSpeed(spiralAngularSpeed);
+            }
+            computeParticle->SetSpiralWithGlobalAxis(spiralWithGlobalAxis);
+        }
+        else
+        {
+            computeParticle->SetEnableSpiral(false);
+        }
+        ImGui::Text("-------------------");
+
+
+        if (ImGui::Button("Example 2: Gravity + Bounce + Advection")) 
+        {
+            computeParticle->SetEnableGravity(true);
+            computeParticle->SetEnableBounce(true);
+            computeParticle->SetEnableAdvection(true);
+            computeParticle->SetFlowDirection(glm::vec4(1,0,0,0));
+            computeParticle->SetFlowCenter(glm::vec4(0, 2, 0, 0));
+            computeParticle->SetFlowMaxVelocity(9.0f);
+            computeParticle->SetFlowWidth(17.0f);
         }
 
     }

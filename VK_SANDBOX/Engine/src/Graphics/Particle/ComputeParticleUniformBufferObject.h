@@ -18,6 +18,16 @@ namespace IHCEngine::Graphics
 		float groundHeight = -4.8;
 		float restitution = 0.7;
 
+		int enableSpiral = 0;
+		int spiralWithGlobalAxis = 0;
+		float spiralRadius = 10.0f;
+		float sprialAngularSpeed = 2;
+
+		float sprialAxisSpeed = 5;
+		int dummy1 = -1;
+		int dummy2 = -1;
+		int dummy3 = -1;
+
 		glm::vec4 flowDirection = glm::vec4(0, 1, 0, 0);
 		glm::vec4 flowCenter = glm::vec4(0, 1, 0, 0);
 		glm::vec4 vortexCenter = glm::vec4(0, 0, 0, 0);

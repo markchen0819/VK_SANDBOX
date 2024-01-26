@@ -56,8 +56,18 @@ namespace IHCEngine::Component
 		bool GetEnableBounce() const { return enableBounce; }
 		void SetRestitution(const float f) { restitution = f; }
 		float GetRestitution() const { return restitution; }
+		// Sprial
+		void SetEnableSpiral(const bool b) { enableSpiral = b; }
+		bool GetEnableSpiral() const { return enableSpiral; }
+		void SetSpiralWithGlobalAxis(const bool b) { spiralWithGlobalAxis = b; }
+		bool GetSpiralWithGlobalAxis() const { return spiralWithGlobalAxis; }
+		void SetSpiralRadius(const float f) { spiralRadius = f; }
+		float GetSpiralRadius() const { return spiralRadius; }
+		void SetSpiralAngularSpeed(const float f) { spiralAngularSpeed = f; }
+		float GetSpiralAngularSpeed() const { return spiralAngularSpeed; }
+		void SetSpiralAxisSpeed(const float f) { spiralAxisSpeed = f; }
+		float GetSpiralAxisSpeed() const { return spiralAxisSpeed; }
 
-		////
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
 		std::vector<VkDescriptorSet>& GetDescriptorSets() { return computeDescriptorSets; }
@@ -77,8 +87,8 @@ namespace IHCEngine::Component
 	private:
 		std::vector<Graphics::Particle> particles;
 
-		int maxParticleCount = 65536 * 10; // 256;
-		int particleCount = 65536 * 10; //256;
+		int maxParticleCount = 65536 * 5; // 256;
+		int particleCount = 65536 * 5; //256;
 		float lastFrameTime = 0.0f;
 
 		bool enableAdvection = false;
@@ -97,9 +107,14 @@ namespace IHCEngine::Component
 		glm::vec4 gravity = glm::vec4(0, -9.8, 0, 0);
 
 		bool enableBounce = false;
-		float groundHeight = -4.8;
+		float groundHeight = -4.8f;
 		float restitution = 0.7;
 
+		bool enableSpiral = false;
+		bool spiralWithGlobalAxis = true;
+		float spiralRadius = 10.0f;
+		float spiralAngularSpeed = 2;
+		float spiralAxisSpeed = 5;
 
 		void initParticles();
 

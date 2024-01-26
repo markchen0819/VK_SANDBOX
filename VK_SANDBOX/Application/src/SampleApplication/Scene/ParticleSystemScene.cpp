@@ -65,7 +65,6 @@ void SampleApplication::ParticleSystemScene::Init()
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_ParticleSystemScene>();
-
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////

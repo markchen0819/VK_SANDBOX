@@ -19,7 +19,7 @@ void SampleApplication::CameraController::Awake()
     pitch = 0;
     yaw = 0;
     camera->transform.SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
-    camera->transform.SetPosition(glm::vec3(0.0f, 10.0f, 10.0f));
+    camera->transform.SetPosition(glm::vec3(0.0f, 10.0f, 30.0f));
 }
 
 void SampleApplication::CameraController::Start()

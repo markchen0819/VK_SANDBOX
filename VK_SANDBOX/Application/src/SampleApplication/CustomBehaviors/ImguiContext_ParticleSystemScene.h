@@ -13,6 +13,8 @@ namespace IHCEngine::Component
         bool enableVortex;
         bool enableGravity;
         bool enableBounce;
+        bool enableSpiral;
+        bool spiralWithGlobalAxis;
 
     };
 }

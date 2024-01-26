@@ -34,6 +34,16 @@ layout (std140, binding = 0) uniform ParameterUBO
 	float groundHeight;
 	float restitution;
 
+    int enableSpiral;
+	int spiralWithGlobalAxis;
+	float spiralRadius;
+	float sprialAngularSpeed;
+
+	float sprialAxisSpeed;
+	int dummy1;
+	int dummy2;
+	int dummy3;
+
     vec4 flowDirection;
 	vec4 flowCenter;
     vec4 vortexCenter;
@@ -94,6 +104,42 @@ vec3 CalculateFluidVelocityAtPosition(vec3 position)
 
     return velocity;
 }
+vec3 CalculateSpiralVelocity(vec3 velocity, vec3 position)
+{
+    int global = ubo.spiralWithGlobalAxis;
+    if( global == 1) // Sprial around global y axis
+    {
+        float spiralRadius = ubo.spiralRadius;
+        float sprialAngularSpeed = ubo.sprialAngularSpeed; 
+        float sprialAxisSpeed = ubo.sprialAxisSpeed;
+
+        float angleDisplacement = sprialAngularSpeed * ubo.deltaTime * 100;
+        float heightDisplacement = sprialAxisSpeed * ubo.deltaTime * 100;
+        float currentAngle = atan(position.z, position.x);
+        float currentHeight = position.y;
+        float newAngle = currentAngle + angleDisplacement;
+        float newHeight = currentHeight + heightDisplacement;
+        vec3 newPosition;
+        newPosition.x = spiralRadius * cos(newAngle);
+        newPosition.y = newHeight;
+        newPosition.z = spiralRadius * sin(newAngle);
+        vec3 spiralVelocity = newPosition - position;
+        return spiralVelocity;
+    }
+    else // Sprial around individual y axis
+    {
+        vec3 axis = vec3(0,1,0);
+        float sigma = ubo.sprialAngularSpeed; // Angular speed
+        float angle = sigma * ubo.accumulatedTime;
+        float cosTheta = cos(angle);
+        float sinTheta = sin(angle);
+        // angle axis rotation (Rodrigues rotation formula)
+        vec3 rotatedVelocity = velocity * cosTheta + //  Parallel to the plane of rotation remains unchanged in magnitude but is rotated within the plane
+                           cross(axis, velocity) * sinTheta + // Circular motion, axis of rotation's plane * magnitude of perpendicular 
+                           axis * dot(axis, velocity) * (1.0 - cosTheta); // Parallel to the axis of rotation,  adjusts the magnitude of parallel part
+        return rotatedVelocity; 
+    }
+}
 void CalculateBounceVelocityAtPosition(vec3 position, inout vec4 velocity)
 {
     // Check for collision with the XZ plane
@@ -118,15 +164,19 @@ vec3 ApplyGravity()
 // Intergration
 vec3 CalculateVelocityAtPosition(vec3 position, vec3 particleVelocity) 
 {
-    vec3 newVelocity = vec3 (0,0,0) + particleVelocity; // Don't carry environment velocity overframe
+    vec3 newVelocity = particleVelocity; // Don't carry environment velocity overframe
 
     if(ubo.enableAdvection == 1)
     {
-        newVelocity += CalculateFluidVelocityAtPosition(position); // Addvection
+        newVelocity += CalculateFluidVelocityAtPosition(position);    // Addvection operation
     }
     if(ubo.enablVortex == 1)
     {
-        newVelocity += CalculateVortexVelocityAtPosition(position);// Vortex
+        newVelocity += CalculateVortexVelocityAtPosition(position);   // Vortex operation
+    }
+    if(ubo.enableSpiral == 1)
+    {
+        newVelocity += CalculateSpiralVelocity(newVelocity, position);// Spiral operation
     }
     return newVelocity;
 }
@@ -151,7 +201,6 @@ RK2Result RK2Integration(vec3 position, vec3 particleVelocity, float deltaTime)
     return result;
 }
 
-
 // Helpers for testing rotation
 vec4 normalizeQuaternion(vec4 q) 
 {
@@ -165,19 +214,17 @@ vec4 angleAxis(float angle, vec3 axis)
     float s = sin(halfAngle);
     return vec4(normalizedAxis * s, cos(halfAngle));
 }
-vec4 quatMultiply(vec4 q1, vec4 q2) {
+vec4 quatMultiply(vec4 q1, vec4 q2) 
+{
     vec3 imaginary = cross(q1.xyz, q2.xyz) + q1.w * q2.xyz + q2.w * q1.xyz;
     float real = q1.w * q2.w - dot(q1.xyz, q2.xyz);
     return vec4(imaginary, real);
 }
 
-
 void main() 
 {
     uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
-
     Particle particleIn = particlesIn[index];
-
     // Do NOT do MVP calculations here, or it will we reiterated
     //particlesOut[index].position = particleIn.position + particleIn.velocity * ubo.deltaTime;  
     particlesOut[index].rotation = particleIn.rotation;
@@ -195,15 +242,14 @@ void main()
     // Apply environment forces
     RK2Result rk2Result = RK2Integration(particleIn.position.xyz, particleIn.velocity.xyz, ubo.deltaTime);
     particlesOut[index].position = vec4(rk2Result.position.xyz, particleIn.position.w);
-
     vec4 newVelocity = particleIn.velocity;
     if(ubo.enableGravity == 1)
     {
-        newVelocity += vec4(ApplyGravity(), 0.0);
+        newVelocity += vec4(ApplyGravity(), 0.0); // Gravity operation
     }
     if(ubo.enableBounce == 1)
     {
-         CalculateBounceVelocityAtPosition(particlesOut[index].position.xyz, newVelocity);
+         CalculateBounceVelocityAtPosition(particlesOut[index].position.xyz, newVelocity); // Bounce operation
     }
     particlesOut[index].velocity = newVelocity;
 
@@ -218,6 +264,7 @@ void main()
         particlesOut[index].remainingLifetime = particleIn.lifeTime;
     }
 
+
 //    //// Rotation test
 //    // Calculate random rotation
 //    vec3 randomAxis = normalize(particleIn.velocity.xyz); 
@@ -225,5 +272,4 @@ void main()
 //    vec4 randomRotation = angleAxis(randomAngle, randomAxis); 
 //    // Combine new random rotation with the existing rotation
 //    particlesOut[index].rotation = normalizeQuaternion(quatMultiply(particleIn.rotation, randomRotation));
-
 }
