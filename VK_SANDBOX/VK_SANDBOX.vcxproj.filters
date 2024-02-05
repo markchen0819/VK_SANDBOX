@@ -177,7 +177,7 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\ImguiContextComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.cpp">
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_AnimationViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Math\Path\SpaceCurve.cpp">
@@ -195,7 +195,7 @@
     <ClCompile Include="Engine\src\Math\Path\SpeedControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.cpp">
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_MotionAlongPathViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Graphics\Animation\BlendTree.cpp">
@@ -207,7 +207,7 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\InverseKinematicsViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.cpp">
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_InverseKinematicsViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.cpp">
@@ -219,7 +219,7 @@
     <ClCompile Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.cpp">
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_PhysicallyBasedSimulationViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\src\Physics\SoftBody.cpp">
@@ -270,7 +270,13 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_ParticleSystemScene.cpp">
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_ParticleSystemScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\Scene\GrassScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -491,7 +497,7 @@
     <ClInclude Include="Engine\src\Core\Locator\ImGuiManagerLocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_AnimationViewer.h">
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_AnimationViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Math\Path\SpaceCurve.h">
@@ -512,7 +518,7 @@
     <ClInclude Include="Engine\src\Math\Path\SpeedControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_MotionAlongPathViewer.h">
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_MotionAlongPathViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Math\Path\OrientationControl.h">
@@ -530,7 +536,7 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\InverseKinematicsViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_InverseKinematicsViewer.h">
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_InverseKinematicsViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Graphics\Animation\InverseKinematicsSolver.h">
@@ -542,7 +548,7 @@
     <ClInclude Include="Application\src\SampleApplication\Scene\PhysicallyBasedSimulationScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_PhysicallyBasedSimulationViewer.h">
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_PhysicallyBasedSimulationViewer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Physics\SoftBody.h">
@@ -602,7 +608,13 @@
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext_ParticleSystemScene.h">
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_ParticleSystemScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\Scene\GrassScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

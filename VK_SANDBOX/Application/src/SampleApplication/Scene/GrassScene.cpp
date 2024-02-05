@@ -1,4 +1,4 @@
-#include "MotionAlongPathScene.h"
+#include "GrassScene.h"
 
 // Engine resources
 #include "../../Engine/src/Core/Locator/GraphicsManagerLocator.h"
@@ -9,66 +9,37 @@
 #include "../CustomBehaviors/CameraController.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
-#include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
-#include "../CustomBehaviors/ImguiContext/ImguiContext_MotionAlongPathViewer.h"
-#include "../CustomBehaviors/MotionAlongPathViewer.h"
+#include "../CustomBehaviors/ImguiContext/ImguiContext_GrassScene.h"
 
-SampleApplication::MotionAlongPathScene::MotionAlongPathScene()
-	: Scene("MotionAlongPathScene")
+SampleApplication::GrassScene::GrassScene()
+	: Scene("GrassScene")
 {
 }
 
-void SampleApplication::MotionAlongPathScene::Load()
+void SampleApplication::GrassScene::Load()
 {
 	// Create Graphics resource using GraphicsAssetCreator
-	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
-	// Models
-	auto Ch44Model = graphicsAssetCreator.CreateModel("Ch44Model",
-		"Application/assets/Models/Ch44_nonPBR/Ch44_nonPBR.fbx");
-	// Animation
-	auto WalkAnimation = graphicsAssetCreator.CreateAnimation(
-		"WalkAnimation", "Application/assets/Animations/Standard Walk.fbx",
-		Ch44Model);
-	auto RunAnimation = graphicsAssetCreator.CreateAnimation(
-		"RunAnimation", "Application/assets/Animations/Standard Run.fbx",
-		Ch44Model);
-	// Control point
-	createControlPointMesh();
 
-	// viking Room
-	auto roomTexture =
-		graphicsAssetCreator.CreateTexture("roomTexture",
-			"Engine/assets/textures/viking_room/viking_room.png");
-	auto roomModel =
-		graphicsAssetCreator.CreateMesh("roomModel",
-			"Engine/assets/models/viking_room/viking_room.obj");
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
 	// grid
 	createGridMeshAndLoadGridTexture();
+
+	graphicsManager->SetClearColor(glm::vec3(0, 0, 0));
 }
 
-void SampleApplication::MotionAlongPathScene::UnLoad()
+void SampleApplication::GrassScene::UnLoad()
 {
-	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
-	// testModel
-	graphicsAssetCreator.DestroyModel("Ch44Model");
-	graphicsAssetCreator.DestroyAnimation("WalkAnimation");
-	graphicsAssetCreator.DestroyAnimation("RunAnimation");
+	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
 
-	// control point
-	graphicsAssetCreator.DestroyModel("Ch44Model");
-	graphicsAssetCreator.DestroyMesh("controlPointModel");
-
-
-	// viking Room
-	graphicsAssetCreator.DestroyTexture("roomTexture");
-	graphicsAssetCreator.DestroyMesh("roomModel");
+	graphicsAssetCreator.DestroyMesh("cubeMesh");
+	graphicsAssetCreator.DestroyMesh("sphereMesh");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -84,18 +55,13 @@ void SampleApplication::MotionAlongPathScene::UnLoad()
 	assetManager->ClearAllAssetRepositories();
 }
 
-void SampleApplication::MotionAlongPathScene::Init()
+void SampleApplication::GrassScene::Init()
 {
 	IHCEngine::Core::Time::LockFrameRate(144);
 
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
-	//camera.AddComponent<SampleApplication::CameraController>();
-
-	IHCEngine::Core::GameObject& emptyGobj = AddGameObject("emptyGobj");
-	emptyGobj.AddComponent<IHCEngine::Component::LineRendererComponent>();
-	emptyGobj.AddComponent<MotionAlongPathViewer>();
-	emptyGobj.AddComponent<IHCEngine::Component::ImguiContext_MotionAlongPathViewer>();
-
+	camera.AddComponent<SampleApplication::CameraController>();
+	camera.AddComponent<IHCEngine::Component::ImguiContext_GrassScene>();
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////
@@ -103,29 +69,13 @@ void SampleApplication::MotionAlongPathScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-	IHCEngine::Component::ModelComponent* modelcomponent = nullptr;
-	IHCEngine::Component::AnimatorComponent* animatorcomponent = nullptr;
-	IHCEngine::Component::DebugBoneComponent* debugbonecomponent = nullptr;
 
-	IHCEngine::Core::GameObject& ch44Gobj = AddGameObject("Ch44Gobj1");
-	modelcomponent = ch44Gobj.AddComponent<IHCEngine::Component::ModelComponent>();
-	modelcomponent->SetModel(assetManager->GetModelRepository().GetAsset("Ch44Model"));
-	animatorcomponent = ch44Gobj.AddComponent<IHCEngine::Component::AnimatorComponent>();
-	animatorcomponent->SetAnimation(assetManager->GetAnimationRepository().GetAsset("WalkAnimation"));
-	debugbonecomponent = ch44Gobj.AddComponent<IHCEngine::Component::DebugBoneComponent>();
-	debugbonecomponent->AllocateDebugBoneBuffer(animatorcomponent->GetDebugBoneVertices());
+
+
 
 
 	///////////////////////////
 	// Others
-	IHCEngine::Core::GameObject& room = AddGameObject("room");
-	meshcomponent = room.AddComponent<IHCEngine::Component::MeshComponent>();
-	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("roomModel"));
-	texturecomponent = room.AddComponent<IHCEngine::Component::TextureComponent>();
-	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("roomTexture"));
-	room.transform.SetPosition(glm::vec3(10.0f, 0.01f, 2.0f));
-	room.transform.SetRotation(glm::vec3(-90, -90, 0));
-	room.transform.SetScale(glm::vec3(1.5, 1.5, 1.5));
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
@@ -158,38 +108,12 @@ void SampleApplication::MotionAlongPathScene::Init()
 	grid.transform.SetPosition(glm::vec3(0, -0.01, 0));
 }
 
-void SampleApplication::MotionAlongPathScene::Reset()
+void SampleApplication::GrassScene::Reset()
 {
 
 }
 
-void SampleApplication::MotionAlongPathScene::createControlPointMesh()
-{
-	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
-	IHCEngine::Graphics::IHCMesh::Builder controlPointBuilder;
-	controlPointBuilder.vertices =
-	{
-		{ {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{ 0.5f,  0.5f,  0.5f} , {0.0f, 1.0f, 0.0f}}
-	};
-	controlPointBuilder.indices =
-	{
-		0, 1, 2,    1, 3, 2,  // Left face
-		4, 6, 5,    5, 6, 7,  // Right face
-		0, 2, 4,    2, 6, 4,  // Bottom face
-		1, 5, 3,    3, 5, 7,  // Top face
-		0, 4, 1,    1, 4, 5,  // Front face
-		2, 3, 6,    3, 7, 6   // Back face
-	};
-	graphicsAssetCreator.CreateMesh("controlPointModel", controlPointBuilder);
-}
-void SampleApplication::MotionAlongPathScene::createGridMeshAndLoadGridTexture()
+void SampleApplication::GrassScene::createGridMeshAndLoadGridTexture()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 
@@ -232,7 +156,7 @@ void SampleApplication::MotionAlongPathScene::createGridMeshAndLoadGridTexture()
 	}
 	auto gridModel = graphicsAssetCreator.CreateMesh("gridModel", gridBuilder);
 }
-void SampleApplication::MotionAlongPathScene::createAxisMeshAndLoadAxisTexture()
+void SampleApplication::GrassScene::createAxisMeshAndLoadAxisTexture()
 {
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 

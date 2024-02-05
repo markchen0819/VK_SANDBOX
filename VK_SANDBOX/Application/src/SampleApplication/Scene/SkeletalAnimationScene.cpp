@@ -13,7 +13,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/AnimatorComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/DebugBoneComponent.h"
 #include "../CustomBehaviors/AnimationViewer.h"
-#include "../CustomBehaviors/ImguiContext_AnimationViewer.h"
+#include "../CustomBehaviors/ImguiContext/ImguiContext_AnimationViewer.h"
 
 SampleApplication::SkeletalAnimationScene::SkeletalAnimationScene()
 	: Scene("SkeletalAnimationScene")

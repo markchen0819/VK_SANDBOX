@@ -10,7 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ComputeParticleComponent.h"
-#include "../CustomBehaviors/ImguiContext_ParticleSystemScene.h"
+#include "../CustomBehaviors/ImguiContext/ImguiContext_ParticleSystemScene.h"
 
 namespace IHCEngine::Component
 {

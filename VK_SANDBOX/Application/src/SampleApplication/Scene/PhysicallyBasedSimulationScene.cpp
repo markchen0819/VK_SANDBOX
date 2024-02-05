@@ -10,7 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ModelComponent.h"
-#include "../CustomBehaviors/ImguiContext_PhysicallyBasedSimulationViewer.h"
+#include "../CustomBehaviors/ImguiContext/ImguiContext_PhysicallyBasedSimulationViewer.h"
 #include "../CustomBehaviors/PhysicallyBasedSimulationViewer.h"
 
 

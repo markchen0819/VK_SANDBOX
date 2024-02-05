@@ -19,7 +19,7 @@
 // Custom Behaviors
 #include "../../../../Engine/src/Core/Scene/Components/LineRendererComponent.h"
 #include "../CustomBehaviors/InverseKinematicsViewer.h"
-#include "../CustomBehaviors/ImguiContext_InverseKinematicsViewer.h"
+#include "../CustomBehaviors/ImguiContext/ImguiContext_InverseKinematicsViewer.h"
 
 SampleApplication::InverseKinematicsScene::InverseKinematicsScene()
 	: Scene("InverseKinematicsScene")

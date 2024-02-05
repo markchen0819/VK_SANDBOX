@@ -8,6 +8,7 @@
 #include "Scene/MotionAlongPathScene.h"
 #include "Scene/ParticleSystemScene.h"
 #include "Scene/SkeletalAnimationScene.h"
+#include "Scene/GrassScene.h"
 
 SampleApplication::SampleApplication::SampleApplication(const std::string& appName)
 	:sceneNum{ 0 }, IHCEngine::Core::IApplication(appName)
@@ -23,7 +24,8 @@ void SampleApplication::SampleApplication::Init()
 	sceneManager->AddScene<InverseKinematicsScene>();
 	sceneManager->AddScene<PhysicallyBasedSimulationScene>();
 	sceneManager->AddScene<ParticleSystemScene>();
-	sceneManager->SetNextSceneToLoad(4);
+	sceneManager->AddScene<GrassScene>();
+	sceneManager->SetNextSceneToLoad(5);
 }
 
 void SampleApplication::SampleApplication::Update()
@@ -66,6 +68,13 @@ void SampleApplication::SampleApplication::Update()
 		std::cout << "==========    Loading Scene 5  ========" << std::endl;
 		std::cout << "=========================================" << std::endl;
 		sceneManager->SetNextSceneToLoad(4);
+	}
+	if (IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_F6))
+	{
+		std::cout << "=========================================" << std::endl;
+		std::cout << "==========    Loading Scene 6  ========" << std::endl;
+		std::cout << "=========================================" << std::endl;
+		sceneManager->SetNextSceneToLoad(5);
 	}
 }
 

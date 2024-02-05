@@ -2,7 +2,7 @@
 #include "ImguiContext_MotionAlongPathViewer.h"
 
 #include "imgui.h"
-#include "MotionAlongPathViewer.h"
+#include "../MotionAlongPathViewer.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
 #include "../../../../Engine/src/Graphics/Animation/AnimationConfig.h"
