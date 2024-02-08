@@ -2,7 +2,7 @@
 
 
 #include "imgui.h"
-#include "InverseKinematicsViewer.h"
+#include "../InverseKinematicsViewer.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Engine/src/Core/Scene/Components/IKComponent.h"
 #include "../../../../Engine/src/Graphics/RenderSystems/RenderSystem.h"
