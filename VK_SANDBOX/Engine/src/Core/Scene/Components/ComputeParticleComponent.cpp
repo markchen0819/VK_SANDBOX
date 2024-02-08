@@ -176,11 +176,11 @@ void IHCEngine::Component::ComputeParticleComponent::Attach()
 {
 	initParticles();
 	createVulkanResources();
-	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().AddGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPATRICLE);
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().AddGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPARTICLE);
 }
 
 void IHCEngine::Component::ComputeParticleComponent::Remove()
 {
 	destroyVulkanResources();
-	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().RemoveGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPATRICLE);
+	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().RemoveGameObject(this->gameObject, Graphics::PipelineType::COMPUTEPARTICLE);
 }

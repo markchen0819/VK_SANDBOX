@@ -128,4 +128,14 @@ namespace IHCEngine::Graphics
     {
         descriptorManager->DeallocateComputeParticleDescriptorSet(computeParticle);
     }
+
+    // Grass Data
+    void GraphicsAssetCreator::CreateGrassData(Component::ComputeGrassComponent* computeGrass)
+    {
+        descriptorManager->AllocateComputeGrassDescriptorSet(computeGrass);
+    }
+    void GraphicsAssetCreator::DestroyGrassData(Component::ComputeGrassComponent* computeGrass)
+    {
+        descriptorManager->DeallocateComputeGrassDescriptorSet(computeGrass);
+    }
 }

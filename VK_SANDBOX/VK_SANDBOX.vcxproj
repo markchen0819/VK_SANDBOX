@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeParticleDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeParticlePipeline.cpp" />
@@ -211,6 +212,8 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_ParticleSystemScene.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\GrassScene.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -246,7 +249,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\Grass\ComputeGrassUniformBufferObject.h" />
+    <ClInclude Include="Engine\src\Graphics\Grass\GrassBlade.h" />
     <ClInclude Include="Engine\src\Graphics\Particle\ComputeParticleUniformBufferObject.h" />
     <ClInclude Include="Engine\src\Graphics\Particle\Particle.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeParticleDescriptorWrap.h" />
@@ -322,6 +328,8 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_ParticleSystemScene.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\GrassScene.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />

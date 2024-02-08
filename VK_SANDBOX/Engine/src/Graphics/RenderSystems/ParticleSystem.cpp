@@ -12,30 +12,31 @@ IHCEngine::Graphics::ParticleSystem::ParticleSystem(IHCDevice& device, VkRenderP
     descriptorManager{ descriptorManager }
 {
     computeParticlePipeline = std::make_unique<ComputeParticlePipeline>(ihcDevice, vkrenderpass, descriptorManager);
-    //defaultPipeline = std::make_unique<DefaultPipeline>(ihcDevice, vkrenderpass, descriptorManager);
-    //wireframePipeline = std::make_unique<WireframePipeline>(ihcDevice, vkrenderpass, descriptorManager);
-    //skeletalAnimationPipeline = std::make_unique<SkeletalAnimationPipeline>(ihcDevice, vkrenderpass, descriptorManager);
-    //debugBonePipeline = std::make_unique<DebugBonePipeline>(ihcDevice, vkrenderpass, descriptorManager);
-    //lineRendererPipeline = std::make_unique<LineRendererPipeline>(ihcDevice, vkrenderpass, descriptorManager);
+    computeGrassPipeline = std::make_unique<ComputeGrassPipeline>(ihcDevice, vkrenderpass, descriptorManager);
 }
 
 
 void IHCEngine::Graphics::ParticleSystem::Compute(FrameInfo& frameInfo)
 {
     computeParticlePipeline->Compute(frameInfo);
+    computeGrassPipeline->Compute(frameInfo);
 }
 
 void IHCEngine::Graphics::ParticleSystem::RenderGameObjects(FrameInfo& frameInfo)
 {
     computeParticlePipeline->Render(frameInfo);
+    computeGrassPipeline->Render(frameInfo);
 }
 
 void IHCEngine::Graphics::ParticleSystem::AddGameObject(Core::GameObject* gobj, PipelineType pipelineType)
 {
     switch (pipelineType)
     {
-    case PipelineType::COMPUTEPATRICLE:
-        computeParticlePipeline->AddGameObjectToRender(gobj); // & compute
+    case PipelineType::COMPUTEPARTICLE:
+        computeParticlePipeline->AddGameObjectToRender(gobj); 
+        break;
+    case PipelineType::COMPUTEGRASS:
+        computeGrassPipeline->AddGameObjectToRender(gobj);
         break;
 
     }
@@ -45,10 +46,12 @@ void IHCEngine::Graphics::ParticleSystem::RemoveGameObject(Core::GameObject* gob
 {
     switch (pipelineType)
     {
-    case PipelineType::COMPUTEPATRICLE:
-        computeParticlePipeline->RemoveGameObjectToRender(gobj); // & compute
+    case PipelineType::COMPUTEPARTICLE:
+        computeParticlePipeline->RemoveGameObjectToRender(gobj); 
         break;
-
+    case PipelineType::COMPUTEGRASS:
+        computeGrassPipeline->RemoveGameObjectToRender(gobj); 
+        break;
     }
 }
 

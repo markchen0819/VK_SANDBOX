@@ -1,0 +1,44 @@
+#version 450
+
+struct GrassBlade
+{
+	vec4 position;
+    vec4 rotation;
+    vec4 scale;
+    vec4 color;
+};
+
+layout (std140, binding = 0) uniform ParameterUBO
+{
+    float deltaTime; 
+    float accumulatedTime;
+} ubo;
+
+layout(std430, binding = 1) readonly buffer GrassSSBOIn 
+{
+   GrassBlade grassBladesIn[ ];
+};
+
+layout(std430, binding = 2) buffer GrassSSBOOut 
+{
+   GrassBlade grassBladesOut[ ];
+};
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+// Particle Count: 65536
+// Thread Count per work group : 256
+// Work Group Count: 65536/256
+// Group1 0~255, Group2 256~511...
+
+
+void main() 
+{
+    uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
+    GrassBlade grassBladeIn = grassBladesIn[index];
+    // Do NOT do MVP calculations here, or it will we reiterated
+    grassBladesOut[index].position = grassBladeIn.position;  
+    grassBladesOut[index].rotation = grassBladeIn.rotation;
+    grassBladesOut[index].scale = grassBladeIn.scale;
+    grassBladesOut[index].color = grassBladeIn.color;
+
+}

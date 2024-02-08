@@ -4,6 +4,7 @@
 namespace IHCEngine::Component
 {
 	class ComputeParticleComponent;
+	class ComputeGrassComponent;
 }
 
 namespace IHCEngine::Graphics
@@ -54,6 +55,8 @@ namespace IHCEngine::Graphics
 		void CreateParticleData(Component::ComputeParticleComponent* computeParticle);
 		void DestroyParticleData(Component::ComputeParticleComponent* computeParticle);
 
+		void CreateGrassData(Component::ComputeGrassComponent* computeGrass);
+		void DestroyGrassData(Component::ComputeGrassComponent* computeGrass);
 
 	private:
 

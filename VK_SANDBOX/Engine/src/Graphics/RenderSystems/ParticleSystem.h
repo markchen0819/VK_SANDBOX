@@ -1,5 +1,6 @@
 #pragma once
 #include "Pipelines/ComputeParticlePipeline.h"
+#include "Pipelines/ComputeGrassPipeline.h"
 #include "Pipelines/PipelineType.h"
 
 namespace IHCEngine::Graphics
@@ -36,8 +37,9 @@ namespace IHCEngine::Graphics
         VkRenderPass vkrenderpass;
         IHCDescriptorManager* descriptorManager = nullptr;
 
-        std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline;
         // compute & graphics pipeline
+        std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline;
+        std::unique_ptr<IHCEngine::Graphics::ComputeGrassPipeline> computeGrassPipeline;
 
     };
 

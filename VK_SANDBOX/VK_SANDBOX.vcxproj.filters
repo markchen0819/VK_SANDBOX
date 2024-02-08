@@ -279,6 +279,15 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -615,6 +624,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_GrassScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Grass\ComputeGrassUniformBufferObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Grass\GrassBlade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

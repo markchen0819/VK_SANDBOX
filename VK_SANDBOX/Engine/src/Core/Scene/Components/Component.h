@@ -21,7 +21,8 @@ namespace IHCEngine::Component
 		ImguiContext,
 		LineRenderer,
 		InverseKinematics,
-		ComputeParticle
+		ComputeParticle,
+		ComputeGrass
 		// add more component types as needed
 	};
 

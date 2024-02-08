@@ -118,8 +118,11 @@ void IHCEngine::Graphics::GraphicsManager::Update()
         renderer->BeginSwapChainRenderPass(commandBuffer);
 
         //// System Render order here matters ////
+
         basicRenderSystem->RenderGameObjects(frameInfo);
+
         particleSystem->RenderGameObjects(frameInfo);
+
         //////////////////////////////////////////
 
         if (usingIMGUI)
