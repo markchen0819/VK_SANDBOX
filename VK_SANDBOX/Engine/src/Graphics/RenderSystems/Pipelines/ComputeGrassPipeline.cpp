@@ -243,7 +243,7 @@ namespace IHCEngine::Graphics
 
 
         pipelineConfig.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;// Mesh particles
-        pipelineConfig.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        pipelineConfig.rasterizer.cullMode = VK_CULL_MODE_NONE;
         pipelineConfig.multisampling.sampleShadingEnable = VK_FALSE;
         pipelineConfig.multisampling.rasterizationSamples = ihcDevice.GetMsaaSamples(); //VK_SAMPLE_COUNT_1_BIT;
         pipelineConfig.colorBlendAttachment.blendEnable = VK_TRUE;

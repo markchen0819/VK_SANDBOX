@@ -64,7 +64,7 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 
 		particle.position = glm::vec4(x, 0, z, 0);
 		particle.rotation = glm::vec4(1, 0, 0, 0);
-		particle.scale = glm::vec4(0.03, 0.03, 0.03, 0);
+		particle.scale = glm::vec4(2.0, 2.0, 2.0, 0);
 		particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
 	}
 }

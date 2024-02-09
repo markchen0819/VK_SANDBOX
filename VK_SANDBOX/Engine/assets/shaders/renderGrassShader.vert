@@ -75,10 +75,12 @@ mat4 createScaleMatrix(vec3 scale)
 mat4 quatToMat4(vec4 q) 
 {
     // Converts a quaternion to a rotation matrix
-    float qx = q.x;
-    float qy = q.y;
-    float qz = q.z;
-    float qw = q.w;
+
+    // (1,0,0,0) format to (0,0,0,1) format
+    float qx = q.w;
+    float qy = q.x;
+    float qz = q.y;
+    float qw = q.z;
 
     mat4 matrix = mat4(1.0); // Identity matrix
     matrix[0][0] = 1.0 - 2.0 * qy * qy - 2.0 * qz * qz;
@@ -113,8 +115,9 @@ void main()
     // Create a transformation matrix for this particle ( local space to the particle system's local space)
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
     // Transform the vertex position from local to world
-    vec4 worldPosition = modelMatrix * vec4(inPosition.xyz, 1.0);
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * push.modelMatrix * worldPosition;
+    vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(inPosition.xyz, 1.0);
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
+
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;

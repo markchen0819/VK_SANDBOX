@@ -40,6 +40,7 @@ void SampleApplication::GrassScene::UnLoad()
 	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
 
 	graphicsAssetCreator.DestroyMesh("grassMesh");
+	graphicsAssetCreator.DestroyTexture("grassTexture");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -74,69 +75,22 @@ void SampleApplication::GrassScene::Init()
 	grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
 
 
-	IHCEngine::Graphics::IHCMesh::Builder cubeBuilder;
-	cubeBuilder.vertices = {
-		// Front face
-		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Bottom-left
-		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Bottom-right
-		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Top-right
-		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},  // Top-left
-
-		// Right face
-		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Bottom-left
-		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Bottom-right
-		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Top-right
-		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},  // Top-left
-
-		// Back face
-		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Bottom-left
-		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Bottom-right
-		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Top-right
-		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}, // Top-left
-
-		// Left face
-		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Bottom-left
-		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Bottom-right
-		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Top-right
-		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}}, // Top-left
-
-		// Top face
-		{{-1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Bottom-left
-		{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Bottom-right
-		{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Top-right
-		{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},  // Top-left
-
-		// Bottom face
-		{{-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Bottom-left
-		{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Bottom-right
-		{{ 1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}, // Top-right
-		{{-1.0f, -1.0f,  1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}  // Top-left
-	};
-
-	cubeBuilder.indices = {
-		// Front face
-		0, 1, 2,  0, 2, 3,
-		// Right face
-		4, 5, 6,  4, 6, 7,
-		// Back face
-		8, 9, 10, 8, 10, 11,
-		// Left face
-		12, 13, 14, 12, 14, 15,
-		// Top face
-		16, 17, 18, 16, 18, 19,
-		// Bottom face
-		20, 21, 22, 20, 22, 23
-	};
-
-
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
-	auto grassMesh = graphicsAssetCreator.CreateMesh(
-		"grassMesh", cubeBuilder);
+	//auto grassMesh = graphicsAssetCreator.CreateMesh(
+	//	"grassMesh", cubeBuilder);
+
+	auto grassTexture =
+		graphicsAssetCreator.CreateTexture("grassTexture",
+			"Engine/assets/textures/grassBlade/grassTexture.png");
+	auto grassMesh =
+		graphicsAssetCreator.CreateMesh("grassMesh",
+			"Engine/assets/models/grassBlade/grassBlade.obj");
+
 
 	meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
 	texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
-	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("plainTexture"));
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 
 
 
