@@ -1,2 +1,12 @@
-# Blender 4.0.2 MTL File: 'grassblade.blend'
+# Blender 4.0.2 MTL File: 'grassblade_new.blend'
 # www.blender.org
+
+newmtl Material.001
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:/Mark/DigiPen/5th Sem/CS561/OtherMaterials/Grass-Rendering-in-Modern-Game-Engine-main/Grass-Rendering-in-Modern-Game-Engine-main/Assets/Models/.
