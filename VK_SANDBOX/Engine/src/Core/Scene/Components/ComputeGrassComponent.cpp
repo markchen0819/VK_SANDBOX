@@ -51,12 +51,13 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 
 	// Initialize grassBlades
 	std::default_random_engine rndEngine((unsigned)time(nullptr));
+	std::uniform_real_distribution<float> scaleOffsetDistribution(-0.7f, 0.3f);
 	std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
 	std::uniform_real_distribution<float> positionOffsetDistribution(-0.3f, 0.3f); // or voronoi noise
 	std::uniform_real_distribution<float> rotationDistribution(0.0f, 360.0f); // angles in degrees
 
-	const int dimensionX = 30; // Grid dimension in X
-	const int dimensionZ = 30; // Grid dimension in Z
+	const int dimensionX = 60; // Grid dimension in X
+	const int dimensionZ = 60; // Grid dimension in Z
 	const float areaSizeX = 10.0f; // Total area size in X direction
 	const float areaSizeZ = 10.0f; // Total area size in Z direction
 	const float spacingX = areaSizeX / dimensionX; // Spacing between blades in X
@@ -69,27 +70,34 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 			auto& particle = grassBlades[i * dimensionZ + j];
 
 			// Calculate positions to distribute blades uniformly within 10x10 area
-			float x = (j - dimensionX / 2.0f + 0.5f) * spacingX; // center the grid, center of cell
-			float z = (i - dimensionZ / 2.0f + 0.5f) * spacingZ;
+			float x = (j - dimensionX / 2.0f + 0.5f) * spacingX + positionOffsetDistribution(rndEngine); // center the grid, center of cell
+			float z = (i - dimensionZ / 2.0f + 0.5f) * spacingZ + positionOffsetDistribution(rndEngine);
 
 			//float x = j - dimensionX / 2;// +positionOffsetDistribution(rndEngine);
 			//float z = i - dimensionZ / 2;// +positionOffsetDistribution(rndEngine);
 
 			particle.position = glm::vec4(x, 0, z, 0);
 			particle.rotation = glm::vec4(1, 0, 0, 0);
-			particle.scale = glm::vec4(1.0, 1.0, 1.0, 0);
+
+
+			//particle.scale = glm::vec4(1.0, 1.0, 1.0, 0);
+			particle.scale = glm::vec4(1.0 + scaleOffsetDistribution(rndEngine), 
+				1.0 + scaleOffsetDistribution(rndEngine),
+				1.0 + scaleOffsetDistribution(rndEngine),
+				0);
+
 			particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
 
 
-			//// Random rotation
-		 //  // Create a random rotation angle around the y-axis (up)
-			//float rotationAngle = rotationDistribution(rndEngine);
-			//// The axis of rotation (up vector)
-			//glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
-			//// Creating a quaternion based on the random angle and axis
-			//glm::quat randomRotation = glm::angleAxis(rotationAngle, rotationAxis);
-			//// Storing the quaternion in the format (w, x, y, z)
-			//particle.rotation = glm::vec4(randomRotation.w, randomRotation.x, randomRotation.y, randomRotation.z);
+			// Random rotation
+		   // Create a random rotation angle around the y-axis (up)
+			float rotationAngle = rotationDistribution(rndEngine);
+			// The axis of rotation (up vector)
+			glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
+			// Creating a quaternion based on the random angle and axis
+			glm::quat randomRotation = glm::angleAxis(rotationAngle, rotationAxis);
+			// Storing the quaternion in the format (w, x, y, z)
+			particle.rotation = glm::vec4(randomRotation.w, randomRotation.x, randomRotation.y, randomRotation.z);
 
 		}
 	}

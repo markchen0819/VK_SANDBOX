@@ -107,35 +107,34 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
+vec3 windDirection = vec3(1,0.1,-1.5);
+
 void main() 
 {
-    // Retrieve transformation data for this particle
+    // TO:DO replace with bezier
+    float curveIntensity = exp(inPosition.y) - 1.0; 
+    vec3 curvedPosition = inPosition +  vec3(0,0,0.5) * curveIntensity; 
+
+    // local space to particle local space
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
     vec4 rotation = grassBladesOut[gl_InstanceIndex].rotation;
     vec3 scale = grassBladesOut[gl_InstanceIndex].scale.xyz;
-
-    // Apply wind sway effect based on the model vertex height (inPosition.y)
-    // Assuming inPosition.y varies from 0 at the base to a positive value at the tip
-    float swayIntensity = sin(parameterUbo.accumulatedTime) * inPosition.y;
-    // Apply the sway effect to the model position, influencing primarily along the X-axis
-    vec3 modifiedPosition = inPosition;
-    modifiedPosition.x += swayIntensity * 0.4; // Adjust sway amplitude as needed
-
-
-    // Create a transformation matrix for this particle ( local space to the particle system's local space)
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
-    // Transform the vertex position from local to world
-    vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(modifiedPosition, 1.0);
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
+    // partical local space to world space
+    vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(curvedPosition, 1.0);
+
+
+    // TO:DO consider noise map
+    float swayIntensity = sin(parameterUbo.accumulatedTime) * inPosition.y;
+    worldPosition += vec4(windDirection, 0) * swayIntensity * 0.4; // Adjust sway amplitude as needed
+
+
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;
     fragTexCoord = inTexCoord;
-
-
-
-
     // Transform the normal from local to world 
     // normals need to be transformed by the inverse transpose of the model matrix
     // to maintain their orientation properly after scaling
