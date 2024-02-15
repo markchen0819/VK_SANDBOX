@@ -24,11 +24,13 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject
     vec4 cameraPosition;
 } ubo;
 
-//layout (set = 1, binding = 0) uniform ParameterUBO
-//{
-//    float deltaTime;
-//} ubo;
-//
+layout (set = 1, binding = 0) uniform ParameterUBO
+{
+    float deltaTime; 
+    float accumulatedTime;
+} parameterUbo;
+
+
 //layout(set = 1, binding = 1) readonly buffer GrassSSBOIn 
 //{
 //   GrassBlade grassBladesIn[ ];
@@ -112,16 +114,26 @@ void main()
     vec4 rotation = grassBladesOut[gl_InstanceIndex].rotation;
     vec3 scale = grassBladesOut[gl_InstanceIndex].scale.xyz;
 
+    // Apply wind sway effect based on the model vertex height (inPosition.y)
+    // Assuming inPosition.y varies from 0 at the base to a positive value at the tip
+    float swayIntensity = sin(parameterUbo.accumulatedTime) * inPosition.y;
+    // Apply the sway effect to the model position, influencing primarily along the X-axis
+    vec3 modifiedPosition = inPosition;
+    modifiedPosition.x += swayIntensity * 0.4; // Adjust sway amplitude as needed
+
+
     // Create a transformation matrix for this particle ( local space to the particle system's local space)
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
     // Transform the vertex position from local to world
-    vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(inPosition.xyz, 1.0);
+    vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(modifiedPosition, 1.0);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;
     fragTexCoord = inTexCoord;
+
+
 
 
     // Transform the normal from local to world 

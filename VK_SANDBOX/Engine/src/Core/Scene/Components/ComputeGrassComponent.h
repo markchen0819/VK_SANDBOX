@@ -42,8 +42,9 @@ namespace IHCEngine::Component
 	private:
 		std::vector<Graphics::GrassBlade> grassBlades;
 
-		int maxGrassBladeCount = 100; 
-		int grassBladeCount = 100; 
+		int maxGrassBladeCount = 900; 
+		int grassBladeCount = 900;
+
 		float lastFrameTime = 0.0f;
 
 		void initGrassBlades();
