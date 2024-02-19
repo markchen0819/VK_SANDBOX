@@ -14,6 +14,8 @@
 #include <random>
 #include <omp.h>
 
+#include "../../../Graphics/VKWraps/IHCTexture.h"
+
 IHCEngine::Component::ComputeGrassComponent::ComputeGrassComponent()
 	:Component(ComponentType::ComputeGrass)
 {
@@ -28,9 +30,10 @@ void IHCEngine::Component::ComputeGrassComponent::Compute(Graphics::FrameInfo& f
 	ubo.deltaTime = dt;
 	ubo.accumulatedTime = lastFrameTime;
 
+	//ubo.windDirection = 
+	
 
 	computeGrassUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
-	//computeGrassUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 
 	// Dispatch
 	vkCmdDispatch(frameInfo.commandBuffer, grassBladeCount / 256, 1, 1);
@@ -45,21 +48,23 @@ void IHCEngine::Component::ComputeGrassComponent::Draw(Graphics::FrameInfo& fram
 	//vkCmdDraw(frameInfo.commandBuffer, grassBladeCount, 1, 0, 0);
 }
 
+
+
 void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 {
 	grassBlades.resize(maxGrassBladeCount);
 
 	// Initialize grassBlades
 	std::default_random_engine rndEngine((unsigned)time(nullptr));
-	std::uniform_real_distribution<float> scaleOffsetDistribution(-0.7f, 0.3f);
+	std::uniform_real_distribution<float> scaleOffsetDistribution(-0.8f, 1.2f);
 	std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
-	std::uniform_real_distribution<float> positionOffsetDistribution(-0.3f, 0.3f); // or voronoi noise
+	std::uniform_real_distribution<float> positionOffsetDistribution(-0.2f, 0.2f); // or voronoi noise
 	std::uniform_real_distribution<float> rotationDistribution(0.0f, 360.0f); // angles in degrees
 
-	const int dimensionX = 60; // Grid dimension in X
-	const int dimensionZ = 60; // Grid dimension in Z
-	const float areaSizeX = 10.0f; // Total area size in X direction
-	const float areaSizeZ = 10.0f; // Total area size in Z direction
+	const int dimensionX = 80; // Grid dimension in X
+	const int dimensionZ = 80; // Grid dimension in Z
+	const float areaSizeX = 20.0f; // Total area size in X direction
+	const float areaSizeZ = 20.0f; // Total area size in Z direction
 	const float spacingX = areaSizeX / dimensionX; // Spacing between blades in X
 	const float spacingZ = areaSizeZ / dimensionZ; // Spacing between blades in Z
 
@@ -73,14 +78,11 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 			float x = (j - dimensionX / 2.0f + 0.5f) * spacingX + positionOffsetDistribution(rndEngine); // center the grid, center of cell
 			float z = (i - dimensionZ / 2.0f + 0.5f) * spacingZ + positionOffsetDistribution(rndEngine);
 
-			//float x = j - dimensionX / 2;// +positionOffsetDistribution(rndEngine);
-			//float z = i - dimensionZ / 2;// +positionOffsetDistribution(rndEngine);
-
 			particle.position = glm::vec4(x, 0, z, 0);
 			particle.rotation = glm::vec4(1, 0, 0, 0);
 
 
-			//particle.scale = glm::vec4(1.0, 1.0, 1.0, 0);
+			particle.scale = glm::vec4(1.0, 1.0, 1.0, 0);
 			particle.scale = glm::vec4(1.0 + scaleOffsetDistribution(rndEngine), 
 				1.0 + scaleOffsetDistribution(rndEngine),
 				1.0 + scaleOffsetDistribution(rndEngine),
@@ -90,7 +92,7 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 
 
 			// Random rotation
-		   // Create a random rotation angle around the y-axis (up)
+		    // Create a random rotation angle around the y-axis (up)
 			float rotationAngle = rotationDistribution(rndEngine);
 			// The axis of rotation (up vector)
 			glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
@@ -159,6 +161,16 @@ void IHCEngine::Component::ComputeGrassComponent::createShaderStorageBuffers()
 
 		graphicsManager->GetIHCDevice()->CopyBuffer(stagingBuffer.GetBuffer(), shaderStorageBuffers[i]->GetBuffer(), bufferSize);
 	}
+}
+
+void IHCEngine::Component::ComputeGrassComponent::SetNoiseTexture(Graphics::IHCTexture* texture)
+{
+	this->noiseTexture = texture;
+}
+
+std::vector<VkDescriptorSet>& IHCEngine::Component::ComputeGrassComponent::GetNoiseTextureDescriptorSet() const
+{
+	return noiseTexture->GetDescriptorSets();
 }
 
 void IHCEngine::Component::ComputeGrassComponent::Attach()

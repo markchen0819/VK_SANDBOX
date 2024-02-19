@@ -6,6 +6,7 @@ struct GrassBlade
     vec4 rotation;
     vec4 scale;
     vec4 color;
+    float windStrength;
 };
 
 // Push constants
@@ -28,6 +29,9 @@ layout (set = 1, binding = 0) uniform ParameterUBO
 {
     float deltaTime; 
     float accumulatedTime;
+    float dummy1;
+	float dummy2;
+	vec4 windDirection;
 } parameterUbo;
 
 
@@ -107,13 +111,11 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
-vec3 windDirection = vec3(1,0.1,-1.5);
-
 void main() 
 {
-    // TO:DO replace with bezier
+    // Curving grass blade (TO:DO replace with bezier)
     float curveIntensity = exp(inPosition.y) - 1.0; 
-    vec3 curvedPosition = inPosition +  vec3(0,0,0.5) * curveIntensity; 
+    vec3 curvedPosition = inPosition +  vec3(-0.2,0,0.0) * curveIntensity; 
 
     // local space to particle local space
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
@@ -123,14 +125,24 @@ void main()
 
     // partical local space to world space
     vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(curvedPosition, 1.0);
+    const float forceInfluenceByHeight =  inPosition.y;
 
-
-    // TO:DO consider noise map
-    float swayIntensity = sin(parameterUbo.accumulatedTime) * inPosition.y;
-    worldPosition += vec4(windDirection, 0) * swayIntensity * 0.4; // Adjust sway amplitude as needed
+    // Wind (XZ)
+    float windMultiplier = 2.0;
+    float windStrength = grassBladesOut[gl_InstanceIndex].windStrength;
+    float windIntensity = windStrength * forceInfluenceByHeight * windMultiplier;
+    worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
+    
+    // Swaying (Y)
+    float swayMultiplier = 0.1 * windIntensity;
+    float swayFrequency = 2.0;
+    float swayIntensity = sin(parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeight * swayMultiplier;
+    worldPosition += vec4(0,1,0,0) * swayIntensity;
 
 
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
+
+
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;

@@ -23,7 +23,6 @@ void SampleApplication::GrassScene::Load()
 	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
-
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
 	// grid
@@ -41,6 +40,7 @@ void SampleApplication::GrassScene::UnLoad()
 
 	graphicsAssetCreator.DestroyMesh("grassMesh");
 	graphicsAssetCreator.DestroyTexture("grassTexture");
+	graphicsAssetCreator.DestroyTexture("noiseTexture");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -67,18 +67,9 @@ void SampleApplication::GrassScene::Init()
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////
 
-	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
-	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
-	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
-
-	IHCEngine::Core::GameObject& grassGobj = AddGameObject("grassGobj");
-	grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
-
-
+	// Should Put in Load
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
-	//auto grassMesh = graphicsAssetCreator.CreateMesh(
-	//	"grassMesh", cubeBuilder);
-
+	auto noiseTexture = graphicsAssetCreator.CreateTexture("noiseTexture", "Engine/assets/textures/perlinNoiseTexture.png");
 	auto grassTexture =
 		graphicsAssetCreator.CreateTexture("grassTexture",
 			"Engine/assets/textures/grassBlade/grassTexture.png");
@@ -87,12 +78,18 @@ void SampleApplication::GrassScene::Init()
 			"Engine/assets/models/grassBlade/grassBlade.obj");
 
 
+	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
+	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
+	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
+	IHCEngine::Component::ComputeGrassComponent* computeGrassComponent = nullptr;
+
+	IHCEngine::Core::GameObject& grassGobj = AddGameObject("grassGobj");
+	computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
+	computeGrassComponent->SetNoiseTexture(noiseTexture);
 	meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
 	texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
 	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
-
-
 
 	///////////////////////////
 	// Others

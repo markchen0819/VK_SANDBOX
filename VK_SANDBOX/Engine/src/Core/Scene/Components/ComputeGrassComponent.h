@@ -7,7 +7,9 @@
 namespace IHCEngine::Graphics
 {
 	class IHCBuffer;
+	class IHCTexture;
 }
+
 
 namespace IHCEngine::Component
 {
@@ -38,14 +40,18 @@ namespace IHCEngine::Component
 			}
 			return rawPointerVector;
 		}
+		// Noise Texture
+		void SetNoiseTexture(Graphics::IHCTexture* texture);
+		std::vector<VkDescriptorSet>& GetNoiseTextureDescriptorSet() const;
+
 
 	private:
 		std::vector<Graphics::GrassBlade> grassBlades;
-
-		int maxGrassBladeCount = 3600; 
-		int grassBladeCount = 3600;
-
+		int maxGrassBladeCount = 6400; 
+		int grassBladeCount = 6400;
 		float lastFrameTime = 0.0f;
+
+		Graphics::IHCTexture* noiseTexture = nullptr;
 
 		void initGrassBlades();
 

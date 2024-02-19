@@ -6,12 +6,17 @@ struct GrassBlade
     vec4 rotation;
     vec4 scale;
     vec4 color;
+    float windStrength;
 };
 
 layout (std140, binding = 0) uniform ParameterUBO
 {
     float deltaTime; 
     float accumulatedTime;
+    float dummy1;
+	float dummy2;
+	vec4 windDirection;
+    //  Assuming the grass is spread from (-5, -5) to (5, 5) in the XZ plane
 } ubo;
 
 layout(std430, binding = 1) readonly buffer GrassSSBOIn 
@@ -25,6 +30,12 @@ layout(std430, binding = 2) buffer GrassSSBOOut
 };
 
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+
+layout(set = 1, binding = 0) uniform sampler2D noiseTexture;
+
+// The rest of your shader code
+
 // Particle Count: 65536
 // Thread Count per work group : 256
 // Work Group Count: 65536/256
@@ -40,5 +51,16 @@ void main()
     grassBladesOut[index].rotation = grassBladeIn.rotation;
     grassBladesOut[index].scale = grassBladeIn.scale;
     grassBladesOut[index].color = grassBladeIn.color;
+
+    // Assuming the grass chunk is spread out from (0,0) chunk space
+    // Map chunk space to UV coords
+    vec2 scrollSpeed = vec2(-0.1, -0.1);
+    vec2 offset = ubo.windDirection.xz * ubo.accumulatedTime * scrollSpeed;
+    float chunkWidth = 80;
+    float chunkHeight = 80;
+    vec2 uv = (grassBladeIn.position.xz + vec2(chunkWidth, chunkHeight) * 0.5) / vec2(chunkWidth, chunkHeight);
+    vec2 scrolledUV = fract(uv + offset);
+    float noiseValue = texture(noiseTexture, scrolledUV).r;
+    grassBladesOut[index].windStrength = noiseValue;
 
 }

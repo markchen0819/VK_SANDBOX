@@ -7,5 +7,6 @@ namespace IHCEngine::Graphics
         glm::vec4 rotation;
         glm::vec4 scale;
         glm::vec4 color;
+        float windStrength = 0.0f;
     };
 }
