@@ -28,8 +28,8 @@ namespace IHCEngine::Graphics
 			GRASS_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		AddPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 			2 * GRASS_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
-		//AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		//	TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT); //TO:DO textures
+		AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			GRASS_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		InitializePool();
 
 		// Accessible by the compute stage
@@ -51,6 +51,12 @@ namespace IHCEngine::Graphics
 			2,
 			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 			VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT, // need to access for vertex
+			1
+		);
+		AddLayoutBinding(
+			3,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			VK_SHADER_STAGE_COMPUTE_BIT,
 			1
 		);
 		CreateLayout();

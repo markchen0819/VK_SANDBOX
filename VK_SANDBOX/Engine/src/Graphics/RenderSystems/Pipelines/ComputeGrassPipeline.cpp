@@ -34,7 +34,7 @@ namespace IHCEngine::Graphics
             if (gobj->IsActive() == false) continue;
             auto component = gobj->GetComponent<Component::ComputeGrassComponent>();
 
-            // Local Descriptors
+            // 1 ubo 2 ssbo
             auto descriptorSet = component->GetDescriptorSets()[frameInfo.frameIndex];
             vkCmdBindDescriptorSets
             (
@@ -42,6 +42,19 @@ namespace IHCEngine::Graphics
                 VK_PIPELINE_BIND_POINT_COMPUTE,
                 computePipelineLayout,
                 0,
+                1,
+                &descriptorSet,
+                0,
+                nullptr
+            );
+            // noise texture
+            descriptorSet = component->GetNoiseTextureDescriptorSet()[frameInfo.frameIndex];
+            vkCmdBindDescriptorSets
+            (
+                frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_COMPUTE,
+                computePipelineLayout,
+                1,
                 1,
                 &descriptorSet,
                 0,
@@ -191,13 +204,18 @@ namespace IHCEngine::Graphics
         // computeDescriptorSetLayout set 0, Binding0, UNIFORM_BUFFER
         //                            set 0, Binding1, STORAGE_BUFFER
         //                            set 0, Binding2, STORAGE_BUFFER
+        //                            set 1, Binding0, COMBINED_IMAGE_SAMPLER
 
-        VkDescriptorSetLayout computeDescriptorSetLayout = descriptorManager->GetComputeGrassDescriptorWrap()->GetDescriptorSetLayout();
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts
+        {
+            descriptorManager->GetComputeGrassDescriptorWrap()->GetDescriptorSetLayout(),
+            descriptorManager->GetTextureDescriptorWrap()->GetDescriptorSetLayout(),
+        };
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &computeDescriptorSetLayout;
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
         if (vkCreatePipelineLayout(ihcDevice.GetDevice(),
             &pipelineLayoutInfo, nullptr, &computePipelineLayout) != VK_SUCCESS)
