@@ -111,37 +111,104 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
+
+vec3 CalculatePointOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
+{
+    float u = 1.0 - t;
+    float tt = t * t;
+    float uu = u * u;
+    float uuu = uu * u;
+    float ttt = tt * t;
+    vec3 p = uuu * p0;
+    p += 3.0 * uu * t * p1;
+    p += 3.0 * u * tt * p2;
+    p += ttt * p3;
+    return p;
+}
+
+float CalculateTforBezier(float y, float startY, float endY)
+{
+    float t = (y - startY) / (endY - startY);
+    t = clamp(t, 0.0, 1.0);
+    return t;
+}
+
+//mat3 CalculateFacingRotationMatrix(vec3 facing3D)
+//{
+//    vec3 upVector = vec3(0.0, 1.0, 0.0);
+//    vec3 rightVector = normalize(cross(upVector, facing3D));
+//    vec3 forwardVector = cross(rightVector, upVector);
+//
+//    mat3 facingRotationMatrix = mat3
+//    (
+//        rightVector.x, rightVector.y, rightVector.z,
+//        upVector.x, upVector.y, upVector.z,
+//        forwardVector.x, forwardVector.y, forwardVector.z
+//    );
+//
+//    return facingRotationMatrix;
+//}
+
+mat3 CalculateTiltRotationMatrix(vec3 axis, float angleInDegree)
+{
+    // Angle axis rotation in matrix form
+    float angleRad = radians(angleInDegree);
+    float c = cos(angleRad);
+    float s = sin(angleRad);
+    float t = 1.0 - c;
+    vec3 axisNormalized = normalize(axis);
+    float x = axisNormalized.x, y = axisNormalized.y, z = axisNormalized.z;
+
+    mat3 tiltRotationMatrix = mat3
+    (
+        t*x*x + c,    t*x*y - s*z,  t*x*z + s*y,
+        t*x*y + s*z,  t*y*y + c,    t*y*z - s*x,
+        t*x*z - s*y,  t*y*z + s*x,  t*z*z + c
+    );
+
+    return tiltRotationMatrix;
+}
+
 void main() 
 {
-    // Curving grass blade (TO:DO replace with bezier)
-    float curveIntensity = exp(inPosition.y) - 1.0; 
-    vec3 curvedPosition = inPosition +  vec3(-0.2,0,0.0) * curveIntensity; 
+    //// Cubic Bezier Curve for grassBlade curvature
+    vec3 facingVec = vec3(-1.0, 0.0, 0.0); // grass blade model facing
+    //mat3 facingMat = CalculateFacingRotationMatrix(facingVec); // not needed
+    mat3 tiltMat = CalculateTiltRotationMatrix(vec3(0,0,1), 30); 
+    vec3 p0 = vec3(0, 0, 0);
+    vec3 p3 = vec3(0, 1.062001, 0);
+    p3 =  tiltMat * (p3 - p0) + p0;
+    vec3 controlPointDirection = cross(vec3(0,0,1), (p3-p0));
+    float bend =  0.15;
+    vec3 p1 = p0 + (p3 - p0) * 0.5f + controlPointDirection * bend;
+    vec3 p2 = p1; // same as p1
+    float t = CalculateTforBezier(inPosition.y, 0.0, 1.062001);
+    vec3 curvedPosition = CalculatePointOnCubicBezier(t, p0, p1, p2, p3);
+    curvedPosition = vec3(curvedPosition.x, curvedPosition.y, inPosition.z);
 
-    // local space to particle local space
+    //// local space to particle local space
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
     vec4 rotation = grassBladesOut[gl_InstanceIndex].rotation;
     vec3 scale = grassBladesOut[gl_InstanceIndex].scale.xyz;
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
 
-    // partical local space to world space
+    //// partical local space to world space
     vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(curvedPosition, 1.0);
-    const float forceInfluenceByHeight =  inPosition.y;
+    const float forceInfluenceByHeight = curvedPosition.y;// inPosition.y;
 
-    // Wind (XZ)
+    //// Wind (XZ)
     float windMultiplier = 2.0;
     float windStrength = grassBladesOut[gl_InstanceIndex].windStrength;
     float windIntensity = windStrength * forceInfluenceByHeight * windMultiplier;
     worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
     
-    // Swaying (Y)
+    //// Swaying (Y)
     float swayMultiplier = 0.1 * windIntensity;
     float swayFrequency = 2.0;
     float swayIntensity = sin(parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeight * swayMultiplier;
     worldPosition += vec4(0,1,0,0) * swayIntensity;
 
-
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
-
 
 
     // Pass other vertex data (color, texture coordinates) to the fragment shader
