@@ -23,6 +23,8 @@ namespace IHCEngine::Graphics
 	void ComputeGrassDescriptorWrap::Setup()
 	{
 		// Sum of sets needed for all particle systems and frames
+		SetPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+
 		SetMaxSets(GRASS_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			GRASS_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -95,6 +97,22 @@ namespace IHCEngine::Graphics
 			availableComputeGrassUniformBuffers.push(uboUniquePtr.get());
 		}
 	}
+
+	void ComputeGrassDescriptorWrap::CustomFreeDescriptorSet(VkDescriptorSet descriptorSet)
+	{
+		vkDeviceWaitIdle(ihcDevice.GetDevice());
+		vkFreeDescriptorSets(ihcDevice.GetDevice(), descriptorPool, 1, &descriptorSet);
+	}
+
+	//void ComputeGrassDescriptorWrap::FreeDescriptorSet(VkDescriptorSet descriptorSet)
+	//{
+	//	vkDeviceWaitIdle(ihcDevice.GetDevice());
+
+	//	// ACTUALLY REUSING INSTEAD OF FREEING
+	//	auto it = std::remove(descriptorSets.begin(), descriptorSets.end(), descriptorSet);
+	//	descriptorSets.erase(it, descriptorSets.end());
+	//	availableDescriptorSets.push(descriptorSet);
+	//}
 
 	IHCBuffer* ComputeGrassDescriptorWrap::GetAvailableComputeGrassUBO()
 	{

@@ -13,6 +13,7 @@ namespace IHCEngine::Graphics
 		void Setup() override;
 		void CreateResources() override;
 		void AllocAndBindDescriptorSets() override;
+		void CustomFreeDescriptorSet(VkDescriptorSet descriptorSet);
 
 		// Get Resources to write into and store
 		IHCBuffer* GetAvailableComputeGrassUBO();
@@ -20,7 +21,7 @@ namespace IHCEngine::Graphics
 
 	private:
 
-		const int GRASS_SYSTEM_COUNT = 10;
+		const int GRASS_SYSTEM_COUNT = 30;
 		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> computeGrassUniformBuffers;
 		std::stack<IHCBuffer*> availableComputeGrassUniformBuffers;
 	};
