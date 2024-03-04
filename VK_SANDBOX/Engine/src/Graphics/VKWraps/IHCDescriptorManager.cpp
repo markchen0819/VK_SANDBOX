@@ -432,7 +432,12 @@ namespace IHCEngine::Graphics
 		// Push back each descriptor set to the available pool 
 		for (VkDescriptorSet descriptor : IKDescriptorSets)
 		{
-			computeGrassDescriptorWrap->FreeDescriptorSet(descriptor);
+			// Not working as we created manually for this
+			// this one works as reusing
+			//computeGrassDescriptorWrap->FreeDescriptorSet(descriptor);
+
+			// Actual frees the resource
+			computeGrassDescriptorWrap->CustomFreeDescriptorSet(descriptor);
 		}
 		computeGrass->SetDescriptorSets({});
 
