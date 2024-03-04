@@ -25,7 +25,10 @@ void IHCEngine::Graphics::IHCMesh::Builder::LoadMesh(const std::string& filepath
     // triangulation feature has already made sure that there are three vertices per face
     std::unordered_map<Vertex, uint32_t> uniqueVertices{}; // avoid duplicate vertex
 
-    for (const auto& shape : shapes)
+	std::vector<Vertex> tempVertices;
+    std::vector<uint32_t> tempIndices;
+
+	for (const auto& shape : shapes)
     {
         for (const auto& index : shape.mesh.indices)
         {
@@ -72,13 +75,66 @@ void IHCEngine::Graphics::IHCMesh::Builder::LoadMesh(const std::string& filepath
 
             if (uniqueVertices.count(vertex) == 0) 
             {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                uniqueVertices[vertex] = static_cast<uint32_t>(tempVertices.size());
+                tempVertices.push_back(vertex);
             }
-            indices.push_back(uniqueVertices[vertex]);
+            tempIndices.push_back(uniqueVertices[vertex]);
 
         }
     }
+
+
+    // https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+
+    std::vector<glm::vec3> tempTangents(tempVertices.size(), glm::vec3(0.0f));
+    std::vector<glm::vec3> tempBitangents(tempVertices.size(), glm::vec3(0.0f));
+
+    for (size_t i = 0; i < tempIndices.size(); i += 3)
+    {
+        auto& v0 = tempVertices[tempIndices[i]];
+        auto& v1 = tempVertices[tempIndices[i + 1]];
+        auto& v2 = tempVertices[tempIndices[i + 2]];
+
+        glm::vec3 edge1 = v1.position - v0.position;
+        glm::vec3 edge2 = v2.position - v0.position;
+        glm::vec2 deltaUV1 = v1.uv - v0.uv;
+        glm::vec2 deltaUV2 = v2.uv - v0.uv;
+
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+
+        float denom = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+        if (fabs(denom) < 1e-6) 
+        {
+            // Handle degenerate UVs
+            tangent = glm::vec3(1.0, 0.0, 0.0);
+            bitangent = glm::vec3(0.0, 1.0, 0.0);
+        }
+        else 
+        {
+            float f = 1.0f / denom;
+            tangent = f * (deltaUV2.y * edge1 - deltaUV1.y * edge2);
+            bitangent = f * (-deltaUV2.x * edge1 + deltaUV1.x * edge2);
+        }
+
+        tempTangents[tempIndices[i]] += tangent;
+        tempTangents[tempIndices[i + 1]] += tangent;
+        tempTangents[tempIndices[i + 2]] += tangent;
+
+        tempBitangents[tempIndices[i]] += bitangent;
+        tempBitangents[tempIndices[i + 1]] += bitangent;
+        tempBitangents[tempIndices[i + 2]] += bitangent;
+    }
+
+    for (size_t i = 0; i < tempVertices.size(); ++i)
+    {
+        tempVertices[i].tangent = glm::normalize(tempTangents[i]);
+        tempVertices[i].bitangent = glm::normalize(tempBitangents[i]);
+    }
+
+    vertices = std::move(tempVertices);
+    indices = std::move(tempIndices);
+
 }
 #pragma endregion
 
