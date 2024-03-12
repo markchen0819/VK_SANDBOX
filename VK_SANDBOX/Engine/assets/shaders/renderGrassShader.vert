@@ -111,9 +111,20 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
+vec3 CalculateDerivativeOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3) 
+{
+    //  P'(t) = 3(1 - t)^2 (p1 - p0) + 6(1 - t)t (p2 - p1) + 3t^2 (p3 - p2)
+    vec3 p0Prime = 3.0 * (p1 - p0);
+    vec3 p1Prime = 3.0 * (p2 - p1);
+    vec3 p2Prime = 3.0 * (p3 - p2);
+    float u = 1.0 - t;
+    vec3 tangent = u * u * p0Prime + 2.0 * u * t * p1Prime + t * t * p2Prime;
+    return tangent;
+}
 
 vec3 CalculatePointOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
 {
+    // P(t) = (1 - t)^3 p0 + 3(1 - t)^2t p1 + 3(1 - t)t^2 p2 + t^3 p3
     float u = 1.0 - t;
     float tt = t * t;
     float uu = u * u;
@@ -186,6 +197,12 @@ void main()
     vec3 curvedPosition = CalculatePointOnCubicBezier(t, p0, p1, p2, p3);
     curvedPosition = vec3(curvedPosition.x, curvedPosition.y, inPosition.z);
 
+    vec3 curvetangent = CalculateDerivativeOnCubicBezier(t, p0, p1, p2, p3);
+    curvetangent = normalize(curvetangent);
+    vec3 up = vec3(0.0, 1.0, 0.0); 
+    vec3 orthogonalVec = normalize(cross(curvetangent, up));
+    vec3 curveNormal = normalize(cross(orthogonalVec, curvetangent)); 
+
     //// local space to particle local space
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
     vec4 rotation = grassBladesOut[gl_InstanceIndex].rotation;
@@ -194,6 +211,10 @@ void main()
 
     //// partical local space to world space
     vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(curvedPosition, 1.0);
+    vec3 modelSpaceNormal = normalize(curveNormal); 
+    vec3 particleNormal = normalize(mat3(transpose(inverse(modelMatrix))) * modelSpaceNormal);
+    vec3 worldNormal =  normalize(mat3(transpose(inverse( push.modelMatrix))) * particleNormal);
+
     const float forceInfluenceByHeight = curvedPosition.y;// inPosition.y;
 
     //// Wind (XZ)
@@ -210,15 +231,12 @@ void main()
 
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
-
     // Pass other vertex data (color, texture coordinates) to the fragment shader
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;
     fragTexCoord = inTexCoord;
-    // Transform the normal from local to world 
-    // normals need to be transformed by the inverse transpose of the model matrix
-    // to maintain their orientation properly after scaling
+
+    // Lighting
     fragWorldPosition = worldPosition.xyz;
-    vec3 worldNormal = mat3(transpose(inverse(modelMatrix))) * inNormal;
     fragNormal = worldNormal;
     viewPos = ubo.cameraPosition.xyz;
 

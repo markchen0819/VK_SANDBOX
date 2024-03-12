@@ -19,6 +19,7 @@ namespace SampleApplication
 
 		void createGridMeshAndLoadGridTexture();
 		void createAxisMeshAndLoadAxisTexture();
+		void createDirt();
 
 	};
 

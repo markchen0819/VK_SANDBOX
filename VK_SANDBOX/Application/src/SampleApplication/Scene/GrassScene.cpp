@@ -27,6 +27,8 @@ void SampleApplication::GrassScene::Load()
 	createAxisMeshAndLoadAxisTexture();
 	// grid
 	createGridMeshAndLoadGridTexture();
+	//
+	createDirt();
 
 	graphicsManager->SetClearColor(glm::vec3(0, 0, 0));
 }
@@ -41,6 +43,9 @@ void SampleApplication::GrassScene::UnLoad()
 	graphicsAssetCreator.DestroyMesh("grassMesh");
 	graphicsAssetCreator.DestroyTexture("grassTexture");
 	graphicsAssetCreator.DestroyTexture("noiseTexture");
+
+	graphicsAssetCreator.DestroyTexture("dirtTexture");
+	graphicsAssetCreator.DestroyMesh("dirtMesh");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -78,21 +83,51 @@ void SampleApplication::GrassScene::Init()
 			"Engine/assets/models/grassBlade/grassBlade.obj");
 
 
+
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
 	IHCEngine::Component::ComputeGrassComponent* computeGrassComponent = nullptr;
 
-	IHCEngine::Core::GameObject& grassGobj = AddGameObject("grassGobj");
-	computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
-	computeGrassComponent->SetNoiseTexture(noiseTexture);
-	meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
-	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
-	texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
-	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
+	//IHCEngine::Core::GameObject& grassGobj = AddGameObject("grassGobj");
+	//computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
+	//computeGrassComponent->SetNoiseTexture(noiseTexture);
+	//meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	//meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
+	//texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
+
+
+	//// test performance
+	int gridSize = 5;
+	float offset = 20.0;
+	float gridOffset = (gridSize / 2.0f) * offset;
+	glm::vec3 centerOffset(-gridOffset + offset / 2.0f, 0, -gridOffset + offset / 2.0f);
+	for(int i=0; i< gridSize; ++i)
+	{
+		for(int j=0; j< gridSize; ++j)
+		{
+			std::string str = "grassGobj" + std::to_string(i) + std::to_string(j);
+			IHCEngine::Core::GameObject& grassGobj = AddGameObject(str);
+			glm::vec3 position = centerOffset + glm::vec3(i * offset, 0, j * offset);
+			grassGobj.transform.SetPosition(position);
+			computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
+			computeGrassComponent->SetNoiseTexture(noiseTexture);
+			meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
+			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+			texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
+		}
+	}
 
 	///////////////////////////
 	// Others
+	IHCEngine::Core::GameObject& dirtGobj = AddGameObject("dirtGobj");
+	meshcomponent = dirtGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("dirtMesh"));
+	texturecomponent = dirtGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("dirtTexture"));
+
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
@@ -172,6 +207,7 @@ void SampleApplication::GrassScene::createGridMeshAndLoadGridTexture()
 		}
 	}
 	auto gridModel = graphicsAssetCreator.CreateMesh("gridModel", gridBuilder);
+
 }
 void SampleApplication::GrassScene::createAxisMeshAndLoadAxisTexture()
 {
@@ -224,4 +260,48 @@ void SampleApplication::GrassScene::createAxisMeshAndLoadAxisTexture()
 		"z_axisModel", axisBuilder);
 
 	auto plainTexture = graphicsAssetCreator.CreateTexture("plainTexture", "Engine/assets/textures/Plain.png");
+}
+
+void SampleApplication::GrassScene::createDirt()
+{
+	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
+
+	auto dirtTexture =
+		graphicsAssetCreator.CreateTexture("dirtTexture",
+			"Engine/assets/textures/grassBlade/dirtTexture.png");
+
+	IHCEngine::Graphics::IHCMesh::Builder dirtBuilder;
+	int gridSize = 100;
+	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
+	std::vector<Vertex> vertices(4);
+	// Bottom left
+	vertices[0].position = glm::vec3(-halfSize, 0.001f, -halfSize);
+	vertices[0].color = glm::vec3(1.0f);
+	vertices[0].normal = glm::vec3(0, 1, 0);
+	vertices[0].uv = glm::vec2(0.0f, 0.0f);
+	// Bottom right
+	vertices[1].position = glm::vec3(halfSize, 0.001f, -halfSize);
+	vertices[1].color = glm::vec3(1.0f);
+	vertices[1].normal = glm::vec3(0, 1, 0);
+	vertices[1].uv = glm::vec2(1.0f, 0.0f);
+	// Top left
+	vertices[2].position = glm::vec3(-halfSize, 0.001f, halfSize);
+	vertices[2].color = glm::vec3(1.0f);
+	vertices[2].normal = glm::vec3(0, 1, 0);
+	vertices[2].uv = glm::vec2(0.0f, 1.0f);
+	// Top right
+	vertices[3].position = glm::vec3(halfSize, 0.001f, halfSize);
+	vertices[3].color = glm::vec3(1.0f);
+	vertices[3].normal = glm::vec3(0, 1, 0);
+	vertices[3].uv = glm::vec2(1.0f, 1.0f);
+
+	std::vector<uint32_t> indices = {
+		0, 2, 1,
+		1, 2, 3  
+	};
+
+	dirtBuilder.vertices = vertices;
+	dirtBuilder.indices = indices;
+	auto dirtMesh = graphicsAssetCreator.CreateMesh("dirtMesh", dirtBuilder);
+
 }

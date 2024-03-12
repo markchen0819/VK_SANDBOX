@@ -93,7 +93,8 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 
 			// Random rotation
 		    // Create a random rotation angle around the y-axis (up)
-			float rotationAngle = rotationDistribution(rndEngine);
+			//float rotationAngle = glm::radians(0.0);
+			float rotationAngle = glm::radians(rotationDistribution(rndEngine));
 			// The axis of rotation (up vector)
 			glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
 			// Creating a quaternion based on the random angle and axis
