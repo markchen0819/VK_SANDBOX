@@ -113,6 +113,7 @@ void SampleApplication::GrassScene::Init()
 			grassGobj.transform.SetPosition(position);
 			computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
 			computeGrassComponent->SetNoiseTexture(noiseTexture);
+			computeGrassComponent->SetChunkCoords(i, j, gridSize, gridSize);
 			meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
 			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();

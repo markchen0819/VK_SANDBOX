@@ -13,10 +13,13 @@ layout (std140, binding = 0) uniform ParameterUBO
 {
     float deltaTime; 
     float accumulatedTime;
-    float dummy1;
+    float windStrength;
 	float dummy2;
+    int chunkX; 
+	int chunkY;
+	int gridSizeX; 
+	int gridSizeY;
 	vec4 windDirection;
-    //  Assuming the grass is spread from (-5, -5) to (5, 5) in the XZ plane
 } ubo;
 
 layout(std430, binding = 1) readonly buffer GrassSSBOIn 
@@ -52,14 +55,17 @@ void main()
     grassBladesOut[index].scale = grassBladeIn.scale;
     grassBladesOut[index].color = grassBladeIn.color;
 
-    // Assuming the grass chunk is spread out from (0,0) chunk space
-    // Map chunk space to UV coords
+    // Wind
     vec2 scrollSpeed = vec2(-0.1, -0.1);
     vec2 offset = ubo.windDirection.xz * ubo.accumulatedTime * scrollSpeed;
-    float chunkWidth = 80;
-    float chunkHeight = 80;
-    vec2 uv = (grassBladeIn.position.xz + vec2(chunkWidth, chunkHeight) * 0.5) / vec2(chunkWidth, chunkHeight);
+
+    // Chunk in Grid for noise texturing
+    float chunkWidth = 20.0 * float(ubo.gridSizeX);
+    float chunkHeight = 20.0 * float(ubo.gridSizeY);
+    vec2 globalUV = vec2(20.0 * float(ubo.chunkX), 20.0 * float(ubo.chunkY)) + grassBladeIn.position.xz;
+    vec2 uv = globalUV / vec2(chunkWidth, chunkHeight);
     vec2 scrolledUV = fract(uv + offset);
+
     float noiseValue = texture(noiseTexture, scrolledUV).r;
     grassBladesOut[index].windStrength = noiseValue;
 

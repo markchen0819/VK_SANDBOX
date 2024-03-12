@@ -29,8 +29,12 @@ layout (set = 1, binding = 0) uniform ParameterUBO
 {
     float deltaTime; 
     float accumulatedTime;
-    float dummy1;
-	float dummy2;
+    float windStrength;
+	float dummy;
+    int chunkX; 
+	int chunkY;
+	int gridSizeX; 
+	int gridSizeY;
 	vec4 windDirection;
 } parameterUbo;
 

@@ -174,6 +174,14 @@ std::vector<VkDescriptorSet>& IHCEngine::Component::ComputeGrassComponent::GetNo
 	return noiseTexture->GetDescriptorSets();
 }
 
+void IHCEngine::Component::ComputeGrassComponent::SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY)
+{
+	ubo.chunkX = chunkX;
+	ubo.chunkY = chunkY;
+	ubo.gridSizeX = gridSizeX;
+	ubo.gridSizeY = gridSizeY;
+}
+
 void IHCEngine::Component::ComputeGrassComponent::Attach()
 {
 	initGrassBlades();

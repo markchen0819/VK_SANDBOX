@@ -40,10 +40,11 @@ namespace IHCEngine::Component
 			}
 			return rawPointerVector;
 		}
+
 		// Noise Texture
 		void SetNoiseTexture(Graphics::IHCTexture* texture);
 		std::vector<VkDescriptorSet>& GetNoiseTextureDescriptorSet() const;
-
+		void SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY);
 
 	private:
 		std::vector<Graphics::GrassBlade> grassBlades;
