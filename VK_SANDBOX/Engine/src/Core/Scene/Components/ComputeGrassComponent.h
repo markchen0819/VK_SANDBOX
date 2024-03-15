@@ -13,6 +13,14 @@ namespace IHCEngine::Graphics
 
 namespace IHCEngine::Component
 {
+	struct GrassBladePropertyOverride 
+	{
+		// Wind
+		float windSpeed = 0.1f;
+		glm::vec4 windDirection = glm::vec4(1.0, 0.01, 0, 0);
+		float windStrength = 1.0f;
+	};
+
 	class ComputeGrassComponent : public Component
 	{
 	public:
@@ -44,17 +52,28 @@ namespace IHCEngine::Component
 		// Noise Texture
 		void SetNoiseTexture(Graphics::IHCTexture* texture);
 		std::vector<VkDescriptorSet>& GetNoiseTextureDescriptorSet() const;
+		Graphics::IHCTexture* GetNoiseTexture() const;
 		void SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY);
+
+		// For debug, or artist define
+		GrassBladePropertyOverride grassBladePropertyOverride;
 
 	private:
 		std::vector<Graphics::GrassBlade> grassBlades;
+		float lastFrameTime = 0.0f;
+		// Total area size, the world position ranges are chunk origin +- areaSize
+		float areaSizeX = 20.0f;
+		float areaSizeZ = 20.0f;
+		// Split area into N x N Grid
 		int maxGrassBladeCount = 6400; 
 		int grassBladeCount = 6400;
-		float lastFrameTime = 0.0f;
-
+		int dimensionX = 80; 
+		int dimensionZ = 80;
+		// Wind Texture
 		Graphics::IHCTexture* noiseTexture = nullptr;
 
 		void initGrassBlades();
+		void updateGrassBladeProperties();
 
 		// Vulkan
 		Graphics::ComputeGrassUniformBufferObject ubo{};

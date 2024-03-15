@@ -30,11 +30,15 @@ layout (set = 1, binding = 0) uniform ParameterUBO
     float deltaTime; 
     float accumulatedTime;
     float windStrength;
-	float dummy;
+	float windSpeed;
     int chunkX; 
 	int chunkY;
 	int gridSizeX; 
 	int gridSizeY;
+    float areaSize;
+	float dummy1;
+	float dummy2;
+	float dummy3;
 	vec4 windDirection;
 } parameterUbo;
 
@@ -115,7 +119,7 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
-vec3 CalculateDerivativeOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3) 
+vec3 calculateDerivativeOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3) 
 {
     //  P'(t) = 3(1 - t)^2 (p1 - p0) + 6(1 - t)t (p2 - p1) + 3t^2 (p3 - p2)
     vec3 p0Prime = 3.0 * (p1 - p0);
@@ -125,8 +129,7 @@ vec3 CalculateDerivativeOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p
     vec3 tangent = u * u * p0Prime + 2.0 * u * t * p1Prime + t * t * p2Prime;
     return tangent;
 }
-
-vec3 CalculatePointOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
+vec3 calculatePointOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
 {
     // P(t) = (1 - t)^3 p0 + 3(1 - t)^2t p1 + 3(1 - t)t^2 p2 + t^3 p3
     float u = 1.0 - t;
@@ -140,15 +143,14 @@ vec3 CalculatePointOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3)
     p += ttt * p3;
     return p;
 }
-
-float CalculateTforBezier(float y, float startY, float endY)
+float calculateTforBezier(float y, float startY, float endY)
 {
     float t = (y - startY) / (endY - startY);
     t = clamp(t, 0.0, 1.0);
     return t;
 }
 
-//mat3 CalculateFacingRotationMatrix(vec3 facing3D)
+//mat3 calculateFacingRotationMatrix(vec3 facing3D)
 //{
 //    vec3 upVector = vec3(0.0, 1.0, 0.0);
 //    vec3 rightVector = normalize(cross(upVector, facing3D));
@@ -164,7 +166,7 @@ float CalculateTforBezier(float y, float startY, float endY)
 //    return facingRotationMatrix;
 //}
 
-mat3 CalculateTiltRotationMatrix(vec3 axis, float angleInDegree)
+mat3 calculateTiltRotationMatrix(vec3 axis, float angleInDegree)
 {
     // Angle axis rotation in matrix form
     float angleRad = radians(angleInDegree);
@@ -189,7 +191,7 @@ void main()
     //// Cubic Bezier Curve for grassBlade curvature
     vec3 facingVec = vec3(-1.0, 0.0, 0.0); // grass blade model facing
     //mat3 facingMat = CalculateFacingRotationMatrix(facingVec); // not needed
-    mat3 tiltMat = CalculateTiltRotationMatrix(vec3(0,0,1), 30); 
+    mat3 tiltMat = calculateTiltRotationMatrix(vec3(0,0,1), 30); 
     vec3 p0 = vec3(0, 0, 0);
     vec3 p3 = vec3(0, 1.062001, 0);
     p3 =  tiltMat * (p3 - p0) + p0;
@@ -197,11 +199,11 @@ void main()
     float bend =  0.15;
     vec3 p1 = p0 + (p3 - p0) * 0.5f + controlPointDirection * bend;
     vec3 p2 = p1; // same as p1
-    float t = CalculateTforBezier(inPosition.y, 0.0, 1.062001);
-    vec3 curvedPosition = CalculatePointOnCubicBezier(t, p0, p1, p2, p3);
+    float t = calculateTforBezier(inPosition.y, 0.0, 1.062001);
+    vec3 curvedPosition = calculatePointOnCubicBezier(t, p0, p1, p2, p3);
     curvedPosition = vec3(curvedPosition.x, curvedPosition.y, inPosition.z);
 
-    vec3 curvetangent = CalculateDerivativeOnCubicBezier(t, p0, p1, p2, p3);
+    vec3 curvetangent = calculateDerivativeOnCubicBezier(t, p0, p1, p2, p3);
     curvetangent = normalize(curvetangent);
     vec3 up = vec3(0.0, 1.0, 0.0); 
     vec3 orthogonalVec = normalize(cross(curvetangent, up));
@@ -222,8 +224,8 @@ void main()
     const float forceInfluenceByHeight = curvedPosition.y;// inPosition.y;
 
     //// Wind (XZ)
-    float windMultiplier = 2.0;
-    float windStrength = grassBladesOut[gl_InstanceIndex].windStrength;
+    float windMultiplier = parameterUbo.windStrength; // user defined
+    float windStrength = grassBladesOut[gl_InstanceIndex].windStrength; // from noise texture
     float windIntensity = windStrength * forceInfluenceByHeight * windMultiplier;
     worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
     

@@ -24,18 +24,8 @@ IHCEngine::Component::ComputeGrassComponent::ComputeGrassComponent()
 
 void IHCEngine::Component::ComputeGrassComponent::Compute(Graphics::FrameInfo& frameInfo)
 {
-	float dt = IHCEngine::Core::Time::GetDeltaTime();
-	lastFrameTime += dt;
-
-	ubo.deltaTime = dt;
-	ubo.accumulatedTime = lastFrameTime;
-
-	//ubo.windDirection = 
-	
-
+	updateGrassBladeProperties();
 	computeGrassUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
-
-	// Dispatch
 	vkCmdDispatch(frameInfo.commandBuffer, grassBladeCount / 256, 1, 1);
 }
 
@@ -48,8 +38,6 @@ void IHCEngine::Component::ComputeGrassComponent::Draw(Graphics::FrameInfo& fram
 	//vkCmdDraw(frameInfo.commandBuffer, grassBladeCount, 1, 0, 0);
 }
 
-
-
 void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 {
 	grassBlades.resize(maxGrassBladeCount);
@@ -61,10 +49,14 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 	std::uniform_real_distribution<float> positionOffsetDistribution(-0.2f, 0.2f); // or voronoi noise
 	std::uniform_real_distribution<float> rotationDistribution(0.0f, 360.0f); // angles in degrees
 
-	const int dimensionX = 80; // Grid dimension in X
-	const int dimensionZ = 80; // Grid dimension in Z
-	const float areaSizeX = 20.0f; // Total area size in X direction
-	const float areaSizeZ = 20.0f; // Total area size in Z direction
+	std::uniform_real_distribution<float> greenVariation(0.2f, 0.4f); // Variation for green
+	std::uniform_real_distribution<float> brownVariationR(0.15f, 0.25f); // Variation for brown red
+	std::uniform_real_distribution<float> brownVariationG(0.1f, 0.2f); // Variation for brown green
+
+	//std::uniform_real_distribution<float> greenVariation(0.1f, 0.2f); 
+	//std::uniform_real_distribution<float> brownVariationR(0.08f, 0.12f);
+	//std::uniform_real_distribution<float> brownVariationG(0.04f, 0.07f); 
+
 	const float spacingX = areaSizeX / dimensionX; // Spacing between blades in X
 	const float spacingZ = areaSizeZ / dimensionZ; // Spacing between blades in Z
 
@@ -88,9 +80,18 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 				1.0 + scaleOffsetDistribution(rndEngine),
 				0);
 
-			particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
+			//particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
 
-
+			if (colorDistribution(rndEngine) < 0.5) // Randomly pick a color
+			{
+				// Set to dark green with some variation
+				particle.color = glm::vec4(0.0f, greenVariation(rndEngine), 0.0f, 1.0f);
+			}
+			else
+			{
+				// Set to dark brown with some variation
+				particle.color = glm::vec4(brownVariationR(rndEngine), brownVariationG(rndEngine), 0.05f, 1.0f);
+			}
 			// Random rotation
 		    // Create a random rotation angle around the y-axis (up)
 			//float rotationAngle = glm::radians(0.0);
@@ -104,6 +105,21 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 
 		}
 	}
+}
+
+void IHCEngine::Component::ComputeGrassComponent::updateGrassBladeProperties()
+{
+	float dt = IHCEngine::Core::Time::GetDeltaTime();
+	lastFrameTime += dt;
+	ubo.deltaTime = dt;
+	ubo.accumulatedTime = lastFrameTime;
+
+	// Wind
+	ubo.windSpeed = grassBladePropertyOverride.windSpeed;
+	ubo.windDirection = grassBladePropertyOverride.windDirection;
+	ubo.windStrength = grassBladePropertyOverride.windStrength;
+
+
 }
 
 
@@ -126,7 +142,6 @@ void IHCEngine::Component::ComputeGrassComponent::destroyVulkanResources()
 		shaderStorageBuffers[i] = nullptr;
 	}
 }
-
 void IHCEngine::Component::ComputeGrassComponent::createShaderStorageBuffers()
 {
 	shaderStorageBuffers.resize(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -163,15 +178,18 @@ void IHCEngine::Component::ComputeGrassComponent::createShaderStorageBuffers()
 		graphicsManager->GetIHCDevice()->CopyBuffer(stagingBuffer.GetBuffer(), shaderStorageBuffers[i]->GetBuffer(), bufferSize);
 	}
 }
-
 void IHCEngine::Component::ComputeGrassComponent::SetNoiseTexture(Graphics::IHCTexture* texture)
 {
 	this->noiseTexture = texture;
 }
-
 std::vector<VkDescriptorSet>& IHCEngine::Component::ComputeGrassComponent::GetNoiseTextureDescriptorSet() const
 {
 	return noiseTexture->GetDescriptorSets();
+}
+
+IHCEngine::Graphics::IHCTexture* IHCEngine::Component::ComputeGrassComponent::GetNoiseTexture() const
+{
+	return noiseTexture;
 }
 
 void IHCEngine::Component::ComputeGrassComponent::SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY)
@@ -188,7 +206,6 @@ void IHCEngine::Component::ComputeGrassComponent::Attach()
 	createVulkanResources();
 	Core::GraphicsManagerLocator::GetGraphicsManager()->GetParticleSystem().AddGameObject(this->gameObject, Graphics::PipelineType::COMPUTEGRASS);
 }
-
 void IHCEngine::Component::ComputeGrassComponent::Remove()
 {
 	destroyVulkanResources();

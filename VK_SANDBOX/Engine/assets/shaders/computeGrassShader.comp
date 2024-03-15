@@ -14,11 +14,15 @@ layout (std140, binding = 0) uniform ParameterUBO
     float deltaTime; 
     float accumulatedTime;
     float windStrength;
-	float dummy2;
+	float windSpeed;
     int chunkX; 
 	int chunkY;
 	int gridSizeX; 
 	int gridSizeY;
+    float areaSize;
+	float dummy1;
+	float dummy2;
+	float dummy3;
 	vec4 windDirection;
 } ubo;
 
@@ -56,13 +60,14 @@ void main()
     grassBladesOut[index].color = grassBladeIn.color;
 
     // Wind
-    vec2 scrollSpeed = vec2(-0.1, -0.1);
-    vec2 offset = ubo.windDirection.xz * ubo.accumulatedTime * scrollSpeed;
+    vec2 scrollSpeed = vec2(ubo.windSpeed, ubo.windSpeed);
+    vec2 directionFix = vec2(-1.0, -1.0);
+    vec2 offset = normalize(ubo.windDirection.xz * directionFix) * ubo.accumulatedTime * scrollSpeed;
 
     // Chunk in Grid for noise texturing
-    float chunkWidth = 20.0 * float(ubo.gridSizeX);
-    float chunkHeight = 20.0 * float(ubo.gridSizeY);
-    vec2 globalUV = vec2(20.0 * float(ubo.chunkX), 20.0 * float(ubo.chunkY)) + grassBladeIn.position.xz;
+    float chunkWidth = ubo.areaSize * float(ubo.gridSizeX);
+    float chunkHeight = ubo.areaSize * float(ubo.gridSizeY);
+    vec2 globalUV = vec2(ubo.areaSize * float(ubo.chunkX), ubo.areaSize * float(ubo.chunkY)) + grassBladeIn.position.xz;
     vec2 uv = globalUV / vec2(chunkWidth, chunkHeight);
     vec2 scrolledUV = fract(uv + offset);
 

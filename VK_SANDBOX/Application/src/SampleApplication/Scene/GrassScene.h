@@ -15,11 +15,14 @@ namespace SampleApplication
 		void Init() override;
 		void Reset() override;
 
+		std::vector<IHCEngine::Core::GameObject*> GetGrassChunkGobjs(){ return grassChunkGobjs; }
 	private:
 
 		void createGridMeshAndLoadGridTexture();
 		void createAxisMeshAndLoadAxisTexture();
 		void createDirt();
+
+		std::vector<IHCEngine::Core::GameObject*> grassChunkGobjs;
 
 	};
 

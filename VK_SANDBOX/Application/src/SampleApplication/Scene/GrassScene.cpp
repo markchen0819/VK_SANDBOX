@@ -47,6 +47,8 @@ void SampleApplication::GrassScene::UnLoad()
 	graphicsAssetCreator.DestroyTexture("dirtTexture");
 	graphicsAssetCreator.DestroyMesh("dirtMesh");
 
+	grassChunkGobjs.clear();
+
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
 	graphicsAssetCreator.DestroyMesh("x_axisModel");
@@ -118,6 +120,7 @@ void SampleApplication::GrassScene::Init()
 			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
 			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
 			texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
+			grassChunkGobjs.push_back(&grassGobj);
 		}
 	}
 
