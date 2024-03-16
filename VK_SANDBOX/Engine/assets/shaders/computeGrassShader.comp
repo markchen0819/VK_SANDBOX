@@ -16,13 +16,11 @@ layout (std140, binding = 0) uniform ParameterUBO
     float deltaTime; float accumulatedTime; float windStrength; float windSpeed;
     int chunkX; int chunkY; int gridSizeX; int gridSizeY;
     float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
-	float globalTilt;
-    int enableControlPt;
-    float bend;
-    float d3;
+	float globalTilt; int enableControlPt; float bend; int enableRotationOverride;
 	vec4 windDirection;
     vec4 controlPtA;
     vec4 controlPtB;
+    vec4 globalRotation;
 } ubo;
 
 layout(std430, binding = 1) readonly buffer GrassSSBOIn 
@@ -35,13 +33,9 @@ layout(std430, binding = 2) buffer GrassSSBOOut
    GrassBlade grassBladesOut[ ];
 };
 
-layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
-
 layout(set = 1, binding = 0) uniform sampler2D noiseTexture;
 
-// The rest of your shader code
-
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Particle Count: 65536
 // Thread Count per work group : 256
 // Work Group Count: 65536/256
@@ -58,14 +52,18 @@ uint hash(uint x)
 
 void main() 
 {
+    // Ideally should use compute shader to do GPU frustum culling
+    // but time issue we'll use CPU frustum culling for now
+
     uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
     GrassBlade grassBladeIn = grassBladesIn[index];
-    // Do NOT do MVP calculations here, or it will we reiterated
+    // Do NOT do MVP calculations here, or it will be reiterated
     grassBladesOut[index].position = grassBladeIn.position;  
     grassBladesOut[index].rotation = grassBladeIn.rotation;
     grassBladesOut[index].scale = grassBladeIn.scale;
     grassBladesOut[index].color = grassBladeIn.color;
-    grassBladesOut[index].perBladeHash = hash(index);
+    // Hash seeems to have some precision problems causing jitter, leave it for now
+    grassBladesOut[index].perBladeHash = grassBladeIn.perBladeHash; //hash(index);
     grassBladesOut[index].tilt = grassBladeIn.tilt;
 
     // Wind
@@ -79,7 +77,6 @@ void main()
     vec2 globalUV = vec2(ubo.areaSize * float(ubo.chunkX), ubo.areaSize * float(ubo.chunkY)) + grassBladeIn.position.xz;
     vec2 uv = globalUV / vec2(chunkWidth, chunkHeight);
     vec2 scrolledUV = fract(uv + offset);
-
     float noiseValue = texture(noiseTexture, scrolledUV).r;
     grassBladesOut[index].windStrength = noiseValue;
 

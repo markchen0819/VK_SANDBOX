@@ -32,13 +32,11 @@ layout (set = 1, binding = 0) uniform ParameterUBO
     float deltaTime; float accumulatedTime; float windStrength; float windSpeed;
     int chunkX; int chunkY; int gridSizeX; int gridSizeY;
     float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
-	float globalTilt;
-    int enableControlPt;
-    float bend;
-    float d3;
+	float globalTilt; int enableControlPt; float bend; int enableRotationOverride;
 	vec4 windDirection;
     vec4 controlPtA;
     vec4 controlPtB;
+    vec4 globalRotation;
 } parameterUbo;
 
 
@@ -117,7 +115,6 @@ mat4 createTransformationMatrix(vec3 position, vec4 rotation, vec3 scale)
     mat4 scaleMatrix = createScaleMatrix(scale);
     return translationMatrix * rotationMatrix * scaleMatrix;
 }
-
 vec3 calculateDerivativeOnCubicBezier(float t, vec3 p0, vec3 p1, vec3 p2, vec3 p3) 
 {
     //  P'(t) = 3(1 - t)^2 (p1 - p0) + 6(1 - t)t (p2 - p1) + 3t^2 (p3 - p2)
@@ -148,23 +145,6 @@ float calculateTforBezier(float y, float startY, float endY)
     t = clamp(t, 0.0, 1.0);
     return t;
 }
-
-//mat3 calculateFacingRotationMatrix(vec3 facing3D)
-//{
-//    vec3 upVector = vec3(0.0, 1.0, 0.0);
-//    vec3 rightVector = normalize(cross(upVector, facing3D));
-//    vec3 forwardVector = cross(rightVector, upVector);
-//
-//    mat3 facingRotationMatrix = mat3
-//    (
-//        rightVector.x, rightVector.y, rightVector.z,
-//        upVector.x, upVector.y, upVector.z,
-//        forwardVector.x, forwardVector.y, forwardVector.z
-//    );
-//
-//    return facingRotationMatrix;
-//}
-
 mat3 calculateTiltRotationMatrix(vec3 axis, float angleInDegree)
 {
     // Angle axis rotation in matrix form
@@ -187,9 +167,9 @@ mat3 calculateTiltRotationMatrix(vec3 axis, float angleInDegree)
 
 void main() 
 {
+    /////////////////////    Model Space    /////////////////////
     //// Cubic Bezier Curve for grassBlade curvature
     vec3 facingVec = vec3(-1.0, 0.0, 0.0); // grass blade model facing
-    // mat3 facingMat = CalculateFacingRotationMatrix(facingVec); // not needed
     float tilt = grassBladesOut[gl_InstanceIndex].tilt;
     if(parameterUbo.useGlobalTilt == 1)
     {
@@ -200,7 +180,6 @@ void main()
     vec3 p3 = vec3(0, 1.062001, 0);
     p3 =  tiltMat * (p3 - p0) + p0;
     vec3 controlPointDirection = cross(vec3(0,0,1), (p3-p0));
-    // Instead of calculated control pts, made it user defined
     float bend =  parameterUbo.bend;
     vec3 p1 = p0 + (p3 - p0) * 0.5f + controlPointDirection * bend;
     vec3 p2 = p1; 
@@ -212,49 +191,50 @@ void main()
     float t = calculateTforBezier(inPosition.y, 0.0, 1.062001);
     vec3 curvedPosition = calculatePointOnCubicBezier(t, p0, p1, p2, p3);
     curvedPosition = vec3(curvedPosition.x, curvedPosition.y, inPosition.z);
-
+    //// Creat normals for lighting
     vec3 curvetangent = calculateDerivativeOnCubicBezier(t, p0, p1, p2, p3);
     curvetangent = normalize(curvetangent);
     vec3 up = vec3(0.0, 1.0, 0.0); 
     vec3 orthogonalVec = normalize(cross(curvetangent, up));
     vec3 curveNormal = normalize(cross(orthogonalVec, curvetangent)); 
 
-    //// local space to particle local space
+
+    /////////////////////    Particle Local Space    /////////////////////
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
     vec4 rotation = grassBladesOut[gl_InstanceIndex].rotation;
     vec3 scale = grassBladesOut[gl_InstanceIndex].scale.xyz;
+    if(parameterUbo.enableRotationOverride == 1)
+    {
+        rotation = parameterUbo.globalRotation;
+    }
     mat4 modelMatrix = createTransformationMatrix(position, rotation, scale);
 
-    //// partical local space to world space
+
+    /////////////////////    World Space    /////////////////////
     vec4 worldPosition = push.modelMatrix * modelMatrix * vec4(curvedPosition, 1.0);
     vec3 modelSpaceNormal = normalize(curveNormal); 
     vec3 particleNormal = normalize(mat3(transpose(inverse(modelMatrix))) * modelSpaceNormal);
     vec3 worldNormal =  normalize(mat3(transpose(inverse( push.modelMatrix))) * particleNormal);
-
-    const float forceInfluenceByHeight = curvedPosition.y;// inPosition.y;
-
+    const float forceInfluenceByHeightForWind = curvedPosition.y;
+    const float forceInfluenceByHeightForSway = inPosition.y;
     //// Wind (XZ)
     float windMultiplier = parameterUbo.windStrength; // user defined
     float windStrength = grassBladesOut[gl_InstanceIndex].windStrength; // from noise texture
-    float windIntensity = windStrength * forceInfluenceByHeight * windMultiplier;
+    float windIntensity = windStrength * forceInfluenceByHeightForWind * windMultiplier;
     worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
-    
     //// Swaying (Y)
-    float swayMultiplier = parameterUbo.swayStrength * windIntensity;
+    float swayMultiplier = parameterUbo.swayStrength  * forceInfluenceByHeightForSway;
     float swayFrequency = parameterUbo.swayFrequency;
     float phaseOffset = float(grassBladesOut[gl_InstanceIndex].perBladeHash);
-    float swayIntensity = sin(phaseOffset + parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeight * swayMultiplier;
+    float swayIntensity = sin(phaseOffset + parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeightForSway * swayMultiplier;
     worldPosition += vec4(0,1,0,0) * swayIntensity;
-
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
-    // Pass other vertex data (color, texture coordinates) to the fragment shader
-    fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;//inColor;
-    fragTexCoord = inTexCoord;
 
-    // Lighting
+    /////////////////////    Pass info to fragment shader    /////////////////////
+    fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;
+    fragTexCoord = inTexCoord;
     fragWorldPosition = worldPosition.xyz;
     fragNormal = worldNormal;
     viewPos = ubo.cameraPosition.xyz;
-
 }

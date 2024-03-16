@@ -19,8 +19,8 @@ namespace IHCEngine::Component
 		float windSpeed = 0.12f;
 		glm::vec4 windDirection = glm::vec4(1.0, 0.01, 0, 0);
 		float windStrength = 3.0f;
-		float swayStrength = 0.05f;
-		float swayFrequency = 5.0f;
+		float swayStrength = 0.1f;
+		float swayFrequency = 7.0f;
 
 		// Bezier curve
 		int enableGlobalTilt = 0;
@@ -29,6 +29,10 @@ namespace IHCEngine::Component
 		float bend = 0.15f; 
 		glm::vec4 controlPtA = glm::vec4(0.16f, 0.51f, 0.0f, 0.0f);
 		glm::vec4 controlPtB = glm::vec4(0.53f, 0.93f, 0.0f, 0.0f);
+
+		// Global Rotation
+		int enableRotationOverride = 0;
+		glm::vec4 globalRotation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 	};
 
 	class ComputeGrassComponent : public Component

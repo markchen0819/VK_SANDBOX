@@ -67,45 +67,28 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 		{
 			auto& particle = grassBlades[i * dimensionZ + j];
 
-			// Calculate positions to distribute blades uniformly within 10x10 area
+			// Calculate positions to distribute blades uniformly within the area
 			float x = (j - dimensionX / 2.0f + 0.5f) * spacingX + positionOffsetDistribution(rndEngine); // center the grid, center of cell
 			float z = (i - dimensionZ / 2.0f + 0.5f) * spacingZ + positionOffsetDistribution(rndEngine);
 
 			particle.position = glm::vec4(x, 0, z, 0);
-			particle.rotation = glm::vec4(1, 0, 0, 0);
-
-
-			particle.scale = glm::vec4(1.0, 1.0, 1.0, 0);
-			particle.scale = glm::vec4(1.0 + scaleOffsetDistribution(rndEngine), 
-				1.0 + scaleOffsetDistribution(rndEngine),
-				1.0 + scaleOffsetDistribution(rndEngine),
-				0);
-
-			//particle.color = glm::vec4(colorDistribution(rndEngine), colorDistribution(rndEngine), 0, 0.5f);
-
-			if (colorDistribution(rndEngine) < 0.5) // Randomly pick a color
+			particle.scale = glm::vec4(1.0 + scaleOffsetDistribution(rndEngine), 1.0 + scaleOffsetDistribution(rndEngine),1.0 + scaleOffsetDistribution(rndEngine),0);
+			if (colorDistribution(rndEngine) < 0.5)
 			{
-				// Set to dark green with some variation
 				particle.color = glm::vec4(0.0f, greenVariation(rndEngine), 0.0f, 1.0f);
 			}
 			else
 			{
-				// Set to dark brown with some variation
 				particle.color = glm::vec4(brownVariationR(rndEngine), brownVariationG(rndEngine), 0.05f, 1.0f);
 			}
-			// Random rotation
-		    // Create a random rotation angle around the y-axis (up)
-			//float rotationAngle = glm::radians(0.0);
+			// Random rotation using angle axis
 			float rotationAngle = glm::radians(rotationDistribution(rndEngine));
-			// The axis of rotation (up vector)
 			glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
-			// Creating a quaternion based on the random angle and axis
 			glm::quat randomRotation = glm::angleAxis(rotationAngle, rotationAxis);
 			// Storing the quaternion in the format (w, x, y, z)
 			particle.rotation = glm::vec4(randomRotation.w, randomRotation.x, randomRotation.y, randomRotation.z);
-
-
 			particle.tilt = tiltDistribution(rndEngine);
+			particle.perBladeHash = static_cast<unsigned int>(i + j);
 		}
 	}
 }
@@ -123,12 +106,18 @@ void IHCEngine::Component::ComputeGrassComponent::updateGrassBladeProperties()
 	ubo.windStrength = grassBladePropertyOverride.windStrength;
 	ubo.swayStrength = grassBladePropertyOverride.swayStrength;
 	ubo.swayFrequency = grassBladePropertyOverride.swayFrequency;
+
+	// Bezier Curve
 	ubo.enableGlobalTilt = grassBladePropertyOverride.enableGlobalTilt;
 	ubo.globalTilt = grassBladePropertyOverride.globalTilt;
 	ubo.controlPtA = grassBladePropertyOverride.controlPtA;
 	ubo.controlPtB = grassBladePropertyOverride.controlPtB;
 	ubo.enableControlPt = grassBladePropertyOverride.enableControlPt;
 	ubo.bend = grassBladePropertyOverride.bend;
+
+	// Global Rotation
+	ubo.enableRotationOverride = grassBladePropertyOverride.enableRotationOverride;
+	ubo.globalRotation = grassBladePropertyOverride.globalRotation;
 
 }
 

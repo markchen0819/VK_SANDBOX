@@ -25,7 +25,7 @@ namespace SampleApplication
         IHCEngine::Graphics::Camera* camera = nullptr;
 
         // Editor Input
-        float movementSpeed = 10;
+        float movementSpeed = 20;
         float rotationSpeed = 30; // degree
         float zoomSpeed = 0.03f;
         bool isRotating = false;

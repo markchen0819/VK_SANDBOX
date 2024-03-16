@@ -58,7 +58,7 @@ namespace IHCEngine::Component
                 }
             }
             ImGui::Text("Sway Strength (blade swaying up and down on global y axis)");
-            if (ImGui::DragFloat("##Sway Strength", &swayStrength, 0.01f, 0.0f, 0.5f, " % .3f"))
+            if (ImGui::DragFloat("##Sway Strength", &swayStrength, 0.01f, 0.0f, 1.0f, " % .3f"))
             {
                 for (auto gobj : grassChunkGobjs)
                 {
@@ -143,7 +143,7 @@ namespace IHCEngine::Component
                 ImGui::Text("Starting from the base of grass blade is P0 - PointA - PointA - P1");
                 ImGui::Text("Bend controls how far PointA moves away from the vector P0P1");
                 ImGui::Text("Bend");
-                if (ImGui::DragFloat("##Bend", &bend, 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
+                if (ImGui::DragFloat("##Bend", &bend, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
                 {
                     for (auto gobj : grassChunkGobjs)
                     {
@@ -155,6 +155,42 @@ namespace IHCEngine::Component
 
 
         }
+
+        if (ImGui::CollapsingHeader("Override Rotation"))
+        {
+            overrideRotation = computeParticle->grassBladePropertyOverride.enableRotationOverride;
+            rotation = computeParticle->grassBladePropertyOverride.globalRotation;
+
+            ImGui::Checkbox("overrideRotation", &overrideRotation);
+            if (overrideRotation)
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.enableRotationOverride = true;
+                }
+                ImGui::Text("Amount Of Rotation");
+                if (ImGui::DragFloat("##Amount Of Rotation", &amountOfRotation, 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
+                {
+                    float rotationAngle = glm::radians(amountOfRotation);
+                    glm::vec3 rotationAxis = glm::vec3(0, 1, 0);
+                    glm::quat randomRotation = glm::angleAxis(rotationAngle, rotationAxis);
+                    glm::vec4 globalRotation = glm::vec4(randomRotation.w, randomRotation.x, randomRotation.y, randomRotation.z);
+
+                	for (auto gobj : grassChunkGobjs)
+                    {
+                        gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.globalRotation = globalRotation;
+                    }
+                }
+            }
+            else
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.enableRotationOverride = false;
+                }
+            }
+        }
+
     }
 
 }

@@ -28,13 +28,9 @@ namespace IHCEngine::Component
         glm::vec4 controlPtB { glm::vec4(0.0f, 0.53f, 0.0f, 0.0f)};
 
         // Blade Properties
-        bool overrideScale{ false };
-        glm::vec4 scale { glm::vec4(1.0, 1.0, 1.0, 0.0)};
         bool overrideRotation{ false };
         glm::vec4 rotation { glm::vec4(1.0, 1.0, 1.0, 0.0)};
-
-        // Show Normal
-        bool showWorldNormal{ false };
+        float amountOfRotation{ 0.0f };
     };
 }
 
