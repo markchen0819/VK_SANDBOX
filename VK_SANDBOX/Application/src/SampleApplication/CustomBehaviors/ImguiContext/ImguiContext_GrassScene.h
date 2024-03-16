@@ -11,18 +11,21 @@ namespace IHCEngine::Component
     private:
 
         // Wind
-        float windSpeed { 0.1f };
+        float windSpeed { 0.0f };
         glm::vec4 windDirection { glm::vec4(1.0)};
         float windStrength{ 0.0f };
-
-        // Bezier curve for blade
-        float bend{ 0.0f };
-        glm::vec4 controlPtA { glm::vec4(1.0)};
-        glm::vec4 controlPtB { glm::vec4(1.0)};
 
         // Swaying
         float swayStrength{ 0.0f };
         float swayFrequency{ 0.0f };
+
+        // Bezier curve for blade
+        bool enableGlobalTilt{ false };
+        float globalTilt{ 0.0f };
+        bool enableControlPt{ false };
+        float bend{ 0.0f };
+        glm::vec4 controlPtA { glm::vec4(0.0f, 0.53f, 0.0f, 0.0f)};
+        glm::vec4 controlPtB { glm::vec4(0.0f, 0.53f, 0.0f, 0.0f)};
 
         // Blade Properties
         bool overrideScale{ false };

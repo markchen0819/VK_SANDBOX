@@ -7,23 +7,22 @@ struct GrassBlade
     vec4 scale;
     vec4 color;
     float windStrength;
+    float tilt;
+    uint perBladeHash;
 };
 
 layout (std140, binding = 0) uniform ParameterUBO
 {
-    float deltaTime; 
-    float accumulatedTime;
-    float windStrength;
-	float windSpeed;
-    int chunkX; 
-	int chunkY;
-	int gridSizeX; 
-	int gridSizeY;
-    float areaSize;
-	float dummy1;
-	float dummy2;
-	float dummy3;
+    float deltaTime; float accumulatedTime; float windStrength; float windSpeed;
+    int chunkX; int chunkY; int gridSizeX; int gridSizeY;
+    float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
+	float globalTilt;
+    int enableControlPt;
+    float bend;
+    float d3;
 	vec4 windDirection;
+    vec4 controlPtA;
+    vec4 controlPtB;
 } ubo;
 
 layout(std430, binding = 1) readonly buffer GrassSSBOIn 
@@ -48,6 +47,14 @@ layout(set = 1, binding = 0) uniform sampler2D noiseTexture;
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
 
+// https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
+uint hash(uint x) 
+{
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return x;
+}
 
 void main() 
 {
@@ -58,6 +65,8 @@ void main()
     grassBladesOut[index].rotation = grassBladeIn.rotation;
     grassBladesOut[index].scale = grassBladeIn.scale;
     grassBladesOut[index].color = grassBladeIn.color;
+    grassBladesOut[index].perBladeHash = hash(index);
+    grassBladesOut[index].tilt = grassBladeIn.tilt;
 
     // Wind
     vec2 scrollSpeed = vec2(ubo.windSpeed, ubo.windSpeed);

@@ -48,6 +48,7 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 	std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
 	std::uniform_real_distribution<float> positionOffsetDistribution(-0.2f, 0.2f); // or voronoi noise
 	std::uniform_real_distribution<float> rotationDistribution(0.0f, 360.0f); // angles in degrees
+	std::uniform_real_distribution<float> tiltDistribution(30.0f, 45.0f);
 
 	std::uniform_real_distribution<float> greenVariation(0.2f, 0.4f); // Variation for green
 	std::uniform_real_distribution<float> brownVariationR(0.15f, 0.25f); // Variation for brown red
@@ -103,6 +104,8 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 			// Storing the quaternion in the format (w, x, y, z)
 			particle.rotation = glm::vec4(randomRotation.w, randomRotation.x, randomRotation.y, randomRotation.z);
 
+
+			particle.tilt = tiltDistribution(rndEngine);
 		}
 	}
 }
@@ -118,7 +121,14 @@ void IHCEngine::Component::ComputeGrassComponent::updateGrassBladeProperties()
 	ubo.windSpeed = grassBladePropertyOverride.windSpeed;
 	ubo.windDirection = grassBladePropertyOverride.windDirection;
 	ubo.windStrength = grassBladePropertyOverride.windStrength;
-
+	ubo.swayStrength = grassBladePropertyOverride.swayStrength;
+	ubo.swayFrequency = grassBladePropertyOverride.swayFrequency;
+	ubo.enableGlobalTilt = grassBladePropertyOverride.enableGlobalTilt;
+	ubo.globalTilt = grassBladePropertyOverride.globalTilt;
+	ubo.controlPtA = grassBladePropertyOverride.controlPtA;
+	ubo.controlPtB = grassBladePropertyOverride.controlPtB;
+	ubo.enableControlPt = grassBladePropertyOverride.enableControlPt;
+	ubo.bend = grassBladePropertyOverride.bend;
 
 }
 

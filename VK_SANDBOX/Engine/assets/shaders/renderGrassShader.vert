@@ -7,6 +7,8 @@ struct GrassBlade
     vec4 scale;
     vec4 color;
     float windStrength;
+    float tilt;
+    uint perBladeHash;
 };
 
 // Push constants
@@ -27,19 +29,16 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject
 
 layout (set = 1, binding = 0) uniform ParameterUBO
 {
-    float deltaTime; 
-    float accumulatedTime;
-    float windStrength;
-	float windSpeed;
-    int chunkX; 
-	int chunkY;
-	int gridSizeX; 
-	int gridSizeY;
-    float areaSize;
-	float dummy1;
-	float dummy2;
-	float dummy3;
+    float deltaTime; float accumulatedTime; float windStrength; float windSpeed;
+    int chunkX; int chunkY; int gridSizeX; int gridSizeY;
+    float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
+	float globalTilt;
+    int enableControlPt;
+    float bend;
+    float d3;
 	vec4 windDirection;
+    vec4 controlPtA;
+    vec4 controlPtB;
 } parameterUbo;
 
 
@@ -190,15 +189,26 @@ void main()
 {
     //// Cubic Bezier Curve for grassBlade curvature
     vec3 facingVec = vec3(-1.0, 0.0, 0.0); // grass blade model facing
-    //mat3 facingMat = CalculateFacingRotationMatrix(facingVec); // not needed
-    mat3 tiltMat = calculateTiltRotationMatrix(vec3(0,0,1), 30); 
+    // mat3 facingMat = CalculateFacingRotationMatrix(facingVec); // not needed
+    float tilt = grassBladesOut[gl_InstanceIndex].tilt;
+    if(parameterUbo.useGlobalTilt == 1)
+    {
+        tilt = parameterUbo.globalTilt;
+    }
+    mat3 tiltMat = calculateTiltRotationMatrix(vec3(0,0,1), tilt); 
     vec3 p0 = vec3(0, 0, 0);
     vec3 p3 = vec3(0, 1.062001, 0);
     p3 =  tiltMat * (p3 - p0) + p0;
     vec3 controlPointDirection = cross(vec3(0,0,1), (p3-p0));
-    float bend =  0.15;
+    // Instead of calculated control pts, made it user defined
+    float bend =  parameterUbo.bend;
     vec3 p1 = p0 + (p3 - p0) * 0.5f + controlPointDirection * bend;
-    vec3 p2 = p1; // same as p1
+    vec3 p2 = p1; 
+    if(parameterUbo.enableControlPt == 1)
+    {
+        p1 = parameterUbo.controlPtA.rgb;
+        p2 = parameterUbo.controlPtB.rgb; 
+    }
     float t = calculateTforBezier(inPosition.y, 0.0, 1.062001);
     vec3 curvedPosition = calculatePointOnCubicBezier(t, p0, p1, p2, p3);
     curvedPosition = vec3(curvedPosition.x, curvedPosition.y, inPosition.z);
@@ -230,9 +240,10 @@ void main()
     worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
     
     //// Swaying (Y)
-    float swayMultiplier = 0.1 * windIntensity;
-    float swayFrequency = 2.0;
-    float swayIntensity = sin(parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeight * swayMultiplier;
+    float swayMultiplier = parameterUbo.swayStrength * windIntensity;
+    float swayFrequency = parameterUbo.swayFrequency;
+    float phaseOffset = float(grassBladesOut[gl_InstanceIndex].perBladeHash);
+    float swayIntensity = sin(phaseOffset + parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeight * swayMultiplier;
     worldPosition += vec4(0,1,0,0) * swayIntensity;
 
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
