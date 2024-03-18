@@ -15,8 +15,9 @@ void main()
     vec4 texColor = texture(texSampler, fragTexCoord); 
 
     // Simple lighting
-    vec3 lightWorldPosition = vec3(0.0, 50.0, -50.0);
-    vec3 lightDir = normalize(lightWorldPosition - fragWorldPosition);
+    vec3 lightWorldPosition = vec3(0.0, 1000.0, -1000.0);
+    //vec3 lightDir = normalize(lightWorldPosition - fragWorldPosition);
+    vec3 lightDir = normalize(lightWorldPosition - vec3(0.0, 0.0, 0.0));
     vec3 ambientColor = vec3(0.2, 0.2, 0.2);
     vec3 diffuseColor = vec3(0.9, 0.9, 0.9);
     vec3 specularColor = vec3(0.3, 0.5, 0.3);

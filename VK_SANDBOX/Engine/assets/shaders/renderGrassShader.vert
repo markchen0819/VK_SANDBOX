@@ -197,7 +197,7 @@ void main()
     vec3 up = vec3(0.0, 1.0, 0.0); 
     vec3 orthogonalVec = normalize(cross(curvetangent, up));
     vec3 curveNormal = normalize(cross(orthogonalVec, curvetangent)); 
-
+    curveNormal.x += inPosition.z; // point slightly outwards
 
     /////////////////////    Particle Local Space    /////////////////////
     vec3 position = grassBladesOut[gl_InstanceIndex].position.xyz;
