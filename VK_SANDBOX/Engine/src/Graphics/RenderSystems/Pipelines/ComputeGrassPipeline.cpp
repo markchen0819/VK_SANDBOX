@@ -33,6 +33,7 @@ namespace IHCEngine::Graphics
         {
             if (gobj->IsActive() == false) continue;
             auto component = gobj->GetComponent<Component::ComputeGrassComponent>();
+            if (component->IsActive() == false) continue;
 
             // 1 ubo 2 ssbo
             auto descriptorSet = component->GetDescriptorSets()[frameInfo.frameIndex];
@@ -89,11 +90,10 @@ namespace IHCEngine::Graphics
         for (auto& gobj : gameObjects)
         {
             if (gobj->IsActive() == false) continue;
-
             auto computeComponent = gobj->GetComponent<Component::ComputeGrassComponent>();
+            if (computeComponent->IsActive() == false) continue;
             auto meshComponent = gobj->GetComponent<Component::MeshComponent>();
             auto textureComponent = gobj->GetComponent<Component::TextureComponent>();
-
 
             SimplePushConstantData push{};
             push.modelMatrix = gobj->transform.GetModelMatrix();

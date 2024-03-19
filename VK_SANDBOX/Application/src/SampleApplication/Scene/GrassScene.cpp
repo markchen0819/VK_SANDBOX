@@ -10,6 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ComputeGrassComponent.h"
+#include "../CustomBehaviors/CPUFrustumCulling/CPUFrustumCulling.h"
 #include "../CustomBehaviors/ImguiContext/ImguiContext_GrassScene.h"
 
 SampleApplication::GrassScene::GrassScene()
@@ -70,6 +71,7 @@ void SampleApplication::GrassScene::Init()
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_GrassScene>();
+
 	//////////////////////////////////////////////////////////////////
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////
@@ -100,6 +102,9 @@ void SampleApplication::GrassScene::Init()
 	//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 
 
+	IHCEngine::Core::GameObject& frustumCullingGobj = AddGameObject("frustumCullingGobj");
+	auto cpuFrustumCulling = frustumCullingGobj.AddComponent<CPUFrustumCulling>();
+
 	//// test performance
 	int gridSize = 5;
 	float offset = 20.0;
@@ -121,6 +126,8 @@ void SampleApplication::GrassScene::Init()
 			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
 			texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 			grassChunkGobjs.push_back(&grassGobj);
+
+			cpuFrustumCulling->AddAABBWithGameObject(AABB_BoundingVolume(position, offset, offset/2.0f, offset), &grassGobj);
 		}
 	}
 

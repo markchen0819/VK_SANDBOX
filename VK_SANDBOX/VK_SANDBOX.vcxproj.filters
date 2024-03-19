@@ -288,6 +288,9 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\CPUFrustumCulling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -639,6 +642,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\CPUFrustumCulling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\Frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\AABB_BoundingVolume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
