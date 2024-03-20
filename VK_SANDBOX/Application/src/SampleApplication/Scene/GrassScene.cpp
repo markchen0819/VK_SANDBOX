@@ -66,8 +66,8 @@ void SampleApplication::GrassScene::UnLoad()
 
 void SampleApplication::GrassScene::Init()
 {
-	IHCEngine::Core::Time::LockFrameRate(144);
-
+	//IHCEngine::Core::Time::LockFrameRate(144);
+	//IHCEngine::Core::Time::LockFrameRate(300);
 	IHCEngine::Core::GameObject& camera = AddGameObject("camera");
 	camera.AddComponent<SampleApplication::CameraController>();
 	camera.AddComponent<IHCEngine::Component::ImguiContext_GrassScene>();
@@ -127,7 +127,7 @@ void SampleApplication::GrassScene::Init()
 			texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 			grassChunkGobjs.push_back(&grassGobj);
 
-			cpuFrustumCulling->AddAABBWithGameObject(AABB_BoundingVolume(position, offset, offset/2.0f, offset), &grassGobj);
+			cpuFrustumCulling->AddAABBWithGameObject(AABB_BoundingVolume(position, offset / 2.0f + 0.1f, offset/4.0f + 0.1f, offset / 2.0f + 0.1f), &grassGobj);
 		}
 	}
 

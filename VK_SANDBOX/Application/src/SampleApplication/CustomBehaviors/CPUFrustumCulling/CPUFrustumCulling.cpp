@@ -47,7 +47,7 @@ void SampleApplication::CPUFrustumCulling::UpdateFrustum()
 
     if(cameraPrevPos != cameraPos && dropFrustum == false)
     {
-        const float fov = camera.GetFOV() + 0.2f;
+        const float fov = camera.GetFOV();
         const float aspect = camera.GetAspectRatio();
         const float near = camera.GetNearClippingPlane();
         const float far =  camera.GetFarClippingPlane();

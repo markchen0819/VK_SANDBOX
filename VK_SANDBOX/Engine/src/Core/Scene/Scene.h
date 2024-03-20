@@ -48,7 +48,7 @@ namespace IHCEngine::Core
 		{
 			IHCEngine::Graphics::CameraType::PERSPECTIVE,
 			glm::radians(45.0f),
-			1280/720,//renderer->GetAspectRatio()
+			1280.0f/720.0f,//renderer->GetAspectRatio()
 			0.1f,
 			1000.0f,
 			800,
