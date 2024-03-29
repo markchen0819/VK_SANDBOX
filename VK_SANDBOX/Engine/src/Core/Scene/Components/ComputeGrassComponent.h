@@ -6,6 +6,7 @@
 
 namespace IHCEngine::Graphics
 {
+	class IHCMesh;
 	class IHCBuffer;
 	class IHCTexture;
 }
@@ -69,6 +70,14 @@ namespace IHCEngine::Component
 		Graphics::IHCTexture* GetNoiseTexture() const;
 		void SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY);
 
+		// LOD
+		void SetLowLODMesh(IHCEngine::Graphics::IHCMesh* mesh) { lowLODmesh = mesh; }
+		void SetHighLODMesh(IHCEngine::Graphics::IHCMesh* mesh) { highLODmesh = mesh; }
+		IHCEngine::Graphics::IHCMesh* GetLowLODMesh() const { return lowLODmesh; }
+		IHCEngine::Graphics::IHCMesh* GetHighLODMesh() const { return highLODmesh; }
+		void SetUsingHighLODMesh(bool b) { isUsingHighLODMesh = b; }
+		bool IsUsingHighLODMesh() const { return isUsingHighLODMesh; }
+
 		// For debug, or artist define
 		GrassBladePropertyOverride grassBladePropertyOverride;
 
@@ -85,6 +94,10 @@ namespace IHCEngine::Component
 		int dimensionZ = 80;
 		// Wind Texture
 		Graphics::IHCTexture* noiseTexture = nullptr;
+		// LOD
+		IHCEngine::Graphics::IHCMesh* lowLODmesh = nullptr;
+		IHCEngine::Graphics::IHCMesh* highLODmesh = nullptr;
+		bool isUsingHighLODMesh = true;
 
 		void initGrassBlades();
 		void updateGrassBladeProperties();
@@ -94,7 +107,6 @@ namespace IHCEngine::Component
 		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> shaderStorageBuffers; // created in component
 		std::vector<Graphics::IHCBuffer*> computeGrassUniformBuffers; // retrieved from descriptor wrap
 		std::vector<VkDescriptorSet> computeDescriptorSets; // retrieved from descriptor wrap
-
 		void createVulkanResources();
 		void createShaderStorageBuffers();
 		void destroyVulkanResources();

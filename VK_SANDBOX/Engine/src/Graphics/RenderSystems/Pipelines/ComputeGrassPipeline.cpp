@@ -9,6 +9,7 @@
 #include "../../../Core/Scene/Components/MeshComponent.h"
 #include "../../../Core/Scene/Components/TextureComponent.h"
 #include "../../../Core/Scene/GameObject.h"
+#include "../../VKWraps/IHCMesh.h"
 
 namespace IHCEngine::Graphics
 {
@@ -92,7 +93,6 @@ namespace IHCEngine::Graphics
             if (gobj->IsActive() == false) continue;
             auto computeComponent = gobj->GetComponent<Component::ComputeGrassComponent>();
             if (computeComponent->IsActive() == false) continue;
-            auto meshComponent = gobj->GetComponent<Component::MeshComponent>();
             auto textureComponent = gobj->GetComponent<Component::TextureComponent>();
 
             SimplePushConstantData push{};
@@ -136,8 +136,18 @@ namespace IHCEngine::Graphics
 
             // Draw Mesh
             // GPU instancing
-            meshComponent->Bind(frameInfo.commandBuffer);
-            meshComponent->InstanceDraw(frameInfo.commandBuffer, computeComponent->GetMaxGrassBladeCount());
+            if(computeComponent->IsUsingHighLODMesh())
+            {
+                auto* highLODMesh = computeComponent->GetHighLODMesh();
+                highLODMesh->Bind(frameInfo.commandBuffer);
+                highLODMesh->InstanceDraw(frameInfo.commandBuffer, computeComponent->GetMaxGrassBladeCount());
+            }
+            else
+            {
+                auto* lowLODMesh = computeComponent->GetLowLODMesh();
+                lowLODMesh->Bind(frameInfo.commandBuffer);
+                lowLODMesh->InstanceDraw(frameInfo.commandBuffer, computeComponent->GetMaxGrassBladeCount());
+            }
         }
     }
 

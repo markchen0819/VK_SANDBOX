@@ -1,5 +1,6 @@
 #include "CPUFrustumCulling.h"
 #include "../../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../../Engine/src/Core/Scene/Components/ComputeGrassComponent.h"
 #include "../../../../../Engine/src/Input/Input.h"
 
 SampleApplication::CPUFrustumCulling::CPUFrustumCulling()
@@ -17,6 +18,7 @@ void SampleApplication::CPUFrustumCulling::Update()
 {
     UpdateFrustum();
     Cull();
+    UpdateLOD();
 
     if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_Z))
     {
@@ -67,7 +69,6 @@ void SampleApplication::CPUFrustumCulling::UpdateFrustum()
         frustum.leftFace = { cameraPos, glm::cross(upDir,vectorToFarPlane + rightDir * halfFarPlaneWidth) };
         frustum.topFace = { cameraPos,glm::cross(rightDir, vectorToFarPlane - upDir * halfFarPlaneHeight) };
         frustum.bottomFace = { cameraPos,glm::cross(vectorToFarPlane + upDir * halfFarPlaneHeight, rightDir) };
-
     }
 }
 
@@ -83,6 +84,27 @@ void SampleApplication::CPUFrustumCulling::Cull()
         {
             gobjs[i]->SetActive(false);
         }
-	    
+    }
+}
+
+void SampleApplication::CPUFrustumCulling::UpdateLOD()
+{
+    if(!dropFrustum)
+    {
+        auto camera = IHCEngine::Core::SceneManagerLocator::GetSceneManager()->GetActiveScene()->GetCamera();
+        const glm::vec3 cameraPos = camera.transform.GetWorldPosition();
+        cameraDroppedPos = cameraPos;
+    }
+
+    for (int i = 0; i < aabbs.size(); ++i)
+    {
+        if (glm::length( aabbs[i].center - cameraDroppedPos) > LODDistance)
+        {
+            gobjs[i]->GetComponent<IHCEngine::Component::ComputeGrassComponent>()->SetUsingHighLODMesh(false);
+        }
+        else
+        {
+            gobjs[i]->GetComponent<IHCEngine::Component::ComputeGrassComponent>()->SetUsingHighLODMesh(true);
+        }
     }
 }

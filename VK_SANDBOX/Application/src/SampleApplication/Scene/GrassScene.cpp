@@ -41,7 +41,8 @@ void SampleApplication::GrassScene::UnLoad()
 
 	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
 
-	graphicsAssetCreator.DestroyMesh("grassMesh");
+	graphicsAssetCreator.DestroyMesh("grassMeshHighLOD");
+	graphicsAssetCreator.DestroyMesh("grassMeshLowLOD");
 	graphicsAssetCreator.DestroyTexture("grassTexture");
 	graphicsAssetCreator.DestroyTexture("noiseTexture");
 
@@ -82,24 +83,17 @@ void SampleApplication::GrassScene::Init()
 	auto grassTexture =
 		graphicsAssetCreator.CreateTexture("grassTexture",
 			"Engine/assets/textures/grassBlade/grassTexture.png");
-	auto grassMesh =
-		graphicsAssetCreator.CreateMesh("grassMesh",
+	auto grassMeshHighLOD =
+		graphicsAssetCreator.CreateMesh("grassMeshHighLOD",
 			"Engine/assets/models/grassBlade/grassBlade.obj");
-
-
+	auto grassMeshLowLOD =
+		graphicsAssetCreator.CreateMesh("grassMeshLowLOD",
+			"Engine/assets/models/grassBlade/grassblade_lowLOD.obj");
 
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
 	IHCEngine::Component::ComputeGrassComponent* computeGrassComponent = nullptr;
-
-	//IHCEngine::Core::GameObject& grassGobj = AddGameObject("grassGobj");
-	//computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
-	//computeGrassComponent->SetNoiseTexture(noiseTexture);
-	//meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
-	//meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
-	//texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
-	//texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 
 
 	IHCEngine::Core::GameObject& frustumCullingGobj = AddGameObject("frustumCullingGobj");
@@ -121,8 +115,8 @@ void SampleApplication::GrassScene::Init()
 			computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
 			computeGrassComponent->SetNoiseTexture(noiseTexture);
 			computeGrassComponent->SetChunkCoords(i, j, gridSize, gridSize);
-			meshcomponent = grassGobj.AddComponent<IHCEngine::Component::MeshComponent>();
-			meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("grassMesh"));
+			computeGrassComponent->SetHighLODMesh(assetManager->GetMeshRepository().GetAsset("grassMeshHighLOD"));
+			computeGrassComponent->SetLowLODMesh(assetManager->GetMeshRepository().GetAsset("grassMeshLowLOD"));
 			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();
 			texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("grassTexture"));
 			grassChunkGobjs.push_back(&grassGobj);
