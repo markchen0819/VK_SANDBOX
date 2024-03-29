@@ -100,7 +100,7 @@ void SampleApplication::GrassScene::Init()
 	auto cpuFrustumCulling = frustumCullingGobj.AddComponent<CPUFrustumCulling>();
 
 	//// test performance
-	int gridSize = 5;
+	int gridSize = 10;
 	float offset = 20.0;
 	float gridOffset = (gridSize / 2.0f) * offset;
 	glm::vec3 centerOffset(-gridOffset + offset / 2.0f, 0, -gridOffset + offset / 2.0f);
@@ -114,7 +114,7 @@ void SampleApplication::GrassScene::Init()
 			grassGobj.transform.SetPosition(position);
 			computeGrassComponent = grassGobj.AddComponent<IHCEngine::Component::ComputeGrassComponent>();
 			computeGrassComponent->SetNoiseTexture(noiseTexture);
-			computeGrassComponent->SetChunkCoords(i, j, gridSize, gridSize);
+			computeGrassComponent->SetChunkCoords(static_cast<float>(i), static_cast<float>(j), static_cast<float>(gridSize), static_cast<float>(gridSize));
 			computeGrassComponent->SetHighLODMesh(assetManager->GetMeshRepository().GetAsset("grassMeshHighLOD"));
 			computeGrassComponent->SetLowLODMesh(assetManager->GetMeshRepository().GetAsset("grassMeshLowLOD"));
 			texturecomponent = grassGobj.AddComponent<IHCEngine::Component::TextureComponent>();

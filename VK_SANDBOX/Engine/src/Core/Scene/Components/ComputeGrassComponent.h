@@ -34,6 +34,11 @@ namespace IHCEngine::Component
 		// Global Rotation
 		int enableRotationOverride = 0;
 		glm::vec4 globalRotation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+
+		// Debugs
+		int showWorldNormals = 0;
+		int showLOD = 0;
+		int dummy1 = 1;
 	};
 
 	class ComputeGrassComponent : public Component
@@ -68,7 +73,7 @@ namespace IHCEngine::Component
 		void SetNoiseTexture(Graphics::IHCTexture* texture);
 		std::vector<VkDescriptorSet>& GetNoiseTextureDescriptorSet() const;
 		Graphics::IHCTexture* GetNoiseTexture() const;
-		void SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY);
+		void SetChunkCoords(float chunkX, float chunkY, float gridSizeX, float gridSizeY);
 
 		// LOD
 		void SetLowLODMesh(IHCEngine::Graphics::IHCMesh* mesh) { lowLODmesh = mesh; }
@@ -83,7 +88,6 @@ namespace IHCEngine::Component
 
 	private:
 		std::vector<Graphics::GrassBlade> grassBlades;
-		float lastFrameTime = 0.0f;
 		// Total area size, the world position ranges are chunk origin +- areaSize
 		float areaSizeX = 20.0f;
 		float areaSizeZ = 20.0f;

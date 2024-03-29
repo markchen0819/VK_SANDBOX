@@ -96,10 +96,8 @@ void IHCEngine::Component::ComputeGrassComponent::initGrassBlades()
 void IHCEngine::Component::ComputeGrassComponent::updateGrassBladeProperties()
 {
 	float dt = IHCEngine::Core::Time::GetDeltaTime();
-	lastFrameTime += dt;
 	ubo.deltaTime = dt;
-	ubo.accumulatedTime = lastFrameTime;
-
+	ubo.accumulatedTime = IHCEngine::Core::Time::GetElapsedDeltaTime();
 	// Wind
 	ubo.windSpeed = grassBladePropertyOverride.windSpeed;
 	ubo.windDirection = grassBladePropertyOverride.windDirection;
@@ -119,6 +117,10 @@ void IHCEngine::Component::ComputeGrassComponent::updateGrassBladeProperties()
 	ubo.enableRotationOverride = grassBladePropertyOverride.enableRotationOverride;
 	ubo.globalRotation = grassBladePropertyOverride.globalRotation;
 
+	// Debug
+	ubo.showWorldNormals = grassBladePropertyOverride.showWorldNormals;
+	ubo.showLOD = grassBladePropertyOverride.showLOD;
+	ubo.isHighLOD = static_cast<int>(isUsingHighLODMesh);
 }
 
 
@@ -191,7 +193,7 @@ IHCEngine::Graphics::IHCTexture* IHCEngine::Component::ComputeGrassComponent::Ge
 	return noiseTexture;
 }
 
-void IHCEngine::Component::ComputeGrassComponent::SetChunkCoords(int chunkX, int chunkY, int gridSizeX, int gridSizeY)
+void IHCEngine::Component::ComputeGrassComponent::SetChunkCoords(float chunkX, float chunkY, float gridSizeX, float gridSizeY)
 {
 	ubo.chunkX = chunkX;
 	ubo.chunkY = chunkY;

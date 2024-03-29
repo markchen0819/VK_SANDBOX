@@ -19,6 +19,7 @@ namespace IHCEngine::Core
 
 		static float GetDeltaTime() { return  instance->deltaTime; }
 		static float GetUnscaledDeltaTime() { return instance->unscaledDeltaTime;}
+		static float GetElapsedDeltaTime() { return  instance->elapsedDeltaTime; }
 
 		static float GetFixedDeltaTime() { return instance->unscaledFixedDeltaTime * instance->timeScale; }
 		static float GetUnscaledFixedDeltaTime() { return instance->unscaledFixedDeltaTime; }
@@ -80,7 +81,8 @@ namespace IHCEngine::Core
 		// deltaTime
 		float unscaledDeltaTime{ 0.0 }; // actual timediff for one frame 
 		float deltaTime{ 0.0f };
-		
+		float elapsedDeltaTime{ 0.0f };
+
 		// physics time
 		float unscaledFixedDeltaTime{ 0.0f };
 

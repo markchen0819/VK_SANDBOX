@@ -21,7 +21,7 @@ namespace IHCEngine::Graphics
 
 	private:
 
-		const int GRASS_SYSTEM_COUNT = 30;
+		const int GRASS_SYSTEM_COUNT = 100;
 		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> computeGrassUniformBuffers;
 		std::stack<IHCBuffer*> availableComputeGrassUniformBuffers;
 	};

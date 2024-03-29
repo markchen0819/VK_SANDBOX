@@ -8,10 +8,10 @@ namespace IHCEngine::Graphics
 		float windStrength = 3.0f;
 		float windSpeed = 0.12f;
 
-		int chunkX; // x coordinate of the chunk in the world grid
-		int chunkY; // y coordinate of the chunk in the world grid
-		int gridSizeX; // Total chunks along x dimension
-		int gridSizeY; // Total chunks along y dimension
+		float chunkX; // x coordinate of the chunk in the world grid
+		float chunkY; // y coordinate of the chunk in the world grid
+		float gridSizeX; // Total chunks along x dimension
+		float gridSizeY; // Total chunks along y dimension
 
 		float areaSize = 20.0f;
 		float swayStrength = 0.1f;
@@ -22,6 +22,11 @@ namespace IHCEngine::Graphics
 		int enableControlPt = 0;
 		float bend = 0.15f; // program calculated controlPtA and controlPtB
 		int enableRotationOverride = 0;
+
+		int showWorldNormals = 0;
+		int showLOD = 0;
+		int isHighLOD = 0;
+		int dummy1 = 1;
 
 		glm::vec4 windDirection = glm::vec4(1.0, 0.01, 0, 0);
 		glm::vec4 controlPtA = glm::vec4(0.0f, 0.53f, 0.0f, 0.0f);

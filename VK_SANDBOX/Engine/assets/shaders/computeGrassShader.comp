@@ -14,10 +14,11 @@ struct GrassBlade
 layout (std140, binding = 0) uniform ParameterUBO
 {
     float deltaTime; float accumulatedTime; float windStrength; float windSpeed;
-    int chunkX; int chunkY; int gridSizeX; int gridSizeY;
+    float chunkX; float chunkY; float gridSizeX; float gridSizeY;
     float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
 	float globalTilt; int enableControlPt; float bend; int enableRotationOverride;
-	vec4 windDirection;
+	int showWorldNormals; int showLOD; int isHighLOD; int dummy1;
+    vec4 windDirection;
     vec4 controlPtA;
     vec4 controlPtB;
     vec4 globalRotation;
@@ -72,9 +73,9 @@ void main()
     vec2 offset = normalize(ubo.windDirection.xz * directionFix) * ubo.accumulatedTime * scrollSpeed;
 
     // Chunk in Grid for noise texturing
-    float chunkWidth = ubo.areaSize * float(ubo.gridSizeX);
-    float chunkHeight = ubo.areaSize * float(ubo.gridSizeY);
-    vec2 globalUV = vec2(ubo.areaSize * float(ubo.chunkX), ubo.areaSize * float(ubo.chunkY)) + grassBladeIn.position.xz;
+    float chunkWidth = ubo.areaSize * ubo.gridSizeX;
+    float chunkHeight = ubo.areaSize * ubo.gridSizeY;
+    vec2 globalUV = vec2(ubo.areaSize * ubo.chunkX, ubo.areaSize * ubo.chunkY) + grassBladeIn.position.xz;
     vec2 uv = globalUV / vec2(chunkWidth, chunkHeight);
     vec2 scrolledUV = fract(uv + offset);
     float noiseValue = texture(noiseTexture, scrolledUV).r;

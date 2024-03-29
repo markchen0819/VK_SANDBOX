@@ -29,7 +29,7 @@ namespace SampleApplication
         void Cull();
 
         // LOD
-        float LODDistance = 20.0f;
+        float LODDistance = 60.0f;
         void UpdateLOD();
     };
 }
