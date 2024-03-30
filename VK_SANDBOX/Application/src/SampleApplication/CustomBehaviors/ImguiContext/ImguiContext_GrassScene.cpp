@@ -4,6 +4,7 @@
 #include "../../../../../Engine/src/Graphics/VKWraps/IHCTexture.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
 #include "../../../../Application/src/SampleApplication/Scene/GrassScene.h";
+#include "../CPUFrustumCulling/CPUFrustumCulling.h"
 
 namespace IHCEngine::Component
 {
@@ -27,6 +28,11 @@ namespace IHCEngine::Component
 
         if (ImGui::CollapsingHeader("Wind"))
         {
+            ImGui::Text("Wind is created using a simple noise texture scrolling");
+            ImGui::Text("User can self define the wind direction and strength");
+            ImGui::Text("The up and down motion of the tip of the grass blade is a sin wave");
+            ImGui::Text("User can self define the sway strength and frequency");
+            ImGui::Text("------------------------");
             windDirection = computeParticle->grassBladePropertyOverride.windDirection;
             windStrength = computeParticle->grassBladePropertyOverride.windStrength;
             windSpeed = computeParticle->grassBladePropertyOverride.windSpeed;
@@ -46,7 +52,7 @@ namespace IHCEngine::Component
             {
                 for (auto gobj : grassChunkGobjs)
                 {
-                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.windDirection = windDirection;
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.windDirection = glm::normalize(windDirection);
                 }
             }
             ImGui::Text("Wind Strength");
@@ -75,8 +81,15 @@ namespace IHCEngine::Component
             }
         }
 
+
+
         if (ImGui::CollapsingHeader("Curvature of Blade"))
         {
+            ImGui::Text("The curvature of the grass blade is influenced by a cubic bezier curve");
+            ImGui::Text("global tilt: tilts all the grass blades in the same angle");
+            ImGui::Text("bend: a simple parameter that pulls the controls points of the curve away");
+            ImGui::Text("controlPt: instead of bend, user can use this for more control over the curve");
+            ImGui::Text("------------------------");
             enableGlobalTilt = computeParticle->grassBladePropertyOverride.enableGlobalTilt;
             globalTilt = computeParticle->grassBladePropertyOverride.globalTilt;
             controlPtA = computeParticle->grassBladePropertyOverride.controlPtA;
@@ -158,6 +171,11 @@ namespace IHCEngine::Component
 
         if (ImGui::CollapsingHeader("Override Rotation"))
         {
+            ImGui::Text("All grass blades are rotated the same direction using this parameter");
+            ImGui::Text("The normal of the grass blade is calculated using the derivative of the curve");
+            ImGui::Text("Using this we can see how a basic lighting model interacts with different rotation angles");
+            ImGui::Text("------------------------");
+
             overrideRotation = computeParticle->grassBladePropertyOverride.enableRotationOverride;
             rotation = computeParticle->grassBladePropertyOverride.globalRotation;
 
@@ -191,6 +209,63 @@ namespace IHCEngine::Component
             }
         }
 
+        if (ImGui::CollapsingHeader("Debug (CPU Frustum Culling, LOD)"))
+        {
+            ImGui::Text("showWorldNormals: this shows the normals on the curve in colors");
+            ImGui::Text("dropFrustum: frustum culling is done on the CPU with AABB bounding boxes");
+            ImGui::Text("using this we can see the culled parts");
+            ImGui::Text("showLOD: LOD is done on the CPU, further chunks are swapped using a lower LOD model");
+            ImGui::Text("------------------------");
+
+            auto cpuFrustumCullingGobj = scene->GetGameObjectByName("frustumCullingGobj");
+            auto cpuFrustumCulling = cpuFrustumCullingGobj->GetComponent<SampleApplication::CPUFrustumCulling>();
+
+            showWorldNormals = static_cast<bool>(computeParticle->grassBladePropertyOverride.showWorldNormals);
+            showLOD = static_cast<bool>(computeParticle->grassBladePropertyOverride.showLOD);
+            dropFrustum = cpuFrustumCulling->GetIsFrustumDropped();
+
+            ImGui::Checkbox("showWorldNormals", &showWorldNormals);
+            if (showWorldNormals)
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.showWorldNormals = 1;
+                }
+            }
+            else
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.showWorldNormals = 0;
+                }
+            }
+
+            ImGui::Checkbox("showLOD", &showLOD);
+            if (showLOD)
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.showLOD = 1;
+                }
+            }
+            else
+            {
+                for (auto gobj : grassChunkGobjs)
+                {
+                    gobj->GetComponent<ComputeGrassComponent>()->grassBladePropertyOverride.showLOD = 0;
+                }
+            }
+
+            ImGui::Checkbox("dropFrustum", &dropFrustum);
+            if (dropFrustum)
+            {
+                cpuFrustumCulling->DropFrustum(true);
+            }
+            else
+            {
+                cpuFrustumCulling->DropFrustum(false);
+            }
+        }
     }
 
 }

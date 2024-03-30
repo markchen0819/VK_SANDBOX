@@ -26,11 +26,12 @@ namespace IHCEngine::Graphics
 		int showWorldNormals = 0;
 		int showLOD = 0;
 		int isHighLOD = 0;
-		int dummy1 = 1;
+		int dummy = 0;
 
 		glm::vec4 windDirection = glm::vec4(1.0, 0.01, 0, 0);
 		glm::vec4 controlPtA = glm::vec4(0.0f, 0.53f, 0.0f, 0.0f);
 		glm::vec4 controlPtB = glm::vec4(0.0f, 0.53f, 0.0f, 0.0f);
 		glm::vec4 globalRotation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+		glm::vec4 spherePosition = glm::vec4(1.0f, 5.0f, 0.0f, 1.0f);
 	};
 }

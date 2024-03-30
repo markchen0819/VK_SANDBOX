@@ -6,11 +6,13 @@ layout (set = 1, binding = 0) uniform ParameterUBO
     float chunkX; float chunkY; float gridSizeX; float gridSizeY;
     float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
 	float globalTilt; int enableControlPt; float bend; int enableRotationOverride;
-	int showWorldNormals; int showLOD; int isHighLOD; int dummy1;
+	int showWorldNormals; int showLOD; int isHighLOD; int dummy;
     vec4 windDirection;
     vec4 controlPtA;
     vec4 controlPtB;
     vec4 globalRotation;
+    vec4 spherePosition;
+
 } parameterUbo;
 
 layout(set = 2, binding = 0) uniform sampler2D texSampler;

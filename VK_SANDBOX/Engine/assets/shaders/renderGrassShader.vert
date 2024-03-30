@@ -33,11 +33,12 @@ layout (set = 1, binding = 0) uniform ParameterUBO
     float chunkX; float chunkY; float gridSizeX; float gridSizeY;
     float areaSize; float swayStrength; float swayFrequency; int useGlobalTilt;
 	float globalTilt; int enableControlPt; float bend; int enableRotationOverride;
-	int showWorldNormals; int showLOD; int isHighLOD; int dummy1;
+	int showWorldNormals; int showLOD; int isHighLOD; int dummy;
     vec4 windDirection;
     vec4 controlPtA;
     vec4 controlPtB;
     vec4 globalRotation;
+    vec4 spherePosition;
 } parameterUbo;
 
 
@@ -166,6 +167,22 @@ mat3 calculateTiltRotationMatrix(vec3 axis, float angleInDegree)
     return tiltRotationMatrix;
 }
 
+// Interaction 
+// (Should change to better solution someday -> RED: Interactive Wind and Vegetation in 'God of War')
+// https://youtu.be/MKX45_riWQA?si=cgHpRztP4WC9o4AX
+vec3 adjustPositionBasedOnSphereCollsion(vec3 vertPos, vec3 sphereCenter, float radius)
+{
+    float distanceToSphere = length(vertPos - sphereCenter);
+    if (distanceToSphere < radius) 
+    {
+        vec3 direction = normalize(vertPos - sphereCenter);
+        vertPos = sphereCenter + direction * radius;
+    }
+    return vertPos;
+}
+
+// REF: Procedural Grass in 'Ghost of Tsushima'
+// https://www.youtube.com/watch?v=Ibe1JBF5i5Y
 void main() 
 {
     /////////////////////    Model Space    /////////////////////
@@ -216,21 +233,34 @@ void main()
     vec3 modelSpaceNormal = normalize(curveNormal); 
     vec3 particleNormal = normalize(mat3(transpose(inverse(modelMatrix))) * modelSpaceNormal);
     vec3 worldNormal =  normalize(mat3(transpose(inverse( push.modelMatrix))) * particleNormal);
-    const float forceInfluenceByHeightForWind = curvedPosition.y;
-    const float forceInfluenceByHeightForSway = inPosition.y;
+    // const float forceInfluenceByHeightForWind = curvedPosition.y;
+    // const float forceInfluenceByHeightForSway = inPosition.y;
+
+    // Interation with sphere
+    vec3 fixedPosition = adjustPositionBasedOnSphereCollsion(worldPosition.xyz, parameterUbo.spherePosition.xyz, 5.00);
+    worldPosition = vec4(fixedPosition,worldPosition.w);
+
+    const float forceInfluenceByHeightForWind = worldPosition.y;
+    const float forceInfluenceByHeightForSway = worldPosition.y;
+
     //// Wind (XZ)
     float windMultiplier = parameterUbo.windStrength; // user defined
     float windStrength = grassBladesOut[gl_InstanceIndex].windStrength; // from noise texture
     float windIntensity = windStrength * forceInfluenceByHeightForWind * windMultiplier;
-    worldPosition += normalize(parameterUbo.windDirection) * windIntensity;
+    worldPosition += parameterUbo.windDirection * windIntensity;     // normalize(parameterUbo.windDirection) do this in CPU to save performance
+
     //// Swaying (Y)
-    float swayMultiplier = parameterUbo.swayStrength  * forceInfluenceByHeightForSway;
+    float swayMultiplier = parameterUbo.swayStrength * forceInfluenceByHeightForSway;
     float swayFrequency = parameterUbo.swayFrequency;
     float phaseOffset = float(grassBladesOut[gl_InstanceIndex].perBladeHash);
     float swayIntensity = sin(phaseOffset + parameterUbo.accumulatedTime * swayFrequency) * forceInfluenceByHeightForSway * swayMultiplier;
-    worldPosition += vec4(0,1,0,0) * swayIntensity;
-    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
+    worldPosition += vec4(0, swayIntensity, 0, 0);
 
+//    // Interation with sphere (2nd fix to make sure wind doesn't move inwards)
+//    fixedPosition = adjustPositionBasedOnSphereCollsion(worldPosition.xyz, vec3(0,5,0), 5.02);
+//    worldPosition = vec4(fixedPosition,worldPosition.w);
+
+    gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPosition;
 
     /////////////////////    Pass info to fragment shader    /////////////////////
     fragColor = grassBladesOut[gl_InstanceIndex].color.xyz;

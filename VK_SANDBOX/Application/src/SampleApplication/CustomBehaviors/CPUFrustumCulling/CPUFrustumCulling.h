@@ -18,6 +18,9 @@ namespace SampleApplication
 
         void AddAABBWithGameObject(AABB_BoundingVolume aabb, IHCEngine::Core::GameObject* gobj);
 
+        void DropFrustum(bool b) { dropFrustum = b; }
+        bool GetIsFrustumDropped() const { return dropFrustum; }
+
     private:
         Frustum frustum;
         glm::vec3 cameraPrevPos = glm::vec3(0,0,0);

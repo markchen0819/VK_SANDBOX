@@ -83,6 +83,9 @@ namespace IHCEngine::Component
 		void SetUsingHighLODMesh(bool b) { isUsingHighLODMesh = b; }
 		bool IsUsingHighLODMesh() const { return isUsingHighLODMesh; }
 
+		// SimpleInteraction
+		void SetSpherePosition(const glm::vec4& spherePos) { ubo.spherePosition = spherePos; }
+
 		// For debug, or artist define
 		GrassBladePropertyOverride grassBladePropertyOverride;
 

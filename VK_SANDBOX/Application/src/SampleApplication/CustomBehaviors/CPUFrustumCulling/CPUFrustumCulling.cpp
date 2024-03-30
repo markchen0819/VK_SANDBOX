@@ -19,11 +19,6 @@ void SampleApplication::CPUFrustumCulling::Update()
     UpdateFrustum();
     Cull();
     UpdateLOD();
-
-    if (IHCEngine::Core::Input::IsKeyDown(GLFW_KEY_Z))
-    {
-        dropFrustum = !dropFrustum;
-    }
 }
 
 void SampleApplication::CPUFrustumCulling::OnEnable()

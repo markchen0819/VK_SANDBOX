@@ -31,6 +31,11 @@ namespace IHCEngine::Component
         bool overrideRotation{ false };
         glm::vec4 rotation { glm::vec4(1.0, 1.0, 1.0, 0.0)};
         float amountOfRotation{ 0.0f };
+
+        //Debug
+        bool dropFrustum{ false };
+        bool showWorldNormals{ false };
+        bool showLOD{ false };
     };
 }
 

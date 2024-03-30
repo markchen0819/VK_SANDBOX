@@ -10,6 +10,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ComputeGrassComponent.h"
+#include "../CustomBehaviors/GrassInteractionSphere.h"
 #include "../CustomBehaviors/CPUFrustumCulling/CPUFrustumCulling.h"
 #include "../CustomBehaviors/ImguiContext/ImguiContext_GrassScene.h"
 
@@ -24,12 +25,31 @@ void SampleApplication::GrassScene::Load()
 	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
+	// grass
+	auto grassTexture =
+		graphicsAssetCreator.CreateTexture("grassTexture",
+			"Engine/assets/textures/grassBlade/grassTexture.png");
+	auto grassMeshHighLOD =
+		graphicsAssetCreator.CreateMesh("grassMeshHighLOD",
+			"Engine/assets/models/grassBlade/grassBlade.obj");
+	auto grassMeshLowLOD =
+		graphicsAssetCreator.CreateMesh("grassMeshLowLOD",
+			"Engine/assets/models/grassBlade/grassblade_lowLOD.obj");
+
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
 	// grid
 	createGridMeshAndLoadGridTexture();
-	//
+	// dirt
 	createDirt();
+	// sphere
+	auto sphereTexture =
+		graphicsAssetCreator.CreateTexture("sphereTexture",
+			"Application/assets/Models/Sphere/sphereTexture.jpg");
+	auto sphereMesh =
+		graphicsAssetCreator.CreateMesh("sphereMesh",
+			"Application/assets/Models/Sphere/sphere.obj");
+
 
 	graphicsManager->SetClearColor(glm::vec3(0, 0, 0));
 }
@@ -45,11 +65,15 @@ void SampleApplication::GrassScene::UnLoad()
 	graphicsAssetCreator.DestroyMesh("grassMeshLowLOD");
 	graphicsAssetCreator.DestroyTexture("grassTexture");
 	graphicsAssetCreator.DestroyTexture("noiseTexture");
+	grassChunkGobjs.clear();
 
+	// sphere
+	graphicsAssetCreator.DestroyTexture("sphereTexture");
+	graphicsAssetCreator.DestroyMesh("sphereMesh");
+
+	// dirt
 	graphicsAssetCreator.DestroyTexture("dirtTexture");
 	graphicsAssetCreator.DestroyMesh("dirtMesh");
-
-	grassChunkGobjs.clear();
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -77,29 +101,26 @@ void SampleApplication::GrassScene::Init()
 	// GameObjects creation and component adding here
 	//////////////////////////////////////////////////////////////////
 
-	// Should Put in Load
 	auto& graphicsAssetCreator = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager()->GetGraphicsAssetCreator();
 	auto noiseTexture = graphicsAssetCreator.CreateTexture("noiseTexture", "Engine/assets/textures/perlinNoiseTexture.png");
-	auto grassTexture =
-		graphicsAssetCreator.CreateTexture("grassTexture",
-			"Engine/assets/textures/grassBlade/grassTexture.png");
-	auto grassMeshHighLOD =
-		graphicsAssetCreator.CreateMesh("grassMeshHighLOD",
-			"Engine/assets/models/grassBlade/grassBlade.obj");
-	auto grassMeshLowLOD =
-		graphicsAssetCreator.CreateMesh("grassMeshLowLOD",
-			"Engine/assets/models/grassBlade/grassblade_lowLOD.obj");
+
+	IHCEngine::Core::GameObject& frustumCullingGobj = AddGameObject("frustumCullingGobj");
+	auto cpuFrustumCulling = frustumCullingGobj.AddComponent<CPUFrustumCulling>();
 
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
 	IHCEngine::Component::ComputeGrassComponent* computeGrassComponent = nullptr;
 
+	IHCEngine::Core::GameObject& sphereGobj = AddGameObject("sphereGobj");
+	meshcomponent = sphereGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
+	texturecomponent = sphereGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("sphereTexture"));
+	sphereGobj.transform.SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	sphereGobj.transform.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+	auto grassInteractionComponent = sphereGobj.AddComponent<GrassInteractionSphere>();
 
-	IHCEngine::Core::GameObject& frustumCullingGobj = AddGameObject("frustumCullingGobj");
-	auto cpuFrustumCulling = frustumCullingGobj.AddComponent<CPUFrustumCulling>();
-
-	//// test performance
 	int gridSize = 10;
 	float offset = 20.0;
 	float gridOffset = (gridSize / 2.0f) * offset;
@@ -122,11 +143,14 @@ void SampleApplication::GrassScene::Init()
 			grassChunkGobjs.push_back(&grassGobj);
 
 			cpuFrustumCulling->AddAABBWithGameObject(AABB_BoundingVolume(position, offset / 2.0f + 0.1f, offset/4.0f + 0.1f, offset / 2.0f + 0.1f), &grassGobj);
+			grassInteractionComponent->AddComputeGrassComponent(computeGrassComponent);
 		}
 	}
 
-	///////////////////////////
 	// Others
+
+
+
 	IHCEngine::Core::GameObject& dirtGobj = AddGameObject("dirtGobj");
 	meshcomponent = dirtGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("dirtMesh"));
@@ -276,7 +300,7 @@ void SampleApplication::GrassScene::createDirt()
 			"Engine/assets/textures/grassBlade/dirtTexture.png");
 
 	IHCEngine::Graphics::IHCMesh::Builder dirtBuilder;
-	int gridSize = 100;
+	int gridSize = 200;
 	float halfSize = gridSize / 2.0f;  // this represents half the width/length of the grid
 	std::vector<Vertex> vertices(4);
 	// Bottom left
