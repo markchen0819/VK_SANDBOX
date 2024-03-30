@@ -1,9 +1,8 @@
 #include "ImguiContext_GrassScene.h"
 #include "imgui.h"
 #include "../../../../../Engine/src/Core/Scene/Components/ComputeGrassComponent.h"
-#include "../../../../../Engine/src/Graphics/VKWraps/IHCTexture.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
-#include "../../../../Application/src/SampleApplication/Scene/GrassScene.h";
+#include "../../../../Application/src/SampleApplication/Scene/GrassScene.h"
 #include "../CPUFrustumCulling/CPUFrustumCulling.h"
 
 namespace IHCEngine::Component
@@ -22,6 +21,8 @@ namespace IHCEngine::Component
         ImGui::Text(" Mouse Right Click Drag: Rotate Camera");
         ImGui::Text(" Mouse Scroll: Zoom In/Out");
         ImGui::Text(" F6: Full scene Reset");
+        ImGui::Text("------------------------");
+        ImGui::Text(" Arrow Keys : Control Sphere for interaction");
         ImGui::Text("------------------------");
 
         auto computeParticle = grassChunkGobjs[0]->GetComponent<ComputeGrassComponent>();
