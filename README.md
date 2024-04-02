@@ -44,31 +44,22 @@ A Vulkan graphics framework create by I Hsuan "Mark" Chen
 - tinyobjloader
 
 ## Applications
-F1: Model loading/ Skeletal Animation and Skinning
+F1: Model loading/ Skeletal Animation and Skinning <br>
+<img src="https://drive.google.com/uc?export=view&id=1uuAaO-5SR1i0GL2IXsLl_FbAVHWWvbTY" alt="Description of the Image" width="500"> <br>
+F2: Path Following/ Orientation Control/ Motion Blending <br>
+<img src="https://drive.google.com/uc?export=view&id=1GR3PNG_2mk9tmkcBVtWzmMP6yGWvlDat" alt="Description of the Image" width="500"> <br>
+F3: Inverse Kinematics with FABRIK <br>
+<img src="https://drive.google.com/uc?export=view&id=1cHNVNlCONACe0I46ATW3nzpniolvrhvF" alt="Description of the Image" width="500"> <br>
+F4: Cloth Simulation <br>
+<img src="https://drive.google.com/uc?export=view&id=19aawk56NNIXL8RZxzxlzTz8YyMxMzlG0" alt="Description of the Image" width="500"> <br>
+Breakdown of F1~F4: https://youtu.be/zH8QJtPN9b0 <br> 
 
-<img src="https://drive.google.com/uc?export=view&id=1uuAaO-5SR1i0GL2IXsLl_FbAVHWWvbTY" alt="Description of the Image" width="500">
-
-
-F2: Path Following/ Orientation Control/ Motion Blending
-
-<img src="https://drive.google.com/uc?export=view&id=1GR3PNG_2mk9tmkcBVtWzmMP6yGWvlDat" alt="Description of the Image" width="500">
-
-F3: Inverse Kinematics with FABRIK
-
-<img src="https://drive.google.com/uc?export=view&id=1cHNVNlCONACe0I46ATW3nzpniolvrhvF" alt="Description of the Image" width="500">
-
-
-F4: Cloth Simulation
-
-<img src="https://drive.google.com/uc?export=view&id=19aawk56NNIXL8RZxzxlzTz8YyMxMzlG0" alt="Description of the Image" width="500">
-
-
-F5: Particle System (Compute Shader + GPU Instancing)
-
+F5: Particle System (Compute Shader + GPU Instancing) <br>
+Breakdown: https://youtu.be/6IlP3RwXFX0 <br> 
 <img src="https://drive.google.com/uc?export=view&id=1G5tSJJLQWNfndXectGil-q4deC3PViLG" alt="Description of the Image" width="500">
 
-F6: Grass Simulation
-
+F6: Grass Simulation  <br>
+Breakdown: https://youtu.be/SMVMA5gTPYA <br> 
 <img src="https://drive.google.com/uc?export=view&id=1Xg_k1JH7E7eNLqJ4mBmTS_PaTR3LBGQV" alt="Description of the Image" width="500">
 
 ## References
