@@ -7,6 +7,8 @@ A Vulkan graphics framework create by I Hsuan "Mark" Chen
     - SampleApplication (User defined application)
     - Scene (User defined scenes)
     - CustomBehaviors (User self defined logics like scripting)
+        - CPUFrustumCulling (specifically for grass at the moment)
+        - ImguiContext (UI Helper for debugging)
 - Engine
     - Core
         - Time
@@ -15,7 +17,9 @@ A Vulkan graphics framework create by I Hsuan "Mark" Chen
     - Graphics
         - Graphics Manager
         - Animation (Model loading/ Animator/ Animation/ Inverse Kinematics)
-        - Vulkan (VKWraps/ RenderSystems/ different pipelines & shaders)
+        - Particle 
+        - Grass
+        - Vulkan (VKWraps/ RenderSystems/ different pipelines & shaders/ compute shaders)
         - Camera
         - Renderer (Swapchain)
         - GraphicsAssetCreator (between assets & Vulkan resource allocation(descriptorsets/ buffers/ image)
