@@ -76,5 +76,6 @@ Modern Foliage Rendering - https://youtu.be/jw00MbIJcrk?feature=shared <br>
 Interactive Wind and Vegetation in 'God of War' - https://youtu.be/MKX45_riWQA?feature=shared <br>
 How do Major Video Games Render Grass? - https://youtu.be/bp7REZBV4P4?feature=shared <br>
 Between Tech and Art: The Vegetation of Horizon Zero Dawn - https://youtu.be/wavnKZNSYqU?si=KXW5g2xCANX0SBuH <br>
-Chapter 7. Rendering Countless Blades of Waving Grass - https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass
+Chapter 7. Rendering Countless Blades of Waving Grass - https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass <br>
+Frustum Culling - https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 ## Last Update -  (2024/04/01)
