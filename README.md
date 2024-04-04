@@ -66,15 +66,15 @@ Breakdown: https://youtu.be/SMVMA5gTPYA <br>
 - Vulkan <br> 
 Vulkan Tutorial - https://vulkan-tutorial.com/ <br> 
 Vulkan C++ examples and demos - https://github.com/SaschaWillems/Vulkan <br> 
-Vulkan Game Engine Tutorial - https://youtu.be/Y9U9IE0gVHA?feature=shared <br> 
-
-- FABRIK IK <br> 
-http://www.andreasaristidou.com/FABRIK.html <br>
-
+Vulkan Game Engine Tutorial - https://youtu.be/Y9U9IE0gVHA?feature=shared <br>
+- Animation <br> 
+Skeletal Animation - https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation  <br>
+FABRIK: a fast, iterative solver for the inverse kinematics problem - http://www.andreasaristidou.com/FABRIK.html <br>
 - Grass <br>
 Procedural Grass in 'Ghost of Tsushima' - https://youtu.be/Ibe1JBF5i5Y?feature=shared <br>
 Modern Foliage Rendering - https://youtu.be/jw00MbIJcrk?feature=shared <br>
 Interactive Wind and Vegetation in 'God of War' - https://youtu.be/MKX45_riWQA?feature=shared <br>
 How do Major Video Games Render Grass? - https://youtu.be/bp7REZBV4P4?feature=shared <br>
-
+Between Tech and Art: The Vegetation of Horizon Zero Dawn - https://youtu.be/wavnKZNSYqU?si=KXW5g2xCANX0SBuH <br>
+Chapter 7. Rendering Countless Blades of Waving Grass - https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass
 ## Last Update -  (2024/04/01)
