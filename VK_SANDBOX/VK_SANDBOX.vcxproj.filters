@@ -294,6 +294,12 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\Scene\FluidScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -660,6 +666,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\Scene\FluidScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

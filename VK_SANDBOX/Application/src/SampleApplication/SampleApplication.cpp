@@ -9,6 +9,7 @@
 #include "Scene/ParticleSystemScene.h"
 #include "Scene/SkeletalAnimationScene.h"
 #include "Scene/GrassScene.h"
+#include "Scene/FluidScene.h"
 
 SampleApplication::SampleApplication::SampleApplication(const std::string& appName)
 	:sceneNum{ 0 }, IHCEngine::Core::IApplication(appName)
@@ -25,7 +26,8 @@ void SampleApplication::SampleApplication::Init()
 	sceneManager->AddScene<PhysicallyBasedSimulationScene>();
 	sceneManager->AddScene<ParticleSystemScene>();
 	sceneManager->AddScene<GrassScene>();
-	sceneManager->SetNextSceneToLoad(5);
+	sceneManager->AddScene<FluidScene>();
+	sceneManager->SetNextSceneToLoad(6);
 }
 
 void SampleApplication::SampleApplication::Update()
@@ -75,6 +77,13 @@ void SampleApplication::SampleApplication::Update()
 		std::cout << "==========    Loading Scene 6  ========" << std::endl;
 		std::cout << "=========================================" << std::endl;
 		sceneManager->SetNextSceneToLoad(5);
+	}
+	if (IHCEngine::Core::Input::IsKeyUp(GLFW_KEY_F7))
+	{
+		std::cout << "=========================================" << std::endl;
+		std::cout << "==========    Loading Scene 7  ========" << std::endl;
+		std::cout << "=========================================" << std::endl;
+		sceneManager->SetNextSceneToLoad(6);
 	}
 }
 

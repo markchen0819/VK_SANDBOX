@@ -216,6 +216,8 @@
     <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\Scene\FluidScene.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -337,6 +339,8 @@
     <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeGrassPipeline.h" />
     <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeGrassDescriptorWrap.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.h" />
+    <ClInclude Include="Application\src\SampleApplication\Scene\FluidScene.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />
