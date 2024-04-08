@@ -30,4 +30,9 @@ REM Compile Grass Shaders
 "%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\renderGrassShader.frag" -o "%SPV_OUTPUT_PATH%\rendergrassfrag.spv"
 "%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeGrassShader.comp" -o "%SPV_OUTPUT_PATH%\computegrasscomp.spv"
 
+REM Compile Fluid Shaders
+"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\renderFluidParticleShader.vert" -o "%SPV_OUTPUT_PATH%\renderfluidparticlevert.spv"
+"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\renderFluidParticleShader.frag" -o "%SPV_OUTPUT_PATH%\renderfluidparticlefrag.spv"
+"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidForceShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidforcecomp.spv"
+"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidIntegrateShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidintegratecomp.spv"
 pause

@@ -10,6 +10,7 @@
 #include "../../../Core/Scene/Components/TextureComponent.h"
 #include "../../../Core/Scene/Components/ComputeParticleComponent.h"
 #include "../../../Core/Scene/Components/ComputeGrassComponent.h"
+#include "../../../Core/Scene/Components/ComputeFluidComponent.h"
 #include "../../../Core/Scene/GameObject.h"
 
 
@@ -54,9 +55,11 @@ namespace IHCEngine::Graphics
 
             if (gobj->IsActive() == false) continue;
 
-            // Don't draw mesh binded by the particle system
+            // Don't draw mesh binded by the particle system, factor out some day
             if (gobj->HasComponent<Component::ComputeParticleComponent>()) continue;
             if (gobj->HasComponent<Component::ComputeGrassComponent>()) continue;
+            if (gobj->HasComponent<Component::ComputeFluidComponent>()) continue;
+
 
             if (!gobj->HasComponent<Component::MeshComponent>()) continue;
             if (!gobj->HasComponent<Component::TextureComponent>())

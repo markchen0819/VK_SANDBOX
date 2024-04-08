@@ -10,7 +10,7 @@
 #include "../CustomBehaviors/ImguiContext/ImguiContext_FluidScene.h"
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
-
+#include "../../../../Engine/src/Core/Scene/Components/ComputeFluidComponent.h"
 
 SampleApplication::FluidScene::FluidScene()
 	: Scene("FluidScene")
@@ -22,6 +22,11 @@ void SampleApplication::FluidScene::Load()
 	// Create Graphics resource using GraphicsAssetCreator
 	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
 	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
+
+	auto sphereMesh =
+		graphicsAssetCreator.CreateMesh("sphereMesh",
+			"Engine/assets/models/lowPolySphere/lowPolySphere.obj");
+
 
 	// x y z axis
 	createAxisMeshAndLoadAxisTexture();
@@ -37,6 +42,8 @@ void SampleApplication::FluidScene::UnLoad()
 	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
 	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
+
+	graphicsAssetCreator.DestroyMesh("sphereMesh");
 
 	// x y z axis
 	graphicsAssetCreator.DestroyTexture("plainTexture");
@@ -67,7 +74,13 @@ void SampleApplication::FluidScene::Init()
 	auto assetManager = IHCEngine::Core::AssetManagerLocator::GetAssetManager();
 	IHCEngine::Component::MeshComponent* meshcomponent = nullptr;
 	IHCEngine::Component::TextureComponent* texturecomponent = nullptr;
+	IHCEngine::Component::ComputeFluidComponent* computeFluidComponent = nullptr;
 
+	IHCEngine::Core::GameObject& fluidGobj = AddGameObject("fluidGobj");
+	computeFluidComponent = fluidGobj.AddComponent<IHCEngine::Component::ComputeFluidComponent>();
+	meshcomponent = fluidGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
+	fluidGobj.transform.SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 	// Others
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");

@@ -13,7 +13,8 @@
 #include "../../Core/Scene/Components/ComputeParticleComponent.h"
 #include "../Grass/ComputeGrassUniformBufferObject.h"
 #include "../../Core/Scene/Components/ComputeGrassComponent.h"
-
+#include "../Fluid/ComputeFluidUniformBufferObject.h"
+#include "../../Core/Scene/Components/ComputeFluidComponent.h"
 
 namespace IHCEngine::Graphics
 {
@@ -31,6 +32,8 @@ namespace IHCEngine::Graphics
 		computeParticleDescriptorWrap->Setup();
 		computeGrassDescriptorWrap = std::make_unique<ComputeGrassDescriptorWrap>(ihcDevice);
 		computeGrassDescriptorWrap->Setup();
+		computeFluidDescriptorWrap = std::make_unique<ComputeFluidDescriptorWrap>(ihcDevice);
+		computeFluidDescriptorWrap->Setup();
 	}
 
 	std::vector<VkDescriptorSetLayout> IHCDescriptorManager::GetDefaultDescriptorSetLayoutsForBasicRenderSystem()
@@ -297,7 +300,6 @@ namespace IHCEngine::Graphics
 		computeParticle->SetUniformBuffers(computeParticleUniformBuffers);
 		// no need to set SSBO, what we did here is we get resource from computeParticle and bind
 	}
-
 	void IHCDescriptorManager::DeallocateComputeParticleDescriptorSet(Component::ComputeParticleComponent* computeParticle)
 	{
 		// All submitted commands that refer to sampler must have completed execution
@@ -327,7 +329,6 @@ namespace IHCEngine::Graphics
 		}
 		computeParticle->SetUniformBuffers({});
 	}
-
 	void IHCDescriptorManager::AllocateComputeGrassDescriptorSet(Component::ComputeGrassComponent* computeGrass)
 	{
 		std::vector<IHCBuffer*> computeGrassUniformBuffers;
@@ -418,7 +419,6 @@ namespace IHCEngine::Graphics
 		computeGrass->SetUniformBuffers(computeGrassUniformBuffers);
 		// no need to set SSBO, what we did here is we get resource from computeParticle and bind
 	}
-
 	void IHCDescriptorManager::DeallocateComputeGrassDescriptorSet(Component::ComputeGrassComponent* computeGrass)
 	{
 		// All submitted commands that refer to sampler must have completed execution
@@ -453,4 +453,129 @@ namespace IHCEngine::Graphics
 		}
 		computeGrass->SetUniformBuffers({});
 	}
+	void IHCDescriptorManager::AllocateComputeFluidDescriptorSet(Component::ComputeFluidComponent* computeFluid)
+	{
+		std::vector<IHCBuffer*> computeFluidUniformBuffers;
+		std::vector<VkDescriptorSet> computeDescriptorSets;
+		const int maxParticleCount = computeFluid->GetMaxParticleCount();
+
+		// Get Shader Storage buffers from component itself
+		std::vector<IHCBuffer*> shaderStorageBuffers = computeFluid->GetSSBO();
+
+		// Get Uniform buffers from DescriptorWrap
+		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			auto buffer = computeFluidDescriptorWrap->GetAvailableComputeFluidUBO();
+			computeFluidUniformBuffers.push_back(buffer);
+		}
+
+		// Allocate descriptorSets from  DescriptorWrap and bind to buffer
+		// Allocate multiple descriptor sets of the same layout in a single call
+		auto descriptorSetLayout = computeFluidDescriptorWrap->GetDescriptorSetLayout();
+		auto descriptorPool = computeFluidDescriptorWrap->GetPool();
+
+		std::vector<VkDescriptorSetLayout> layouts(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+		allocInfo.pSetLayouts = layouts.data();
+		computeDescriptorSets.resize(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+		if (vkAllocateDescriptorSets(ihcDevice.GetDevice(), &allocInfo, computeDescriptorSets.data()) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		// Update each allocated descriptor set with the actual resources (buffers) they will reference
+		for (size_t i = 0; i < Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			// DescriptorSet: computeDescriptorSets[i]
+			// Bind resources: uniformBuffers[i] shaderStorageBuffers[i]  shaderStorageBuffers[i-1] 
+
+			VkDescriptorBufferInfo uniformBufferInfo{};
+			uniformBufferInfo.buffer = computeFluidUniformBuffers[i]->GetBuffer();
+			uniformBufferInfo.offset = 0;
+			uniformBufferInfo.range = sizeof(Graphics::ComputeFluidUniformBufferObject);
+
+			VkDescriptorBufferInfo storageBufferInfoLastFrame{};
+			storageBufferInfoLastFrame.buffer = shaderStorageBuffers[(i - 1) % Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT]->GetBuffer();
+			storageBufferInfoLastFrame.offset = 0;
+			storageBufferInfoLastFrame.range = sizeof(Graphics::FluidParticle) * maxParticleCount;
+
+			VkDescriptorBufferInfo storageBufferInfoCurrentFrame{};
+			storageBufferInfoCurrentFrame.buffer = shaderStorageBuffers[i]->GetBuffer();
+			storageBufferInfoCurrentFrame.offset = 0;
+			storageBufferInfoCurrentFrame.range = sizeof(Graphics::FluidParticle) * maxParticleCount;
+
+			std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+			// Configure the write operation for the uniform buffer at binding 0
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = computeDescriptorSets[i]; // Destination descriptor set
+			descriptorWrites[0].dstBinding = 0; // Binding 0 in the set
+			descriptorWrites[0].dstArrayElement = 0; // First element in the array (if it was an array)
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1; // We're updating one descriptor
+			descriptorWrites[0].pBufferInfo = &uniformBufferInfo; // Pointer to the buffer info
+
+			// Configure the write operation for the storage buffer at binding 1 (last frame's data)
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = computeDescriptorSets[i];
+			descriptorWrites[1].dstBinding = 1; // Binding 1 in the set
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pBufferInfo = &storageBufferInfoLastFrame;
+
+			// Configure the write operation for the storage buffer at binding 2 (current frame's data)
+			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[2].dstSet = computeDescriptorSets[i];
+			descriptorWrites[2].dstBinding = 2; // Binding 2 in the set
+			descriptorWrites[2].dstArrayElement = 0;
+			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[2].descriptorCount = 1;
+			descriptorWrites[2].pBufferInfo = &storageBufferInfoCurrentFrame;
+
+			vkUpdateDescriptorSets(ihcDevice.GetDevice(),
+				3, descriptorWrites.data(),
+				0, nullptr);
+		}
+		computeFluid->SetDescriptorSets(computeDescriptorSets);
+		computeFluid->SetUniformBuffers(computeFluidUniformBuffers);
+		// no need to set SSBO, what we did here is we get resource from computeParticle and bind
+	}
+	void IHCDescriptorManager::DeallocateComputeFluidDescriptorSet(Component::ComputeFluidComponent* computeFluid)
+	{
+		// All submitted commands that refer to sampler must have completed execution
+		vkDeviceWaitIdle(ihcDevice.GetDevice());
+
+		const std::vector<VkDescriptorSet>& IKDescriptorSets = computeFluid->GetDescriptorSets();
+		if (IKDescriptorSets.empty())
+		{
+			assert("Clearing descriptor sets were not allocated, shouldnt be here ");
+		}
+		// Push back each descriptor set to the available pool 
+		for (VkDescriptorSet descriptor : IKDescriptorSets)
+		{
+			// Not working as we created manually for this
+			// this one works as reusing
+			//computeGrassDescriptorWrap->FreeDescriptorSet(descriptor);
+
+			// Actual frees the resource
+			computeFluidDescriptorWrap->CustomFreeDescriptorSet(descriptor);
+		}
+		computeFluid->SetDescriptorSets({});
+
+		const std::vector<IHCBuffer*>& buffers = computeFluid->GetUnformBuffers();
+		if (buffers.empty())
+		{
+			assert("Clearing buffers were not allocated, shouldnt be here ");
+		}
+		// Push back each buffer  to the available pool 
+		for (IHCBuffer* buffer : buffers)
+		{
+			computeFluidDescriptorWrap->ReleaseComputeFluidUBO(buffer);
+		}
+		computeFluid->SetUniformBuffers({});
+	}
+
 }

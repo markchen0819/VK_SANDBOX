@@ -3,6 +3,7 @@
 
 namespace IHCEngine::Component
 {
+	class ComputeFluidComponent;
 	class ComputeParticleComponent;
 	class ComputeGrassComponent;
 }
@@ -57,6 +58,9 @@ namespace IHCEngine::Graphics
 
 		void CreateGrassData(Component::ComputeGrassComponent* computeGrass);
 		void DestroyGrassData(Component::ComputeGrassComponent* computeGrass);
+
+		void CreateFluidData(Component::ComputeFluidComponent* computeFluid);
+		void DestroyFluidData(Component::ComputeFluidComponent* computeFluid);
 
 	private:
 

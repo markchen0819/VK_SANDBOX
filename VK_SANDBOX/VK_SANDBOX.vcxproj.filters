@@ -300,6 +300,15 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeFluidDescriptorWrap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeFluidPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -672,6 +681,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeFluidDescriptorWrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Fluid\FluidParticle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\Fluid\ComputeFluidUniformBufferObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeFluidPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

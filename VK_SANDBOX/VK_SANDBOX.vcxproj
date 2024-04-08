@@ -154,6 +154,9 @@
   <ItemGroup>
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\AnimationViewer.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\CPUFrustumCulling.cpp" />
+    <ClCompile Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.cpp" />
+    <ClCompile Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeFluidPipeline.cpp" />
+    <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeFluidDescriptorWrap.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.cpp" />
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.cpp" />
     <ClCompile Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeParticleDescriptorWrap.cpp" />
@@ -257,6 +260,11 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\CPUFrustumCulling.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\Frustum.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\CPUFrustumCulling\Plane.h" />
+    <ClInclude Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.h" />
+    <ClInclude Include="Engine\src\Graphics\RenderSystems\Pipelines\ComputeFluidPipeline.h" />
+    <ClInclude Include="Engine\src\Graphics\Fluid\ComputeFluidUniformBufferObject.h" />
+    <ClInclude Include="Engine\src\Graphics\Fluid\FluidParticle.h" />
+    <ClInclude Include="Engine\src\Graphics\VKWraps\DescriptorWraps\ComputeFluidDescriptorWrap.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeGrassComponent.h" />
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeParticleComponent.h" />
     <ClInclude Include="Engine\src\Graphics\Grass\ComputeGrassUniformBufferObject.h" />

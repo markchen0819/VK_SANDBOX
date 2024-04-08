@@ -5,9 +5,11 @@
 #include "DescriptorWraps/SkeletalDescriptorWrap.h"
 #include "DescriptorWraps/ComputeParticleDescriptorWrap.h"
 #include "DescriptorWraps/ComputeGrassDescriptorWrap.h"
+#include "DescriptorWraps/ComputeFluidDescriptorWrap.h"
 
 namespace IHCEngine::Component
 {
+	class ComputeFluidComponent;
 	class ComputeGrassComponent;
 	class ComputeParticleComponent;
 }
@@ -35,6 +37,7 @@ namespace IHCEngine::Graphics
         // For particle system
 		ComputeParticleDescriptorWrap* GetComputeParticleDescriptorWrap() const { return computeParticleDescriptorWrap.get(); }
         ComputeGrassDescriptorWrap* GetComputeGrassDescriptorWrap() const { return computeGrassDescriptorWrap.get(); }
+        ComputeFluidDescriptorWrap* GetComputeFluidDescriptorWrap() const { return computeFluidDescriptorWrap.get(); }
 
         // Get Layouts for pipeline creation
         std::vector<VkDescriptorSetLayout> GetDefaultDescriptorSetLayoutsForBasicRenderSystem();
@@ -53,6 +56,8 @@ namespace IHCEngine::Graphics
         void AllocateComputeGrassDescriptorSet(Component::ComputeGrassComponent* computeGrass);
         void DeallocateComputeGrassDescriptorSet(Component::ComputeGrassComponent* computeGrass);
 
+        void AllocateComputeFluidDescriptorSet(Component::ComputeFluidComponent* computeFluid);
+        void DeallocateComputeFluidDescriptorSet(Component::ComputeFluidComponent* computeFluid);
 	private:
 
         IHCDevice& ihcDevice;
@@ -61,6 +66,7 @@ namespace IHCEngine::Graphics
         std::unique_ptr<SkeletalDescriptorWrap> skeletalDescriptorWrap = nullptr;
         std::unique_ptr<ComputeParticleDescriptorWrap> computeParticleDescriptorWrap = nullptr;
         std::unique_ptr<ComputeGrassDescriptorWrap> computeGrassDescriptorWrap = nullptr;
+        std::unique_ptr<ComputeFluidDescriptorWrap> computeFluidDescriptorWrap = nullptr;
 	};
 }
 

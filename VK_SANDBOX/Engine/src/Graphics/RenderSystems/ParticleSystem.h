@@ -1,7 +1,8 @@
 #pragma once
+#include "Pipelines/PipelineType.h"
 #include "Pipelines/ComputeParticlePipeline.h"
 #include "Pipelines/ComputeGrassPipeline.h"
-#include "Pipelines/PipelineType.h"
+#include "Pipelines/ComputeFluidPipeline.h"
 
 namespace IHCEngine::Graphics
 {
@@ -40,7 +41,7 @@ namespace IHCEngine::Graphics
         // compute & graphics pipeline
         std::unique_ptr<IHCEngine::Graphics::ComputeParticlePipeline> computeParticlePipeline;
         std::unique_ptr<IHCEngine::Graphics::ComputeGrassPipeline> computeGrassPipeline;
-
+        std::unique_ptr<IHCEngine::Graphics::ComputeFluidPipeline> computeFluidPipeline;
     };
 
 }
