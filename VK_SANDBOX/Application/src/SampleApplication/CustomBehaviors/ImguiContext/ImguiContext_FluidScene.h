@@ -9,7 +9,9 @@ namespace IHCEngine::Component
         void UpdateContext() override;
 
     private:
-
+        float gasConstant = 0.0f;
+        float restDensity = 0.0f;
+        float viscosity = 0.0f;
     };
 }
 

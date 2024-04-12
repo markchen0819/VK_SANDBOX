@@ -3,22 +3,30 @@
 struct FluidParticle
 {
 	vec4 position;
+    vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
+    vec4 force;
+    float pressure;
+    float density;
 };
 layout (std140, binding = 0) uniform ParameterUBO
 {
     float deltaTime; 
     float accumulatedTime;
+    uint particleCount;
+    float gasConstant; 
+    float restDensity;
+    float viscosity;
 } ubo;
 
-// Ping-pong, switch 1&2
-layout(std430, binding = 2) buffer ParticleSSBOIn 
+
+layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
 {
    FluidParticle particlesIn[ ];
 };
 
-layout(std430, binding = 1) buffer ParticleSSBOOut 
+layout(std430, binding = 2) buffer ParticleSSBOOut 
 {
    FluidParticle particlesOut[ ];
 };
@@ -29,14 +37,100 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
 
+float fixedDeltaTime = 1.0f / 120.f;
+float pi = 3.1415926;
+float radius = 2; //ubo
+float mass = 1.0; 
+vec3 maxBound = vec3(8.0, 15.0, 8.0);
+vec3 minBound = vec3(-8.0, 0.0, -8.0);
+float boundDamping = -0.95f;
+
+vec4 getColorFromRamp(float value) 
+{
+    vec4 color1 = vec4(0.0, 0.0, 1.0, 1.0); // Blue
+    vec4 color2 = vec4(0.0, 1.0, 0.0, 1.0); // Green
+    vec4 color3 = vec4(1.0, 1.0, 0.0, 1.0); // Yellow
+    vec4 color4 = vec4(1.0, 0.0, 0.0, 1.0); // Red
+
+//    if (value < 0.33) 
+//    {
+//        return mix(color1, color2, value / 0.33);
+//    } 
+//    else if (value < 0.66) 
+//    {
+//        return mix(color2, color3, (value - 0.33) / 0.33);
+//    } 
+//    else 
+//    {
+//        return mix(color3, color4, (value - 0.66) / 0.34);
+//    }
+    if (value < 0.5) 
+    {
+        return mix(color1, color2, value / 0.5);
+    } 
+    else if (value < 0.8) 
+    {
+        return mix(color2, color3, (value - 0.5) / 0.3);
+    } 
+    else 
+    {
+        return mix(color3, color4, (value - 0.8) / 0.2);
+    }
+}
+
 void main() 
 {
     uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
+    if (index >= ubo.particleCount) { return; } // No work for this thread
     FluidParticle particleIn = particlesIn[index];
-    particlesOut[index].velocity = vec4(1,1,1,1);
+
+    vec4 velocity = particleIn.velocity;
+    vec4 position = particleIn.position + velocity * ubo.deltaTime;
+
+     // Boundary
+     if ((position.x - radius) < minBound.x)
+     {
+       velocity.x *= boundDamping;
+       position.x = minBound.x + radius;
+     }
+     if ((position.x + radius) > maxBound.x)
+     {
+       velocity.x *= boundDamping;
+       position.x = maxBound.x - radius;
+     }
+     if ((position.y - radius) < minBound.y)
+     {
+       velocity.y *= boundDamping;
+       position.y = minBound.y + radius;
+     }
+     if ((position.y + radius) > maxBound.y)
+     {
+       velocity.y *= boundDamping;
+       position.y = maxBound.y - radius;
+     }
+     if ((position.z - radius) < minBound.z)
+     {
+       velocity.z *= boundDamping;
+       position.z = minBound.z + radius;
+     }
+     if ((position.z + radius) > maxBound.z)
+     {
+       velocity.z *= boundDamping;
+       position.z = maxBound.z - radius;
+     }
+    
+    // color
+    float maxVelocity = 10.0;
+    float val = clamp(length(velocity)/maxVelocity, 0.0, 1.0);
+    vec4 color = getColorFromRamp(val);
 
 
-    particlesOut[index].position = particleIn.position + vec4(-1, 0,0,0)  * ubo.deltaTime ;//+ particleIn.velocity * ubo.deltaTime;  
-    particlesIn[index].position = particlesOut[index].position; // needed
-
+    particlesOut[index].position = position;
+    particlesOut[index].velocity = velocity;
+    particlesOut[index].predictPosition = particleIn.predictPosition;
+    //position + velocity * ubo.deltaTime;
+    particlesOut[index].color = color;//particleIn.color + vec4(0,1,0,0);//particleIn.color;
+    particlesOut[index].force = particleIn.force;
+    particlesOut[index].pressure = particleIn.pressure;
+    particlesOut[index].density = particleIn.density;
 }

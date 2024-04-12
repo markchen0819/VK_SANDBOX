@@ -20,29 +20,23 @@ namespace IHCEngine::Graphics
 		void createGraphicsPipelineLayout();
 		void createGraphicsPipeline();
 
-		void createComputeForcePipelineLayout();
+		void createComputePipelineLayout(); 
+		void createComputeDensityPressurePipeline();
 		void createComputeForcePipeline();
-
-		void createComputeIntegratePipelineLayout();
 		void createComputeIntegratePipeline();
-
-		// TO:DO maybe share same layout but different pipeline for compute shaders
-		//       add other compute shaders
+		void createComputeCopyPipeline();
 
 		VkPipelineLayout graphicsPipelineLayout;
 		VkPipeline graphicsPipeline;
 
-		VkPipelineLayout computeDensityPressurePipelineLayout;
+		VkPipelineLayout computePipelineLayout; // These compute shaders share the same layout
 		VkPipeline computeDensityPressurePipeline;
-
-		VkPipelineLayout computeForcePipelineLayout;
 		VkPipeline computeForcePipeline;
-
-		VkPipelineLayout computeIntegratePipelineLayout;
 		VkPipeline computeIntegratePipeline;
+		VkPipeline computeCopyPipeline; // In case double buffering needed to write back to SSBO out
 
+		// Helpers
 		void InsertComputeShaderBarrier(VkCommandBuffer commandBuffer);
-
 		static std::vector<char> readFile(const std::string& filename);
 		VkShaderModule createShaderModule(const std::vector<char>& code);
 	};

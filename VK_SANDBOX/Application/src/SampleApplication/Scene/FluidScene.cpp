@@ -80,7 +80,6 @@ void SampleApplication::FluidScene::Init()
 	computeFluidComponent = fluidGobj.AddComponent<IHCEngine::Component::ComputeFluidComponent>();
 	meshcomponent = fluidGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
-	fluidGobj.transform.SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 	// Others
 
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");

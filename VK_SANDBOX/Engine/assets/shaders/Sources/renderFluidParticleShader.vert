@@ -3,10 +3,13 @@
 struct FluidParticle
 {
 	vec4 position;
+    vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
+    vec4 force;
+    float pressure;
+    float density;
 };
-
 // Push constants
 layout(push_constant) uniform Push
 {
@@ -34,9 +37,8 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject
 //};
 layout(set = 1, binding = 2) buffer ParticleSSBOOut 
 {
-   FluidParticle particles[ ];
+   FluidParticle particlesOut[ ];
 };
-
 // Vertex Input
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
@@ -62,20 +64,21 @@ mat4 createTranslationMatrix(vec3 position)
 mat4 createTransformationMatrix(vec3 position) 
 {
    mat4 translationMatrix = createTranslationMatrix(position);
+   float scale = 0.2;
    mat4 precomputedRotScaleMatrix = mat4(
-        0.2, 0.0, 0.0, 0.0,
-        0.0, 0.2, 0.0, 0.0,
-        0.0, 0.0, 0.2, 0.0,
+        scale, 0.0, 0.0, 0.0,
+        0.0, scale, 0.0, 0.0,
+        0.0, 0.0, scale, 0.0,
         0.0, 0.0, 0.0, 1.0);
     return translationMatrix * precomputedRotScaleMatrix;
 }
 void main() 
 {
      // Create a transformation matrix for this particle ( local space to the particle system's local space)
-    mat4 modelMatrix = createTransformationMatrix(particles[gl_InstanceIndex].position.xyz);
+    mat4 modelMatrix = createTransformationMatrix(particlesOut[gl_InstanceIndex].position.xyz);
     // Transform the vertex position from local to world
     vec4 worldPosition = modelMatrix * vec4(inPosition.xyz, 1.0);
     gl_Position = ubo.projectionMatrix * ubo.viewMatrix * push.modelMatrix * worldPosition;
-    fragColor = particles[gl_InstanceIndex].color.xyz;
+    fragColor = particlesOut[gl_InstanceIndex].color.xyz;
 
 }

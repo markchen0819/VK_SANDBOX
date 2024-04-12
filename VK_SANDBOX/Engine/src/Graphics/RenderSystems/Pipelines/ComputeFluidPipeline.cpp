@@ -36,58 +36,44 @@ namespace IHCEngine::Graphics
             component->Compute(frameInfo);
 
             ///////////////////////////////////////////
-            // Compute Pipeline 1
-            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeForcePipeline);
-            auto descriptorSet = component->GetDescriptorSets()[frameInfo.frameIndex];
-            vkCmdBindDescriptorSets
-            (
-                frameInfo.commandBuffer,
-                VK_PIPELINE_BIND_POINT_COMPUTE,
-                computeForcePipelineLayout,
-                0,
-                1,
-                &descriptorSet,
-                0,
-                nullptr
-            );
+            // https://matthias-research.github.io/pages/publications/sca03.pdf
+            // Compute shader order
+            // 1. Calculate per particle density and pressure (SPH equation) 
+            // 2. Use density and pressure to calculate force (Navier-Stokes equation)
+            // 3. Integrate
+            // -> Ready to render
 
-            // Dispatch
-            vkCmdDispatch(frameInfo.commandBuffer, particleCount / 256, 1, 1);
+            auto descriptorSet = component->GetDescriptorSets()[frameInfo.frameIndex];
+
+            uint32_t groupCountX = (particleCount + 255) / 256; // Ensure at least one workgroup is dispatched
+
+            // 1. Density Pressure
+            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                computeDensityPressurePipeline);
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
             InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
-            // Compute Pipeline 2
-            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeIntegratePipeline);
-            vkCmdBindDescriptorSets
-            (
-                frameInfo.commandBuffer,
-                VK_PIPELINE_BIND_POINT_COMPUTE,
-                computeIntegratePipelineLayout,
-                0,
-                1,
-                &descriptorSet,
-                0,
-                nullptr
-            );
-            // Dispatch
-            vkCmdDispatch(frameInfo.commandBuffer, particleCount / 256, 1, 1);
-            ///////////////////////////////////////////
+        	// 2. Calculate Force
+            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, 
+                computeForcePipeline);
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+            InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
+        	// 3. Integrate
+            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, 
+                computeIntegratePipeline);
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+            InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
-            //// DensityPressure
-            //vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeForcePipeline);
-            //vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeForcePipelineLayout, 0, 1, &descriptorSets.computeForce, 0, nullptr);
-            //vkCmdDispatch(frameInfo.commandBuffer, particleCount / 256, 1, 1);
-            //InsertComputeShaderBarrier
-            //// ComputeForce
-            //
-            //
-            //
-            //
-            ////Integrate
-            //
-            //
-            //
-            //
+        	// Extra - Copy result to SSBO out if needed
+            //vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeCopyPipeline);
+            //vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            //vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+
+        	///////////////////////////////////////////
         }
     }
 
@@ -153,25 +139,26 @@ namespace IHCEngine::Graphics
     void ComputeFluidPipeline::createLayout()
     {
         createGraphicsPipelineLayout();
-        createComputeForcePipelineLayout();
-        createComputeIntegratePipelineLayout();
+        createComputePipelineLayout();
     }
     void ComputeFluidPipeline::createPipeline()
     {
         createGraphicsPipeline();
+        createComputeDensityPressurePipeline();
         createComputeForcePipeline();
         createComputeIntegratePipeline();
+        createComputeCopyPipeline();
     }
     void ComputeFluidPipeline::destroyPipeline()
     {
         vkDestroyPipeline(ihcDevice.GetDevice(), graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(ihcDevice.GetDevice(), graphicsPipelineLayout, nullptr);
 
+        vkDestroyPipeline(ihcDevice.GetDevice(), computeDensityPressurePipeline, nullptr);
         vkDestroyPipeline(ihcDevice.GetDevice(), computeForcePipeline, nullptr);
-        vkDestroyPipelineLayout(ihcDevice.GetDevice(), computeForcePipelineLayout, nullptr);
-
         vkDestroyPipeline(ihcDevice.GetDevice(), computeIntegratePipeline, nullptr);
-        vkDestroyPipelineLayout(ihcDevice.GetDevice(), computeIntegratePipelineLayout, nullptr);
+        vkDestroyPipeline(ihcDevice.GetDevice(), computeCopyPipeline, nullptr);
+        vkDestroyPipelineLayout(ihcDevice.GetDevice(), computePipelineLayout, nullptr);
     }
 
     void ComputeFluidPipeline::createGraphicsPipelineLayout()
@@ -277,7 +264,8 @@ namespace IHCEngine::Graphics
         vkDestroyShaderModule(ihcDevice.GetDevice(), fragShaderModule, nullptr);
         vkDestroyShaderModule(ihcDevice.GetDevice(), vertShaderModule, nullptr);
     }
-    void ComputeFluidPipeline::createComputeForcePipelineLayout()
+
+    void ComputeFluidPipeline::createComputePipelineLayout()
     {
         // In GLSL, our case
 		// computeDescriptorSetLayout set 0, Binding0, UNIFORM_BUFFER
@@ -292,30 +280,36 @@ namespace IHCEngine::Graphics
         pipelineLayoutInfo.pSetLayouts = &computeDescriptorSetLayout;
 
         if (vkCreatePipelineLayout(ihcDevice.GetDevice(),
-            &pipelineLayoutInfo, nullptr, &computeForcePipelineLayout) != VK_SUCCESS)
+            &pipelineLayoutInfo, nullptr, &computePipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create compute pipeline layout!");
         }
     }
-    void ComputeFluidPipeline::createComputeIntegratePipelineLayout()
+    void ComputeFluidPipeline::createComputeDensityPressurePipeline()
     {
-        // In GLSL, our case
-        // computeDescriptorSetLayout set 0, Binding0, UNIFORM_BUFFER
-        //                            set 0, Binding1, STORAGE_BUFFER
-        //                            set 0, Binding2, STORAGE_BUFFER
+        auto computeShaderCode = readFile("Engine/assets/shaders/computefluiddensitypressurecomp.spv");
 
-        VkDescriptorSetLayout computeDescriptorSetLayout = descriptorManager->GetComputeFluidDescriptorWrap()->GetDescriptorSetLayout();
+        VkShaderModule computeShaderModule = createShaderModule(computeShaderCode);
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &computeDescriptorSetLayout;
+        VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        computeShaderStageInfo.module = computeShaderModule;
+        computeShaderStageInfo.pName = "main";
 
-        if (vkCreatePipelineLayout(ihcDevice.GetDevice(),
-            &pipelineLayoutInfo, nullptr, &computeIntegratePipelineLayout) != VK_SUCCESS)
+        VkComputePipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineInfo.layout = computePipelineLayout;
+        pipelineInfo.stage = computeShaderStageInfo;
+
+        if (vkCreateComputePipelines(ihcDevice.GetDevice(),
+            VK_NULL_HANDLE, 1, &pipelineInfo,
+            nullptr, &computeDensityPressurePipeline) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create compute pipeline layout!");
+            throw std::runtime_error("failed to create compute pipeline!");
         }
+
+        vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
     }
     void ComputeFluidPipeline::createComputeForcePipeline()
     {
@@ -331,7 +325,7 @@ namespace IHCEngine::Graphics
 
         VkComputePipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-        pipelineInfo.layout = computeForcePipelineLayout;
+        pipelineInfo.layout = computePipelineLayout;
         pipelineInfo.stage = computeShaderStageInfo;
 
         if (vkCreateComputePipelines(ihcDevice.GetDevice(),
@@ -357,7 +351,7 @@ namespace IHCEngine::Graphics
 
         VkComputePipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-        pipelineInfo.layout = computeIntegratePipelineLayout;
+        pipelineInfo.layout = computePipelineLayout;
         pipelineInfo.stage = computeShaderStageInfo;
 
         if (vkCreateComputePipelines(ihcDevice.GetDevice(),
@@ -369,6 +363,33 @@ namespace IHCEngine::Graphics
 
         vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
     }
+    void ComputeFluidPipeline::createComputeCopyPipeline()
+    {
+        auto computeShaderCode = readFile("Engine/assets/shaders/computefluidcopycomp.spv");
+
+        VkShaderModule computeShaderModule = createShaderModule(computeShaderCode);
+
+        VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        computeShaderStageInfo.module = computeShaderModule;
+        computeShaderStageInfo.pName = "main";
+
+        VkComputePipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineInfo.layout = computePipelineLayout;
+        pipelineInfo.stage = computeShaderStageInfo;
+
+        if (vkCreateComputePipelines(ihcDevice.GetDevice(),
+            VK_NULL_HANDLE, 1, &pipelineInfo,
+            nullptr, &computeCopyPipeline) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create compute pipeline!");
+        }
+
+        vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
+    }
+
     void ComputeFluidPipeline::InsertComputeShaderBarrier(VkCommandBuffer commandBuffer)
     {
         // This is used to synchronize access to resources,
@@ -376,8 +397,8 @@ namespace IHCEngine::Graphics
 
         VkMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-        barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;  // Previous writes complete
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;  // Next reads wait for completion
 
         vkCmdPipelineBarrier(
             commandBuffer,

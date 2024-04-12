@@ -2,6 +2,8 @@
 
 #include "imgui.h"
 #include "../../../../Engine/src/Core/Locator/SceneManagerLocator.h"
+#include "../../../../Engine/src/Core/Scene/Components/ComputeFluidComponent.h"
+
 
 namespace IHCEngine::Component
 {
@@ -19,6 +21,29 @@ namespace IHCEngine::Component
         ImGui::Text(" F7: Full scene Reset");
         ImGui::Text("------------------------");
 
+        auto gobj = scene->GetGameObjectByName("fluidGobj");
+        auto computeFluid = gobj->GetComponent<ComputeFluidComponent>();
+
+        gasConstant = computeFluid->GetGasConstant();
+        restDensity = computeFluid->GetRestDensity();
+        viscosity = computeFluid->GetViscosity();
+
+        ImGui::Text("Gas Constant");
+        if (ImGui::DragFloat("##GasConstant", &gasConstant, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetGasConstant(gasConstant);
+        }
+
+        ImGui::Text("Rest Density");
+        if (ImGui::DragFloat("##RestDensity", &restDensity, 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetRestDensity(restDensity);
+        }
+        ImGui::Text("Viscosity");
+        if (ImGui::DragFloat("##Viscosity", &viscosity, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetViscosity(viscosity);
+        }
     }
 
 }

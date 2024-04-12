@@ -23,6 +23,14 @@ namespace IHCEngine::Component
 		void Compute(Graphics::FrameInfo& frameInfo);
 		void Draw(Graphics::FrameInfo& frameInfo);
 
+		// Parameters
+		void SetGasConstant(const float f) { gasConstant = f; }
+		float GetGasConstant() const { return gasConstant; }
+		void SetRestDensity(const float f) { restDensity = f; }
+		float GetRestDensity() const { return restDensity; }
+		void SetViscosity(const float f) { viscosity = f; }
+		float GetViscosity() const { return viscosity; }
+
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
 		std::vector<VkDescriptorSet>& GetDescriptorSets() { return computeDescriptorSets; }
@@ -41,8 +49,12 @@ namespace IHCEngine::Component
 
 	private:
 		std::vector<Graphics::FluidParticle> particles;
-		int maxParticleCount = 256;
-		int particleCount = 256;
+		int maxParticleCount = 1000;// 256 * 3;
+		int particleCount = 1000;// 256 * 3;
+
+		float gasConstant = 0.75;//  2.75f;// 5.0;// 
+		float restDensity = 15.0f; // 40.0f;// 10.0f;
+		float viscosity = 0.005f;
 
 		void initParticles();
 
