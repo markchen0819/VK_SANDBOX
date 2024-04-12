@@ -82,6 +82,9 @@ void main()
     {
         //if (index == i) { continue;}
         FluidParticle neighborParticle = particlesIn[i];
+
+        // Somehow prediction of neighbors is unstable for density,
+        // but stable for force calculation. Investigate in future.
         //float dist = distance(currentParticlePos, neighborParticle.predictPosition.xyz);
         float dist = distance(currentParticlePos, neighborParticle.position.xyz);
         if (dist > radius) continue;
@@ -96,7 +99,7 @@ void main()
 
     // write to SSBOOut
     particlesOut[index].position = particleIn.position;
-    particlesOut[index].predictPosition =particleIn.predictPosition;
+    particlesOut[index].predictPosition = particleIn.predictPosition;
     particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
     particlesOut[index].pressure = pressure;

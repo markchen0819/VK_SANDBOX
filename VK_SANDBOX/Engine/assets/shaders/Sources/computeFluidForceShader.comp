@@ -92,7 +92,6 @@ void main()
     // Equation (10)  Pressure in SPH form
     // Equation (14)  Viscosity in SPH form
 
-    //vec3 currentParticlePos = particleIn.position.xyz;
     vec3 currentParticlePos = particleIn.predictPosition.xyz;
     float pressure = particleIn.pressure;
     float density = particleIn.density;
@@ -120,13 +119,13 @@ void main()
         //float influence = DerivativeSpikyPow2(dist, radius);
         pressureForce += mass * direction * sharedPressure * influence / neighborDensity;
        
-//        // Viscosity
-//        float influence2 = WSpikySecondDerivative(dist, radius);
-//	    vec3 neighbourVelocity = neighborParticle.velocity.xyz;
-//		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
+        // Viscosity
+        float influence2 = WSpikySecondDerivative(dist, radius);
+	    vec3 neighbourVelocity = neighborParticle.velocity.xyz;
+		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
     }
 
-     vec3 newVelocity = velocity;
+    vec3 newVelocity = velocity;
      
     vec3 gravity = vec3(0, -9.81, 0);
 	newVelocity += gravity * ubo.deltaTime;
@@ -134,8 +133,8 @@ void main()
     vec3 pressureAccel = -pressureForce / (density * mass);
     newVelocity += pressureAccel * ubo.deltaTime;
 
-    //newVelocity += viscosityForce / (density * mass) * ubo.viscosity * ubo.deltaTime;
-   // newVelocity += viscosityForce * ubo.viscosity * ubo.deltaTime;
+    vec3 viscositAccel = viscosityForce * ubo.viscosity;
+    newVelocity += viscositAccel * ubo.deltaTime;
 
     particlesOut[index].position = particleIn.position; 
     particlesOut[index].predictPosition = particleIn.predictPosition;

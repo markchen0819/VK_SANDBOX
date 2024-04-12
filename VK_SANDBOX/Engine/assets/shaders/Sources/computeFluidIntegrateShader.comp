@@ -83,52 +83,54 @@ void main()
     if (index >= ubo.particleCount) { return; } // No work for this thread
     FluidParticle particleIn = particlesIn[index];
 
+    // Update position
     vec4 velocity = particleIn.velocity;
     vec4 position = particleIn.position + velocity * ubo.deltaTime;
 
      // Boundary
-     if ((position.x - radius) < minBound.x)
+     float boundOffset = 0.1;
+     if ((position.x - boundOffset) < minBound.x)
      {
        velocity.x *= boundDamping;
-       position.x = minBound.x + radius;
+       position.x = minBound.x + boundOffset;
      }
-     if ((position.x + radius) > maxBound.x)
+     if ((position.x + boundOffset) > maxBound.x)
      {
        velocity.x *= boundDamping;
-       position.x = maxBound.x - radius;
+       position.x = maxBound.x - boundOffset;
      }
-     if ((position.y - radius) < minBound.y)
+     if ((position.y - boundOffset) < minBound.y)
      {
        velocity.y *= boundDamping;
-       position.y = minBound.y + radius;
+       position.y = minBound.y + boundOffset;
      }
-     if ((position.y + radius) > maxBound.y)
+     if ((position.y + boundOffset) > maxBound.y)
      {
        velocity.y *= boundDamping;
-       position.y = maxBound.y - radius;
+       position.y = maxBound.y - boundOffset;
      }
-     if ((position.z - radius) < minBound.z)
+     if ((position.z - boundOffset) < minBound.z)
      {
        velocity.z *= boundDamping;
-       position.z = minBound.z + radius;
+       position.z = minBound.z + boundOffset;
      }
-     if ((position.z + radius) > maxBound.z)
+     if ((position.z + boundOffset) > maxBound.z)
      {
        velocity.z *= boundDamping;
-       position.z = maxBound.z - radius;
+       position.z = maxBound.z - boundOffset;
      }
     
-    // color
+    // Color
     float maxVelocity = 10.0;
     float val = clamp(length(velocity)/maxVelocity, 0.0, 1.0);
     vec4 color = getColorFromRamp(val);
 
-    // predictPosition
+    // PredictPosition
     vec3 predictPosition = position.xyz + velocity.xyz * fixedDeltaTime;
 
     particlesOut[index].position = position;
     particlesOut[index].velocity = velocity;
-    particlesOut[index].predictPosition = vec4(predictPosition, 0.0);
+    particlesOut[index].predictPosition = vec4(predictPosition, 1.0);
     particlesOut[index].color = color;
     particlesOut[index].pressure = particleIn.pressure;
     particlesOut[index].density = particleIn.density;

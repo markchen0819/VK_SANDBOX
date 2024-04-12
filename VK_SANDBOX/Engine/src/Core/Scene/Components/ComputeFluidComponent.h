@@ -54,7 +54,7 @@ namespace IHCEngine::Component
 
 		float gasConstant = 1.2f;// 0.75;//  2.75f;// 5.0;// 
 		float restDensity = 55.0f;// 15.0f; // 40.0f;// 10.0f;
-		float viscosity = 0.0f;
+		float viscosity = 0.05f;
 
 		void initParticles();
 
