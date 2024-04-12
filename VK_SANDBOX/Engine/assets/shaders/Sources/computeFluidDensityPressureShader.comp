@@ -47,26 +47,27 @@ float pi = 3.1415926;
 float mass = 1.0; 
 float boundDamping = -0.95f;
 
-float Wpoly6 (float r, float h)
-{
-    if( 0 < r && r <= h )
-    {
-       float x = h * h - r * r;
-       float coeff = 315.0 / (64.0 * pi * pow(h, 9.0));
-       return coeff * x * x * x;
-    }
-    return 0;
-}
 
-float SpikyKernelPow2 (float r, float h)
+float SpikyKernelPow2 (float r, float h) // Base on Sebastian Lague
 {
-    if( 0 < r && r <= h )
+    if( 0 <= r && r <= h )
     {
        float x = h - r;
        float coeff = 15.0 / (2.0 * pi * pow(h, 5.0));
        return coeff * x * x;
     }
-    return 0;
+    return 0.0;
+}
+
+float DensityKernel (float r, float h) // Base on paper Wpoly6
+{
+    if( 0 <= r && r <= h )
+    {
+       float x = h * h - r * r;
+       float coeff = 315.0 / (64.0 * pi * pow(h, 9.0));
+       return coeff * x * x * x;
+    }
+    return 0.0;
 }
 
 
@@ -91,7 +92,7 @@ void main()
         //float dist = distance(currentParticlePos, neighborParticle.predictPosition.xyz);
         float dist = distance(currentParticlePos, neighborParticle.position.xyz);
         if (dist > ubo.radius) continue;
-        //density += mass * Wpoly6(dist, radius);
+        //density += mass * DensityKernel(dist, ubo.radius);
         density += mass * SpikyKernelPow2(dist, ubo.radius);
     }
     density += 0.000001; // make sure not zero

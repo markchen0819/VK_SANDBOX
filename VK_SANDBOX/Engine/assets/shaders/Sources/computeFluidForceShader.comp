@@ -48,39 +48,38 @@ float pi = 3.1415926;
 float mass = 1.0; 
 float boundDamping = -0.95f;
 
-// WSpiky(r,h) = 15/ pi h^6 (h - r)^3
-// WSpiky'(r,h) = -45/ pi h^6 (h - r)^2
-// WSpiky''(r,h) = 90/ pi h^6 (h - r)
-float WSpikyFirstDerivative(float r, float h)
+// Viscosity
+float SmoothingKernelPoly6 (float r, float h) // Base on Sebastian Lague
 {
-    if( 0 < r && r <= h )
+    if( 0 <= r && r <= h )
     {
-       float x = h - r;
-       float coeff = -45.0 / ( pi * pow(abs(h), 6));
-       return coeff * x * x;
+       float x = h * h - r * r;
+       float coeff = 315.0 / (64.0 * pi * pow(abs(h), 9.0));
+       return coeff * x * x * x;
     }
-    return 0;
-}
-float WSpikySecondDerivative(float r, float h)
-{
-    if( 0 < r && r <= h )
-    {
-       float x = h - r;
-       float coeff = 9.0 / ( pi * pow(abs(h), 6));
-       return coeff * x;
-    }
-    return 0;
+    return 0.0;
 }
 
-float DerivativeSpikyPow2(float r, float h)
+// Pressure
+float DerivativeSpikyPow2 (float r, float h) // Base on Sebastian Lague
 {
-    if( 0 < r && r <= h )
+    if( 0 <= r && r <= h )
     {
        float x = h - r;
-       float coeff = -15.0 / ( pi * pow(abs(h), 5));
-       return coeff * x;
+       float coeff = 15.0 / (pi * pow(h, 5.0));
+       return -x * coeff;
     }
-    return 0;
+    return 0.0;
+}
+float SpikyKernel (float r, float h) // Base on paper Wspiky, prevents cluster
+{
+    if( 0 <= r && r <= h )
+    {
+       float x = h - r;
+       float coeff = 15.0 / (2.0 * pi * pow(h, 6.0));
+       return coeff * x * x * x;
+    }
+    return 0.0;
 }
 
 void main() 
@@ -118,12 +117,12 @@ void main()
         float neighborDensity = neighborParticle.density;
         float sharedPressure = (pressure + neighborPressure) / 2.0;
         vec3 direction = dist > 0 ? normalize(vec) : vec3(0.0, 1.0, 0.0);
-        float influence = WSpikyFirstDerivative(dist, ubo.radius);
-        //float influence = DerivativeSpikyPow2(dist, radius);
+        //float influence = SpikyKernel(dist, ubo.radius);
+        float influence = DerivativeSpikyPow2(dist, ubo.radius);
         pressureForce += mass * direction * sharedPressure * influence / neighborDensity;
        
         // Viscosity
-        float influence2 = WSpikySecondDerivative(dist, ubo.radius);
+        float influence2 = SmoothingKernelPoly6(dist, ubo.radius);
 	    vec3 neighbourVelocity = neighborParticle.velocity.xyz;
 		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
     }
