@@ -11,12 +11,18 @@ struct FluidParticle
 };
 layout (std140, binding = 0) uniform ParameterUBO
 {
+    vec4 maxBound;
+    vec4 minBound;
+
     float deltaTime; 
     float accumulatedTime;
     uint particleCount;
     float gasConstant; 
+
     float restDensity;
     float viscosity;
+    float radius;
+	float dummy;
 } ubo;
 
 
@@ -38,10 +44,7 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 float fixedDeltaTime = 1.0f / 120.f;
 float pi = 3.1415926;
-float radius = 2; //ubo
 float mass = 1.0; 
-vec3 maxBound = vec3(8.0, 15.0, 8.0);
-vec3 minBound = vec3(-8.0, 0.0, -8.0);
 float boundDamping = -0.95f;
 
 float Wpoly6 (float r, float h)
@@ -87,9 +90,9 @@ void main()
         // but stable for force calculation. Investigate in future.
         //float dist = distance(currentParticlePos, neighborParticle.predictPosition.xyz);
         float dist = distance(currentParticlePos, neighborParticle.position.xyz);
-        if (dist > radius) continue;
+        if (dist > ubo.radius) continue;
         //density += mass * Wpoly6(dist, radius);
-        density += mass * SpikyKernelPow2(dist, radius);
+        density += mass * SpikyKernelPow2(dist, ubo.radius);
     }
     density += 0.000001; // make sure not zero
 

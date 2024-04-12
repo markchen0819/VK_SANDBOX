@@ -12,6 +12,9 @@ namespace IHCEngine::Component
         float gasConstant = 0.0f;
         float restDensity = 0.0f;
         float viscosity = 0.0f;
+        float radius = 0.0f;
+    	glm::vec4 maxBound = glm::vec4(0.0f);
+        glm::vec4 minBound = glm::vec4(0.0f);
     };
 }
 

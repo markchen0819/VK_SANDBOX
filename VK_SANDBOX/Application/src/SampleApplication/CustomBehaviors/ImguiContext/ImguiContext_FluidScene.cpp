@@ -27,22 +27,39 @@ namespace IHCEngine::Component
         gasConstant = computeFluid->GetGasConstant();
         restDensity = computeFluid->GetRestDensity();
         viscosity = computeFluid->GetViscosity();
+        radius = computeFluid->GetRadius();
+        maxBound = computeFluid->GetMaxBound();
+        minBound = computeFluid->GetMinBound();
 
         ImGui::Text("Gas Constant");
         if (ImGui::DragFloat("##GasConstant", &gasConstant, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
         {
             computeFluid->SetGasConstant(gasConstant);
         }
-
         ImGui::Text("Rest Density");
         if (ImGui::DragFloat("##RestDensity", &restDensity, 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
         {
             computeFluid->SetRestDensity(restDensity);
         }
         ImGui::Text("Viscosity");
-        if (ImGui::DragFloat("##Viscosity", &viscosity, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
+        if (ImGui::DragFloat("##Viscosity", &viscosity, 0.001f, -FLT_MAX, FLT_MAX, "%.3f"))
         {
             computeFluid->SetViscosity(viscosity);
+        }
+        ImGui::Text("Density Radius");
+        if (ImGui::DragFloat("##DensityRadius", &radius, 0.01f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetRadius(radius);
+        }
+        ImGui::Text("Max Bound");
+        if (ImGui::DragFloat4("##Max Bound", &maxBound[0], 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetMaxBound(maxBound);
+        }
+        ImGui::Text("Min Bound");
+        if (ImGui::DragFloat4("##Min Bound", &minBound[0], 0.1f, -FLT_MAX, FLT_MAX, "%.3f"))
+        {
+            computeFluid->SetMinBound(minBound);
         }
     }
 

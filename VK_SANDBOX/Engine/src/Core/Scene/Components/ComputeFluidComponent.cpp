@@ -26,6 +26,9 @@ void IHCEngine::Component::ComputeFluidComponent::Compute(Graphics::FrameInfo& f
 	ubo.gasConstant = gasConstant;
 	ubo.restDensity = restDensity;
 	ubo.viscosity = viscosity;
+	ubo.radius = radius;
+	ubo.maxBound = maxBound;
+	ubo.minBound = minBound;
 
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT

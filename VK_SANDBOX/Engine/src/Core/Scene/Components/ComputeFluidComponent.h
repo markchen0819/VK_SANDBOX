@@ -30,6 +30,13 @@ namespace IHCEngine::Component
 		float GetRestDensity() const { return restDensity; }
 		void SetViscosity(const float f) { viscosity = f; }
 		float GetViscosity() const { return viscosity; }
+		void SetRadius(const float f) { radius = f; }
+		float GetRadius() const { return radius; }
+		void SetMaxBound(const glm::vec4& vec) { maxBound = vec; }
+		const glm::vec4& GetMaxBound() const { return maxBound; }
+		void SetMinBound(const glm::vec4& vec) { minBound = vec; }
+		const glm::vec4& GetMinBound() const { return minBound; }
+
 
 		// Vulkan
 		void SetDescriptorSets(std::vector<VkDescriptorSet> set) { computeDescriptorSets = set; }
@@ -52,9 +59,12 @@ namespace IHCEngine::Component
 		int maxParticleCount = 1000;// 256 * 3;
 		int particleCount = 1000;// 256 * 3;
 
-		float gasConstant = 1.2f;// 0.75;//  2.75f;// 5.0;// 
-		float restDensity = 55.0f;// 15.0f; // 40.0f;// 10.0f;
-		float viscosity = 0.05f;
+		float gasConstant = 1.2f;// 0.75;// 
+		float restDensity = 55.0f;// 15.0f;
+		float viscosity = 0.001f;
+		float radius = 2.0f;
+		glm::vec4 maxBound = glm::vec4(8.0f, 15.0f, 8.0f, -1.0f);
+		glm::vec4 minBound = glm::vec4(-8.0f, -0.0f, -8.0f, -1.0f);
 
 		void initParticles();
 

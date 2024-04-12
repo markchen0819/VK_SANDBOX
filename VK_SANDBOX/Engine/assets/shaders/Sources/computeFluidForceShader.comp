@@ -11,13 +11,20 @@ struct FluidParticle
 };
 layout (std140, binding = 0) uniform ParameterUBO
 {
+    vec4 maxBound;
+    vec4 minBound;
+
     float deltaTime; 
     float accumulatedTime;
     uint particleCount;
     float gasConstant; 
+
     float restDensity;
     float viscosity;
+    float radius;
+	float dummy;
 } ubo;
+
 
 // Ping-pong, switch 1&2
 layout(std430, binding = 2) readonly buffer ParticleSSBOIn 
@@ -36,13 +43,9 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
 
-
 float fixedDeltaTime = 1.0f / 120.f;
 float pi = 3.1415926;
-float radius = 2; //ubo
 float mass = 1.0; 
-vec3 maxBound = vec3(8.0, 15.0, 8.0);
-vec3 minBound = vec3(-8.0, 0.0, -8.0);
 float boundDamping = -0.95f;
 
 // WSpiky(r,h) = 15/ pi h^6 (h - r)^3
@@ -108,19 +111,19 @@ void main()
         vec3 neighborPos = neighborParticle.predictPosition.xyz;
         vec3 vec = neighborPos - currentParticlePos;
         float dist = distance(currentParticlePos, neighborPos);
-        if (dist > radius) continue;
+        if (dist > ubo.radius) continue;
 
         // Pressure
         float neighborPressure = neighborParticle.pressure;
         float neighborDensity = neighborParticle.density;
         float sharedPressure = (pressure + neighborPressure) / 2.0;
         vec3 direction = dist > 0 ? normalize(vec) : vec3(0.0, 1.0, 0.0);
-        float influence = WSpikyFirstDerivative(dist, radius);
+        float influence = WSpikyFirstDerivative(dist, ubo.radius);
         //float influence = DerivativeSpikyPow2(dist, radius);
         pressureForce += mass * direction * sharedPressure * influence / neighborDensity;
        
         // Viscosity
-        float influence2 = WSpikySecondDerivative(dist, radius);
+        float influence2 = WSpikySecondDerivative(dist, ubo.radius);
 	    vec3 neighbourVelocity = neighborParticle.velocity.xyz;
 		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
     }
@@ -134,7 +137,7 @@ void main()
     newVelocity += pressureAccel * ubo.deltaTime;
 
     vec3 viscositAccel = viscosityForce * ubo.viscosity;
-    newVelocity += viscositAccel * ubo.deltaTime;
+   // newVelocity += viscositAccel * ubo.deltaTime;
 
     particlesOut[index].position = particleIn.position; 
     particlesOut[index].predictPosition = particleIn.predictPosition;
