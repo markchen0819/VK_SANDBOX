@@ -6,7 +6,6 @@ struct FluidParticle
     vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
-    vec4 force;
     float pressure;
     float density;
 };

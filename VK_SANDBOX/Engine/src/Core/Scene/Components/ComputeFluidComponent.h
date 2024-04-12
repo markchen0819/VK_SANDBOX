@@ -52,9 +52,9 @@ namespace IHCEngine::Component
 		int maxParticleCount = 1000;// 256 * 3;
 		int particleCount = 1000;// 256 * 3;
 
-		float gasConstant = 0.75;//  2.75f;// 5.0;// 
-		float restDensity = 15.0f; // 40.0f;// 10.0f;
-		float viscosity = 0.005f;
+		float gasConstant = 1.2f;// 0.75;//  2.75f;// 5.0;// 
+		float restDensity = 55.0f;// 15.0f; // 40.0f;// 10.0f;
+		float viscosity = 0.0f;
 
 		void initParticles();
 

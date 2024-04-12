@@ -6,7 +6,6 @@ struct FluidParticle
     vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
-    vec4 force;
     float pressure;
     float density;
 };
@@ -37,7 +36,7 @@ layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 // Work Group Count: 65536/256
 // Group1 0~255, Group2 256~511...
 
-float fixedDeltaTime = 1.0f / 120.f;
+float fixedDeltaTime = 1.0f / 120.0f;
 float pi = 3.1415926;
 float radius = 2; //ubo
 float mass = 1.0; 
@@ -124,13 +123,13 @@ void main()
     float val = clamp(length(velocity)/maxVelocity, 0.0, 1.0);
     vec4 color = getColorFromRamp(val);
 
+    // predictPosition
+    vec3 predictPosition = position.xyz + velocity.xyz * fixedDeltaTime;
 
     particlesOut[index].position = position;
     particlesOut[index].velocity = velocity;
-    particlesOut[index].predictPosition = particleIn.predictPosition;
-    //position + velocity * ubo.deltaTime;
-    particlesOut[index].color = color;//particleIn.color + vec4(0,1,0,0);//particleIn.color;
-    particlesOut[index].force = particleIn.force;
+    particlesOut[index].predictPosition = vec4(predictPosition, 0.0);
+    particlesOut[index].color = color;
     particlesOut[index].pressure = particleIn.pressure;
     particlesOut[index].density = particleIn.density;
 }

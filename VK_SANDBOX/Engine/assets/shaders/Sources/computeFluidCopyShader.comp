@@ -6,7 +6,6 @@ struct FluidParticle
     vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
-    vec4 force;
     float pressure;
     float density;
 };
@@ -47,7 +46,6 @@ void main()
     particlesOut[index].position = particleIn.position;
     particlesOut[index].velocity = particleIn.velocity;
     particlesOut[index].color = particleIn.color;
-    particlesOut[index].force = particleIn.force;
     particlesOut[index].pressure = particleIn.pressure;
     particlesOut[index].density = particleIn.density;
 }

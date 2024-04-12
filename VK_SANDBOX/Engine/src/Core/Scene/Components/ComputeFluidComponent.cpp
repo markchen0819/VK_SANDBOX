@@ -20,7 +20,7 @@ IHCEngine::Component::ComputeFluidComponent::ComputeFluidComponent()
 void IHCEngine::Component::ComputeFluidComponent::Compute(Graphics::FrameInfo& frameInfo)
 {
 	float dt = IHCEngine::Core::Time::GetDeltaTime();
-	ubo.deltaTime = dt;
+	ubo.deltaTime = 1.0f / 120.0f;// dt;
 	ubo.accumulatedTime = IHCEngine::Core::Time::GetElapsedDeltaTime();
 	ubo.particleCount = particleCount;
 	ubo.gasConstant = gasConstant;
@@ -78,7 +78,6 @@ void IHCEngine::Component::ComputeFluidComponent::initParticles()
 				particles[index].predictPosition = particles[index].position;
 				particles[index].velocity = glm::vec4(0, 0, 0, 0); // Assuming initial velocity is zero
 				particles[index].color = glm::vec4(colorDistribution(rndEngine), 0, colorDistribution(rndEngine), 0.5f);
-				particles[index].force = glm::vec4(0.0f);
 
 				++index;
 			}

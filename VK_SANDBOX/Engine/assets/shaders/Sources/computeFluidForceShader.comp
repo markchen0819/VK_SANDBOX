@@ -6,7 +6,6 @@ struct FluidParticle
     vec4 predictPosition;
 	vec4 velocity;
     vec4 color;
-    vec4 force;
     float pressure;
     float density;
 };
@@ -127,20 +126,21 @@ void main()
 //		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
     }
 
-    vec3 acceleration = -pressureForce / (density * mass);
-    vec3 newVelocity = velocity + acceleration * ubo.deltaTime;
+     vec3 newVelocity = velocity;
+     
+    vec3 gravity = vec3(0, -9.81, 0);
+	newVelocity += gravity * ubo.deltaTime;
+
+    vec3 pressureAccel = -pressureForce / (density * mass);
+    newVelocity += pressureAccel * ubo.deltaTime;
+
     //newVelocity += viscosityForce / (density * mass) * ubo.viscosity * ubo.deltaTime;
    // newVelocity += viscosityForce * ubo.viscosity * ubo.deltaTime;
-
-//    vec3 gravity = vec3(0, -9.81, 0);
-//	newVelocity +=  gravity * ubo.deltaTime;
-
 
     particlesOut[index].position = particleIn.position; 
     particlesOut[index].predictPosition = particleIn.predictPosition;
     particlesOut[index].velocity =  vec4(newVelocity, 0.0);
     particlesOut[index].color = particleIn.color; 
-    particlesOut[index].force = particleIn.force;
     particlesOut[index].pressure = particleIn.pressure;
     particlesOut[index].density = particleIn.density;
 
