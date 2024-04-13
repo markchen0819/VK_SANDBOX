@@ -59,10 +59,10 @@ void IHCEngine::Component::ComputeFluidComponent::initParticles()
 	//#pragma omp parallel for
 	// break for loop into possible parallel threads, doesn't speed up after testing, recheck in future
 
-	int n = 10;
-	float xMin = -2.5f, xMax = 2.5f;
-	float yMin = 2.0f, yMax = 7.0f;
-	float zMin = -2.5f, zMax = 2.5f;
+	int n = 16;
+	float xMin = -5.0f, xMax = 5.0f;
+	float yMin = 2.0f, yMax = 12.0f;
+	float zMin = -5.0f, zMax = 5.0f;
 	float xSpacing = (xMax - xMin) / (n - 1);
 	float ySpacing = (yMax - yMin) / (n - 1);
 	float zSpacing = (zMax - zMin) / (n - 1);
