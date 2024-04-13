@@ -13,6 +13,7 @@ layout (std140, binding = 0) uniform ParameterUBO
 {
     vec4 maxBound;
     vec4 minBound;
+    vec4 interactionSpherePos;
 
     float deltaTime; 
     float accumulatedTime;
@@ -22,8 +23,9 @@ layout (std140, binding = 0) uniform ParameterUBO
     float restDensity;
     float viscosity;
     float radius;
-	float dummy;
+	float interactionSphereRadius;
 } ubo;
+
 
 layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
 {

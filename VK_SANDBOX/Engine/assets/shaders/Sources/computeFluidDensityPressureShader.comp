@@ -13,6 +13,7 @@ layout (std140, binding = 0) uniform ParameterUBO
 {
     vec4 maxBound;
     vec4 minBound;
+    vec4 interactionSpherePos;
 
     float deltaTime; 
     float accumulatedTime;
@@ -22,8 +23,9 @@ layout (std140, binding = 0) uniform ParameterUBO
     float restDensity;
     float viscosity;
     float radius;
-	float dummy;
+	float interactionSphereRadius;
 } ubo;
+
 
 
 layout(std430, binding = 1) readonly buffer ParticleSSBOIn 
@@ -86,11 +88,7 @@ void main()
     {
         //if (index == i) { continue;}
         FluidParticle neighborParticle = particlesIn[i];
-
-        // Somehow prediction of neighbors is unstable for density,
-        // but stable for force calculation. Investigate in future.
-        //float dist = distance(currentParticlePos, neighborParticle.predictPosition.xyz);
-        float dist = distance(currentParticlePos, neighborParticle.position.xyz);
+        float dist = distance(currentParticlePos, neighborParticle.predictPosition.xyz);
         if (dist > ubo.radius) continue;
         //density += mass * DensityKernel(dist, ubo.radius);
         density += mass * SpikyKernelPow2(dist, ubo.radius);

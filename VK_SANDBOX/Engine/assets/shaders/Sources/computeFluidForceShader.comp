@@ -13,6 +13,7 @@ layout (std140, binding = 0) uniform ParameterUBO
 {
     vec4 maxBound;
     vec4 minBound;
+    vec4 interactionSpherePos;
 
     float deltaTime; 
     float accumulatedTime;
@@ -22,8 +23,9 @@ layout (std140, binding = 0) uniform ParameterUBO
     float restDensity;
     float viscosity;
     float radius;
-	float dummy;
+	float interactionSphereRadius;
 } ubo;
+
 
 
 // Ping-pong, switch 1&2
@@ -127,6 +129,7 @@ void main()
 		viscosityForce += mass * (neighbourVelocity - velocity) * influence2;
     }
 
+    // Forces
     vec3 newVelocity = velocity;
      
     vec3 gravity = vec3(0, -9.81, 0);
@@ -136,9 +139,19 @@ void main()
     newVelocity += pressureAccel * ubo.deltaTime;
 
     vec3 viscositAccel = viscosityForce * ubo.viscosity;
-   // newVelocity += viscositAccel * ubo.deltaTime;
+    newVelocity += viscositAccel * ubo.deltaTime;
 
-    particlesOut[index].position = particleIn.position; 
+    // Collision sphere
+    vec4 position = particleIn.position; 
+    vec3 collisionVector = position.xyz - ubo.interactionSpherePos.xyz;
+    float distToSphere = length(collisionVector);
+    if(distToSphere < ubo.interactionSphereRadius)
+    {  
+       vec3 offset = normalize(collisionVector) * ubo.interactionSphereRadius;
+       position = vec4(ubo.interactionSpherePos.xyz + offset, 1.0f);
+    }
+
+    particlesOut[index].position = position; 
     particlesOut[index].predictPosition = particleIn.predictPosition;
     particlesOut[index].velocity =  vec4(newVelocity, 0.0);
     particlesOut[index].color = particleIn.color; 

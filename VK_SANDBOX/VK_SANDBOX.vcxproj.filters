@@ -309,6 +309,9 @@
     <ClCompile Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\FluidInteractionSphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\src\pch.h">
@@ -696,6 +699,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\src\Core\Scene\Components\ComputeFluidComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\FluidInteractionSphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

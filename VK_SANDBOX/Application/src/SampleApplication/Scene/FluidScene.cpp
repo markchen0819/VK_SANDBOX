@@ -11,6 +11,7 @@
 #include "../../../../Engine/src/Core/Scene/Components/MeshComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/TextureComponent.h"
 #include "../../../../Engine/src/Core/Scene/Components/ComputeFluidComponent.h"
+#include "../CustomBehaviors/FluidInteractionSphere.h"
 
 SampleApplication::FluidScene::FluidScene()
 	: Scene("FluidScene")
@@ -33,6 +34,14 @@ void SampleApplication::FluidScene::Load()
 	// grid
 	createGridMeshAndLoadGridTexture();
 
+	// sphere
+	auto sphereTexture =
+		graphicsAssetCreator.CreateTexture("sphereTexture",
+			"Application/assets/Models/Sphere/sphereTexture.jpg");
+	auto interactionSphereMesh =
+		graphicsAssetCreator.CreateMesh("interactionSphereMesh",
+			"Application/assets/Models/Sphere/sphere.obj");
+
 	graphicsManager->SetClearColor(glm::vec3(0, 0, 0));
 }
 
@@ -42,6 +51,9 @@ void SampleApplication::FluidScene::UnLoad()
 	auto& graphicsAssetCreator = graphicsManager->GetGraphicsAssetCreator();
 
 	graphicsManager->SetClearColor(glm::vec3(0, 0.7, 1.0));
+
+	graphicsAssetCreator.DestroyTexture("sphereTexture");
+	graphicsAssetCreator.DestroyMesh("interactionSphereMesh");
 
 	graphicsAssetCreator.DestroyMesh("sphereMesh");
 
@@ -80,8 +92,19 @@ void SampleApplication::FluidScene::Init()
 	computeFluidComponent = fluidGobj.AddComponent<IHCEngine::Component::ComputeFluidComponent>();
 	meshcomponent = fluidGobj.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("sphereMesh"));
-	// Others
 
+
+	IHCEngine::Core::GameObject& sphereGobj = AddGameObject("sphereGobj");
+	meshcomponent = sphereGobj.AddComponent<IHCEngine::Component::MeshComponent>();
+	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("interactionSphereMesh"));
+	texturecomponent = sphereGobj.AddComponent<IHCEngine::Component::TextureComponent>();
+	texturecomponent->SetTexture(assetManager->GetTextureRepository().GetAsset("sphereTexture"));
+	sphereGobj.transform.SetPosition(glm::vec3(0.0f, 10.0f, -15.0f));
+	sphereGobj.transform.SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+	auto fluidInteractionComponent = sphereGobj.AddComponent<FluidInteractionSphere>();
+	fluidInteractionComponent->SetComputeFluid(computeFluidComponent);
+
+	// Others
 	IHCEngine::Core::GameObject& x_axis = AddGameObject("x_axis");
 	meshcomponent = x_axis.AddComponent<IHCEngine::Component::MeshComponent>();
 	meshcomponent->SetMesh(assetManager->GetMeshRepository().GetAsset("x_axisModel"));

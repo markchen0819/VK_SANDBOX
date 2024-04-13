@@ -221,6 +221,7 @@
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.cpp" />
     <ClCompile Include="Application\src\SampleApplication\Scene\FluidScene.cpp" />
     <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.cpp" />
+    <ClCompile Include="Application\src\SampleApplication\CustomBehaviors\FluidInteractionSphere.cpp" />
     <ClCompile Include="Libraries\imgui\imgui.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\imgui\imgui_draw.cpp" />
@@ -349,6 +350,7 @@
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\GrassInteractionSphere.h" />
     <ClInclude Include="Application\src\SampleApplication\Scene\FluidScene.h" />
     <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\ImguiContext\ImguiContext_FluidScene.h" />
+    <ClInclude Include="Application\src\SampleApplication\CustomBehaviors\FluidInteractionSphere.h" />
     <ClInclude Include="Libraries\assimp\assimp\contrib\utf8cpp\source\utf8.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />

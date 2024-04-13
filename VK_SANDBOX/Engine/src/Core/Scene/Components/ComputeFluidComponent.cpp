@@ -29,6 +29,7 @@ void IHCEngine::Component::ComputeFluidComponent::Compute(Graphics::FrameInfo& f
 	ubo.radius = radius;
 	ubo.maxBound = maxBound;
 	ubo.minBound = minBound;
+	ubo.interactionSpherePos = interactionSpherePos;
 
 	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
 	//computeParticleUniformBuffers[frameInfo.frameIndex]->Flush(); // Manual flush, can comment out if using VK_MEMORY_PROPERTY_HOST_COHERENT_BIT

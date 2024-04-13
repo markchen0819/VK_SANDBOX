@@ -68,11 +68,11 @@ namespace IHCEngine::Graphics
             vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
             InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
-        	// Extra - Copy result to SSBO out if needed
-            //vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeCopyPipeline);
-            //vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-            //vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
-
+        	// Extra - Make sure both SSBO same data for next frame
+            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computeCopyPipeline);
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+            InsertComputeShaderBarrier(frameInfo.commandBuffer);
         	///////////////////////////////////////////
         }
     }
