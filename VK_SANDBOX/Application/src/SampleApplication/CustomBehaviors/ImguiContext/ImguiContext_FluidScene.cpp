@@ -61,6 +61,8 @@ namespace IHCEngine::Component
         {
             computeFluid->SetMinBound(minBound);
         }
+        ImGui::Text("Move Interaction Sphere: ");
+        ImGui::Text(" IKJL/ U/ O");
     }
 
 }
