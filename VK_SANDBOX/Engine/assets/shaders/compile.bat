@@ -37,8 +37,4 @@ REM Compile Fluid Shaders
 "%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidForceShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidforcecomp.spv"
 "%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidIntegrateShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidintegratecomp.spv"
 "%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidCopyShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidcopycomp.spv"
-
-"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidSpacialHashShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidspacialhashcomp.spv"
-"%VULKAN_SDK_PATH%\glslc.exe" "%SHADER_SOURCE_PATH%\computeFluidBitonicMergeSortShader.comp" -o "%SPV_OUTPUT_PATH%\computefluidbitonicmergesortcomp.spv"
-
 pause

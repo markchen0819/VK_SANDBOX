@@ -16,10 +16,5 @@ namespace IHCEngine::Graphics
 		float viscosity = 0.0f;
 		float radius = 2.0f;
 		float interactionSphereRadius = 3.0f;
-
-		int dim = -1; // GPU sort
-		int block = -1; // GPU sort
-		int dummy1 = -1;
-		int dummy2 = -1;
 	};
 }
