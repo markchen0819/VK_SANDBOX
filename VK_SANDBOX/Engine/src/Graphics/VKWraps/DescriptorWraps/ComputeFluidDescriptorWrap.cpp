@@ -26,7 +26,7 @@ namespace IHCEngine::Graphics
 		AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			FLUID_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		AddPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-			2 * FLUID_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+			6 * FLUID_SYSTEM_COUNT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
 		//AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 		//	TEXTURE_COUNT_LIMIT * IHCSwapChain::MAX_FRAMES_IN_FLIGHT); //TO:DO textures
 		InitializePool();
@@ -34,12 +34,16 @@ namespace IHCEngine::Graphics
 		// Accessible by the compute stage
 		// uniform buffer: feed in particle data
 		// storage buffer: read/write for compute shader
+
+
+		// ParameterUBO
 		AddLayoutBinding(
 			0,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			VK_SHADER_STAGE_COMPUTE_BIT,
 			1
 		);
+		// ParticleSSBO In/Out
 		AddLayoutBinding(
 			1,
 			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -50,6 +54,32 @@ namespace IHCEngine::Graphics
 			2,
 			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 			VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT,
+			1
+		);
+		// Spacial Entry In/Out
+		AddLayoutBinding(
+			3,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			VK_SHADER_STAGE_COMPUTE_BIT,
+			1
+		);
+		AddLayoutBinding(
+			4,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			VK_SHADER_STAGE_COMPUTE_BIT,
+			1
+		);
+		// Spacial Lookup In/Out
+		AddLayoutBinding(
+			5,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			VK_SHADER_STAGE_COMPUTE_BIT,
+			1
+		);
+		AddLayoutBinding(
+			6,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			VK_SHADER_STAGE_COMPUTE_BIT,
 			1
 		);
 		CreateLayout();

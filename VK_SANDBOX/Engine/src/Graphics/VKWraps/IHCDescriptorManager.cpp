@@ -461,6 +461,8 @@ namespace IHCEngine::Graphics
 
 		// Get Shader Storage buffers from component itself
 		std::vector<IHCBuffer*> shaderStorageBuffers = computeFluid->GetSSBO();
+		std::vector<IHCBuffer*> spacialEntrySSBOs = computeFluid->GetSpacialEntrySSBOs();
+		std::vector<IHCBuffer*> spacialLookupSSBOs = computeFluid->GetSpacialLookupSSBOs();
 
 		// Get Uniform buffers from DescriptorWrap
 		for (int i = 0; i < IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -507,7 +509,25 @@ namespace IHCEngine::Graphics
 			storageBufferInfoCurrentFrame.offset = 0;
 			storageBufferInfoCurrentFrame.range = sizeof(Graphics::FluidParticle) * maxParticleCount;
 
-			std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+			// Spacial
+			VkDescriptorBufferInfo spacialEntrySSBOInfoLastFrame{};
+			spacialEntrySSBOInfoLastFrame.buffer = spacialEntrySSBOs[(i - 1) % Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT]->GetBuffer();
+			spacialEntrySSBOInfoLastFrame.offset = 0;
+			spacialEntrySSBOInfoLastFrame.range = sizeof(Graphics::SpacialEntry) * maxParticleCount;
+			VkDescriptorBufferInfo spacialEntrySSBOInfoCurrentFrame{};
+			spacialEntrySSBOInfoCurrentFrame.buffer = spacialEntrySSBOs[i]->GetBuffer();
+			spacialEntrySSBOInfoCurrentFrame.offset = 0;
+			spacialEntrySSBOInfoCurrentFrame.range = sizeof(Graphics::SpacialEntry) * maxParticleCount;
+			VkDescriptorBufferInfo spacialLookupSSBOInfoLastFrame{};
+			spacialLookupSSBOInfoLastFrame.buffer = spacialLookupSSBOs[(i - 1) % Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT]->GetBuffer();
+			spacialLookupSSBOInfoLastFrame.offset = 0;
+			spacialLookupSSBOInfoLastFrame.range = sizeof(Graphics::StartIndexForSpacialEntry) * maxParticleCount;
+			VkDescriptorBufferInfo spacialLookupSSBOInfoCurrentFrame{};
+			spacialLookupSSBOInfoCurrentFrame.buffer = spacialLookupSSBOs[i]->GetBuffer();
+			spacialLookupSSBOInfoCurrentFrame.offset = 0;
+			spacialLookupSSBOInfoCurrentFrame.range = sizeof(Graphics::StartIndexForSpacialEntry) * maxParticleCount;
+
+			std::array<VkWriteDescriptorSet, 7> descriptorWrites{};
 			// Configure the write operation for the uniform buffer at binding 0
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet = computeDescriptorSets[i]; // Destination descriptor set
@@ -535,8 +555,38 @@ namespace IHCEngine::Graphics
 			descriptorWrites[2].descriptorCount = 1;
 			descriptorWrites[2].pBufferInfo = &storageBufferInfoCurrentFrame;
 
+			// Spacial
+			descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[3].dstSet = computeDescriptorSets[i];
+			descriptorWrites[3].dstBinding = 3;
+			descriptorWrites[3].dstArrayElement = 0;
+			descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[3].descriptorCount = 1;
+			descriptorWrites[3].pBufferInfo = &spacialEntrySSBOInfoLastFrame;
+			descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[4].dstSet = computeDescriptorSets[i];
+			descriptorWrites[4].dstBinding = 4;
+			descriptorWrites[4].dstArrayElement = 0;
+			descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[4].descriptorCount = 1;
+			descriptorWrites[4].pBufferInfo = &spacialEntrySSBOInfoCurrentFrame;
+			descriptorWrites[5].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[5].dstSet = computeDescriptorSets[i];
+			descriptorWrites[5].dstBinding = 5;
+			descriptorWrites[5].dstArrayElement = 0;
+			descriptorWrites[5].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[5].descriptorCount = 1;
+			descriptorWrites[5].pBufferInfo = &spacialLookupSSBOInfoLastFrame;
+			descriptorWrites[6].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[6].dstSet = computeDescriptorSets[i];
+			descriptorWrites[6].dstBinding = 6;
+			descriptorWrites[6].dstArrayElement = 0;
+			descriptorWrites[6].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[6].descriptorCount = 1;
+			descriptorWrites[6].pBufferInfo = &spacialLookupSSBOInfoCurrentFrame;
+
 			vkUpdateDescriptorSets(ihcDevice.GetDevice(),
-				3, descriptorWrites.data(),
+				7, descriptorWrites.data(),
 				0, nullptr);
 		}
 		computeFluid->SetDescriptorSets(computeDescriptorSets);

@@ -33,15 +33,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject
     vec4 cameraPosition;
 } ubo;
 
-//layout (set = 1, binding = 0) uniform ParameterUBO
-//{
-//    float deltaTime;
-//} ubo;
-//
-//layout(set = 1, binding = 1) readonly buffer ParticleSSBOIn 
-//{
-//   Particle particlesIn[ ];
-//};
+// other bindings not needed so omit
 layout(set = 1, binding = 2) buffer ParticleSSBOOut 
 {
    Particle particles[ ];
