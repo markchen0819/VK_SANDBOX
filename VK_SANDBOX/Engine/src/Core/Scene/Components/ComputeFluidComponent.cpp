@@ -47,6 +47,8 @@ void IHCEngine::Component::ComputeFluidComponent::Draw(Graphics::FrameInfo& fram
 void IHCEngine::Component::ComputeFluidComponent::initParticles()
 {
 	particles.resize(maxParticleCount);
+	spacialEntries.resize(maxParticleCount);
+	spacialLookups.resize(maxParticleCount);
 
 	// Initialize particles
 	std::default_random_engine rndEngine((unsigned)time(nullptr));
@@ -82,7 +84,10 @@ void IHCEngine::Component::ComputeFluidComponent::initParticles()
 				particles[index].predictPosition = particles[index].position;
 				particles[index].velocity = glm::vec4(0, 0, 0, 0); // Assuming initial velocity is zero
 				particles[index].color = glm::vec4(colorDistribution(rndEngine), 0, colorDistribution(rndEngine), 0.5f);
-
+				spacialLookups[index].index = static_cast<glm::uint>(index);
+				//spacialEntries[index].index = index + 1;
+				//spacialEntries[index].hash = index + 2;
+				//spacialEntries[index].key = index + 3;
 				++index;
 			}
 		}
@@ -118,6 +123,7 @@ void IHCEngine::Component::ComputeFluidComponent::createVulkanResources()
 	vkDeviceWaitIdle(graphicsManager->GetIHCDevice()->GetDevice());
 
 	createShaderStorageBuffers();
+	createSpacialSSBOs();
 	graphicsAssetCreator.CreateFluidData(this); // allocateUniformBuffersAndDescriptorSets
 }
 void IHCEngine::Component::ComputeFluidComponent::destroyVulkanResources()
@@ -128,6 +134,8 @@ void IHCEngine::Component::ComputeFluidComponent::destroyVulkanResources()
 	for (size_t i = 0; i < Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		shaderStorageBuffers[i] = nullptr;
+		spacialEntrySSBOs[i] = nullptr;
+		spacialLookupSSBOs[i] = nullptr;
 	}
 }
 void IHCEngine::Component::ComputeFluidComponent::createShaderStorageBuffers()
@@ -164,6 +172,66 @@ void IHCEngine::Component::ComputeFluidComponent::createShaderStorageBuffers()
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 		graphicsManager->GetIHCDevice()->CopyBuffer(stagingBuffer.GetBuffer(), shaderStorageBuffers[i]->GetBuffer(), bufferSize);
+	}
+}
+
+void IHCEngine::Component::ComputeFluidComponent::createSpacialSSBOs()
+{
+	// SpacialEntry
+	spacialEntrySSBOs.resize(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+	VkDeviceSize bufferSize = sizeof(Graphics::SpacialEntry) * maxParticleCount;
+	auto graphicsManager = IHCEngine::Core::GraphicsManagerLocator::GetGraphicsManager();
+	uint32_t instanceSize = sizeof(Graphics::SpacialEntry);
+	uint32_t instanceCount = maxParticleCount;
+	Graphics::IHCBuffer stagingBuffer
+	{
+		*graphicsManager->GetIHCDevice(),
+			instanceSize,
+			instanceCount,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	};
+	stagingBuffer.Map();
+	stagingBuffer.WriteToBuffer((void*)spacialEntries.data());
+	stagingBuffer.Unmap(); 
+	for (size_t i = 0; i < Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		spacialEntrySSBOs[i] = std::make_unique<Graphics::IHCBuffer>(
+			*graphicsManager->GetIHCDevice(),
+			instanceSize,
+			instanceCount,
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		graphicsManager->GetIHCDevice()->CopyBuffer(stagingBuffer.GetBuffer(), spacialEntrySSBOs[i]->GetBuffer(), bufferSize);
+	}
+
+	// SpacialLookup
+	spacialLookupSSBOs.resize(Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT);
+	VkDeviceSize bufferSize2 = sizeof(Graphics::StartIndexForSpacialEntry) * maxParticleCount;
+	uint32_t instanceSize2 = sizeof(Graphics::StartIndexForSpacialEntry);
+	uint32_t instanceCount2 = maxParticleCount;
+	Graphics::IHCBuffer stagingBuffer2
+	{
+		*graphicsManager->GetIHCDevice(),
+			instanceSize2,
+			instanceCount2,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	};
+	stagingBuffer2.Map();
+	stagingBuffer2.WriteToBuffer((void*)spacialLookups.data());
+	stagingBuffer2.Unmap();
+	for (size_t i = 0; i < Graphics::IHCSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		spacialLookupSSBOs[i] = std::make_unique<Graphics::IHCBuffer>(
+			*graphicsManager->GetIHCDevice(),
+			instanceSize2,
+			instanceCount2,
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		graphicsManager->GetIHCDevice()->CopyBuffer(stagingBuffer2.GetBuffer(), spacialLookupSSBOs[i]->GetBuffer(), bufferSize2);
 	}
 }
 
