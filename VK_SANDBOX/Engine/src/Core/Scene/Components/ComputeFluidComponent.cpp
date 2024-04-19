@@ -51,22 +51,18 @@ void IHCEngine::Component::ComputeFluidComponent::initParticles()
 	// Initialize particles
 	std::default_random_engine rndEngine((unsigned)time(nullptr));
 	std::uniform_real_distribution<float> colorDistribution(0.0f, 1.0f);
-	std::uniform_real_distribution<float> xzDistribution(-5.0f, 5.0f);
-	std::uniform_real_distribution<float> yDistribution(10.0f, 15.0f);
-	std::uniform_real_distribution<float> velocityDistribution(-1.0f, 1.0f);
 	std::uniform_real_distribution<float> posDistribution(-1.0f, 1.0f);
 	// auto start = std::chrono::high_resolution_clock::now();
 	//#pragma omp parallel for
 	// break for loop into possible parallel threads, doesn't speed up after testing, recheck in future
-
-	int n = 16;
-	float xMin = -5.0f, xMax = 5.0f;
-	float yMin = 2.0f, yMax = 12.0f;
-	float zMin = -5.0f, zMax = 5.0f;
-	float xSpacing = (xMax - xMin) / (n - 1);
-	float ySpacing = (yMax - yMin) / (n - 1);
-	float zSpacing = (zMax - zMin) / (n - 1);
-	int index = 0; // Index to keep track of the particle number
+	int n = 20;
+	const float xMin = -10.0f, xMax = 10.0f;
+	const float yMin = 1.0f, yMax = 15.0f;
+	const float zMin = -4.0f, zMax = 4.0f;
+	const float xSpacing = (xMax - xMin) / static_cast<float>((n - 1));
+	const float ySpacing = (yMax - yMin) / static_cast<float>((n - 1));
+	const float zSpacing = (zMax - zMin) / static_cast<float>((n - 1));
+	int index = 0;
 	for (int i = 0; i < n; ++i) 
 	{
 		for (int j = 0; j < n; ++j) 
@@ -80,32 +76,13 @@ void IHCEngine::Component::ComputeFluidComponent::initParticles()
 				z+= posDistribution(rndEngine);
 				particles[index].position = glm::vec4(x, y, z, 1.0f);
 				particles[index].predictPosition = particles[index].position;
-				particles[index].velocity = glm::vec4(0, 0, 0, 0); // Assuming initial velocity is zero
+				particles[index].velocity = glm::vec4(0, -0.981, 0, 0); // Assuming initial velocity is zero
 				particles[index].color = glm::vec4(colorDistribution(rndEngine), 0, colorDistribution(rndEngine), 0.5f);
 
 				++index;
 			}
 		}
 	}
-
-	//for (int i = 0; i < particles.size(); ++i)
-	//{
-	//	auto& particle = particles[i];
-
-	//	float x = xzDistribution(rndEngine);
-	//	float y = yDistribution(rndEngine);
-	//	float z = xzDistribution(rndEngine);
-	//	particle.position = glm::vec4(x, y, z, 0);
-	//	particle.predictPosition = particle.position;
-	//	//float v1 = 0.1f * velocityDistribution(rndEngine);
-	//	//float v2 = 0.1f * velocityDistribution(rndEngine);
-	//	//float v3 = 0.1f * velocityDistribution(rndEngine);
-	//	//particle.velocity = glm::vec4(v1, v2, v3, 0);
-	//	particle.velocity = glm::vec4(0, 0, 0, 0);
-	//	particle.color = glm::vec4(colorDistribution(rndEngine), 0 , colorDistribution(rndEngine), 0.5f);
-	//	particle.force = glm::vec4(0.0f);
-	//}
-
 	//auto end = std::chrono::high_resolution_clock::now();
 	//std::chrono::duration<double, std::milli> duration = end - start;
 	//std::cout << "Execution time without parallelization: " << duration.count() << " ms\n";
