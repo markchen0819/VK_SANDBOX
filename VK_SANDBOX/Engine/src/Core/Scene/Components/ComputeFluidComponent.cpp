@@ -44,6 +44,14 @@ void IHCEngine::Component::ComputeFluidComponent::Draw(Graphics::FrameInfo& fram
 	//vkCmdDraw(frameInfo.commandBuffer, 1, particleCount, 0, 0);
 }
 
+void IHCEngine::Component::ComputeFluidComponent::UpdateUBOForGPUSort(int dim, int block, Graphics::FrameInfo& frameInfo)
+{
+	ubo.dim = dim;
+	ubo.block = block;
+	computeParticleUniformBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
+	computeParticleUniformBuffers[frameInfo.frameIndex]->Flush();
+}
+
 void IHCEngine::Component::ComputeFluidComponent::initParticles()
 {
 	particles.resize(maxParticleCount);

@@ -35,6 +35,11 @@ layout (std140, binding = 0) uniform ParameterUBO
     float viscosity;
     float radius;
 	float interactionSphereRadius;
+
+    int dim;
+	int block;
+	int dummy1;
+	int dummy2;
 } ubo;
 // Ping-pong, switch 12, 34, 56
 layout(std430, binding = 2) readonly buffer ParticleSSBOIn 
