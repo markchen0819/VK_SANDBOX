@@ -9,17 +9,6 @@ struct FluidParticle
     float pressure;
     float density;
 };
-struct SpacialEntry
-{
-	 uint index;
-	 uint hash; 
-	 uint key;   
-     uint dummy;
-};
-struct StartIndexForSpacialEntry
-{
-     uint index; 
-};
 layout (std140, binding = 0) uniform ParameterUBO
 {
     vec4 maxBound;
@@ -36,30 +25,18 @@ layout (std140, binding = 0) uniform ParameterUBO
     float radius;
 	float interactionSphereRadius;
 } ubo;
-// Ping-pong, switch 12, 34, 56
+
+
+
+// Ping-pong, switch 1&2
 layout(std430, binding = 2) readonly buffer ParticleSSBOIn 
 {
    FluidParticle particlesIn[ ];
 };
+
 layout(std430, binding = 1) buffer ParticleSSBOOut 
 {
    FluidParticle particlesOut[ ];
-};
-layout(std430, binding = 4) readonly buffer SpacialEntryIn 
-{
-   SpacialEntry spacialEntryIn[ ];
-};
-layout(std430, binding = 3) buffer SpacialEntryOut 
-{
-   SpacialEntry spacialEntryOut[ ];
-};
-layout(std430, binding = 6) readonly buffer StartIndexForSpacialEntryIn 
-{
-   StartIndexForSpacialEntry startIndexIn[ ];
-};
-layout(std430, binding = 5) buffer StartIndexForSpacialEntryOut 
-{
-   StartIndexForSpacialEntry startIndexOut[ ];
 };
 
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;

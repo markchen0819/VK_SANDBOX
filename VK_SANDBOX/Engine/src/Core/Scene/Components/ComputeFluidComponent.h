@@ -54,33 +54,9 @@ namespace IHCEngine::Component
 			}
 			return rawPointerVector;
 		}
-		std::vector<Graphics::IHCBuffer*> GetSpacialEntrySSBOs()
-		{
-			std::vector<Graphics::IHCBuffer*> rawPointerVector;
-			rawPointerVector.reserve(spacialEntrySSBOs.size());
-			for (const auto& uniquePtr : spacialEntrySSBOs)
-			{
-				rawPointerVector.push_back(uniquePtr.get());
-			}
-			return rawPointerVector;
-		}
-		std::vector<Graphics::IHCBuffer*> GetSpacialLookupSSBOs()
-		{
-			std::vector<Graphics::IHCBuffer*> rawPointerVector;
-			rawPointerVector.reserve(spacialLookupSSBOs.size());
-			for (const auto& uniquePtr : spacialLookupSSBOs)
-			{
-				rawPointerVector.push_back(uniquePtr.get());
-			}
-			return rawPointerVector;
-		}
-
 
 	private:
 		std::vector<Graphics::FluidParticle> particles;
-		std::vector<Graphics::SpacialEntry> spacialEntries;
-		std::vector<Graphics::StartIndexForSpacialEntry> spacialLookups;
-
 		int maxParticleCount = 4096;// 256 * 3;
 		int particleCount = 4096;// 256 * 3;
 
@@ -100,13 +76,8 @@ namespace IHCEngine::Component
 		std::vector<Graphics::IHCBuffer*> computeParticleUniformBuffers; // retrieved from descriptor wrap
 		std::vector<VkDescriptorSet> computeDescriptorSets; // retrieved from descriptor wrap
 
-		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> spacialEntrySSBOs;
-		std::vector<std::unique_ptr<IHCEngine::Graphics::IHCBuffer>> spacialLookupSSBOs;
-
-
 		void createVulkanResources();
 		void createShaderStorageBuffers();
-		void createSpacialSSBOs();
 		void destroyVulkanResources();
 
 		void Attach() override;
