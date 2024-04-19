@@ -19,6 +19,7 @@ A Vulkan graphics framework create by I Hsuan "Mark" Chen
         - Animation (Model loading/ Animator/ Animation/ Inverse Kinematics)
         - Particle 
         - Grass
+        - Fluid
         - Vulkan (VKWraps/ RenderSystems/ different pipelines & shaders/ compute shaders)
         - Camera
         - Renderer (Swapchain)
@@ -62,6 +63,10 @@ F6: Grass Simulation  <br>
 Breakdown: https://youtu.be/SMVMA5gTPYA <br> 
 <img src="https://drive.google.com/uc?export=view&id=1Xg_k1JH7E7eNLqJ4mBmTS_PaTR3LBGQV" alt="Description of the Image" width="500">
 
+F7: Fluid Simulation  <br>
+Breakdown: TO:DO <br> 
+<img src="https://drive.google.com/uc?export=view&id=1Vh9W1kNxDH0Iy_IGum9rxzzpx3hi-rfL" alt="Description of the Image" width="500">
+
 ## References
 - Vulkan <br> 
 Vulkan Tutorial - https://vulkan-tutorial.com/ <br> 
@@ -78,4 +83,8 @@ How do Major Video Games Render Grass? - https://youtu.be/bp7REZBV4P4?feature=sh
 Between Tech and Art: The Vegetation of Horizon Zero Dawn - https://youtu.be/wavnKZNSYqU?si=KXW5g2xCANX0SBuH <br>
 Chapter 7. Rendering Countless Blades of Waving Grass - https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass <br>
 Frustum Culling - https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
-## Last Update -  (2024/04/01)
+- Fluid <br>
+Particle-Based Fluid Simulation for Interactive Applications - https://matthias-research.github.io/pages/publications/sca03.pdf <br>
+Coding Adventure: Simulating Fluids - https://youtu.be/rSKMYc1CQHE?si=OsuSGhJP9wxaHWtV <br>
+Optimizing our Realtime Fluid Simulation in Unity - https://youtu.be/9M72KrGhYuE?si=2U6MzH_OsqHPKild <br>
+## Last Update -  (2024/04/19)
