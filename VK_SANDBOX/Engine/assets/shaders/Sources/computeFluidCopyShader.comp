@@ -35,6 +35,11 @@ layout (std140, binding = 0) uniform ParameterUBO
     float viscosity;
     float radius;
 	float interactionSphereRadius;
+
+    int dim;
+	int block;
+	int dummy1;
+	int dummy2;
 } ubo;
 // Ping-pong, switch 12, 34, 56
 layout(std430, binding = 2) readonly buffer ParticleSSBOIn 
@@ -76,8 +81,8 @@ void main()
     // (binding = 2  buffer ParticleSSBOOut) 
 
     uint index = gl_GlobalInvocationID.x;  // 0 ~ 65536
-    FluidParticle particleIn = particlesIn[index];
 
+    FluidParticle particleIn = particlesIn[index];
     particlesOut[index].position = particleIn.position;
     particlesOut[index].predictPosition = particleIn.predictPosition;
     particlesOut[index].velocity = particleIn.velocity;
@@ -85,4 +90,10 @@ void main()
     particlesOut[index].pressure = particleIn.pressure;
     particlesOut[index].density = particleIn.density;
 
+    SpacialEntry spacialEntryIn = spacialEntryIn[index];
+    spacialEntryOut[index].index = spacialEntryIn.index;
+    spacialEntryOut[index].hash = spacialEntryIn.hash;
+    spacialEntryOut[index].key = spacialEntryIn.key;
+
+    startIndexOut[index].index = startIndexIn[index].index;
 }

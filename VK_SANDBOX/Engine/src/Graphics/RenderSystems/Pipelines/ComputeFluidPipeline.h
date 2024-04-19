@@ -1,6 +1,11 @@
 #pragma once
 #include "Base/CustomPipelineBase.h"
 
+namespace IHCEngine::Component
+{
+	class ComputeFluidComponent;
+}
+
 namespace IHCEngine::Graphics
 {
 	class ComputeFluidPipeline : public CustomPipelineBase
@@ -25,6 +30,8 @@ namespace IHCEngine::Graphics
 		void createComputeForcePipeline();
 		void createComputeIntegratePipeline();
 		void createComputeCopyPipeline();
+		void createComputeSpacialHashPipeline();
+		void createComputeBitonicMergeSortPipeline();
 
 		VkPipelineLayout graphicsPipelineLayout;
 		VkPipeline graphicsPipeline;
@@ -34,10 +41,16 @@ namespace IHCEngine::Graphics
 		VkPipeline computeForcePipeline;
 		VkPipeline computeIntegratePipeline;
 		VkPipeline computeCopyPipeline; // In case double buffering needed to write back to SSBO out
+		VkPipeline computeSpacialHashPipeline;
+		VkPipeline computeBitonicMergeSortPipeline;
+
 
 		// Helpers
 		void InsertComputeShaderBarrier(VkCommandBuffer commandBuffer);
 		static std::vector<char> readFile(const std::string& filename);
 		VkShaderModule createShaderModule(const std::vector<char>& code);
+
+		void GPUSort(int particleCount, FrameInfo& frameInfo, Component::ComputeFluidComponent* fluid);
+		void InsertBarrierToUpdateUBO(FrameInfo& frameInfo, Component::ComputeFluidComponent* fluid);
 	};
 }

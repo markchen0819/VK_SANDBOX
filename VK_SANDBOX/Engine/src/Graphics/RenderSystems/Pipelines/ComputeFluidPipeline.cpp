@@ -4,6 +4,7 @@
 #include "../../VKWraps/VKHelpers.h"
 #include "../../VKWraps/IHCDevice.h"
 #include "../../VKWraps/IHCDescriptorManager.h"
+#include "../../VKWraps/IHCBuffer.h"
 
 #include "../../../Core/Scene/Components/ComputeFluidComponent.h"
 #include "../../../Core/Scene/Components/MeshComponent.h"
@@ -47,21 +48,35 @@ namespace IHCEngine::Graphics
 
             uint32_t groupCountX = (particleCount + 255) / 256; // Ensure at least one workgroup is dispatched
 
-            // 1. Density Pressure
+
+            // 1. Update spacial hash
+            vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                computeSpacialHashPipeline);
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+            vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+            InsertComputeShaderBarrier(frameInfo.commandBuffer);
+
+            // 2. GPUSort & Calculate starting Entry
+            GPUSort(particleCount, frameInfo, component);
+            // TO:DO
+            // parameter not updating correctly, possible due to vulkan sync problem, skip
+            // Calculate start entry
+
+            // 3. Density Pressure
             vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                 computeDensityPressurePipeline);
             vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
             vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
             InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
-        	// 2. Calculate Force
+        	// 4. Calculate Force
             vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, 
                 computeForcePipeline);
             vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
             vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
             InsertComputeShaderBarrier(frameInfo.commandBuffer);
 
-        	// 3. Integrate
+        	// 5. Integrate
             vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, 
                 computeIntegratePipeline);
             vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
@@ -148,6 +163,8 @@ namespace IHCEngine::Graphics
         createComputeForcePipeline();
         createComputeIntegratePipeline();
         createComputeCopyPipeline();
+        createComputeSpacialHashPipeline();
+        createComputeBitonicMergeSortPipeline();
     }
     void ComputeFluidPipeline::destroyPipeline()
     {
@@ -158,6 +175,10 @@ namespace IHCEngine::Graphics
         vkDestroyPipeline(ihcDevice.GetDevice(), computeForcePipeline, nullptr);
         vkDestroyPipeline(ihcDevice.GetDevice(), computeIntegratePipeline, nullptr);
         vkDestroyPipeline(ihcDevice.GetDevice(), computeCopyPipeline, nullptr);
+
+        vkDestroyPipeline(ihcDevice.GetDevice(), computeSpacialHashPipeline, nullptr);
+        vkDestroyPipeline(ihcDevice.GetDevice(), computeBitonicMergeSortPipeline, nullptr);
+
         vkDestroyPipelineLayout(ihcDevice.GetDevice(), computePipelineLayout, nullptr);
     }
 
@@ -389,6 +410,59 @@ namespace IHCEngine::Graphics
 
         vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
     }
+    void ComputeFluidPipeline::createComputeSpacialHashPipeline()
+    {
+        auto computeShaderCode = readFile("Engine/assets/shaders/computefluidspacialhashcomp.spv");
+
+        VkShaderModule computeShaderModule = createShaderModule(computeShaderCode);
+
+        VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        computeShaderStageInfo.module = computeShaderModule;
+        computeShaderStageInfo.pName = "main";
+
+        VkComputePipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineInfo.layout = computePipelineLayout;
+        pipelineInfo.stage = computeShaderStageInfo;
+
+        if (vkCreateComputePipelines(ihcDevice.GetDevice(),
+            VK_NULL_HANDLE, 1, &pipelineInfo,
+            nullptr, &computeSpacialHashPipeline) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create compute pipeline!");
+        }
+
+        vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
+    }
+
+    void ComputeFluidPipeline::createComputeBitonicMergeSortPipeline()
+    {
+        auto computeShaderCode = readFile("Engine/assets/shaders/computefluidbitonicmergesortcomp.spv");
+
+        VkShaderModule computeShaderModule = createShaderModule(computeShaderCode);
+
+        VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+        computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        computeShaderStageInfo.module = computeShaderModule;
+        computeShaderStageInfo.pName = "main";
+
+        VkComputePipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineInfo.layout = computePipelineLayout;
+        pipelineInfo.stage = computeShaderStageInfo;
+
+        if (vkCreateComputePipelines(ihcDevice.GetDevice(),
+            VK_NULL_HANDLE, 1, &pipelineInfo,
+            nullptr, &computeBitonicMergeSortPipeline) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create compute pipeline!");
+        }
+
+        vkDestroyShaderModule(ihcDevice.GetDevice(), computeShaderModule, nullptr);
+    }
 
     void ComputeFluidPipeline::InsertComputeShaderBarrier(VkCommandBuffer commandBuffer)
     {
@@ -445,5 +519,55 @@ namespace IHCEngine::Graphics
         }
 
         return shaderModule;
+    }
+
+    void ComputeFluidPipeline::GPUSort(int particleCount, FrameInfo& frameInfo, Component::ComputeFluidComponent* fluid)
+    {
+    	assert((particleCount > 0) && 
+            ((particleCount & (particleCount - 1)) == 0) // ex: 7 and 8, 0111 & 1000 = 0000
+            && "particleCount must be a power of two.");
+
+        auto descriptorSet = fluid->GetDescriptorSets()[frameInfo.frameIndex];
+
+        // each stage doubles the size of the sequences (multiply by 2 (left shift))
+    	for (int dim = 2; dim <= particleCount; dim <<= 1) // size of sequence, 
+        {
+            /// each pass halves the distance between compared elements (divide by 2 (right shift))
+            for (int block = dim >> 1; block > 0; block >>= 1) 
+            {
+                fluid->UpdateUBOForGPUSort(dim, block, frameInfo);
+                InsertBarrierToUpdateUBO(frameInfo, fluid);  // Ensure UBO update is visible
+
+                // Dispatch bitonic merge sort on the GPU
+                uint32_t groupCountX = (particleCount + 255) / 256; 
+                vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                    computeBitonicMergeSortPipeline);
+                vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+                vkCmdDispatch(frameInfo.commandBuffer, groupCountX, 1, 1);
+                InsertComputeShaderBarrier(frameInfo.commandBuffer);
+            }
+        }
+    }
+
+    void ComputeFluidPipeline::InsertBarrierToUpdateUBO(FrameInfo& frameInfo, Component::ComputeFluidComponent* fluid)
+    {
+        VkBufferMemoryBarrier bufferBarrier = {};
+        bufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+        bufferBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+        bufferBarrier.dstAccessMask = VK_ACCESS_UNIFORM_READ_BIT;
+        bufferBarrier.buffer = fluid->GetUnformBuffers()[frameInfo.frameIndex]->GetBuffer();
+;
+        bufferBarrier.size = VK_WHOLE_SIZE;
+        bufferBarrier.offset = 0;
+
+        vkCmdPipelineBarrier(
+            frameInfo.commandBuffer,
+            VK_PIPELINE_STAGE_HOST_BIT, // From host write
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // To compute shader read
+            0, // No dependency flags
+            0, nullptr, // No memory barriers
+            1, &bufferBarrier, // Buffer barriers
+            0, nullptr // No image barriers
+        );
     }
 }

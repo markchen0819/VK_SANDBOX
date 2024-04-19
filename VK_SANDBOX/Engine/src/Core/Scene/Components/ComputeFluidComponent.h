@@ -22,6 +22,7 @@ namespace IHCEngine::Component
 
 		void Compute(Graphics::FrameInfo& frameInfo);
 		void Draw(Graphics::FrameInfo& frameInfo);
+		void UpdateUBOForGPUSort(int dim, int block, Graphics::FrameInfo& frameInfo);
 
 		// Parameters
 		void SetGasConstant(const float f) { gasConstant = f; }
