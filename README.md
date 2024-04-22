@@ -64,9 +64,10 @@ Breakdown: https://youtu.be/SMVMA5gTPYA <br>
 <img src="https://drive.google.com/uc?export=view&id=1Xg_k1JH7E7eNLqJ4mBmTS_PaTR3LBGQV" alt="Description of the Image" width="500">
 
 F7: Fluid Simulation  <br>
-Breakdown: TO:DO <br> 
+Breakdown: https://youtu.be/Yuo_39or1Vw <br> 
 <img src="https://drive.google.com/uc?export=view&id=1Vh9W1kNxDH0Iy_IGum9rxzzpx3hi-rfL" alt="Description of the Image" width="500">
 
+Organized Breakdown: https://youtu.be/fvPsugjBFNg <br> 
 ## References
 - Vulkan <br> 
 Vulkan Tutorial - https://vulkan-tutorial.com/ <br> 
